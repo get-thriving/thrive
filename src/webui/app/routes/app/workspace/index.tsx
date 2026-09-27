@@ -1,11 +1,11 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "react-router";
 import {
   Link,
   useFetcher,
   useNavigation,
   useSearchParams,
   type ShouldRevalidateFunction,
-} from "@remix-run/react";
+} from "react-router";
 import {
   BigScreenHomeTabWidgetPlacement,
   ChapterSummary,
@@ -102,11 +102,10 @@ import {
   PERSON_OCCASION,
   TODO_TASK,
 } from "@jupiter/core/common/sub/inbox_tasks/parent-link-namespace";
-
-import { newURLParams } from "~/logic/navigation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { newURLParams } from "@jupiter/core/infra/navigation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -302,7 +301,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { summaryResponse, keyHabitResults, keyBigPlansResults } =
     summariesAndKeys;
 
-  return json({
+  return {
     homeConfig: {
       config: homeConfigResponse.home_config,
       tabs: homeConfigResponse.tabs,
@@ -372,7 +371,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       collaborationsResponse?.incoming_requests ?? [],
     collaborationOutgoingRequests:
       collaborationsResponse?.outgoing_requests ?? [],
-  });
+  };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({

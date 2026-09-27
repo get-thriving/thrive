@@ -1,5 +1,4 @@
-import { redirect } from "@remix-run/node";
-import { ShouldRevalidateFunction } from "@remix-run/react";
+import { redirect, ShouldRevalidateFunction } from "react-router";
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => false;
 

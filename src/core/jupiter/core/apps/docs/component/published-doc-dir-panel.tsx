@@ -48,7 +48,8 @@ interface PublishedDocDirPanelProps {
   publishedRootDirRefId: string;
   dirLoad: DirLoadResult;
   allTags: Tag[];
-  returnLocation: string;
+  /** Left out at the published root, which has no parent to go back to. */
+  returnLocation?: string;
 }
 
 export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
@@ -59,7 +60,9 @@ export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
 
   const { dirLoad, externalId, publishedRootDirRefId } = props;
   const dirId = dirLoad.dir.ref_id;
-  const basePath = `/publish/doc/dirtree/${externalId}`;
+  // No `/publish` prefix: these paths go to `EntityLink`, and the published
+  // service carries that prefix as its router basename.
+  const basePath = `/doc/dirtree/${externalId}`;
 
   const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<DocsSortOrder>(

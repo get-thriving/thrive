@@ -1,7 +1,7 @@
 import { PassThrough, Readable } from "stream";
 
-import type { EntryContext } from "@remix-run/node";
-import { RemixServer } from "@remix-run/react";
+import type { EntryContext } from "react-router";
+import { ServerRouter } from "react-router";
 import { renderToPipeableStream } from "react-dom/server";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import {
@@ -12,26 +12,45 @@ import {
   VERSION_HEADER,
 } from "@jupiter/core/infra/names";
 import { getHosting } from "#/core/universe";
+import { registerApiClients } from "@jupiter/core/infra/api-clients.server";
 
-const ABORT_DELAY = 5000;
+import { SERVICE_PROPERTIES } from "~/logic/config.server";
+
+// Single fetch aborts a data stream after this long (it defaults to 4950ms).
+// The document render gets a little longer, so React's own abort doesn't fire
+// first and cut a stream that is still within its budget.
+
+// Tell core how this service builds an API client: every visitor is a guest,
+// and the frontdoor cookie is never set on this domain.
+registerApiClients({
+  webApiServerUrl: SERVICE_PROPERTIES.webApiServerUrl,
+  readsFrontDoorCookie: false,
+});
+
+export const streamTimeout = 5000;
+
+const ABORT_DELAY = streamTimeout + 1000;
 
 export default function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  remixContext: EntryContext,
+  routerContext: EntryContext,
 ) {
   return new Promise((resolve, reject) => {
     let didError = false;
     let done = false;
 
     const { pipe, abort } = renderToPipeableStream(
-      <RemixServer context={remixContext} url={request.url} />,
+      <ServerRouter context={routerContext} url={request.url} />,
       {
         onShellReady() {
           const body = new PassThrough();
 
-          responseHeaders.set("Content-Type", "text/html");
+          // Say the encoding outright. Left to guess, the browser can read the
+          // UTF-8 bytes as Latin-1 - "·" arrives as "Â·" - and every page with
+          // a character outside ASCII then fails to hydrate.
+          responseHeaders.set("Content-Type", "text/html; charset=utf-8");
           responseHeaders.set(UNIVERSE_HEADER, GLOBAL_PROPERTIES.universe);
           responseHeaders.set(ENV_HEADER, GLOBAL_PROPERTIES.env);
           responseHeaders.set(INSTANCE_HEADER, GLOBAL_PROPERTIES.instance);

@@ -1,5 +1,5 @@
 import { Box, Button, Stack, Typography } from "@mui/material";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 import { WidgetProps } from "#/core/home/component/common";
 import { VisionSnippet } from "#/core/apps/life_plan/sub/visions/components/snippet";

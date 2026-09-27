@@ -2,6 +2,7 @@
 
 import re
 from collections.abc import Iterator
+from urllib.parse import parse_qs
 
 import pytest
 from jupiter_webapi_client.api.application.invite_users_to_entity import (
@@ -484,10 +485,25 @@ def test_webui_vacations_vacation_link_multiple_locations(
     page.get_by_label("Locations").click()
     page.keyboard.type("Paris")
     page.get_by_role("option").filter(has_text="Paris").first.click()
+    # Replace a leftover query. Backspace is not used: on an empty
+    # multi-select it removes the last chosen city.
+    page.keyboard.press("ControlOrMeta+A")
     page.keyboard.type("Rome")
-    page.get_by_role("option").filter(has_text="Rome").first.click()
+    rome_option = page.get_by_role("option").filter(has_text="Rome").first
+    expect(rome_option).to_be_visible(timeout=30000)
+
+    def _posts_both_locations(response) -> bool:
+        if response.request.method != "POST":
+            return False
+        if "upsert-locations" not in response.url:
+            return False
+        body = response.request.post_data or ""
+        chosen = parse_qs(body).get("locations", [""])[0].split(",")
+        return paris.ref_id in chosen and rome.ref_id in chosen
+
+    with page.expect_response(_posts_both_locations):
+        rome_option.click()
     page.keyboard.press("Escape")
-    expect(page.get_by_text("Saved!")).to_be_visible()
 
     page.reload()
     page.wait_for_selector("#leaf-panel")

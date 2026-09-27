@@ -1,6 +1,6 @@
 import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
 import { Box, Collapse, IconButton, Stack, Typography } from "@mui/material";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { DateTime } from "luxon";
 import { useState } from "react";
 

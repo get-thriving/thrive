@@ -1,6 +1,6 @@
 import { Handshake as HandshakeIcon } from "@mui/icons-material";
 import { Badge, IconButton } from "@mui/material";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 interface CollaborationLinkProps {
   count: number;

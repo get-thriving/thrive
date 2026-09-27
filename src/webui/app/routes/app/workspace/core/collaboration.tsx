@@ -7,10 +7,12 @@ import type {
 } from "@jupiter/webapi-client";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import { Tab, Tabs } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useFetcher } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { useFetcher } from "react-router";
 import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -52,10 +54,9 @@ import {
   UserLightChip,
 } from "@jupiter/core/users/components/user-light-chip";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
@@ -87,14 +88,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
   });
 
-  return json({
+  return {
     invites: result.invites,
     sharedWithMe: result.shared_with_me,
     sharedByMe: result.shared_by_me,
     incomingRequests: result.incoming_requests,
     outgoingRequests: result.outgoing_requests,
     users: result.users,
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -107,28 +108,28 @@ export async function action({ request }: ActionFunctionArgs) {
         await apiClient.application.acknowledgeAccessInvite({
           access_invite_ref_id: form.accessInviteRefId,
         });
-        return json({ ok: true });
+        return { ok: true };
       }
 
       case "cancel-invite": {
         await apiClient.application.cancelAccessInvite({
           access_invite_ref_id: form.accessInviteRefId,
         });
-        return json({ ok: true });
+        return { ok: true };
       }
 
       case "accept": {
         await apiClient.application.acceptAccessToEntity({
           access_request_ref_id: form.accessRequestRefId,
         });
-        return json({ ok: true });
+        return { ok: true };
       }
 
       case "reject": {
         await apiClient.application.rejectAccessToEntity({
           access_request_ref_id: form.accessRequestRefId,
         });
-        return json({ ok: true });
+        return { ok: true };
       }
 
       default:

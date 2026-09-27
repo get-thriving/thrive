@@ -1,4 +1,3 @@
-import { json } from "@remix-run/node";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { isDevelopment } from "#/core/env";
 
@@ -9,7 +8,7 @@ export async function loader() {
     throw new Response(null, { status: 404 });
   }
 
-  return json({
+  return Response.json({
     webApiUrl: SERVICE_PROPERTIES.webApiUrl,
     apiUrl: SERVICE_PROPERTIES.apiUrl,
     mcpUrl: SERVICE_PROPERTIES.mcpUrl,

@@ -10,6 +10,13 @@
   "documentation": "https://docs.get-thriving.com",
   "license": "MIT",
   "readme": "README.md",
+  "exports": {
+    "./*": [
+      "./jupiter/core/*.ts",
+      "./jupiter/core/*.tsx",
+      "./jupiter/core/*"
+    ]
+  },
   "type": "module",
   "dependencies": {
     "@googlemaps/js-api-loader": "^2.1.1",
@@ -40,16 +47,16 @@
     "@nivo/calendar": "=0.80.0",
     "@nivo/core": "=0.80.0",
     "@nivo/line": "=0.80.0",
-    "@remix-run/node": "^2.16.3",
-    "@remix-run/react": "^2.16.3",
     "editorjs-drag-drop": "^1.1.16",
     "emoji-picker-react": "^4.12.2",
     "framer-motion": "^12.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router": "^7.18.4",
     "react-use-websocket": "^4.13.0"
   },
   "devDependencies": {
+    "@react-router/dev": "^7.18.4",
     "@types/js-cookie": "^3.0.6",
     "@types/luxon": "^3.4.2",
     "@types/react": "^18.0.25",

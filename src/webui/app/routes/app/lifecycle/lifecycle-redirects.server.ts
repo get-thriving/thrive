@@ -1,5 +1,5 @@
 import type { LoadTopLevelInfoResult } from "@jupiter/webapi-client";
-import { redirect, redirectDocument } from "@remix-run/node";
+import { redirect, redirectDocument } from "react-router";
 
 export function emailVerificationVerifyUrl(userId: string): string {
   return `/app/lifecycle/email-verification/verify?userId=${userId}`;

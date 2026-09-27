@@ -14,10 +14,17 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect, redirectDocument } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import {
+  redirect,
+  redirectDocument,
+  useActionData,
+  useNavigation,
+} from "react-router";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -44,10 +51,9 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { UserAuthMethodTag } from "@jupiter/core/auth/component/user-auth-method-tag";
 import { getHosting } from "#/core/universe";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
@@ -84,10 +90,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const result = await apiClient.users.userLoad({});
   const webUiSettingsResult = await apiClient.users.webUiSettingsLoad({});
 
-  return json({
+  return {
     user: result.user,
     webUiSettings: webUiSettingsResult.web_ui_settings,
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

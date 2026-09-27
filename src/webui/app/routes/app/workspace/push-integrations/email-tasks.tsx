@@ -1,7 +1,8 @@
 import { type EmailTask } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
 import { emailTaskNiceName } from "@jupiter/core/push_integrations/sub/email/task";
 import { ADateTag } from "@jupiter/core/common/component/adate-tag";
 import { DifficultyTag } from "@jupiter/core/common/component/difficulty-tag";
@@ -20,10 +21,9 @@ import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -35,7 +35,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
     include_inbox_task: false,
   });
-  return json(response.entries);
+  return response.entries;
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =

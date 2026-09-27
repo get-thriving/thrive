@@ -1,7 +1,6 @@
 import { Typography, styled } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { parseQuery } from "zodix";
@@ -25,8 +24,8 @@ import {
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getLoggedInApiClient } from "~/api-clients.server";
 import { redirectForLifecycleState } from "~/routes/app/lifecycle/lifecycle-redirects.server";
 
 const QuerySchema = z.object({
@@ -44,7 +43,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const query = parseQuery(request, QuerySchema);
 
-  return json({ recoveryToken: query.recoveryToken });
+  return { recoveryToken: query.recoveryToken };
 }
 
 // @secureFn

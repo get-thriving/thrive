@@ -1,7 +1,6 @@
 import { Typography } from "@mui/material";
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -19,9 +18,9 @@ import { ChoreStackPropertiesEditor } from "@jupiter/core/apps/chores/component/
 import { PeriodTag } from "@jupiter/core/common/component/period-tag";
 import { sortChoresNaturally } from "@jupiter/core/apps/chores/root";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
@@ -44,7 +43,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       external_id: externalId,
     });
 
-    return json({
+    return {
       pageMeta: buildPublishedPageMeta({
         request,
         entityType: NamedEntityTag.CHORE_STACK,
@@ -61,7 +60,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       aspect: result.aspect,
       chapter: result.chapter ?? null,
       goal: result.goal ?? null,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -85,7 +84,6 @@ export default function PublishedChoreStack() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      returnLocation="/app"
       initialExpansionState={LeafPanelExpansionState.FULL}
       allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
@@ -141,7 +139,7 @@ export default function PublishedChoreStack() {
   );
 }
 
-export const ErrorBoundary = makeLeafErrorBoundary("/publish", ParamsSchema, {
+export const ErrorBoundary = makeLeafErrorBoundary("/", ParamsSchema, {
   notFound: (params) =>
     `Could not find published chore stack ${params.externalId}!`,
   error: (params) =>

@@ -42,7 +42,7 @@ import {
 } from "@mui/material";
 import { DateTime } from "luxon";
 import { PropsWithChildren } from "react";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 import {
   InboxTaskParent,

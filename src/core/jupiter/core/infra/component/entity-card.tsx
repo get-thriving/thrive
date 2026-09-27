@@ -12,7 +12,7 @@ import {
 import type { PanInfo } from "framer-motion";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import type { PropsWithChildren } from "react";
-import type { LinkProps } from "@remix-run/react";
+import type { LinkProps } from "react-router";
 
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { FakeLink, StandardLink } from "#/core/infra/component/standard-link";

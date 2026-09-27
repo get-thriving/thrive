@@ -13,7 +13,7 @@ import {
   DialogTitle,
   Stack,
 } from "@mui/material";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AccessLevelSelect } from "#/core/common/sub/access/components/access-level-select";

@@ -4,10 +4,11 @@ import type {
   Workspace,
 } from "@jupiter/webapi-client";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { Outlet } from "react-router";
 import { CommunityLink } from "@jupiter/core/infra/component/community-link";
 import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
 import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -27,9 +28,9 @@ import { GoogleMapsApiKeyContext } from "@jupiter/core/infra/google-maps-api-key
 import { OverdueThresholdsContext } from "@jupiter/core/infra/overdue-thresholds-context";
 import { ServiceLinksContext } from "@jupiter/core/infra/service-links-context";
 import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { getGuestApiClient } from "~/api-clients.server";
 import { ServicePropertiesContext } from "~/logic/config";
 import {
   SERVICE_PROPERTIES,
@@ -48,7 +49,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getGuestApiClient(request);
   const response = await apiClient.application.loadTopLevelInfo({});
 
-  return json({
+  return {
     globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
     serviceProperties: serverToClientServiceProperties(
       SERVICE_PROPERTIES,
@@ -58,7 +59,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     workspaceFeatureFlagControls: response.workspace_feature_flag_controls,
     userScoreOverview: response.user_score_overview ?? null,
     ...resolvePublishedTopLevelEntities(response),
-  });
+  };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({ nextUrl }) => {

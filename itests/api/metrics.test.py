@@ -135,6 +135,9 @@ def _metric_update_body(ref_id: str, *, name: str) -> dict[str, object]:
         "collection_due_at_day": {"should_change": False},
         "collection_due_at_month": {"should_change": False},
         "metric_direction": {"should_change": False},
+        "schedulability": {"should_change": False},
+        "scheduling_event_duration_mins": {"should_change": False},
+        "scheduling_event_count": {"should_change": False},
     }
 
 
@@ -454,6 +457,9 @@ def test_api_metric_update(api_url: str, api_key: str, create_metric) -> None:
             "collection_due_at_day": {"should_change": False},
             "collection_due_at_month": {"should_change": False},
             "metric_direction": {"should_change": False},
+            "schedulability": {"should_change": False},
+            "scheduling_event_duration_mins": {"should_change": False},
+            "scheduling_event_count": {"should_change": False},
         },
         timeout=10,
     )

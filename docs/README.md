@@ -251,7 +251,7 @@ There's some trickyness that's easy to miss.
   accessible to the rest of the app. Not entering through the frontdoor
   means that the assumptions will be made by the system (ie you're a browser).
   There's a bunch of trickiness here. Frontdoor is the first URL a shell
-  accesses, and it does a hard redirect to a static page (outside Remix's control)
+  accesses, and it does a hard redirect to a static page (outside React Router's control)
   called frontdoor-redirect-hack-{something}.html that then meta redirects to
   something like `/app/workspace`. The reason for this is wonky handling of
   cookies on redirects in browsers (ie the redirected URL will not see the new
@@ -263,9 +263,9 @@ There's some trickyness that's easy to miss.
   These mostly occur because of the many time manipulations we do client-side.
   Which might differ from what's happening server-side, if we're not careful
   or even if there's noticeable clock skew between the client's machine
-  and the server. If this happens, Remix tends to crash hard - styles are
+  and the server. If this happens, React Router tends to crash hard - styles are
   messed up. To prevent this we force a client-side reload to a
-  very safe page. Which then does a Remix reload to the final page.
+  very safe page. Which then does a React Router reload to the final page.
   We're gonna log this at some point.
 * For desktop and mobile, there is a `vite` build step inherent in the
   build process, but not necessarily obvious. Study the scripts.

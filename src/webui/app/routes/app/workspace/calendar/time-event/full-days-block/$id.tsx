@@ -8,14 +8,17 @@ import {
   OutlinedInput,
   Stack,
 } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
 import {
+  redirect,
   useActionData,
   useNavigation,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -35,11 +38,11 @@ import { TimeEventSourceLink } from "@jupiter/core/common/sub/time_events/compon
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getSession } from "~/sessions";
-import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -59,7 +62,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: true,
     });
 
-    return json({
+    return {
       fullDaysBlock: response.full_days_block,
       scheduleEvent: response.schedule_event,
       person: response.person,
@@ -68,7 +71,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       vacation: response.vacation,
       bigPlanMilestone: response.big_plan_milestone,
       bigPlan: response.big_plan,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }

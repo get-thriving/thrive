@@ -1,7 +1,6 @@
 import { Typography } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
 import { z } from "zod";
 import { parseQuery } from "zodix";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
@@ -22,6 +21,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
+import { decodeRenderFixReturnTo } from "@jupiter/core/infra/render-fix-return-to";
 
 const QuerySchema = z.object({
   returnTo: z.string(),
@@ -33,10 +33,10 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const params = parseQuery(request, QuerySchema);
-  const returnTo = Buffer.from(params.returnTo, "base64").toString("utf-8");
-  return json({
+  const returnTo = decodeRenderFixReturnTo(params.returnTo);
+  return {
     returnTo: returnTo,
-  });
+  };
 }
 
 export default function RenderFix() {

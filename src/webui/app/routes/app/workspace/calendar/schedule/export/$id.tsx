@@ -7,14 +7,17 @@ import {
   OutlinedInput,
   Stack,
 } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
 import {
+  redirect,
   useActionData,
   useNavigation,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
@@ -42,11 +45,11 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
+import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 import { useServiceProperties } from "~/logic/config";
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -93,13 +96,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }),
     ]);
 
-    return json({
+    return {
       scheduleExport: response.schedule_export,
       note: response.note,
       tags: response.tags as Array<Tag>,
       allTags: allTags.tags as Array<Tag>,
       allScheduleStreams: streamsResponse.entries.map((e) => e.schedule_stream),
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }

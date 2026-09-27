@@ -1,5 +1,5 @@
 import { Box, Chip, Stack, Typography } from "@mui/material";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 import { WidgetProps } from "#/core/home/component/common";
 

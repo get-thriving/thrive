@@ -1,7 +1,6 @@
 import { Typography } from "@mui/material";
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -14,9 +13,9 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { VacationEditor } from "@jupiter/core/apps/vacations/sub/vacation/component/editor";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
@@ -39,7 +38,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       external_id: externalId,
     });
 
-    return json({
+    return {
       pageMeta: buildPublishedPageMeta({
         request,
         entityType: NamedEntityTag.VACATION,
@@ -53,7 +52,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
       locations: result.locations ?? [],
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -74,7 +73,6 @@ export default function PublishedVacation() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      returnLocation="/app"
       initialExpansionState={LeafPanelExpansionState.FULL}
       allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
@@ -102,7 +100,7 @@ export default function PublishedVacation() {
   );
 }
 
-export const ErrorBoundary = makeLeafErrorBoundary("/publish", ParamsSchema, {
+export const ErrorBoundary = makeLeafErrorBoundary("/", ParamsSchema, {
   notFound: (params) =>
     `Could not find published vacation ${params.externalId}!`,
   error: (params) =>

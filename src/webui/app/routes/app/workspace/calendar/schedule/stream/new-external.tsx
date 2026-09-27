@@ -6,14 +6,16 @@ import {
   OutlinedInput,
   Typography,
 } from "@mui/material";
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
 import {
+  redirect,
   useActionData,
   useNavigation,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -29,9 +31,8 @@ import { ScheduleStreamColorInput } from "@jupiter/core/apps/schedule/component/
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const ParamsSchema = z.object({});
 

@@ -263,6 +263,9 @@ def test_api_chore_update(api_url: str, api_key: str, create_chore) -> None:
             "chapter_ref_id": {"should_change": False},
             "goal_ref_id": {"should_change": False},
             "stack_ref_id": {"should_change": False},
+            "schedulability": {"should_change": False},
+            "scheduling_event_duration_mins": {"should_change": False},
+            "scheduling_event_count": {"should_change": False},
         },
         timeout=10,
     )
@@ -440,6 +443,9 @@ def _update_payload(ref_id: str, *, name: str | None = None) -> dict[str, object
         "chapter_ref_id": {"should_change": False},
         "goal_ref_id": {"should_change": False},
         "stack_ref_id": {"should_change": False},
+        "schedulability": {"should_change": False},
+        "scheduling_event_duration_mins": {"should_change": False},
+        "scheduling_event_count": {"should_change": False},
     }
 
 
@@ -464,6 +470,9 @@ def _stack_update_payload(
         "aspect_ref_id": {"should_change": False},
         "chapter_ref_id": {"should_change": False},
         "goal_ref_id": {"should_change": False},
+        "schedulability": {"should_change": False},
+        "scheduling_event_duration_mins": {"should_change": False},
+        "scheduling_event_count": {"should_change": False},
     }
 
 
@@ -794,6 +803,9 @@ def test_api_chore_update_cannot_change_period(
         json={
             **_update_payload(chore.ref_id),
             "period": {"should_change": True, "value": "daily"},
+            "schedulability": {"should_change": False},
+            "scheduling_event_duration_mins": {"should_change": False},
+            "scheduling_event_count": {"should_change": False},
         },
         timeout=10,
     )

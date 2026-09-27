@@ -19,7 +19,7 @@ import {
   TimePlanActivityDoneness as Doneness,
 } from "@jupiter/webapi-client";
 import { Box, styled, Typography } from "@mui/material";
-import { Link, useSearchParams } from "@remix-run/react";
+import { Link, useSearchParams } from "react-router";
 import { DateTime } from "luxon";
 
 import { aDateToDate } from "#/core/common/adate";

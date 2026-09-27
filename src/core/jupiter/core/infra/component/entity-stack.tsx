@@ -17,7 +17,7 @@ export function EntityStack2(props: PropsWithChildren<EntityStackProps>) {
       spacing={2}
       sx={{
         marginTop: "-8px",
-        "& > :first-child": {
+        "& > :first-of-type": {
           marginTop: "8px",
         },
       }}

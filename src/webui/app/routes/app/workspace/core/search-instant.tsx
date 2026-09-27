@@ -1,6 +1,5 @@
 import { NamedEntityTag, type SearchArgs } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import { z } from "zod";
 import { CheckboxAsString, parseQuery } from "zodix";
 import {
@@ -9,8 +8,7 @@ import {
 } from "@jupiter/core/common/select-form";
 import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const WORKSPACE_SEARCH_DEFAULT_LIMIT = 30;
 
@@ -119,18 +117,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   };
 
   if (searchArgs === undefined) {
-    return json(noErrorSomeData(emptyPayload));
+    return noErrorSomeData(emptyPayload);
   }
 
   try {
     const searchResponse = await apiClient.search.search(searchArgs);
 
-    return json(
-      noErrorSomeData({
-        ...emptyPayload,
-        result: searchResponse,
-      }),
-    );
+    return noErrorSomeData({
+      ...emptyPayload,
+      result: searchResponse,
+    });
   } catch (error) {
     return handleActionApiError(error);
   }

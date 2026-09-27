@@ -604,6 +604,9 @@ def test_api_journal_update_settings(api_url: str, api_key: str) -> None:
             "writing_task_difficulty": {"should_change": False},
             "include_aspects_in_note": {"should_change": False},
             "include_goals_in_note": {"should_change": False},
+            "schedulability": {"should_change": False},
+            "scheduling_event_duration_mins": {"should_change": False},
+            "scheduling_event_count": {"should_change": False},
         },
         timeout=10,
     )

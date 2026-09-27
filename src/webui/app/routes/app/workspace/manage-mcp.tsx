@@ -1,6 +1,7 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
 import { useContext } from "react";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
@@ -27,11 +28,11 @@ import { McpKeyView } from "@jupiter/core/mcp_key/components/mcp-key-view";
 import { Stack, Typography } from "@mui/material";
 import { DocsHelp } from "#/core/infra/component/docs-help";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 import { useServiceProperties } from "~/logic/config";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -43,9 +44,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
   });
 
-  return json({
+  return {
     mcpKeys: mcpKeysResult.mcp_keys,
-  });
+  };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =

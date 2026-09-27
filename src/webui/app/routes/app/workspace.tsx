@@ -25,10 +25,12 @@ import {
   MenuItem,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Link, useOutlet } from "@remix-run/react";
+import type {
+  LinksFunction,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { Link, useOutlet } from "react-router";
 import { AnimatePresence, useAnimate } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { isUserFeatureAvailable } from "@jupiter/core/users/root";
@@ -49,11 +51,11 @@ import { Title } from "@jupiter/core/infra/component/title";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { TopLevelInfoProvider } from "@jupiter/core/infra/component/top-level-info-provider";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { getLoggedInApiClient } from "~/api-clients.server";
 import { redirectForLifecycleState } from "~/routes/app/lifecycle/lifecycle-redirects.server";
-import editorJsTweaks from "~/styles/editorjs-tweaks.css";
+import editorJsTweaks from "~/styles/editorjs-tweaks.css?url";
 
 const WorkspaceAppBarTrailing = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -95,7 +97,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     apiClient.application.getSummaries({}),
   ]);
 
-  return json({
+  return {
     userFeatureFlagControls: response.user_feature_flag_controls,
     workspaceFeatureFlagControls: response.workspace_feature_flag_controls,
     user: response.user,
@@ -108,7 +110,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     collaborationCount:
       summariesResponse.access_invites.length +
       summariesResponse.access_requests.length,
-  });
+  };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({

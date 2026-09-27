@@ -1,7 +1,8 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useNavigation, useSearchParams } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { useNavigation, useSearchParams } from "react-router";
 import { z } from "zod";
 import { useContext, useState } from "react";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
@@ -28,10 +29,9 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TagTag } from "@jupiter/core/common/sub/tags/component/tag-tag";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
 import type { Tag } from "@jupiter/webapi-client";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const ParamsSchema = z.object({});
 
@@ -51,10 +51,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
   });
 
-  return json({
+  return {
     entries: response.entries,
     allTags: allTags.tags as Array<Tag>,
-  });
+  };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;

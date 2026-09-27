@@ -1,5 +1,5 @@
 import { Box, Stack, styled } from "@mui/material";
-import { useLocation } from "@remix-run/react";
+import { useLocation } from "react-router";
 import { motion } from "framer-motion";
 import type { PropsWithChildren } from "react";
 

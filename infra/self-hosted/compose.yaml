@@ -206,7 +206,7 @@ services:
     depends_on:
       - webapi
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:2000/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:2000/publish/healthz"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -255,7 +255,7 @@ services:
     ports:
       - "${DOCS_PORT:-0}:8000"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs/healthz/"]
       interval: 30s
       timeout: 10s
       retries: 5

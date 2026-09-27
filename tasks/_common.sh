@@ -792,7 +792,10 @@ _run_dev_jupiter_webapp_with_docker() {
     export WEBUI_PORT=$5
     export WEBUI_SERVER_URL=https://localhost:${WEBUI_PORT}
     export PUBLISHED_PORT=$6
-    export PUBLISHED_SERVER_URL=https://localhost:${PUBLISHED_PORT}
+    # Nginx on the WebUI port terminates TLS and proxies /publish. The published
+    # container's own mapped port is plain HTTP, so an https URL there fails
+    # the handshake (ERR_SSL_PROTOCOL_ERROR).
+    export PUBLISHED_SERVER_URL="${WEBUI_SERVER_URL}"
     export DOCS_PORT=$7
     export DOCS_SERVER_URL=http://localhost:${DOCS_PORT}
     export PUBLIC_NAME
@@ -1949,7 +1952,13 @@ wait_for_postgres_server() {
 
 wait_for_service_to_start() {
     local service=$1
-    local url=${2/0.0.0.0/localhost}/healthz
+    # The published service mounts its routes under /publish (the Remix router
+    # basename), so its health check lives there too.
+    local health_path=/healthz
+    if [[ "$service" == "published" ]]; then
+        health_path=/publish/healthz
+    fi
+    local url=${2/0.0.0.0/localhost}${health_path}
 
     local attempts=0
     local max_attempts=60  # increased: 60s total

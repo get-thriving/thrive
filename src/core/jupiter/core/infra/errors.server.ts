@@ -1,6 +1,5 @@
 import { ApiError } from "@jupiter/webapi-client";
-import type { TypedResponse } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { data } from "react-router";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { ZodError } from "zod";
 
@@ -25,8 +24,8 @@ function notFoundResponse(): Response {
  * why access was refused. Re-throwing it as a response keeps the reason in both
  * the body and the `statusText`.
  */
-function accessDeniedResponse(): TypedResponse<{ reason: string }> {
-  return json(
+function accessDeniedResponse() {
+  return data(
     { reason: USER_NOT_ALLOWED_ACCESS_TO_ENTITY_REASON },
     {
       status: StatusCodes.UNAUTHORIZED,
@@ -86,14 +85,14 @@ export function handleLoaderApiError(error: unknown): never {
 export function handleActionApiError(
   error: unknown,
   intent?: string,
-): TypedResponse<SomeErrorNoData> {
+): SomeErrorNoData {
   if (
     error instanceof ApiError &&
     !isUserNotAllowedAccessToEntityApiError(error) &&
     (error.status === StatusCodes.UNPROCESSABLE_ENTITY ||
       error.status === StatusCodes.CONFLICT)
   ) {
-    return json(validationErrorToUIErrorInfo(error.body, intent));
+    return validationErrorToUIErrorInfo(error.body, intent);
   }
 
   return handleLoaderApiError(error);

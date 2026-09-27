@@ -19,7 +19,7 @@ import {
   ArrowBackIosNew as ArrowBackIosNewIcon,
   ArrowForwardIos as ArrowForwardIosIcon,
 } from "@mui/icons-material";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { DateTime } from "luxon";
 
 import { aDateToDate, dateToAdate } from "#/core/common/adate";

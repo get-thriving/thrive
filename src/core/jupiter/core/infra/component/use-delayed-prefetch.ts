@@ -1,4 +1,4 @@
-import type { LinkProps } from "@remix-run/react";
+import type { LinkProps } from "react-router";
 import type {
   FocusEventHandler,
   MouseEventHandler,

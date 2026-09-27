@@ -5,7 +5,7 @@ import type {
   EntityId,
   NamedEntityTag,
 } from "@jupiter/webapi-client";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import { useEffect } from "react";
 
 import { EntityEventList } from "#/core/infra/component/layout/entity-event-list";

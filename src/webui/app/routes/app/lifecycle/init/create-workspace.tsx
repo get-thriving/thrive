@@ -10,9 +10,14 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect, redirectDocument } from "@remix-run/node";
-import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import {
+  redirect,
+  redirectDocument,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
@@ -42,8 +47,8 @@ import { BirthdaySelect } from "#/core/common/component/birthday-select";
 import { TimezoneSelect } from "#/core/common/component/timezone-select";
 import { getHosting } from "#/core/universe";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
 import { redirectForLifecycleState } from "~/routes/app/lifecycle/lifecycle-redirects.server";
 
 const QuerySchema = z.object({
@@ -73,14 +78,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirectForLifecycleState(result);
   }
 
-  return json({
+  return {
     userId: query.userId,
     defaultWorkspaceName: result.deafult_workspace_name,
     defaultRootAspectName: result.default_root_aspect_name,
     defaultFirstScheduleStreamName: result.default_first_schedule_stream_name,
     workspaceFeatureFlagControls: result.workspace_feature_flag_controls,
     defaultWorkspaceFeatureFlags: result.default_workspace_feature_flags,
-  });
+  };
 }
 
 // @secureFn

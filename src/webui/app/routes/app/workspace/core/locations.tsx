@@ -1,10 +1,11 @@
 import type { Location } from "@jupiter/webapi-client";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import { Typography } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useNavigate } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { useNavigate } from "react-router";
 import { useCallback, useMemo } from "react";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import { IsKeyTag } from "@jupiter/core/common/component/is-key-tag";
@@ -32,10 +33,9 @@ import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -48,9 +48,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
   });
 
-  return json({
+  return {
     locations: result.locations as Array<Location>,
-  });
+  };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =

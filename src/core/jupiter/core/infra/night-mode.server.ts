@@ -1,4 +1,4 @@
-import { createCookie } from "@remix-run/node";
+import { createCookie } from "react-router";
 
 import { NIGHT_MODE_COOKIE_NAME } from "#/core/infra/names";
 import { readBooleanCookie } from "#/core/infra/night-mode";

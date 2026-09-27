@@ -1,7 +1,7 @@
 import { EntityId, RecurringTaskPeriod } from "@jupiter/webapi-client";
 import { Box } from "@mui/material";
 import { createContext, PropsWithChildren, ReactNode, useContext } from "react";
-import { useLocation, useMatches, useSearchParams } from "@remix-run/react";
+import { useLocation, useMatches, useSearchParams } from "react-router";
 
 import { EntityLink } from "#/core/infra/component/entity-card";
 import { TIME_PLAN_GROUPING_PARAM } from "#/core/apps/time_plans/grouping";
@@ -149,7 +149,9 @@ export function calendarLeafReturnLocation(
 export function publishedScheduleStreamCalendarNavigation(
   externalId: string,
 ): CalendarNavigationValue {
-  const calendarBasePath = `/publish/schedule-stream/${externalId}`;
+  // No `/publish` prefix: the published service carries that as its router
+  // basename, so in-app paths are relative to it.
+  const calendarBasePath = `/schedule-stream/${externalId}`;
   return {
     eventPath: (kind, refId) => {
       switch (kind) {
@@ -238,8 +240,10 @@ export function parseOpenCalendarInDayEvent(
     }
   }
 
+  // `useLocation().pathname` has the published service's basename stripped, but
+  // tolerate the prefix too for anything passing a full path.
   const published = pathname.match(
-    /\/publish\/schedule-stream\/[^/]+\/in-day-event\/([^/]+)$/,
+    /(?:\/publish)?\/schedule-stream\/[^/]+\/in-day-event\/([^/]+)$/,
   );
   if (published !== null) {
     return {

@@ -5,7 +5,7 @@
  * so once it's done the view reloads.
  */
 import { Button } from "@mui/material";
-import { useRevalidator } from "@remix-run/react";
+import { useRevalidator } from "react-router";
 import { useSnackbar } from "notistack";
 import { useCallback } from "react";
 

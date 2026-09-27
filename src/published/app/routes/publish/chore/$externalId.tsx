@@ -1,8 +1,7 @@
 import type { InboxTask } from "@jupiter/webapi-client";
 import { Typography } from "@mui/material";
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useContext, useMemo } from "react";
 import { z } from "zod";
 import { parseParams, parseQuery } from "zodix";
@@ -17,9 +16,9 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { ChorePropertiesEditor } from "@jupiter/core/apps/chores/component/properties-editor";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
@@ -51,7 +50,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       inbox_task_retrieve_offset: query.inboxTasksRetrieveOffset,
     });
 
-    return json({
+    return {
       pageMeta: buildPublishedPageMeta({
         request,
         entityType: NamedEntityTag.CHORE,
@@ -70,7 +69,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       inboxTasks: result.inbox_tasks as Array<InboxTask>,
       inboxTasksTotalCnt: result.inbox_tasks_total_cnt,
       inboxTasksPageSize: result.inbox_tasks_page_size,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -102,7 +101,6 @@ export default function PublishedChore() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      returnLocation="/app"
       initialExpansionState={LeafPanelExpansionState.FULL}
       allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
@@ -163,7 +161,7 @@ export default function PublishedChore() {
   );
 }
 
-export const ErrorBoundary = makeLeafErrorBoundary("/publish", ParamsSchema, {
+export const ErrorBoundary = makeLeafErrorBoundary("/", ParamsSchema, {
   notFound: (params) => `Could not find published chore ${params.externalId}!`,
   error: (params) =>
     `There was an error loading published chore ${params.externalId}! Please try again!`,

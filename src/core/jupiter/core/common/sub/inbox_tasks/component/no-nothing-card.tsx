@@ -7,7 +7,7 @@ import {
   CardHeader,
   Typography,
 } from "@mui/material";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";

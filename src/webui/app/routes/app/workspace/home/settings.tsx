@@ -7,16 +7,13 @@ import {
 import { z } from "zod";
 import {
   ActionFunctionArgs,
-  json,
   LoaderFunctionArgs,
   redirect,
-} from "@remix-run/node";
-import { parseForm } from "zodix";
-import {
   Form,
   ShouldRevalidateFunction,
   useActionData,
-} from "@remix-run/react";
+} from "react-router";
+import { parseForm } from "zodix";
 import { IconButton, Stack } from "@mui/material";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -44,11 +41,10 @@ import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import EntityIconComponent from "@jupiter/core/infra/component/entity-icon";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { getIntent, makeIntent } from "~/logic/intent";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { getIntent, makeIntent } from "@jupiter/core/infra/intent";
 
 const ParamsSchema = z.object({});
 
@@ -65,10 +61,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const homeConfigResponse = await apiClient.home.homeConfigLoad({});
 
-  return json({
+  return {
     homeConfig: homeConfigResponse.home_config,
     tabs: homeConfigResponse.tabs,
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

@@ -1,0 +1,380 @@
+import type {
+  JournalFindResultEntry,
+  JournalStats,
+  Tag,
+  ADate,
+  Journal,
+  UserLight,
+} from "@jupiter/webapi-client";
+import { RecurringTaskPeriod, DocsHelpSubject } from "@jupiter/webapi-client";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { Link } from "react-router";
+import { useContext, useState } from "react";
+import { Button, Stack } from "@mui/material";
+import TuneIcon from "@mui/icons-material/Tune";
+import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
+
+import {
+  findJournalsThatAreActive,
+  sortJournalsNaturally,
+} from "#/core/apps/journals/root";
+import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-card";
+import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
+import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
+import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
+import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
+import { JournalCard } from "#/core/apps/journals/component/card";
+import { JournalStack } from "#/core/apps/journals/component/stack";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import {
+  DisplayType,
+  useTrunkNeedsToShowBranch,
+  useTrunkNeedsToShowLeaf,
+} from "#/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import {
+  FilterManyOptions,
+  SectionActions,
+  NavSingle,
+} from "#/core/infra/component/section-actions";
+import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+
+export const handle = {
+  displayType: DisplayType.TRUNK,
+};
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const [response, journalSettingsResponse, allTags] = await Promise.all([
+    apiClient.journals.journalFind({
+      allow_archived: false,
+      include_notes: false,
+      include_writing_tasks: false,
+      include_journal_stats: true,
+      include_tags: true,
+    }),
+    apiClient.journals.journalLoadSettings({}),
+    apiClient.tags.tagFind({
+      allow_archived: false,
+    }),
+  ]);
+
+  return {
+    entries: response.entries,
+    journalSettings: journalSettingsResponse,
+    allTags: allTags.tags,
+  };
+}
+
+export const shouldRevalidate: ShouldRevalidateFunction =
+  standardShouldRevalidate;
+
+export default function Journals() {
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+
+  const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
+
+  const shouldShowABranch = useTrunkNeedsToShowBranch();
+  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
+
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+
+  const entries = loaderData.entries;
+  const entriesByRefId = new Map<string, JournalFindResultEntry>();
+  for (const entry of entries) {
+    entriesByRefId.set(entry.journal.ref_id, entry);
+  }
+
+  const activeJournals = findJournalsThatAreActive(
+    entries.map((e) => e.journal),
+    topLevelInfo.today,
+  );
+
+  function pickCurrentJournal(
+    period: RecurringTaskPeriod,
+  ): Journal | undefined {
+    const forPeriod = activeJournals.filter((j) => j.period === period);
+    return (
+      forPeriod.find(
+        (j) =>
+          entriesByRefId.get(j.ref_id)?.owner.ref_id ===
+          topLevelInfo.user.ref_id,
+      ) ?? forPeriod[0]
+    );
+  }
+
+  const yearJournal = pickCurrentJournal(RecurringTaskPeriod.YEARLY);
+  const quarterJournal = pickCurrentJournal(RecurringTaskPeriod.QUARTERLY);
+  const monthJournal = pickCurrentJournal(RecurringTaskPeriod.MONTHLY);
+  const weekJournal = pickCurrentJournal(RecurringTaskPeriod.WEEKLY);
+  const dayJournal = pickCurrentJournal(RecurringTaskPeriod.DAILY);
+
+  const sortedJournals = sortJournalsNaturally(
+    entries.map((e) => e.journal),
+  ).filter((journal) => {
+    if (selectedTagsRefId.length === 0) {
+      return true;
+    }
+    const entry = entriesByRefId.get(journal.ref_id);
+    return entry?.tags?.some((tag: Tag) =>
+      selectedTagsRefId.includes(tag.ref_id),
+    );
+  });
+  const journalStatsByJournalRefId = new Map<string, JournalStats>();
+  const journalTagsByJournalRefId = new Map<string, Array<Tag>>();
+  const journalOwnersByJournalRefId = new Map<string, UserLight>();
+  for (const entry of entries) {
+    journalStatsByJournalRefId.set(entry.journal.ref_id, entry.journal_stats!);
+    journalTagsByJournalRefId.set(entry.journal.ref_id, entry.tags ?? []);
+    journalOwnersByJournalRefId.set(entry.journal.ref_id, entry.owner);
+  }
+
+  return (
+    <TrunkPanel
+      key={"journals"}
+      createLocation="/app/workspace/apps/journals/new"
+      returnLocation="/app/workspace"
+      actions={
+        <SectionActions
+          id="journals"
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={true}
+          actions={[
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
+            NavSingle({
+              id: "journals-questions",
+              text: "Questions",
+              link: `/app/workspace/apps/journals/questions`,
+              icon: <QuestionAnswerIcon />,
+            }),
+            NavSingle({
+              text: "Settings",
+              link: `/app/workspace/apps/journals/settings`,
+              icon: <TuneIcon />,
+            }),
+          ]}
+        />
+      }
+    >
+      <NestingAwareBlock
+        branchForceHide={shouldShowABranch}
+        shouldHide={shouldShowABranch || shouldShowALeaf}
+      >
+        {sortedJournals.length === 0 && (
+          <EntityNoNothingCard
+            title="You Have To Start Somewhere"
+            message="There are no journals to show. You can create a new journal."
+            newEntityLocations="/app/workspace/apps/journals/new"
+            helpSubject={DocsHelpSubject.JOURNALS}
+          />
+        )}
+
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+          {loaderData.journalSettings.periods.includes(
+            RecurringTaskPeriod.YEARLY,
+          ) && (
+            <CurrentJournal
+              today={topLevelInfo.today}
+              period={RecurringTaskPeriod.YEARLY}
+              topLevelInfo={topLevelInfo}
+              journal={yearJournal}
+              journalStats={
+                yearJournal
+                  ? journalStatsByJournalRefId.get(yearJournal.ref_id)
+                  : undefined
+              }
+              owner={
+                yearJournal
+                  ? journalOwnersByJournalRefId.get(yearJournal.ref_id)
+                  : undefined
+              }
+              label="Yearly Journal"
+              tags={
+                yearJournal
+                  ? (journalTagsByJournalRefId.get(yearJournal.ref_id) ?? [])
+                  : []
+              }
+            />
+          )}
+
+          {loaderData.journalSettings.periods.includes(
+            RecurringTaskPeriod.QUARTERLY,
+          ) && (
+            <CurrentJournal
+              today={topLevelInfo.today}
+              period={RecurringTaskPeriod.QUARTERLY}
+              topLevelInfo={topLevelInfo}
+              journal={quarterJournal}
+              journalStats={
+                quarterJournal
+                  ? journalStatsByJournalRefId.get(quarterJournal.ref_id)
+                  : undefined
+              }
+              owner={
+                quarterJournal
+                  ? journalOwnersByJournalRefId.get(quarterJournal.ref_id)
+                  : undefined
+              }
+              label="Quarterly Journal"
+              tags={
+                quarterJournal
+                  ? (journalTagsByJournalRefId.get(quarterJournal.ref_id) ?? [])
+                  : []
+              }
+            />
+          )}
+
+          {loaderData.journalSettings.periods.includes(
+            RecurringTaskPeriod.MONTHLY,
+          ) && (
+            <CurrentJournal
+              today={topLevelInfo.today}
+              period={RecurringTaskPeriod.MONTHLY}
+              topLevelInfo={topLevelInfo}
+              journal={monthJournal}
+              journalStats={
+                monthJournal
+                  ? journalStatsByJournalRefId.get(monthJournal.ref_id)
+                  : undefined
+              }
+              owner={
+                monthJournal
+                  ? journalOwnersByJournalRefId.get(monthJournal.ref_id)
+                  : undefined
+              }
+              label="Monthly Journal"
+              tags={
+                monthJournal
+                  ? (journalTagsByJournalRefId.get(monthJournal.ref_id) ?? [])
+                  : []
+              }
+            />
+          )}
+
+          {loaderData.journalSettings.periods.includes(
+            RecurringTaskPeriod.WEEKLY,
+          ) && (
+            <CurrentJournal
+              today={topLevelInfo.today}
+              period={RecurringTaskPeriod.WEEKLY}
+              topLevelInfo={topLevelInfo}
+              journal={weekJournal}
+              journalStats={
+                weekJournal
+                  ? journalStatsByJournalRefId.get(weekJournal.ref_id)
+                  : undefined
+              }
+              owner={
+                weekJournal
+                  ? journalOwnersByJournalRefId.get(weekJournal.ref_id)
+                  : undefined
+              }
+              label="Weekly Journal"
+              tags={
+                weekJournal
+                  ? (journalTagsByJournalRefId.get(weekJournal.ref_id) ?? [])
+                  : []
+              }
+            />
+          )}
+
+          {loaderData.journalSettings.periods.includes(
+            RecurringTaskPeriod.DAILY,
+          ) && (
+            <CurrentJournal
+              today={topLevelInfo.today}
+              period={RecurringTaskPeriod.DAILY}
+              topLevelInfo={topLevelInfo}
+              journal={dayJournal}
+              journalStats={
+                dayJournal
+                  ? journalStatsByJournalRefId.get(dayJournal.ref_id)
+                  : undefined
+              }
+              owner={
+                dayJournal
+                  ? journalOwnersByJournalRefId.get(dayJournal.ref_id)
+                  : undefined
+              }
+              label="Daily Journal"
+              tags={
+                dayJournal
+                  ? (journalTagsByJournalRefId.get(dayJournal.ref_id) ?? [])
+                  : []
+              }
+            />
+          )}
+        </Stack>
+
+        <JournalStack
+          topLevelInfo={topLevelInfo}
+          journals={sortedJournals}
+          journalStatsByJournalRefId={journalStatsByJournalRefId}
+          journalTagsByJournalRefId={journalTagsByJournalRefId}
+          journalOwnersByJournalRefId={journalOwnersByJournalRefId}
+        />
+      </NestingAwareBlock>
+
+      <NestedOutlet />
+    </TrunkPanel>
+  );
+}
+
+interface CurrentJournalProps {
+  label: string;
+  today: ADate;
+  period: RecurringTaskPeriod;
+  journal?: Journal;
+  journalStats?: JournalStats;
+  owner?: UserLight;
+  tags: Array<Tag>;
+  topLevelInfo: TopLevelInfo;
+}
+
+function CurrentJournal(props: CurrentJournalProps) {
+  if (!props.journal) {
+    return (
+      <Button
+        variant="outlined"
+        component={Link}
+        to={`/app/workspace/apps/journals/new?initialPeriod=${props.period}&initialRightNow=${props.today}`}
+      >
+        Create a {props.label}
+      </Button>
+    );
+  }
+
+  return (
+    <JournalCard
+      key={`journal-${props.journal.ref_id}`}
+      topLevelInfo={props.topLevelInfo}
+      journal={props.journal}
+      journalStats={props.journalStats}
+      owner={props.owner}
+      tags={props.tags}
+      label={props.label}
+      showOptions={{
+        showSource: false,
+        showPeriod: false,
+      }}
+    />
+  );
+}
+
+export const ErrorBoundary = makeTrunkErrorBoundary("/app/workspace", {
+  error: () => `There was an error loading the journals! Please try again!`,
+});

@@ -1,7 +1,7 @@
 import { Apple as AppleIcon, Google as GoogleIcon } from "@mui/icons-material";
 import { Button, Stack } from "@mui/material";
 import { JupiterAuthProvider } from "@jupiter/webapi-client";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { useContext } from "react";
 
 import { GlobalPropertiesContext } from "#/core/config-client";

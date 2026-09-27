@@ -1,4 +1,4 @@
-import { createCookie } from "@remix-run/node";
+import { createCookie } from "react-router";
 
 import { GOOGLE_OAUTH_STATE_COOKIE_NAME } from "#/core/infra/names";
 

@@ -1,11 +1,9 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const UpsertFromCandidateFormSchema = z.object({
   owner: z.string().min(1),
@@ -42,7 +40,7 @@ export async function action({ request }: ActionFunctionArgs) {
             },
     });
 
-    return json(noErrorSomeData({ location: result.new_location }));
+    return noErrorSomeData({ location: result.new_location });
   } catch (error) {
     return handleActionApiError(error);
   }

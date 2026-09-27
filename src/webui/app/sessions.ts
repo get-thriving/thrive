@@ -1,5 +1,5 @@
 import type { AuthTokenExt } from "@jupiter/webapi-client";
-import { createCookieSessionStorage } from "@remix-run/node";
+import { createCookieSessionStorage } from "react-router";
 import { SESSION_COOKIE_NAME } from "@jupiter/core/infra/names";
 
 import { SERVICE_PROPERTIES } from "~/logic/config.server";

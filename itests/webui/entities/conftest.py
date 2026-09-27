@@ -18,7 +18,7 @@ from jupiter_webapi_client.models.init_result import InitResult
 from jupiter_webapi_client.models.remove_all_args import RemoveAllArgs
 from jupiter_webapi_client.models.user_feature import UserFeature
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
-from playwright.sync_api import Page
+from playwright.sync_api import Browser, Page, StorageState
 
 from itests.conftest import TestUser
 from itests.helpers import get_parsed_from_response
@@ -91,23 +91,73 @@ def logged_in_client(
     )
 
 
-@pytest.fixture(autouse=True)
-def page_logged_in(
-    page: Page, new_user: TestUser, logged_in_client: AuthenticatedClient
-) -> Iterator[TestUser]:
-    """A page with a logged in user."""
+def _log_in_through_the_ui(page: Page, user: TestUser) -> None:
+    """Log a user in the way a person would."""
     page.goto("/app/lifecycle/login/local/login")
 
-    page.locator('input[name="emailAddress"]').fill(new_user.email)
-    page.locator('input[name="password"]').fill(new_user.password)
+    page.locator('input[name="emailAddress"]').fill(user.email)
+    page.locator('input[name="password"]').fill(user.password)
 
     page.locator("#login").locator("button", has_text="Login").click()
 
     # There's some bizzaro interaction that happens between playwright and its
-    # messing about with the browser, and Remix and its taking over of the
-    # application communication, and especialy the redirects. If there's no wait
-    # here then the redirect from "post /login" with cookies will not work!
+    # messing about with the browser, and React Router and its taking over of
+    # the application communication, and especialy the redirects. If there's no
+    # wait here then the redirect from "post /login" with cookies will not work!
     page.wait_for_url("/app/workspace")
+
+
+@pytest.fixture(scope="package")
+def logged_in_storage_state(
+    browser: Browser,
+    webui_url: str,
+    new_user: TestUser,
+    new_user_and_workspace: InitResult,
+) -> StorageState:
+    """Log in once, so each test can start from the session instead of the form.
+
+    Logging in through the UI costs several page loads, and doing it for every
+    test is most of what a test spends its time on. The auth token behind the
+    session is good for a month, and clearing a workspace between tests doesn't
+    revoke it, so one login serves the whole package.
+    """
+    # Asks for what it needs rather than for `browser_context_args`, which the
+    # override below builds out of this fixture.
+    context = browser.new_context(base_url=webui_url, ignore_https_errors=True)
+    try:
+        _log_in_through_the_ui(context.new_page(), new_user)
+        return context.storage_state()
+    finally:
+        context.close()
+
+
+# Same shape as the one it overrides in the root conftest, which leaves the
+# context args unannotated: they are a kwargs bag, and the checker here forbids
+# an explicit Any.
+@pytest.fixture(scope="package")
+def browser_context_args(browser_context_args, logged_in_storage_state: StorageState):
+    """Give every test's browser context the session logged in above."""
+    return {
+        **browser_context_args,
+        "storage_state": logged_in_storage_state,
+    }
+
+
+@pytest.fixture(autouse=True)
+def page_logged_in(
+    page: Page,
+    new_user: TestUser,
+    logged_in_client: AuthenticatedClient,
+) -> Iterator[TestUser]:
+    """A page with a logged in user."""
+    page.goto("/app/workspace")
+
+    # Nothing should turn the shared session away, but say so plainly if
+    # something does - a test failing later with an empty page is a puzzle.
+    assert "/app/lifecycle/login" not in page.url, (
+        "the shared login session was rejected, so the WebUI is not the one it "
+        "was established against"
+    )
 
     try:
         yield new_user

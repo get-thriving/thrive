@@ -1,12 +1,10 @@
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { noErrorNoData } from "@jupiter/core/infra/action-result";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const RemoveGrantFormSchema = z.object({
   entityType: z.nativeEnum(NamedEntityTag),
@@ -25,7 +23,7 @@ export async function action({ request }: ActionFunctionArgs) {
       access_grant_ref_id: form.accessGrantRefId,
     });
 
-    return json(noErrorNoData());
+    return noErrorNoData();
   } catch (error) {
     return handleActionApiError(error);
   }

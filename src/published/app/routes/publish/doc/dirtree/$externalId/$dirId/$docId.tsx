@@ -1,6 +1,5 @@
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { z } from "zod";
 import { parseParams } from "zodix";
 import { Stack } from "@mui/material";
@@ -14,9 +13,9 @@ import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
@@ -43,7 +42,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       ref_id: docId,
     });
 
-    return json({
+    return {
       pageMeta: buildPublishedPageMeta({
         request,
         entityType: NamedEntityTag.DOC,
@@ -57,7 +56,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       note: result.note,
       tags: result.tags ?? [],
       location: result.location ?? null,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -77,7 +76,7 @@ export default function PublishedDocFromDir() {
       isLeaflet
       inputsEnabled={false}
       entityNotEditable={true}
-      returnLocation={`/publish/doc/dirtree/${externalId}/${dirId}`}
+      returnLocation={`/doc/dirtree/${externalId}/${dirId}`}
     >
       <SectionCard title="Doc">
         <DocEditor
@@ -115,7 +114,7 @@ export default function PublishedDocFromDir() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  (params) => `/publish/doc/dirtree/${params.externalId}/${params.dirId}`,
+  (params) => `/doc/dirtree/${params.externalId}/${params.dirId}`,
   ParamsSchema,
   {
     notFound: (params) => `Could not find published doc ${params.docId}!`,

@@ -1,10 +1,11 @@
 import { App as CapacitorApp } from "@capacitor/app";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { AppPlatform, AppShell } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { Outlet, useLoaderData, useNavigate } from "react-router";
 import { useEffect } from "react";
 import {
   GlobalPropertiesContext,
@@ -31,13 +32,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     request.headers.get("User-Agent"),
   );
 
-  return json({
+  return {
     globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
     serviceProperties: serverToClientServiceProperties(
       SERVICE_PROPERTIES,
       frontDoor,
     ),
-  });
+  };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => false;

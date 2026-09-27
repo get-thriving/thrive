@@ -1,8 +1,7 @@
 import { ApiError, AppShell, DocsHelpSubject } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { useActionData, useNavigation } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useActionData, useNavigation } from "react-router";
 import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
@@ -32,9 +31,9 @@ import {
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
 import { ServicePropertiesContext } from "~/logic/config";
-import { getGuestApiClient } from "~/api-clients.server";
 import {
   emailVerificationVerifyUrl,
   redirectForLifecycleState,
@@ -56,7 +55,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirectForLifecycleState(result);
   }
 
-  return json({});
+  return {};
 }
 
 // @secureFn

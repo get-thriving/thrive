@@ -7,9 +7,8 @@ import {
   OutlinedInput,
   Typography,
 } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirectDocument } from "@remix-run/node";
-import { useNavigation } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirectDocument, useNavigation } from "react-router";
 import { useContext, useState } from "react";
 import { CommunityLink } from "@jupiter/core/infra/component/community-link";
 import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
@@ -46,7 +45,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirectDocument("/app/workspace");
   }
 
-  return json({});
+  return {};
 }
 
 export default function PickServer() {

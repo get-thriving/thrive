@@ -1,5 +1,5 @@
 import { ApiError } from "@jupiter/webapi-client";
-import { isRouteErrorResponse } from "@remix-run/react";
+import { isRouteErrorResponse } from "react-router";
 import { StatusCodes } from "http-status-codes";
 
 /** The reason the WebAPI puts in the body of a `UserNotAllowedAccessToEntityError`. */

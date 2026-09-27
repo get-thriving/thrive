@@ -12,14 +12,17 @@ import {
   Switch,
   styled,
 } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
 import {
+  redirect,
   useActionData,
   useNavigation,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
@@ -48,10 +51,9 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { selectZod } from "@jupiter/core/common/select-form";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const ParamsSchema = z.object({});
 
@@ -81,11 +83,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     apiClient.calendar.calendarLoadSettings({}),
   ]);
 
-  return json({
+  return {
     scheduleStreams: summaryResponse.schedule_streams!,
     entries: response.entries,
     additionalTimezones: settingsResponse.additional_timezones,
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -100,7 +102,7 @@ export async function action({ request }: ActionFunctionArgs) {
           filter_schedule_stream_ref_id: form.scheduleStreamRefIds,
         });
 
-        return json(noErrorNoData());
+        return noErrorNoData();
       }
 
       case "update-timezones": {

@@ -7,7 +7,7 @@ import {
   CardHeader,
   Typography,
 } from "@mui/material";
-import { Form, Link } from "@remix-run/react";
+import { Form, Link } from "react-router";
 
 import { DocsHelp } from "#/core/infra/component/docs-help";
 

@@ -1,4 +1,4 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { MetaFunction } from "react-router";
 import type { Note } from "@jupiter/webapi-client";
 import { publishOwnerEntityTagName } from "#/core/common/sub/publish/publish-owner-type-name";
 import { noteContentPreviewPlainText } from "#/core/common/sub/notes/note-content-plain-text";

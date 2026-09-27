@@ -3,8 +3,8 @@
  *
  * An edit is applied to the store right away, posted to a resource route, and
  * reconciled with what the route sends back. Edits go out with ``fetch`` rather
- * than a Remix fetcher: several can be in flight at once without cancelling
- * each other, and nothing asks Remix to reload the view afterwards.
+ * than a router fetcher: several can be in flight at once without cancelling
+ * each other, and nothing asks React Router to reload the view afterwards.
  */
 import { useSnackbar } from "notistack";
 import { useCallback, useState } from "react";

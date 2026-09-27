@@ -23,7 +23,7 @@ import {
   Stack,
   styled,
 } from "@mui/material";
-import { Form, useNavigate } from "@remix-run/react";
+import { Form, useNavigate } from "react-router";
 import { motion, useIsPresent } from "framer-motion";
 import type { PropsWithChildren } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -79,7 +79,12 @@ interface LeafPanelProps {
   inputsEnabled: boolean;
   entityNotEditable?: boolean;
   entityArchived?: boolean;
-  returnLocation: string;
+  /**
+   * Where the "close this panel" control goes. Left out where the panel has no
+   * parent to return to - a published page is the whole content, reached from
+   * a shared link - and then that control isn't shown at all.
+   */
+  returnLocation?: string;
   returnLocationDiscriminator?: string;
   /** Overrides ``returnLocation`` for AccessPanel Forget only. */
   forgetReturnLocation?: string;
@@ -403,15 +408,17 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               <IconButton onClick={handleScrollBottom}>
                 <ArrowDownwardIcon />
               </IconButton>
-              <IconButton
-                onClick={() => {
-                  setExpansionState("exit");
-                  const returnLocation = props.returnLocation;
-                  setTimeout(() => navigation(returnLocation), 500);
-                }}
-              >
-                <KeyboardDoubleArrowRightIcon />
-              </IconButton>
+              {props.returnLocation !== undefined && (
+                <IconButton
+                  onClick={() => {
+                    setExpansionState("exit");
+                    const returnLocation = props.returnLocation as string;
+                    setTimeout(() => navigation(returnLocation), 500);
+                  }}
+                >
+                  <KeyboardDoubleArrowRightIcon />
+                </IconButton>
+              )}
               <IconButton
                 onClick={() => {
                   setExpansionState("exit");
@@ -556,7 +563,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               </>
             )}
 
-            {showAccess && hasAccess && (
+            {showAccess && hasAccess && props.returnLocation !== undefined && (
               <>
                 <Stack spacing={2}>
                   <AccessPanel

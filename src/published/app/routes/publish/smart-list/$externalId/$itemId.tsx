@@ -1,7 +1,6 @@
 import { Typography } from "@mui/material";
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -13,9 +12,9 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { SmartListItemEditor } from "@jupiter/core/apps/smart_lists/sub/item/component/editor";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
@@ -41,7 +40,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         ref_id: itemId,
       });
 
-    return json({
+    return {
       pageMeta: buildPublishedPageMeta({
         request,
         entityType: NamedEntityTag.SMART_LIST_ITEM,
@@ -55,7 +54,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       contacts: result.contacts ?? [],
       location: result.location ?? null,
       note: result.note ?? null,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -76,7 +75,7 @@ export default function PublishedSmartListItemFromList() {
       isLeaflet
       inputsEnabled={false}
       entityNotEditable={true}
-      returnLocation={`/publish/smart-list/${loaderData.externalId}`}
+      returnLocation={`/smart-list/${loaderData.externalId}`}
     >
       <SmartListItemEditor
         item={item}
@@ -103,7 +102,7 @@ export default function PublishedSmartListItemFromList() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  (params) => `/publish/smart-list/${params.externalId}`,
+  (params) => `/smart-list/${params.externalId}`,
   ParamsSchema,
   {
     notFound: (params) =>

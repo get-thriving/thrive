@@ -88,6 +88,9 @@ def test_api_working_mem_update_settings(
         json={
             "generation_period": {"should_change": True, "value": "daily"},
             "cleanup_aspect_ref_id": {"should_change": False},
+            "schedulability": {"should_change": False},
+            "scheduling_event_duration_mins": {"should_change": False},
+            "scheduling_event_count": {"should_change": False},
         },
         timeout=10,
     )

@@ -1999,7 +1999,9 @@ def test_api_time_plan_load_with_chore_stack_activity(
     create_chore,
     create_chore_stack,
 ) -> None:
-    tp = create_time_plan("2025-03-03")
+    # A week of its own: this package shares one workspace, and a second plan
+    # for the same week is a conflict.
+    tp = create_time_plan("2025-03-24")
     chore1 = create_chore("Loaded Chore One")
     chore2 = create_chore("Loaded Chore Two")
     stack = create_chore_stack("Loaded Stack", [chore1.ref_id, chore2.ref_id])
@@ -2043,7 +2045,7 @@ def test_api_chore_stack_find_suitable_for_time_plan(
 ) -> None:
     # Like finding suitable chores, this isn't part of the public API, so it
     # goes to the WebAPI directly.
-    tp = create_time_plan("2025-03-10")
+    tp = create_time_plan("2025-03-31")
     chore = create_chore("Suitable Stack Chore")
     stack = create_chore_stack("Suitable Stack", [chore.ref_id])
 

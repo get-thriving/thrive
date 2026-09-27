@@ -5,10 +5,11 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { useActionData, useNavigation } from "react-router";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -27,9 +28,8 @@ import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const ParamsSchema = z.object({});
 
@@ -48,7 +48,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const result = await apiClient.mcpKey.mCpKeyCreate({ name: form.name });
-    return json(noErrorSomeData({ created: true, mcpKey: result.mcp_key }));
+    return noErrorSomeData({ created: true, mcpKey: result.mcp_key });
   } catch (error) {
     return handleActionApiError(error);
   }

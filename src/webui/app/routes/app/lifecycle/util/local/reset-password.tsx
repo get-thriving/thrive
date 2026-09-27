@@ -1,8 +1,7 @@
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { useActionData, useNavigation } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect, useActionData, useNavigation } from "react-router";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { CommunityLink } from "@jupiter/core/infra/component/community-link";
@@ -28,9 +27,9 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
 import { commitSession, getSession } from "~/sessions";
-import { getGuestApiClient } from "~/api-clients.server";
 
 const RecoverAccountFormSchema = z.object({
   emailAddress: z.string(),

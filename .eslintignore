@@ -19,5 +19,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-src/webui/remix.config.js
-src/published/remix.config.js
+
+# React Router generated route types
+src/webui/.react-router
+src/published/.react-router

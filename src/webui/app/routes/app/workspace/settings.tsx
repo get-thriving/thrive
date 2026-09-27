@@ -1,9 +1,11 @@
 import { WorkspaceFeature } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirectDocument } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { redirectDocument, useActionData, useNavigation } from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -22,10 +24,9 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { getHosting } from "#/core/universe";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
@@ -46,9 +47,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const result = await apiClient.workspaces.workspaceLoad({});
 
-  return json({
+  return {
     workspace: result.workspace,
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

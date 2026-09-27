@@ -3,11 +3,11 @@
  *
  * A time plan is one page with a lot hanging off it - the plan, its
  * activities, the calendar of its period, the list of every plan around it -
- * and panels that open on top of all that. Remix reloads everything on screen
+ * and panels that open on top of all that. React Router reloads everything on screen
  * whenever the query string changes, which a panel does just by opening, so
  * the pages say for themselves what actually makes their data stale.
  */
-import type { Params, ShouldRevalidateFunction } from "@remix-run/react";
+import type { Params, ShouldRevalidateFunction } from "react-router";
 
 // A deliberate "load it all again", which nothing here stands in the way of.
 const INVALIDATE_TOP_LEVEL_PARAM = "invalidateTopLevel";

@@ -5,7 +5,7 @@
  * goes on to the activity; "Create & Another" makes it and puts up a fresh
  * form. Neither reloads the plan.
  */
-import { useNavigate } from "@remix-run/react";
+import { useNavigate } from "react-router";
 import { useMemo, useState } from "react";
 
 import { useTimePlanMutation } from "#/core/apps/time_plans/store/mutation";

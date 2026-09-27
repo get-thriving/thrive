@@ -1,12 +1,12 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirectDocument } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirectDocument } from "react-router";
 import { parseQuery } from "zodix";
 import { FRONT_DOOR_INFO_SCHEMA } from "@jupiter/core/frontdoor";
 import { saveFrontDoorInfo } from "@jupiter/core/frontdoor.server";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
 import { getSession } from "~/sessions";
 
 export const handle = {

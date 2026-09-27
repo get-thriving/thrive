@@ -1,6 +1,9 @@
 docs
 node_modules/
 secrets
+**/Config.project.secret
+.venv/
+**/.venv/
 .github
 .build-cache
 .cache/

@@ -1,0 +1,173 @@
+import type { LifePlan, Tag } from "@jupiter/webapi-client";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
+import AddIcon from "@mui/icons-material/Add";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { useNavigation } from "react-router";
+import { useContext, useState } from "react";
+import { z } from "zod";
+
+import { EntityNameComponent } from "#/core/common/component/entity-name";
+import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-card";
+import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
+import { EntityStack } from "#/core/infra/component/entity-stack";
+import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
+import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
+import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
+import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import {
+  DisplayType,
+  useLeafNeedsToShowLeaflet,
+  useTrunkNeedsToShowLeaf,
+} from "#/core/infra/component/use-nested-entities";
+import { SectionCard } from "#/core/infra/component/section-card";
+import {
+  FilterManyOptions,
+  NavSingle,
+  SectionActions,
+} from "#/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import { sortAspectsByTreeOrder } from "#/core/apps/life_plan/sub/aspects/root";
+import { AspectTag } from "#/core/apps/life_plan/sub/aspects/component/tag";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
+import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+
+export const handle = {
+  displayType: DisplayType.LEAF,
+};
+
+const ParamsSchema = z.object({});
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+
+  const [summaryResponse, response, allTags] = await Promise.all([
+    apiClient.application.getSummaries({
+      include_life_plan: true,
+    }),
+    apiClient.lifePlan.aspectFind({
+      allow_archived: false,
+      include_notes: false,
+      include_tags: true,
+    }),
+    apiClient.tags.tagFind({
+      allow_archived: false,
+    }),
+  ]);
+
+  return {
+    lifePlan: summaryResponse.life_plan as LifePlan,
+    entries: response.entries,
+    allTags: allTags.tags,
+  };
+}
+
+export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
+
+export default function Aspects() {
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const topLevelInfo = useContext(TopLevelInfoContext);
+  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
+  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
+  const navigation = useNavigation();
+  const inputsEnabled = navigation.state === "idle";
+
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+
+  const entriesByRefId = new Map(
+    loaderData.entries.map((entry) => [entry.aspect.ref_id, entry]),
+  );
+
+  const sortedAspects = sortAspectsByTreeOrder(
+    loaderData.entries.map((e) => e.aspect),
+  ).filter((aspect) => {
+    if (selectedTagsRefId.length === 0) {
+      return true;
+    }
+    const entry = entriesByRefId.get(aspect.ref_id);
+    return entry?.tags?.some((tag: Tag) =>
+      selectedTagsRefId.includes(tag.ref_id),
+    );
+  });
+
+  return (
+    <LeafPanel
+      key="life-plan-aspects"
+      fakeKey="life-plan-aspects"
+      returnLocation="/app/workspace/apps/life-plan"
+      shouldShowALeaflet={shouldShowALeaflet}
+      inputsEnabled={inputsEnabled}
+    >
+      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+        <SectionCard
+          title="Aspects"
+          actions={
+            <SectionActions
+              id="life-plan-aspects"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                NavSingle({
+                  text: "New Aspect",
+                  link: `/app/workspace/apps/life-plan/aspects/new`,
+                  icon: <AddIcon />,
+                  id: "new-aspect",
+                }),
+                FilterManyOptions(
+                  "Tags",
+                  loaderData.allTags.map((tag) => ({
+                    value: tag.ref_id,
+                    text: tag.name,
+                  })),
+                  setSelectedTagsRefId,
+                ),
+              ]}
+            />
+          }
+        >
+          {sortedAspects.length === 0 && (
+            <EntityNoNothingCard
+              title="You Have To Start Somewhere"
+              message="There are no aspects to show. You can create a new aspect."
+              newEntityLocations="/app/workspace/apps/life-plan/aspects/new"
+              helpSubject={DocsHelpSubject.LIFE_PLAN_ASPECTS}
+            />
+          )}
+
+          <EntityStack>
+            {sortedAspects.map((aspect) => (
+              <EntityCard
+                key={`aspect-${aspect.ref_id}`}
+                entityId={`aspect-${aspect.ref_id}`}
+              >
+                <EntityLink
+                  to={`/app/workspace/apps/life-plan/aspects/${aspect.ref_id}`}
+                >
+                  <AspectTag aspect={aspect} />
+                  <EntityNameComponent name={aspect.name} />
+                  {entriesByRefId.get(aspect.ref_id)?.tags?.map((tag: Tag) => (
+                    <TagTag key={tag.ref_id} tag={tag} />
+                  ))}
+                </EntityLink>
+              </EntityCard>
+            ))}
+          </EntityStack>
+        </SectionCard>
+      </NestingAwareBlock>
+
+      <NestedOutlet />
+    </LeafPanel>
+  );
+}
+
+export const ErrorBoundary = makeLeafErrorBoundary(
+  "/app/workspace/apps/life-plan/aspects",
+  ParamsSchema,
+  {
+    error: () => `There was an error loading the aspects! Please try again!`,
+  },
+);

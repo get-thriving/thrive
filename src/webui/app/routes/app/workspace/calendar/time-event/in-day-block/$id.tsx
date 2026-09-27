@@ -33,15 +33,18 @@ import {
   OutlinedInput,
   Stack,
 } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
 import {
+  redirect,
   useActionData,
   useFetcher,
   useNavigation,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
@@ -87,10 +90,9 @@ import {
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
 import { noSchedulingParamsUpdateArgs } from "@jupiter/core/common/scheduling-params-form";
-
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -425,7 +427,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       bigPlanInboxTasks,
     } = details;
 
-    return json({
+    return {
       rootAspect: summaryResponse.root_aspect as AspectSummary,
       lifePlan: summaryResponse.life_plan as LifePlan,
       allAspects: summaryResponse.aspects as Array<AspectSummary>,
@@ -458,7 +460,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       timePlanActivity: timePlanActivity,
       allContacts: allContacts.contacts as Array<Contact>,
       allTags: allTags.tags as Array<Tag>,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }

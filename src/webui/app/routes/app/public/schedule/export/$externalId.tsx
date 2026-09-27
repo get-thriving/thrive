@@ -1,7 +1,6 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import ical from "ical-generator";
-
-import { getGuestApiClient } from "~/api-clients.server";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const externalId = params.externalId;

@@ -4,7 +4,7 @@ import type {
 } from "@jupiter/webapi-client";
 import { Popper } from "@mui/material";
 import type { PopperProps } from "@mui/material";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import { useEffect } from "react";
 
 import type { ActionResult } from "#/core/infra/action-result";

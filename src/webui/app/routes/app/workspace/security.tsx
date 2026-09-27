@@ -6,10 +6,12 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { redirect, useActionData, useNavigation } from "react-router";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { useContext } from "react";
@@ -27,10 +29,9 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getIntent } from "~/logic/intent";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { getIntent } from "@jupiter/core/infra/intent";
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
@@ -47,7 +48,7 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await getLoggedInApiClient(request);
-  return json({});
+  return {};
 }
 
 export async function action({ request }: ActionFunctionArgs) {

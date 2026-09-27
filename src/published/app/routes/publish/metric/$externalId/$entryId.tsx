@@ -1,7 +1,6 @@
 import { Typography } from "@mui/material";
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -14,9 +13,9 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { MetricEntryEditor } from "@jupiter/core/apps/metrics/sub/entry/component/editor";
 import { metricEntryName } from "@jupiter/core/apps/metrics/sub/entry/root";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
@@ -41,7 +40,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       ref_id: entryId,
     });
 
-    return json({
+    return {
       pageMeta: buildPublishedPageMeta({
         request,
         entityType: NamedEntityTag.METRIC_ENTRY,
@@ -54,7 +53,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
       note: result.note ?? null,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -75,7 +74,7 @@ export default function PublishedMetricEntryFromMetric() {
       isLeaflet
       inputsEnabled={false}
       entityNotEditable={true}
-      returnLocation={`/publish/metric/${loaderData.externalId}`}
+      returnLocation={`/metric/${loaderData.externalId}`}
     >
       <MetricEntryEditor
         metricEntry={metricEntry}
@@ -101,7 +100,7 @@ export default function PublishedMetricEntryFromMetric() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  (params) => `/publish/metric/${params.externalId}`,
+  (params) => `/metric/${params.externalId}`,
   ParamsSchema,
   {
     notFound: (params) =>

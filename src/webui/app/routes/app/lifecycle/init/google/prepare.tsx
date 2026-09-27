@@ -1,10 +1,10 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 import { saveGoogleOauthState } from "@jupiter/core/auth/sub/google/oauth-state.server";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { isLocal } from "@jupiter/core/env";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
 import { SERVICE_PROPERTIES } from "~/logic/config.server";
 
 const GOOGLE_INIT_CALLBACK_PATH =

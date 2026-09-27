@@ -6,16 +6,19 @@ import type {
 } from "@jupiter/webapi-client";
 import { HomeTabTarget, NamedEntityTag } from "@jupiter/webapi-client";
 import { Box, Button, Stack, useTheme } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
 import {
+  redirect,
   useParams,
   Link,
   useLocation,
   useNavigation,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery, parseQuerySafe } from "zodix";
 import TuneIcon from "@mui/icons-material/Tune";
@@ -45,11 +48,10 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
-
-import { newURLParams } from "~/logic/navigation";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { newURLParams } from "@jupiter/core/infra/navigation";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 enum Action {
   ADD_WIDGET = "add",
@@ -101,7 +103,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: true,
     });
 
-    return json(result);
+    return result;
   } catch (error) {
     handleLoaderApiError(error);
   }

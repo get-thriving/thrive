@@ -1,6 +1,6 @@
 import { ApiError } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseQuery } from "zodix";
@@ -11,8 +11,8 @@ import {
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { isLocal } from "@jupiter/core/env";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
 import { SERVICE_PROPERTIES } from "~/logic/config.server";
 import { emailVerificationVerifyUrl } from "~/routes/app/lifecycle/lifecycle-redirects.server";
 import { commitSession, getSession } from "~/sessions";

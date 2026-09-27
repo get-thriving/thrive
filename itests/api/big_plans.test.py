@@ -231,6 +231,9 @@ def test_api_big_plan_update(api_url: str, api_key: str, create_big_plan) -> Non
             "chapter_ref_id": {"should_change": False},
             "goal_ref_id": {"should_change": False},
             "dependency_ref_ids": {"should_change": False},
+            "schedulability": {"should_change": False},
+            "scheduling_event_duration_mins": {"should_change": False},
+            "scheduling_event_count": {"should_change": False},
         },
         timeout=10,
     )
@@ -271,6 +274,9 @@ def _set_dependencies(
                 "should_change": True,
                 "value": dependency_ref_ids,
             },
+            "schedulability": {"should_change": False},
+            "scheduling_event_duration_mins": {"should_change": False},
+            "scheduling_event_count": {"should_change": False},
         },
         timeout=10,
     )
@@ -666,9 +672,11 @@ def test_big_plan_milestone_always_has_a_time_event(
             ),
         ),
     )
-    assert loaded.big_plan_milestone is not None
+    # Both are optional and may be left unset, so narrow to the entity itself
+    # rather than only ruling out None.
+    assert isinstance(loaded.big_plan_milestone, BigPlanMilestone)
     assert loaded.big_plan_milestone.ref_id == milestone.ref_id
-    assert loaded.big_plan is not None
+    assert isinstance(loaded.big_plan, BigPlan)
     assert loaded.big_plan.ref_id == bp.ref_id
 
     archive_response = big_plan_milestone_archive_sync(
@@ -962,6 +970,9 @@ def _update_payload(ref_id: str, *, name: str | None = None) -> dict[str, object
         "chapter_ref_id": {"should_change": False},
         "goal_ref_id": {"should_change": False},
         "dependency_ref_ids": {"should_change": False},
+        "schedulability": {"should_change": False},
+        "scheduling_event_duration_mins": {"should_change": False},
+        "scheduling_event_count": {"should_change": False},
     }
 
 

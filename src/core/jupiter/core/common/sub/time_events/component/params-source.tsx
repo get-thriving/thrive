@@ -1,5 +1,5 @@
 import type { ADate, TimeInDay } from "@jupiter/webapi-client";
-import { useSearchParams } from "@remix-run/react";
+import { useSearchParams } from "react-router";
 import { useEffect } from "react";
 
 interface TimeEventParamsSourceParams {
@@ -19,7 +19,7 @@ export function TimeEventParamsSource(props: TimeEventParamsSourceParams) {
     const startDate = props.startDate.toString();
     const startTimeInDay = props.startTimeInDay.toString();
     const durationMins = props.durationMins.toString();
-    // Remember which page put these in the query. On the way out Remix has
+    // Remember which page put these in the query. On the way out React Router has
     // often already moved, and writing the old query onto that next page
     // would wipe whatever it was keeping there - a time plan's view among
     // them.

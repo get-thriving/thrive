@@ -6,7 +6,7 @@
  * another device, a collaborator) is picked up with a reload - unless edits are
  * still being saved, which the reload would race.
  */
-import { useNavigation, useRevalidator } from "@remix-run/react";
+import { useNavigation, useRevalidator } from "react-router";
 import { useEffect, useRef } from "react";
 
 export const REVALIDATE_AFTER_AWAY_MS = 5 * 60 * 1000;

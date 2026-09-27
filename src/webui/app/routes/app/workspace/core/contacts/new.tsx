@@ -1,8 +1,9 @@
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { redirect, useActionData, useNavigation } from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -22,9 +23,8 @@ import {
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
-
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const ParamsSchema = z.object({});
 

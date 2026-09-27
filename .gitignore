@@ -153,3 +153,7 @@ src/mobile/ios/capacitor-cordova-ios-plugins
 # Generated Config files
 src/mobile/ios/App/App/capacitor.config.json
 src/mobile/ios/App/App/config.xml
+
+# React Router generated route types
+src/webui/.react-router/
+src/published/.react-router/

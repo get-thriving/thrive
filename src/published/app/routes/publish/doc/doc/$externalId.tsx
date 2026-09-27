@@ -1,6 +1,5 @@
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { z } from "zod";
 import { parseParams } from "zodix";
 import { Stack } from "@mui/material";
@@ -15,9 +14,9 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { DocEditor } from "@jupiter/core/apps/docs/component/editor";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
@@ -40,7 +39,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       external_id: externalId,
     });
 
-    return json({
+    return {
       pageMeta: buildPublishedPageMeta({
         request,
         entityType: NamedEntityTag.DOC,
@@ -52,7 +51,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       note: result.note,
       tags: result.tags ?? [],
       location: result.location ?? null,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -72,7 +71,6 @@ export default function PublishedDoc() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      returnLocation="/app"
       initialExpansionState={LeafPanelExpansionState.FULL}
       allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
@@ -111,7 +109,7 @@ export default function PublishedDoc() {
   );
 }
 
-export const ErrorBoundary = makeLeafErrorBoundary("/publish", ParamsSchema, {
+export const ErrorBoundary = makeLeafErrorBoundary("/", ParamsSchema, {
   notFound: (params) => `Could not find published doc ${params.externalId}!`,
   error: (params) =>
     `There was an error loading published doc ${params.externalId}! Please try again!`,

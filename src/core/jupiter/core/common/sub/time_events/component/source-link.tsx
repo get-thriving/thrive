@@ -7,7 +7,7 @@ import type {
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import { Launch as LaunchIcon } from "@mui/icons-material";
 import { Button } from "@mui/material";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 import { parseEntityLinkStd } from "#/core/common/entity-link";
 

@@ -180,6 +180,9 @@ def test_api_prm_person_update(api_url: str, api_key: str, create_person) -> Non
             "catch_up_due_at_day": {"should_change": False},
             "catch_up_due_at_month": {"should_change": False},
             "circle_ref_ids": {"should_change": False},
+            "schedulability": {"should_change": False},
+            "scheduling_event_duration_mins": {"should_change": False},
+            "scheduling_event_count": {"should_change": False},
         },
         timeout=10,
     )
@@ -286,6 +289,9 @@ def _person_update_body(ref_id: str, *, name: str) -> dict[str, object]:
         "catch_up_due_at_day": {"should_change": False},
         "catch_up_due_at_month": {"should_change": False},
         "circle_ref_ids": {"should_change": False},
+        "schedulability": {"should_change": False},
+        "scheduling_event_duration_mins": {"should_change": False},
+        "scheduling_event_count": {"should_change": False},
     }
 
 
@@ -662,6 +668,9 @@ def test_api_prm_occasion_acl(
             "name": {"should_change": True, "value": "Hacked Occasion"},
             "kind": {"should_change": False},
             "date": {"should_change": False},
+            "schedulability": {"should_change": False},
+            "scheduling_event_duration_mins": {"should_change": False},
+            "scheduling_event_count": {"should_change": False},
         },
         timeout=10,
     )
@@ -738,6 +747,9 @@ def test_api_prm_occasion_update(
             "name": {"should_change": True, "value": "New Occasion"},
             "kind": {"should_change": False},
             "date": {"should_change": True, "value": "15 Mar"},
+            "schedulability": {"should_change": False},
+            "scheduling_event_duration_mins": {"should_change": False},
+            "scheduling_event_count": {"should_change": False},
         },
         timeout=10,
     )

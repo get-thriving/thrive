@@ -12,10 +12,12 @@ import {
   TextField,
   styled,
 } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { useActionData, useNavigation } from "react-router";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -45,10 +47,9 @@ import {
   selectZod,
 } from "@jupiter/core/common/select-form";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 interface HabitOptions {
   refId: string;
@@ -85,10 +86,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_journals_last_year: true,
   });
   const response = await apiClient.stats.statsLoadRuns({});
-  return json({
+  return {
     summaries: summariesResponse,
     loadRuns: response.entries,
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -106,7 +107,7 @@ export async function action({ request }: ActionFunctionArgs) {
       filter_journal_ref_ids: fixSelectOutputEntityId(form.filterJournalRefIds),
     });
 
-    return json(noErrorNoData());
+    return noErrorNoData();
   } catch (error) {
     return handleActionApiError(error);
   }

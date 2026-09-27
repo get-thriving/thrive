@@ -17,7 +17,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import { useEffect, type ReactNode } from "react";
 
 import { accessLevelName } from "#/core/common/sub/access/access-level";

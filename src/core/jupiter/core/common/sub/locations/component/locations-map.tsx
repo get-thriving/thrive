@@ -70,7 +70,7 @@ export function LocationsMap({
 
   // Borrow a map for as long as this view is on screen, rather than building
   // one. The map outlives the component, so a navigation away and back, a
-  // StrictMode double mount, or a Remix revalidation all pick the same map
+  // StrictMode double mount, or a revalidation all pick the same map
   // back up instead of flashing a fresh one into place.
   useEffect(() => {
     if (!canShowMap) {

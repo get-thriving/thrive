@@ -12,13 +12,12 @@ import {
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
+  redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
-  json,
-  redirect,
-} from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation } from "@remix-run/react";
+  ShouldRevalidateFunction,
+} from "react-router";
+import { useActionData, useNavigation } from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
@@ -43,10 +42,9 @@ import {
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
 import { entityOwnedByCurrentUser } from "#/core/common/sub/access/access-level";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -157,10 +155,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       timePlanEntriesPromise,
     ]);
 
-    return json({
+    return {
       info: result,
       timePlanEntries: timePlanEntries,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }

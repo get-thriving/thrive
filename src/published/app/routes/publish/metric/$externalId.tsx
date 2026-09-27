@@ -7,9 +7,12 @@ import {
 import { styled } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ResponsiveLine } from "@nivo/line";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Outlet } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  MetaFunction,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { Outlet } from "react-router";
 import { AnimatePresence } from "framer-motion";
 import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
@@ -41,9 +44,9 @@ import { ContactTag } from "@jupiter/core/common/sub/contacts/component/contact-
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
@@ -89,7 +92,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           index,
       );
 
-    return json({
+    return {
       pageMeta: buildPublishedPageMeta({
         request,
         entityType: NamedEntityTag.METRIC,
@@ -105,7 +108,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       metricEntryContactsByRefId,
       allEntryTags,
       allContacts,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -113,6 +116,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export const meta: MetaFunction<typeof loader> = ({ data }) =>
   metaDescriptorsForPublishedPage(data?.pageMeta);
+
+// Single fetch only skips a loader on navigation when the route says it may be
+// skipped, so keep the default (don't refetch this parent when only a child
+// param changed).
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  defaultShouldRevalidate,
+}) => defaultShouldRevalidate;
 
 export default function PublishedMetric() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
@@ -203,7 +213,6 @@ export default function PublishedMetric() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      returnLocation="/app"
       initialExpansionState={LeafPanelExpansionState.FULL}
       allowedExpansionStates={[LeafPanelExpansionState.FULL]}
       shouldShowALeaflet={shouldShowALeaflet}
@@ -256,7 +265,7 @@ export default function PublishedMetric() {
                   entityId={`metric-entry-${entry.ref_id}`}
                 >
                   <EntityLink
-                    to={`/publish/metric/${loaderData.externalId}/${entry.ref_id}`}
+                    to={`/metric/${loaderData.externalId}/${entry.ref_id}`}
                   >
                     <EntityNameComponent name={metricEntryName(entry)} />
                     {indicator && (
@@ -301,7 +310,7 @@ export default function PublishedMetric() {
   );
 }
 
-export const ErrorBoundary = makeLeafErrorBoundary("/publish", ParamsSchema, {
+export const ErrorBoundary = makeLeafErrorBoundary("/", ParamsSchema, {
   notFound: (params) => `Could not find published metric ${params.externalId}!`,
   error: (params) =>
     `There was an error loading published metric ${params.externalId}! Please try again!`,

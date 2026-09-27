@@ -9,8 +9,8 @@ Thrive (codenamed Jupiter) is a life planning tool with a monorepo containing:
 | Service | Tech |
 |---|---|
 | **WebAPI** (backend) | Python/FastAPI, SQLite |
-| **WebUI** (frontend) | TypeScript/Remix/React |
-| **Published** (public pages) | TypeScript/Remix/React |
+| **WebUI** (frontend) | TypeScript/React Router/React |
+| **Published** (public pages) | TypeScript/React Router/React |
 | **API** | Python/FastAPI |
 | **MCP** | Python/FastAPI |
 | **Docs** | Python/MkDocs |
@@ -99,4 +99,3 @@ there, based on the patterns established.
 
 - The `secrets/` directory is gitignored and must exist with a `Config.secrets` file (can be empty) before running services. It is sourced by `tasks/_common.sh`.
 - The generated TS WebAPI client (`gen/ts/webapi-client`) must be compiled (handled by `mise run prepare`) before the WebUI can build/run.
-- There is a pre-existing TypeScript error in `src/core/jupiter/core/infra/component/use-big-screen.ts`; `npx tsc` in `src/webui` will report it but the Remix dev server still runs fine.

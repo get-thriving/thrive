@@ -1,8 +1,9 @@
 import type { Tag } from "@jupiter/webapi-client";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
 import { useMemo } from "react";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import {
@@ -19,10 +20,9 @@ import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -35,9 +35,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
   });
 
-  return json({
+  return {
     tags: result.tags as Array<Tag>,
-  });
+  };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =

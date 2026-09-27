@@ -1,11 +1,9 @@
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import { z } from "zod";
 import { parseQuery } from "zodix";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const QuerySchema = z.object({
   entityType: z.nativeEnum(NamedEntityTag),
@@ -22,10 +20,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
       entity_ref_id: query.entityRefId,
     });
 
-    return json({
+    return {
       entries: result.entries,
       users: result.users,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }

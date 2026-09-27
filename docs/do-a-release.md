@@ -92,7 +92,7 @@ Build only what you plan to publish. All builds read `VERSION` from
 
 | Artifact | Command | Used by |
 | --- | --- | --- |
-| Docker images (amd64 + arm64) | `mise run build:docker` (both platforms by default) | `release:upload-docker X.Y.Z` |
+| Docker images (amd64 + arm64) | `mise run build:docker --arch all` (default `--arch` is `arm64`) | `release:upload-docker X.Y.Z` |
 | macOS desktop (.dmg + Mac App Store .pkg) | `mise run build:desktop` | `release:upload-gh`, `release:upload-appstore-macos` |
 | iOS (.ipa) | `mise run build:mobile-ios` | `release:upload-gh`, `release:upload-appstore-ios` |
 | Android (.aab) | `mise run build:mobile-android` | `release:upload-gh`, `release:upload-playstore` |
@@ -125,11 +125,12 @@ publishes when uploads succeed.
 
 ### Docker Hub
 
-After `mise run build:docker` (reads `VERSION` from `src/Config.global`; builds amd64
-and arm64 unless you pass `--platform`). Docker reuses layer cache when nothing in the
-build context changed since the last build — that is normal and usually what you want.
+After `mise run build:docker --arch all` (reads `VERSION` from `src/Config.global`).
+The default is `--arch arm64`, which is the local Mac build. A Docker Hub release
+needs both architectures. Docker reuses layer cache when nothing in the build
+context changed since the last build — that is normal and usually what you want.
 If you need a full rebuild (e.g. after bumping only `VERSION` with no code diff, or to
-refresh base images), use `mise run build:docker --no-cache` and/or `--pull`:
+refresh base images), use `mise run build:docker --arch all --no-cache` and/or `--pull`:
 
 ```bash
 mise run release:upload-docker X.Y.Z

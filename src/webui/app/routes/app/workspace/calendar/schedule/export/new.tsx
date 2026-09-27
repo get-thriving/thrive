@@ -1,13 +1,16 @@
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
 import {
+  redirect,
   useActionData,
   useLoaderData,
   useNavigation,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -35,9 +38,8 @@ import {
   createAnotherLocation,
   isCreateAndAnother,
 } from "@jupiter/core/infra/create-and-another";
-
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const ParamsSchema = z.object({});
 
@@ -59,9 +61,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_tags: false,
   });
 
-  return json({
+  return {
     allScheduleStreams: streamsResponse.entries.map((e) => e.schedule_stream),
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

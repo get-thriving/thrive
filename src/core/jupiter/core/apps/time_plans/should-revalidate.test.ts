@@ -1,4 +1,4 @@
-import type { ShouldRevalidateFunctionArgs } from "@remix-run/react";
+import type { ShouldRevalidateFunctionArgs } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 
 import {

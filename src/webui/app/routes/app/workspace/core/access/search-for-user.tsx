@@ -1,11 +1,9 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import { z } from "zod";
 import { parseQuery } from "zodix";
 import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const SEARCH_FOR_USER_DEFAULT_LIMIT = 20;
 
@@ -19,7 +17,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema);
 
   if (query.query === undefined || query.query.trim().length < 2) {
-    return json(noErrorSomeData({ users: [] }));
+    return noErrorSomeData({ users: [] });
   }
 
   const parsedLimit =
@@ -35,7 +33,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         : parsedLimit,
     });
 
-    return json(noErrorSomeData({ users: result.users }));
+    return noErrorSomeData({ users: result.users });
   } catch (error) {
     return handleActionApiError(error);
   }

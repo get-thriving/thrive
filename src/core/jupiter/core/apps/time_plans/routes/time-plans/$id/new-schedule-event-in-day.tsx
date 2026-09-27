@@ -1,0 +1,336 @@
+import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
+import {
+  Button,
+  ButtonGroup,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  Stack,
+} from "@mui/material";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import {
+  redirect,
+  useActionData,
+  useNavigation,
+  useParams,
+  useSearchParams,
+} from "react-router";
+import { DateTime } from "luxon";
+import { useContext, useEffect, useState } from "react";
+import { z } from "zod";
+import { parseForm, parseParams, parseQuery } from "zodix";
+
+import {
+  parseTimeEventBufferMins,
+  timeEventInDayBlockParamsToUtc,
+} from "#/core/common/sub/time_events/time-event";
+import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "#/core/infra/component/errors";
+import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import {
+  ActionSingle,
+  SectionActions,
+} from "#/core/infra/component/section-actions";
+import {
+  ActionsPosition,
+  SectionCard,
+} from "#/core/infra/component/section-card";
+import { ScheduleStreamSelect } from "#/core/apps/schedule/component/select";
+import { TimeEventBuffersEditor } from "#/core/common/sub/time_events/component/buffers-editor";
+import { TimeEventParamsSource } from "#/core/common/sub/time_events/component/params-source";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
+import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import { handleActionApiError } from "#/core/infra/errors.server";
+import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
+import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
+import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+
+const ParamsSchema = z.object({
+  id: z.string(),
+});
+
+const QuerySchema = z.object({
+  date: z
+    .string()
+    .regex(/[0-9][0-9][0-9][0-9][-][0-9][0-9][-][0-9][0-9]/)
+    .optional(),
+});
+
+const CreateFormSchema = z.object({
+  scheduleStreamRefId: z.string(),
+  userTimezone: z.string(),
+  name: z.string(),
+  startDate: z.string(),
+  startTimeInDay: z.string().optional(),
+  durationMins: z.string().transform((v) => parseInt(v, 10)),
+  bufferBeforeMins: z.string().optional(),
+  bufferAfterMins: z.string().optional(),
+});
+
+export const handle = {
+  displayType: DisplayType.LEAF,
+};
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const query = parseQuery(request, QuerySchema);
+
+  const summaryResponse = await apiClient.application.getSummaries({
+    include_schedule_streams: true,
+  });
+
+  return {
+    date: query.date,
+    allScheduleStreams:
+      summaryResponse.schedule_streams as Array<ScheduleStreamSummary>,
+  };
+}
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const { id } = parseParams(params, ParamsSchema);
+  const form = await parseForm(request, CreateFormSchema);
+  const timePlanView = new URL(request.url).searchParams;
+
+  try {
+    const { startDate, startTimeInDay } = timeEventInDayBlockParamsToUtc(
+      form,
+      form.userTimezone,
+    );
+    const response = await apiClient.schedule.scheduleEventInDayCreate({
+      schedule_stream_ref_id: form.scheduleStreamRefId,
+      name: form.name,
+      start_date: startDate,
+      start_time_in_day: startTimeInDay ?? "",
+      duration_mins: form.durationMins,
+      buffer_before_mins: parseTimeEventBufferMins(form.bufferBeforeMins),
+      buffer_after_mins: parseTimeEventBufferMins(form.bufferAfterMins),
+    });
+
+    return redirect(
+      withTimePlanView(
+        `/app/workspace/apps/time-plans/${id}/calendar-event/schedule-event-in-day/${response.new_schedule_event_in_day.ref_id}`,
+        timePlanView,
+      ),
+    );
+  } catch (error) {
+    return handleActionApiError(error);
+  }
+}
+
+export const shouldRevalidate: ShouldRevalidateFunction =
+  standardShouldRevalidate;
+
+export default function TimePlanScheduleEventInDayNew() {
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const topLevelInfo = useContext(TopLevelInfoContext);
+  const navigation = useNavigation();
+  const { id } = useParams();
+  const [query] = useSearchParams();
+  const timePlanView = query;
+
+  const inputsEnabled = navigation.state === "idle";
+
+  const rightNow = DateTime.local({ zone: topLevelInfo.user.timezone });
+
+  const [startDate, setStartDate] = useState(
+    loaderData.date ?? rightNow.toFormat("yyyy-MM-dd"),
+  );
+  const [startTimeInDay, setStartTimeInDay] = useState(
+    rightNow.toFormat("HH:mm"),
+  );
+  const [durationMins, setDurationMins] = useState(30);
+  const [bufferBeforeMins, setBufferBeforeMins] = useState<number | null>(null);
+  const [bufferAfterMins, setBufferAfterMins] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (query.get("sourceStartDate") && query.get("sourceStartTimeInDay")) {
+      setStartDate(query.get("sourceStartDate")!);
+      setStartTimeInDay(query.get("sourceStartTimeInDay")!);
+    }
+    if (query.get("sourceDurationMins")) {
+      setDurationMins(parseInt(query.get("sourceDurationMins")!, 10));
+    }
+  }, [query]);
+
+  return (
+    <LeafPanel
+      key="time-plan-schedule-event-in-day/new"
+      fakeKey="time-plan-schedule-event-in-day/new"
+      returnLocation={withTimePlanView(
+        `/app/workspace/apps/time-plans/${id}`,
+        timePlanView,
+      )}
+      inputsEnabled={inputsEnabled}
+      initialExpansionState={LeafPanelExpansionState.SMALL}
+    >
+      <TimeEventParamsSource
+        startDate={startDate}
+        startTimeInDay={startTimeInDay}
+        durationMins={durationMins}
+      />
+      <GlobalError actionResult={actionData} />
+      <SectionCard
+        id="schedule-event-in-day-properties"
+        title="Properties"
+        actionsPosition={ActionsPosition.BELOW}
+        actions={
+          <SectionActions
+            id="schedule-event-in-day-properties"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Create",
+                value: "create",
+                highlight: true,
+              }),
+            ]}
+          />
+        }
+      >
+        <input
+          type="hidden"
+          name="userTimezone"
+          value={topLevelInfo.user.timezone}
+        />
+        <FormControl fullWidth>
+          <InputLabel id="scheduleStreamRefId">Schedule Stream</InputLabel>
+          <ScheduleStreamSelect
+            labelId="scheduleStreamRefId"
+            label="Schedule Stream"
+            name="scheduleStreamRefId"
+            readOnly={!inputsEnabled}
+            allScheduleStreams={loaderData.allScheduleStreams}
+            defaultValue={loaderData.allScheduleStreams[0]}
+          />
+          <FieldError
+            actionResult={actionData}
+            fieldName="/schedule_stream_ref_id"
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <InputLabel id="name">Name</InputLabel>
+          <OutlinedInput label="name" name="name" readOnly={!inputsEnabled} />
+          <FieldError actionResult={actionData} fieldName="/name" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="startDate" shrink margin="dense">
+            Start Date
+          </InputLabel>
+          <OutlinedInput
+            type="date"
+            notched
+            label="startDate"
+            name="startDate"
+            readOnly={!inputsEnabled}
+            disabled={!inputsEnabled}
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+
+          <FieldError actionResult={actionData} fieldName="/start_date" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="startTimeInDay" shrink margin="dense">
+            Start Time
+          </InputLabel>
+          <OutlinedInput
+            type="time"
+            label="startTimeInDay"
+            name="startTimeInDay"
+            readOnly={!inputsEnabled}
+            value={startTimeInDay}
+            onChange={(e) => setStartTimeInDay(e.target.value)}
+          />
+
+          <FieldError
+            actionResult={actionData}
+            fieldName="/start_time_in_day"
+          />
+        </FormControl>
+
+        <Stack spacing={2} direction="row">
+          <ButtonGroup variant="outlined" disabled={!inputsEnabled}>
+            <Button
+              disabled={!inputsEnabled}
+              variant={durationMins === 15 ? "contained" : "outlined"}
+              onClick={() => setDurationMins(15)}
+            >
+              15m
+            </Button>
+            <Button
+              disabled={!inputsEnabled}
+              variant={durationMins === 30 ? "contained" : "outlined"}
+              onClick={() => setDurationMins(30)}
+            >
+              30m
+            </Button>
+            <Button
+              disabled={!inputsEnabled}
+              variant={durationMins === 60 ? "contained" : "outlined"}
+              onClick={() => setDurationMins(60)}
+            >
+              60m
+            </Button>
+          </ButtonGroup>
+
+          <FormControl fullWidth>
+            <InputLabel id="durationMins" shrink margin="dense">
+              Duration (Mins)
+            </InputLabel>
+            <OutlinedInput
+              type="number"
+              label="Duration (Mins)"
+              name="durationMins"
+              readOnly={!inputsEnabled}
+              value={durationMins}
+              onChange={(e) => {
+                if (Number.isNaN(parseInt(e.target.value, 10))) {
+                  setDurationMins(0);
+                  e.preventDefault();
+                  return;
+                }
+
+                return setDurationMins(parseInt(e.target.value, 10));
+              }}
+            />
+
+            <FieldError actionResult={actionData} fieldName="/duration_mins" />
+          </FormControl>
+        </Stack>
+
+        <TimeEventBuffersEditor
+          inputsEnabled={inputsEnabled}
+          bufferBeforeMins={bufferBeforeMins}
+          bufferAfterMins={bufferAfterMins}
+          onBufferBeforeMinsChange={setBufferBeforeMins}
+          onBufferAfterMinsChange={setBufferAfterMins}
+          actionResult={actionData}
+        />
+      </SectionCard>
+    </LeafPanel>
+  );
+}
+
+export const ErrorBoundary = makeLeafErrorBoundary(
+  (params, searchParams) =>
+    withTimePlanView(
+      `/app/workspace/apps/time-plans/${params.id}`,
+      searchParams,
+    ),
+  ParamsSchema,
+  {
+    error: () =>
+      `There was an error creating the event in day! Please try again!`,
+  },
+);

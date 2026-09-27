@@ -1,12 +1,11 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 import { z } from "zod";
 import { parseParams } from "zodix";
 import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
-
-import { getGuestApiClient } from "~/api-clients.server";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const ParamsSchema = z.object({
   externalId: z.string(),
@@ -23,7 +22,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const { refId } = parseEntityLinkStd(result.publish_entity.owner);
 
-    return redirect(`/publish/doc/dirtree/${externalId}/${refId}`);
+    // No `/publish` prefix: React Router adds the router basename to a
+    // relative redirect.
+    return redirect(`/doc/dirtree/${externalId}/${refId}`);
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -33,7 +34,7 @@ export default function PublishedDocDirRedirect() {
   return null;
 }
 
-export const ErrorBoundary = makeLeafErrorBoundary("/publish", ParamsSchema, {
+export const ErrorBoundary = makeLeafErrorBoundary("/", ParamsSchema, {
   notFound: (params) => `Could not find published folder ${params.externalId}!`,
   error: (params) =>
     `There was an error loading published folder ${params.externalId}! Please try again!`,

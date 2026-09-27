@@ -4,9 +4,10 @@ import {
   NamedEntityTag,
   PublishEntityStatus,
 } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
 import { Button, Box, Stack, Typography } from "@mui/material";
 import { useContext, useMemo, useState } from "react";
 import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
@@ -33,11 +34,11 @@ import { SlimChip } from "@jupiter/core/infra/component/chips";
 import { PublishOwnerTypeChip } from "#/core/common/sub/publish/components/publish-owner-type-chip";
 import { publishOwnerEntityTagName } from "#/core/common/sub/publish/publish-owner-type-name";
 import { publishedShareUrl } from "#/core/common/sub/publish/published-share-url";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 import { ServicePropertiesContext } from "~/logic/config";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -58,10 +59,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
       (s) => s as NamedEntityTag,
     );
 
-  return json({
+  return {
     publishEntities: findResult.publish_entities as Array<PublishEntity>,
     publishOwnerFilterTags,
-  });
+  };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =

@@ -8,7 +8,7 @@ import {
   Timezone,
 } from "@jupiter/webapi-client";
 import { Box, Paper, Portal, Theme, Typography, useTheme } from "@mui/material";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import { DateTime } from "luxon";
 import { useSnackbar } from "notistack";
 import {
@@ -422,7 +422,7 @@ function placeOrSubmit(
 }
 
 // Views that keep their own copy of the events save a reschedule themselves;
-// the rest post it, and Remix reloads what they show.
+// the rest post it, and React Router reloads what they show.
 function rescheduleOrSubmit(
   fields: CalendarRescheduleFields,
   onReschedule: CalendarRescheduleHandler | undefined,

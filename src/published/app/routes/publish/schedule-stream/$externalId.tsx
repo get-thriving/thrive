@@ -5,16 +5,19 @@ import {
 } from "@jupiter/webapi-client";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet, useSearchParams } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  MetaFunction,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { redirect, Outlet, useSearchParams } from "react-router";
 import { AnimatePresence } from "framer-motion";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { parseParams, parseQuery } from "zodix";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
+import { PUBLISHED_ROUTE_PREFIX } from "@jupiter/core/common/sub/publish/published-share-url";
 import {
   CalendarNavigationProvider,
   publishedScheduleStreamCalendarNavigation,
@@ -41,11 +44,11 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { inferPlatformAndDistribution } from "@jupiter/core/frontdoor.server";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { newURLParams } from "@jupiter/core/infra/navigation";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { newURLParams } from "~/logic/navigation";
 import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
@@ -113,7 +116,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       );
       url.searchParams.set("view", query.view || View.CALENDAR);
 
-      return redirect(url.pathname + url.search);
+      // `pathname` still carries `/publish`, and React Router adds that basename
+      // again onto a relative redirect. Strip it so the Location is
+      // `/publish/schedule-stream/...` rather than `/publish/publish/...`.
+      const pathWithinRouter = url.pathname.startsWith(
+        `${PUBLISHED_ROUTE_PREFIX}/`,
+      )
+        ? url.pathname.slice(PUBLISHED_ROUTE_PREFIX.length)
+        : url.pathname;
+
+      return redirect(pathWithinRouter + url.search);
     }
 
     const apiClient = await getGuestApiClient(request);
@@ -130,7 +142,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }),
     ]);
 
-    return json({
+    return {
       pageMeta: buildPublishedPageMeta({
         request,
         entityType: NamedEntityTag.SCHEDULE_STREAM,
@@ -149,7 +161,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       nextPeriodStartDate: calendarResponse.next_period_start_date,
       entries: calendarResponse.entries || undefined,
       stats: calendarResponse.stats || undefined,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -171,7 +183,7 @@ export default function PublishedScheduleStream() {
 
   const calendarLocation = "";
   const isAdding = false;
-  const basePath = `/publish/schedule-stream/${loaderData.externalId}`;
+  const basePath = `/schedule-stream/${loaderData.externalId}`;
 
   const calendarNavigation = useMemo(
     () => publishedScheduleStreamCalendarNavigation(loaderData.externalId),
@@ -286,7 +298,6 @@ export default function PublishedScheduleStream() {
         inputsEnabled={false}
         entityNotEditable={true}
         disabled={true}
-        returnLocation="/app"
         initialExpansionState={LeafPanelExpansionState.FULL}
         allowedExpansionStates={[LeafPanelExpansionState.FULL]}
         shouldShowALeaflet={shouldShowALeaflet}
@@ -320,7 +331,7 @@ export default function PublishedScheduleStream() {
   );
 }
 
-export const ErrorBoundary = makeLeafErrorBoundary("/publish", ParamsSchema, {
+export const ErrorBoundary = makeLeafErrorBoundary("/", ParamsSchema, {
   notFound: (params) =>
     `Could not find published schedule stream ${params.externalId}!`,
   error: (params) =>

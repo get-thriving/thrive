@@ -13,7 +13,7 @@ import {
   TableBlock,
 } from "@jupiter/webapi-client";
 import { Box, Button, Typography } from "@mui/material";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 import { noteBlockToPlainText } from "#/core/common/sub/notes/note-content-plain-text";
 import type { OneOfNoteContentBlock } from "#/core/common/sub/notes/root";

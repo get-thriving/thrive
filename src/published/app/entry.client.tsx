@@ -1,5 +1,6 @@
-import { RemixBrowser } from "@remix-run/react";
-import { Buffer } from "buffer-polyfill";
+import { HydratedRouter } from "react-router/dom";
+import { PUBLISHED_ROUTE_PREFIX } from "@jupiter/core/common/sub/publish/published-share-url";
+import { encodeRenderFixReturnTo } from "@jupiter/core/infra/render-fix-return-to";
 import { StrictMode, startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
 
@@ -8,7 +9,7 @@ function hydrate() {
     hydrateRoot(
       document,
       <StrictMode>
-        <RemixBrowser />
+        <HydratedRouter />
       </StrictMode>,
     );
   });
@@ -32,11 +33,15 @@ window.onerror = (event: Event | string) => {
     (event.indexOf("Hydration failed") !== -1 ||
       event.indexOf("Minified React error") !== -1)
   ) {
-    const destUrl = Buffer.from(
-      `${window.location.pathname}?${window.location.search}`,
-      "utf-8",
-    ).toString("base64");
-    window.location.replace(`/render-fix?returnTo=${destUrl}`);
+    // `search` carries its own "?" already.
+    const destUrl = encodeRenderFixReturnTo(
+      `${window.location.pathname}${window.location.search}`,
+    );
+    // A raw browser navigation, so unlike a router link this has to carry the
+    // basename itself.
+    window.location.replace(
+      `${PUBLISHED_ROUTE_PREFIX}/render-fix?returnTo=${destUrl}`,
+    );
     return true;
   }
 

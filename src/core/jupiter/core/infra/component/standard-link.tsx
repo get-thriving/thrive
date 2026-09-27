@@ -1,4 +1,4 @@
-import { Link, LinkProps } from "@remix-run/react";
+import { Link, LinkProps } from "react-router";
 import { styled } from "@mui/material";
 import { ComponentPropsWithoutRef } from "react";
 

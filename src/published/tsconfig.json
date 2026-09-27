@@ -1,7 +1,14 @@
 {
-  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx", "../core/editorjs.d.ts"],
+  "include": [
+    "env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "vite.config.mts",
+    "react-router.config.ts",
+    "../core/editorjs.d.ts"
+  ],
   "compilerOptions": {
-    "types": ["@remix-run/node", "vite/client", "google.maps"],
+    "types": ["@react-router/node", "vite/client", "google.maps"],
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",

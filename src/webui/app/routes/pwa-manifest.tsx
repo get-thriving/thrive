@@ -1,5 +1,4 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { inferPlatformAndDistribution } from "@jupiter/core/frontdoor.server";
 import { getPublicName } from "#/core/utils";
@@ -19,7 +18,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   startUrl.searchParams.set("clientVersion", GLOBAL_PROPERTIES.version);
   startUrl.searchParams.set("appPlatform", platform);
 
-  return json({
+  return Response.json({
     name: name,
     short_name: name,
     start_url: `${startUrl.pathname}${startUrl.search}`,

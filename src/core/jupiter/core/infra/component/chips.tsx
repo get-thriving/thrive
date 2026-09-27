@@ -66,7 +66,7 @@ export const CardCornerChipStack = styled(Box)({
   "& .MuiChip-root:not(:last-child)": {
     borderBottomRightRadius: 0,
   },
-  "& .MuiChip-root:not(:first-child)": {
+  "& .MuiChip-root + .MuiChip-root": {
     borderTopLeftRadius: 0,
   },
 });
@@ -78,7 +78,7 @@ export const CardBottomRightChipStack = styled(Box)({
   display: "flex",
   flexDirection: "row",
   zIndex: 1,
-  "& .MuiChip-root:not(:first-child)": {
+  "& .MuiChip-root + .MuiChip-root": {
     borderTopLeftRadius: 0,
   },
   "& .MuiChip-root:not(:last-child)": {

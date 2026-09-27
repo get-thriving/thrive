@@ -1,4 +1,4 @@
-import { redirectDocument } from "@remix-run/node";
+import { redirectDocument } from "react-router";
 import { clearGoogleOauthState } from "@jupiter/core/auth/sub/google/oauth-state.server";
 import {
   AUTH_TOKEN_NAME,

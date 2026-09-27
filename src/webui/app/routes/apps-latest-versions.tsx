@@ -1,6 +1,6 @@
 import { AppDistribution } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 import { z } from "zod";
 import { parseQuery } from "zodix";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";

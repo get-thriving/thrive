@@ -1,6 +1,6 @@
 import type { InboxTask } from "@jupiter/webapi-client";
 import { Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { Link, useLocation, useSearchParams } from "@remix-run/react";
+import { Link, useLocation, useSearchParams } from "react-router";
 import { AnimatePresence, motion } from "framer-motion";
 
 import type {

@@ -32,7 +32,7 @@ require_local_image() {
 
     if ! docker image inspect "${ref}" >/dev/null 2>&1; then
         log info "Missing local image ${ref}"
-        log info "Run: mise run build:docker   (builds amd64 and arm64 for VERSION in src/Config.global)"
+        log info "Run: mise run build:docker --arch all   (builds amd64 and arm64 for VERSION in src/Config.global)"
         exit 1
     fi
 }

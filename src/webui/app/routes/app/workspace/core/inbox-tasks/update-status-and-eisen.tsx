@@ -1,13 +1,12 @@
 import { Eisen, InboxTaskStatus } from "@jupiter/webapi-client";
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { ActionFunctionArgs } from "react-router";
+import { data } from "react-router";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const UpdateStatusAndEisenFormSchema = z.object({
   id: z.string(),
@@ -35,20 +34,20 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     // Views that keep their own copy of the entities merge these back in.
-    const data = noErrorSomeData({
+    const payload = noErrorSomeData({
       updated_inbox_task: result.updated_inbox_task,
       updated_big_plan_stats: result.updated_big_plan_stats ?? null,
     });
 
     if (result.record_score_result) {
-      return json(data, {
+      return data(payload, {
         headers: {
           "Set-Cookie": await saveScoreAction(result.record_score_result),
         },
       });
     }
 
-    return json(data);
+    return payload;
   } catch (error) {
     return handleActionApiError(error);
   }

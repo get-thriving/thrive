@@ -1,5 +1,5 @@
 import { Button, CardContent, Typography, styled } from "@mui/material";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type { ShouldRevalidateFunction } from "react-router";
 import { Duration } from "luxon";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { isDevelopment } from "@jupiter/core/env";
@@ -15,8 +15,7 @@ import { GlobalPropertiesContext } from "@jupiter/core/config-client";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { getPublicName } from "#/core/utils";
-
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 
 const DEFAULT_PROD_DURATION = Duration.fromMillis(1000 * 60 * 25);
 const DEFAULT_DEV_DURATION = Duration.fromMillis(1000 * 4);

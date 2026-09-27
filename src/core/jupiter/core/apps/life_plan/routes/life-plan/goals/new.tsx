@@ -1,0 +1,186 @@
+import { GoalSummary, AspectSummary } from "@jupiter/webapi-client";
+import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { redirect, useActionData, useNavigation } from "react-router";
+import { useContext, useState } from "react";
+import { z } from "zod";
+import { parseForm } from "zodix";
+
+import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "#/core/infra/component/errors";
+import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
+import {
+  SectionCard,
+  ActionsPosition,
+} from "#/core/infra/component/section-card";
+import {
+  ActionSingle,
+  SectionActions,
+} from "#/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import { AspectSelect } from "#/core/apps/life_plan/sub/aspects/component/select";
+import { GoalSelect } from "#/core/apps/life_plan/sub/goals/components/select";
+import { handleActionApiError } from "#/core/infra/errors.server";
+import {
+  CREATE_AND_ANOTHER_INTENT,
+  createAnotherLocation,
+  isCreateAndAnother,
+} from "#/core/infra/create-and-another";
+import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+
+const ParamsSchema = z.object({});
+
+const CreateFormSchema = z.object({
+  intent: z.string().optional(),
+  name: z.string(),
+  aspect: z.string(),
+  parent_goal: z.string().optional().default(""),
+});
+
+export const handle = {
+  displayType: DisplayType.LEAFLET,
+};
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const summaryResponse = await apiClient.application.getSummaries({
+    include_aspects: true,
+    include_goals: true,
+  });
+  return {
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
+    rootAspect: summaryResponse.root_aspect as AspectSummary,
+    allGoals: summaryResponse.goals as Array<GoalSummary>,
+  };
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const form = await parseForm(request, CreateFormSchema);
+
+  try {
+    const response = await apiClient.lifePlan.goalCreate({
+      name: form.name,
+      aspect_ref_id: form.aspect,
+      parent_goal_ref_id: form.parent_goal === "" ? null : form.parent_goal,
+    });
+
+    if (isCreateAndAnother(form.intent)) {
+      return redirect(createAnotherLocation(request));
+    }
+
+    return redirect(
+      `/app/workspace/apps/life-plan/goals/${response.new_goal.ref_id}`,
+    );
+  } catch (error) {
+    return handleActionApiError(error);
+  }
+}
+
+export const shouldRevalidate: ShouldRevalidateFunction =
+  standardShouldRevalidate;
+
+export default function NewGoal() {
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const topLevelInfo = useContext(TopLevelInfoContext);
+  const navigation = useNavigation();
+
+  const inputsEnabled = navigation.state === "idle";
+  const [selectedAspectRefId, setSelectedAspectRefId] = useState<string>(
+    loaderData.rootAspect.ref_id,
+  );
+
+  return (
+    <LeafPanel
+      key="goals/new"
+      isLeaflet
+      fakeKey={"goals/new"}
+      returnLocation="/app/workspace/apps/life-plan/goals"
+      inputsEnabled={inputsEnabled}
+    >
+      <GlobalError actionResult={actionData} />
+      <SectionCard
+        title="New Goal"
+        actionsPosition={ActionsPosition.BELOW}
+        actions={
+          <SectionActions
+            id="goal-create"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                id: "goal-create",
+                text: "Create",
+                value: "create",
+                highlight: true,
+              }),
+              ActionSingle({
+                id: "goal-create-and-another",
+                text: "Create & Another",
+                value: CREATE_AND_ANOTHER_INTENT,
+              }),
+            ]}
+          />
+        }
+      >
+        <FormControl fullWidth>
+          <InputLabel id="name">Name</InputLabel>
+          <OutlinedInput
+            label="Name"
+            name="name"
+            readOnly={!inputsEnabled}
+            type="text"
+            placeholder="Goal name"
+          />
+          <FieldError actionResult={actionData} fieldName="/name" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <AspectSelect
+            name="aspect"
+            label="Aspect"
+            inputsEnabled={inputsEnabled}
+            disabled={false}
+            allAspects={loaderData.allAspects}
+            value={selectedAspectRefId}
+            onChange={setSelectedAspectRefId}
+          />
+          <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <GoalSelect
+            name="parent_goal"
+            label="Parent Goal"
+            inputsEnabled={inputsEnabled}
+            disabled={false}
+            onlyForAspect={selectedAspectRefId}
+            allGoals={loaderData.allGoals}
+            defaultValue={null}
+          />
+          <FieldError
+            actionResult={actionData}
+            fieldName="/parent_goal_ref_id"
+          />
+        </FormControl>
+      </SectionCard>
+    </LeafPanel>
+  );
+}
+
+export const ErrorBoundary = makeLeafErrorBoundary(
+  "/app/workspace/apps/life-plan/goals",
+  ParamsSchema,
+  {
+    notFound: () => `Could not create the goal!`,
+    error: () => `There was an error creating the goal! Please try again!`,
+  },
+);

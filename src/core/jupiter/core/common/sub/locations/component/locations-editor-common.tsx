@@ -3,9 +3,16 @@ import type {
   LocationResolverCandidate,
 } from "@jupiter/webapi-client";
 import { Box, Checkbox, Typography, useTheme } from "@mui/material";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import type { ReactNode } from "react";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import {
   entityLinkAutocompleteSx,
@@ -144,6 +151,8 @@ export function useLocationsLinkEditor({
 
   const [selectedOptions, setSelectedOptions] =
     useState<ExistingOption[]>(initialSelected);
+  const selectedOptionsRef = useRef(selectedOptions);
+  selectedOptionsRef.current = selectedOptions;
   const [inputValue, setInputValue] = useState(() =>
     allowMultiple
       ? ""
@@ -154,6 +163,9 @@ export function useLocationsLinkEditor({
   const [locationsHiddenValue, setLocationsHiddenValue] = useState(
     initialSelected.map((option) => option.location.ref_id).join(","),
   );
+  const locationsHiddenValueRef = useRef(locationsHiddenValue);
+  locationsHiddenValueRef.current = locationsHiddenValue;
+  const submittedLocationsRef = useRef(locationsHiddenValue);
   const [dataModified, setDataModified] = useState(false);
   const [shouldAct, setShouldAct] = useState(false);
   const [isActing, setIsActing] = useState(false);
@@ -229,11 +241,14 @@ export function useLocationsLinkEditor({
       setDataModified(false);
       return;
     }
+    const locations = locationsHiddenValueRef.current;
+    submittedLocationsRef.current = locations;
     setIsActing(true);
+    setShouldAct(false);
     cardActionFetcher.submit(
       {
         owner,
-        locations: locationsHiddenValue,
+        locations,
       },
       {
         method: "post",
@@ -241,7 +256,7 @@ export function useLocationsLinkEditor({
       },
     );
     setDataModified(false);
-  }, [cardActionFetcher, owner, locationsHiddenValue]);
+  }, [cardActionFetcher, owner]);
 
   useEffect(() => {
     if (dataModified && editable && owner) {
@@ -260,9 +275,14 @@ export function useLocationsLinkEditor({
       cardActionFetcher.data
     ) {
       setIsActing(false);
-      if (shouldAct) {
+      // A later selection can land while the previous save is in flight. Keep
+      // saving until the request that just finished matches the latest value,
+      // otherwise "Saved!" shows for the first location and a reload drops the rest.
+      if (
+        shouldAct ||
+        locationsHiddenValueRef.current !== submittedLocationsRef.current
+      ) {
         act();
-        setShouldAct(false);
       } else {
         setHasActed(true);
         setTimeout(() => {
@@ -302,33 +322,110 @@ export function useLocationsLinkEditor({
     }
   }, [allowMultiple, candidateFetcher.data, candidateFetcher.state, owner]);
 
+  const commitExisting = useCallback(
+    (next: ExistingOption[], markModified: boolean) => {
+      selectedOptionsRef.current = next;
+      setSelectedOptions(next);
+      const hidden = next.map((option) => option.location.ref_id).join(",");
+      locationsHiddenValueRef.current = hidden;
+      setLocationsHiddenValue(hidden);
+      if (allowMultiple) {
+        // A pick must clear the query. Ignoring MUI's reset keeps an in-progress
+        // search from being wiped when results arrive, so the next name would
+        // otherwise be appended ("Paris" + "Rome").
+        setInputValue("");
+      }
+      if (markModified) {
+        setDataModified(true);
+      }
+    },
+    [allowMultiple],
+  );
+
   const applySelection = useCallback(
-    (values: LocationOption[]) => {
+    (
+      values: LocationOption[],
+      reason?: string,
+      changedOption?: LocationOption,
+    ) => {
       if (!editable) {
         return;
       }
-      const existings: ExistingOption[] = [];
+      const incomingExisting: ExistingOption[] = [];
       let candidate: CandidateOption | null = null;
       for (const option of values) {
         if (option.kind === "existing") {
-          existings.push(option);
+          incomingExisting.push(option);
         } else {
           candidate = option;
         }
       }
-      setSelectedOptions(existings);
-      setLocationsHiddenValue(
-        existings.map((option) => option.location.ref_id).join(","),
-      );
+
       if (!allowMultiple) {
+        setSelectedOptions(incomingExisting);
+        setLocationsHiddenValue(
+          incomingExisting.map((option) => option.location.ref_id).join(","),
+        );
         setInputValue(
-          existings[0]
-            ? optionLabel(existings[0])
+          incomingExisting[0]
+            ? optionLabel(incomingExisting[0])
             : candidate !== null
               ? optionLabel(candidate)
               : "",
         );
+        if (candidate !== null) {
+          submitResolvedPlace({
+            name: candidate.candidate.name,
+            addressLine: candidate.candidate.address_line ?? null,
+            country: candidate.candidate.country ?? null,
+            latitude: candidate.candidate.gps?.latitude ?? null,
+            longitude: candidate.candidate.gps?.longitude ?? null,
+            sourceId: candidate.candidate.source_id ?? null,
+          });
+          return;
+        }
+        setDataModified(true);
+        return;
       }
+
+      if (reason === "clear") {
+        commitExisting([], true);
+        return;
+      }
+      if (
+        reason === "removeOption" &&
+        changedOption?.kind === "existing"
+      ) {
+        commitExisting(
+          selectedOptionsRef.current.filter(
+            (option) =>
+              option.location.ref_id !== changedOption.location.ref_id,
+          ),
+          true,
+        );
+        return;
+      }
+
+      // A new pick must be added to the cities already chosen. MUI can report
+      // only the option that was just clicked, which would drop the earlier ones.
+      const byRefId = new Map(
+        selectedOptionsRef.current.map((option) => [
+          option.location.ref_id,
+          option,
+        ]),
+      );
+      for (const option of incomingExisting) {
+        byRefId.set(option.location.ref_id, option);
+      }
+      const next = [...byRefId.values()];
+      const changed =
+        next.length !== selectedOptionsRef.current.length ||
+        next.some(
+          (option, index) =>
+            option.location.ref_id !==
+            selectedOptionsRef.current[index]?.location.ref_id,
+        );
+      commitExisting(next, changed && candidate === null);
       if (candidate !== null) {
         submitResolvedPlace({
           name: candidate.candidate.name,
@@ -338,11 +435,9 @@ export function useLocationsLinkEditor({
           longitude: candidate.candidate.gps?.longitude ?? null,
           sourceId: candidate.candidate.source_id ?? null,
         });
-        return;
       }
-      setDataModified(true);
     },
-    [allowMultiple, editable, submitResolvedPlace],
+    [allowMultiple, commitExisting, editable, submitResolvedPlace],
   );
 
   // Making the location off a map candidate is part of the same piece of work

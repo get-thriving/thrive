@@ -1,8 +1,7 @@
 import { AppShell, DocsHelpSubject } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirectDocument } from "@remix-run/node";
-import { useActionData, useNavigation } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirectDocument, useActionData, useNavigation } from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -31,10 +30,10 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
 import { ServicePropertiesContext } from "~/logic/config";
 import { commitSession, getSession } from "~/sessions";
-import { getGuestApiClient } from "~/api-clients.server";
 
 const LoginFormSchema = z.object({
   emailAddress: z.string(),
@@ -53,7 +52,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
   }
 
-  return json({});
+  return {};
 }
 
 // @secureFn

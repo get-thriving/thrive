@@ -11,10 +11,17 @@ import {
   OutlinedInput,
   Stack,
 } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import {
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "react-router";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
@@ -38,9 +45,8 @@ import {
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { entityTagName } from "@jupiter/core/named-entity-tag";
 import { formatUserLightLabel } from "@jupiter/core/users/components/user-light-chip";
-
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -81,11 +87,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       throw new Response("Not Found", { status: 404 });
     }
 
-    return json({
+    return {
       accessGrant: result.access_grant,
       entity: result.entity,
       grantee: result.grantee,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }

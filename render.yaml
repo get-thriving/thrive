@@ -151,7 +151,7 @@ services:
   autoDeploy: true
   rootDir: .
   numInstances: 1
-  healthCheckPath: /healthz
+  healthCheckPath: /publish/healthz
   domains:
     - published.get-thriving.com
   previews:

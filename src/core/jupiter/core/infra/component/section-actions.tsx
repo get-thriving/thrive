@@ -30,13 +30,14 @@ import {
   TextField,
   useTheme,
 } from "@mui/material";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import type { Dispatch, RefObject, SetStateAction } from "react";
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
 import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { useIsomorphicLayoutEffect } from "#/core/infra/component/use-isomorphic-layout-effect";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
 interface NavSingleDesc {
@@ -586,7 +587,7 @@ function useCompactMenuSurface(
   const [maxHeight, setMaxHeight] = useState<number | undefined>();
   const [placement, setPlacement] = useState<"bottom" | "top">("bottom");
 
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!open || !anchorRef.current) {
       return;
     }

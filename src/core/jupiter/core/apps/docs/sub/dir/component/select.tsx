@@ -105,9 +105,12 @@ export function DirSelect(props: DirSelectProps) {
 
   useEffect(() => {
     const refId = props.value ?? props.defaultValue;
-    if (refId) {
-      setSelected(selectedToOption(refId));
+    if (!refId) {
+      return;
     }
+    setSelected((current) =>
+      current.dir_ref_id === refId ? current : selectedToOption(refId),
+    );
   }, [props.value, props.defaultValue, selectedToOption]);
 
   return (

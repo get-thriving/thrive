@@ -3,10 +3,16 @@ import { AppPlatform, RecurringTaskPeriod } from "@jupiter/webapi-client";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import TuneIcon from "@mui/icons-material/Tune";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useLocation, useNavigation, useSearchParams } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import {
+  redirect,
+  useLocation,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
@@ -39,11 +45,10 @@ import { ViewAsCalendarQuarterly } from "@jupiter/core/calendar/component/view-a
 import { ViewAsCalendarYearly } from "@jupiter/core/calendar/component/view-as-calendar-yearly";
 import { ViewAsScheduleMonthlyQuarterlyAndYearly } from "@jupiter/core/calendar/component/view-as-schedule-monthly-quarterly-and-yearly";
 import { ViewAsScheduleDailyAndWeekly } from "@jupiter/core/calendar/component/view-as-schedule-daily-and-weekly";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { newURLParams } from "~/logic/navigation";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { newURLParams } from "@jupiter/core/infra/navigation";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -93,7 +98,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     stats_subperiod: statsSubperiodForPeriod(query.period),
   });
 
-  return json({
+  return {
     date: query.date as string,
     period: query.period as RecurringTaskPeriod,
     view: query.view as View,
@@ -104,7 +109,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     entries: response.entries || undefined,
     stats: response.stats || undefined,
     additionalTimezones: response.additional_timezones,
-  });
+  };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =

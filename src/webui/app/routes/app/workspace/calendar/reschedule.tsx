@@ -1,12 +1,10 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { timeEventInDayBlockParamsToUtc } from "@jupiter/core/common/sub/time_events/time-event";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 // Moves an event to another moment in time, or changes how long it lasts.
 // Dropping an event elsewhere in the calendar, or stretching it from its
@@ -60,13 +58,11 @@ export async function action({ request }: ActionFunctionArgs) {
           buffer_before_mins: keepBuffers,
           buffer_after_mins: keepBuffers,
         });
-        return json(
-          noErrorSomeData({
-            updated_time_event_in_day_block:
-              result.updated_time_event_in_day_block,
-            updated_schedule_event_in_day: result.updated_schedule_event_in_day,
-          }),
-        );
+        return noErrorSomeData({
+          updated_time_event_in_day_block:
+            result.updated_time_event_in_day_block,
+          updated_schedule_event_in_day: result.updated_schedule_event_in_day,
+        });
       }
 
       case "time-event-in-day-block": {
@@ -84,13 +80,11 @@ export async function action({ request }: ActionFunctionArgs) {
           buffer_before_mins: keepBuffers,
           buffer_after_mins: keepBuffers,
         });
-        return json(
-          noErrorSomeData({
-            updated_time_event_in_day_block:
-              result.updated_time_event_in_day_block,
-            updated_schedule_event_in_day: null,
-          }),
-        );
+        return noErrorSomeData({
+          updated_time_event_in_day_block:
+            result.updated_time_event_in_day_block,
+          updated_schedule_event_in_day: null,
+        });
       }
 
       default:

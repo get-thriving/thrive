@@ -1,6 +1,6 @@
 import type { ADate } from "@jupiter/webapi-client";
 import { Box, useTheme } from "@mui/material";
-import { useSearchParams } from "@remix-run/react";
+import { useSearchParams } from "react-router";
 
 import { useCreatingCalendarInDayEvent } from "#/core/calendar/component/calendar-navigation";
 import {

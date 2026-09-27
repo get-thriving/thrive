@@ -8,7 +8,7 @@ export const CREATE_AND_ANOTHER_INTENT = "create-and-another";
 /**
  * How many entities have been made in a row, kept in the query of the
  * creation page. Coming back to a page from itself is the one navigation
- * React and Remix hold on to the very same components for - and a form that
+ * React and React Router hold on to the very same components for - and a form that
  * isn't built anew still shows whatever was just submitted. This changing
  * with every "Create & Another" is what tells the page above to put up a
  * brand new creation page instead.

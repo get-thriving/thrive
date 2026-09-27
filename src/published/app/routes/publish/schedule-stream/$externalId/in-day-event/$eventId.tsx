@@ -1,8 +1,7 @@
 import { Typography } from "@mui/material";
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useSearchParams } from "@remix-run/react";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
+import { useSearchParams } from "react-router";
 import { useContext, useMemo } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -16,9 +15,9 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { ScheduleEventInDayEditor } from "@jupiter/core/apps/schedule/sub/event_in_day/component/editor";
 import { isCorePropertyEditable } from "@jupiter/core/apps/schedule/sub/event_in_day/root";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
@@ -44,7 +43,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         ref_id: eventId,
       });
 
-    return json({
+    return {
       pageMeta: buildPublishedPageMeta({
         request,
         entityType: NamedEntityTag.SCHEDULE_EVENT_IN_DAY,
@@ -60,7 +59,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tags: result.tags ?? [],
       contacts: result.contacts ?? [],
       location: result.location ?? null,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -93,7 +92,7 @@ export default function PublishedScheduleStreamInDayEvent() {
       isLeaflet
       inputsEnabled={false}
       entityNotEditable={true}
-      returnLocation={`/publish/schedule-stream/${loaderData.externalId}?${query}`}
+      returnLocation={`/schedule-stream/${loaderData.externalId}?${query}`}
     >
       <ScheduleEventInDayEditor
         scheduleEventInDay={loaderData.scheduleEventInDay}
@@ -137,7 +136,7 @@ export default function PublishedScheduleStreamInDayEvent() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  (params) => `/publish/schedule-stream/${params.externalId}`,
+  (params) => `/schedule-stream/${params.externalId}`,
   ParamsSchema,
   {
     notFound: (params) =>

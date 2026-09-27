@@ -1,6 +1,6 @@
 import type { Doc, DocCreateResult, Note } from "@jupiter/webapi-client";
 import { Box, TextField } from "@mui/material";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import { Buffer } from "buffer-polyfill";
 import type { ComponentType, ReactNode } from "react";
 import { Suspense, lazy, useCallback, useEffect, useState } from "react";

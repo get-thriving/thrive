@@ -6,7 +6,7 @@ import {
   Stack,
   styled,
 } from "@mui/material";
-import { Form } from "@remix-run/react";
+import { Form } from "react-router";
 import type { PropsWithChildren } from "react";
 
 import { useInterceptedSubmit } from "#/core/infra/component/intent-interceptor";

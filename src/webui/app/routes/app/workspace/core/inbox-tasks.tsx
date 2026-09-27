@@ -31,10 +31,11 @@ import ViewKanbanIcon from "@mui/icons-material/ViewKanban";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import { Box, Stack, Tab, Tabs, Typography, styled } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Link, useFetcher } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { Link, useFetcher } from "react-router";
 import { AnimatePresence } from "framer-motion";
 import { Fragment, useContext, useState } from "react";
 import { z } from "zod";
@@ -85,11 +86,11 @@ import {
 } from "@jupiter/core/infra/component/use-nested-entities";
 import type { TopLevelInfo } from "@jupiter/core/infra/top-level-context";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 import { useServiceProperties } from "~/logic/config";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
 
 enum View {
   SWIFTVIEW = "siwiftview",
@@ -114,9 +115,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const response = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
   });
-  return json({
+  return {
     entries: response.entries,
-  });
+  };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =

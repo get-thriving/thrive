@@ -2231,6 +2231,7 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan(
 
     page.goto(f"/app/workspace/core/inbox-tasks/{inbox_task.ref_id}")
 
+    wait_for_hydration(page)
     page.locator("#inbox-task-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
@@ -2266,6 +2267,7 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_no_d
 
     page.goto(f"/app/workspace/core/inbox-tasks/{inbox_task.ref_id}")
 
+    wait_for_hydration(page)
     page.locator("#inbox-task-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
@@ -2305,6 +2307,7 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with
 
     page.goto(f"/app/workspace/core/inbox-tasks/{inbox_task.ref_id}")
 
+    wait_for_hydration(page)
     page.locator("#inbox-task-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
@@ -2348,6 +2351,7 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_
 
     page.goto(f"/app/workspace/core/inbox-tasks/{inbox_task.ref_id}")
 
+    wait_for_hydration(page)
     page.locator("#inbox-task-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
@@ -2393,6 +2397,7 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_
 
     page.goto(f"/app/workspace/core/inbox-tasks/{inbox_task.ref_id}")
 
+    wait_for_hydration(page)
     page.locator("#inbox-task-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
@@ -2440,6 +2445,7 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_
 
     page.goto(f"/app/workspace/core/inbox-tasks/{inbox_task.ref_id}")
 
+    wait_for_hydration(page)
     page.locator("#inbox-task-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
@@ -2484,6 +2490,7 @@ def test_webui_time_plan_add_an_inbox_task_to_multiple_already_existing_time_pla
 
     page.goto(f"/app/workspace/core/inbox-tasks/{inbox_task.ref_id}")
 
+    wait_for_hydration(page)
     page.locator("#inbox-task-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
@@ -2544,6 +2551,7 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with
     # Add first inbox task
     page.goto(f"/app/workspace/core/inbox-tasks/{inbox_task1.ref_id}")
 
+    wait_for_hydration(page)
     page.locator("#inbox-task-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(
@@ -2565,6 +2573,7 @@ def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with
     # Add third inbox task
     page.goto(f"/app/workspace/core/inbox-tasks/{inbox_task3.ref_id}")
 
+    wait_for_hydration(page)
     page.locator("#inbox-task-time-plans").locator("a", has_text="Add").click()
 
     page.wait_for_url(

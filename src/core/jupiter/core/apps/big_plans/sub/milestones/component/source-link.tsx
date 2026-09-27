@@ -1,6 +1,6 @@
 import { Launch as LaunchIcon } from "@mui/icons-material";
 import { Button } from "@mui/material";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 interface BigPlanMilestoneSourceLinkProps {
   bigPlanId: string;

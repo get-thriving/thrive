@@ -1,6 +1,5 @@
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import type { Tag } from "@jupiter/webapi-client";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -9,9 +8,9 @@ import { PublishedDocDirPanel } from "@jupiter/core/apps/docs/component/publishe
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {
   buildPublishedPageMeta,
   metaDescriptorsForPublishedPage,
@@ -46,15 +45,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       publishEntityLoad.publish_entity.owner,
     ).refId;
 
-    const basePath = `/publish/doc/dirtree/${externalId}`;
+    const basePath = `/doc/dirtree/${externalId}`;
+    // The published root folder has no parent to go back to.
     const returnLocation =
       dirId === publishedRootDirRefId
-        ? "/app"
+        ? undefined
         : dirLoad.dir.parent_dir_ref_id === publishedRootDirRefId
           ? `${basePath}/${publishedRootDirRefId}`
           : `${basePath}/${dirLoad.dir.parent_dir_ref_id}`;
 
-    return json({
+    return {
       pageMeta: buildPublishedPageMeta({
         request,
         entityType: NamedEntityTag.DIR,
@@ -68,7 +68,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       publishedRootDirRefId,
       allTags: collectTagsFromDirLoad(dirLoad),
       returnLocation,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }
@@ -91,7 +91,7 @@ export default function PublishedDocDirChild() {
   );
 }
 
-export const ErrorBoundary = makeTrunkErrorBoundary("/app", {
+export const ErrorBoundary = makeTrunkErrorBoundary("/", {
   error: () =>
     `There was an error loading the published folder! Please try again!`,
 });

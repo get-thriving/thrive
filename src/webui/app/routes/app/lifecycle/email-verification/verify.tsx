@@ -5,9 +5,13 @@ import {
   OutlinedInput,
   Typography,
 } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import {
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "react-router";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
@@ -38,8 +42,8 @@ import {
 } from "@jupiter/core/infra/component/section-card";
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
+import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
-import { getGuestApiClient } from "~/api-clients.server";
 import {
   createWorkspaceUrl,
   redirectForEmailVerificationPage,
@@ -80,10 +84,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirectResponse;
   }
 
-  return json({
+  return {
     userId: query.userId,
     emailAddress: result.user!.email_address,
-  });
+  };
 }
 
 // @secureFn
@@ -98,7 +102,7 @@ export async function action({ request }: ActionFunctionArgs) {
           user_id: form.userId,
         });
 
-        return json(noErrorSomeData({ codeResent: true }));
+        return noErrorSomeData({ codeResent: true });
       }
 
       case "verify": {
@@ -118,10 +122,10 @@ export async function action({ request }: ActionFunctionArgs) {
             ),
             exhaustedCodeRetries: true,
           };
-          return json(actionData);
+          return actionData;
         }
 
-        return json(aGlobalError("The verification code was incorrect."));
+        return aGlobalError("The verification code was incorrect.");
       }
 
       default:
@@ -132,14 +136,14 @@ export async function action({ request }: ActionFunctionArgs) {
       error instanceof ApiError &&
       error.status === StatusCodes.TOO_MANY_REQUESTS
     ) {
-      return json({
+      return {
         ...validationErrorToUIErrorInfo(error.body),
         resendRateLimited: true,
-      } satisfies VerifyActionError);
+      } satisfies VerifyActionError;
     }
 
     if (error instanceof ApiError && error.status === StatusCodes.BAD_GATEWAY) {
-      return json(validationErrorToUIErrorInfo(error.body));
+      return validationErrorToUIErrorInfo(error.body);
     }
 
     return handleActionApiError(error);

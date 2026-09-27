@@ -49,7 +49,7 @@ import {
   useContext,
 } from "react";
 import { DateTime } from "luxon";
-import { useNavigate, useLocation, useSearchParams } from "@remix-run/react";
+import { useNavigate, useLocation, useSearchParams } from "react-router";
 
 import { parseEntityLinkStd } from "#/core/common/entity-link";
 import {

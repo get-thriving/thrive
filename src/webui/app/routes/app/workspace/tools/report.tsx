@@ -11,10 +11,11 @@ import {
   OutlinedInput,
   Stack,
 } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useNavigation } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { useNavigation } from "react-router";
 import { DateTime } from "luxon";
 import { useContext, useState } from "react";
 import { z } from "zod";
@@ -39,10 +40,9 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const QuerySchema = z.object({
   today: z
@@ -68,7 +68,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     period === undefined ||
     breakdownPeriod === undefined
   ) {
-    return json(noErrorSomeData({ report: undefined }));
+    return noErrorSomeData({ report: undefined });
   }
 
   const summaryResponse = await apiClient.application.getSummaries({
@@ -84,13 +84,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
         breakdownPeriod !== "none" ? breakdownPeriod : undefined,
     });
 
-    return json(
-      noErrorSomeData({
-        allAspects: summaryResponse.aspects,
-        allGoals: summaryResponse.goals,
-        report: reportResponse,
-      }),
-    );
+    return noErrorSomeData({
+      allAspects: summaryResponse.aspects,
+      allGoals: summaryResponse.goals,
+      report: reportResponse,
+    });
   } catch (error) {
     return handleActionApiError(error);
   }

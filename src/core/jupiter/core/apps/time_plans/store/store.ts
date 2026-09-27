@@ -5,7 +5,7 @@
  * loader brought it in. Loaders "seed" their contribution under a source key,
  * edits are queued as pending mutations folded over the confirmed state, and a
  * mutation's result is merged back in when it arrives. Nothing here knows about
- * Remix or React - see the plan in ``plan.md``.
+ * React Router or React - see ADR 0013.
  */
 import type {
   BigPlan,

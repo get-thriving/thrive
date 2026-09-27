@@ -20,7 +20,7 @@ import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
 import { Box, Typography } from "@mui/material";
 import type { ReactNode } from "react";
 import { Children } from "react";
-import { useSearchParams } from "@remix-run/react";
+import { useSearchParams } from "react-router";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { bigPlanDonePct } from "#/core/apps/big_plans/root";
@@ -183,7 +183,7 @@ export function TimePlanActivityCard(props: TimePlanActivityCardProps) {
           flexWrap: "nowrap",
           minWidth: 0,
           overflow: "hidden",
-          "& > *:not(:first-child)": {
+          "& > :not(style) ~ :not(style)": {
             flexShrink: 0,
           },
           ...(props.compact

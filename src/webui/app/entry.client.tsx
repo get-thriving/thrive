@@ -1,5 +1,5 @@
-import { RemixBrowser } from "@remix-run/react";
-import { Buffer } from "buffer-polyfill";
+import { HydratedRouter } from "react-router/dom";
+import { encodeRenderFixReturnTo } from "@jupiter/core/infra/render-fix-return-to";
 import { StrictMode, startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
 
@@ -8,7 +8,7 @@ function hydrate() {
     hydrateRoot(
       document,
       <StrictMode>
-        <RemixBrowser />
+        <HydratedRouter />
       </StrictMode>,
     );
   });
@@ -43,19 +43,19 @@ window.onerror = (event: Event | string) => {
     // might differ from what's happening server-side, if we're not careful
     // or even if there's noticeable clock skew between the client's
     // machine and the server.
-    // If this happens, Remix tends to crash hard - styles are messed up.
+    // If this happens, React Router tends to crash hard - styles are messed up.
     // To prevent this we force a client-side reload to a very safe page. Which
-    // then does a Remix reload to the final page. We're gonna log this
+    // then does a React Router reload to the final page. We're gonna log this
     // at some point.
 
     if (window.location.pathname.startsWith("/app/render-fix")) {
       return true; // We're already on the render fix page, so we don't need to do anything.
     }
 
-    const destUrl = Buffer.from(
-      `${window.location.pathname}?${window.location.search}`,
-      "utf-8",
-    ).toString("base64");
+    // `search` carries its own "?" already.
+    const destUrl = encodeRenderFixReturnTo(
+      `${window.location.pathname}${window.location.search}`,
+    );
     window.location.replace(`/app/render-fix?returnTo=${destUrl}`);
     return true;
   }

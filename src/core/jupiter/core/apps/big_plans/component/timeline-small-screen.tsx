@@ -7,7 +7,7 @@ import type {
   UserLight,
 } from "@jupiter/webapi-client";
 import { Tooltip, styled } from "@mui/material";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import type { DateTime } from "luxon";
 
 import { aDateToDate } from "#/core/common/adate";

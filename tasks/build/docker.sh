@@ -4,25 +4,17 @@
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
-#USAGE flag "--platform <platform>" help="Target platform only (default: build amd64 and arm64)" {
-#USAGE   choices "amd64" "arm64"
+#USAGE flag "--arch <arch>" default="arm64" help="Image architecture. 'all' builds arm64 and amd64." {
+#USAGE   choices "arm64" "amd64" "all"
 #USAGE }
 #USAGE flag "--no-cache" help="Do not use the build cache (full rebuild)"
 #USAGE flag "--pull" help="Pull newer base images (python, node, etc.) before building"
 
 set -e -o pipefail
 
-: "${usage_platform:=}"
+: "${usage_arch:=arm64}"
 : "${usage_no_cache:=}"
 : "${usage_pull:=}"
-
-docker_build_extra_args=()
-if [[ "${usage_no_cache}" == "true" ]]; then
-    docker_build_extra_args+=(--no-cache)
-fi
-if [[ "${usage_pull}" == "true" ]]; then
-    docker_build_extra_args+=(--pull)
-fi
 
 source tasks/_common.sh
 
@@ -36,12 +28,22 @@ if ! [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     exit 1
 fi
 
-platforms=(amd64 arm64)
-if [ -n "${usage_platform}" ]; then
-    platforms=("${usage_platform}")
-fi
+case "${usage_arch}" in
+    arm64 | amd64)
+        archs=("${usage_arch}")
+        ;;
+    all)
+        # Native arch first so a Mac still has usable images if the emulated
+        # arch fails partway through.
+        archs=(arm64 amd64)
+        ;;
+    *)
+        log error "arch must be arm64, amd64, or all (got: ${usage_arch})"
+        exit 1
+        ;;
+esac
 
-log info "Docker build VERSION=${VERSION} platforms=${platforms[*]} no-cache=${usage_no_cache:-false} pull=${usage_pull:-false}"
+log info "Docker build VERSION=${VERSION} arch=${usage_arch} platforms=${archs[*]} no-cache=${usage_no_cache:-false} pull=${usage_pull:-false}"
 
 log info "Setting up Docker buildx builder"
 
@@ -55,44 +57,23 @@ fi
 
 docker buildx inspect --bootstrap
 
-build_image() {
-    local name=$1
-    local dockerfile=$2
-    local platform=$3
-
-    log info "Building jupiter/${name} (linux/${platform}, VERSION=${VERSION})"
-
-    docker buildx build \
-        --platform "linux/${platform}" \
-        --tag "jupiter/${name}:latest-${platform}" \
-        --tag "jupiter/${name}:${VERSION}-${platform}" \
-        --file "${dockerfile}" \
-        --load \
-        "${docker_build_extra_args[@]}" \
-        .
-}
-
-image_specs=(
-    "webapi-srv:src/webapi/srv/Dockerfile"
-    "api:src/api/Dockerfile"
-    "mcp:src/mcp/Dockerfile"
-    "webui:src/webui/Dockerfile"
-    "published:src/published/Dockerfile"
-    "docs:src/docs/Dockerfile"
-    "cli:src/cli/Dockerfile"
+bake_args=(
+    --builder jupiter-builder
+    --file docker-bake.hcl
+    --provenance=false
+    --sbom=false
 )
 
-for folder in "${WEBAPI_CRON_FOLDERS[@]}"; do
-    image_specs+=("$(jupiter_webapi_cron_image_name "$folder"):src/webapi/${folder}/Dockerfile")
+if [[ "${usage_no_cache}" == "true" ]]; then
+    bake_args+=(--no-cache)
+fi
+if [[ "${usage_pull}" == "true" ]]; then
+    bake_args+=(--pull)
+fi
+
+for arch in "${archs[@]}"; do
+    log info "Building all images for linux/${arch}"
+    VERSION="${VERSION}" ARCH="${arch}" docker buildx bake "${bake_args[@]}"
 done
 
-for platform in "${platforms[@]}"; do
-    log info "Building all images for platform ${platform}"
-    for spec in "${image_specs[@]}"; do
-        name="${spec%%:*}"
-        dockerfile="${spec#*:}"
-        build_image "$name" "$dockerfile" "$platform"
-    done
-done
-
-log info "Docker build complete for VERSION=${VERSION} platforms=${platforms[*]}"
+log info "Docker build complete for VERSION=${VERSION} arch=${usage_arch}"

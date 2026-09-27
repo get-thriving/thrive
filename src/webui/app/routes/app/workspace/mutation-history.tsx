@@ -9,10 +9,11 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Link, useSearchParams } from "@remix-run/react";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { DateTime } from "luxon";
 import { useCallback, useState } from "react";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -23,10 +24,9 @@ import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -43,12 +43,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     retrieve_limit: retrieveLimit ? parseInt(retrieveLimit, 10) : undefined,
   });
 
-  return json({
+  return {
     entries: result.entries,
     users: result.users,
     totalCnt: result.total_cnt,
     pageSize: result.page_size,
-  });
+  };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =

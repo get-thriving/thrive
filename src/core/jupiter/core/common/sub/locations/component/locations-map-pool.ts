@@ -24,7 +24,7 @@ export interface LocationMapMarker {
 
 // Everything the map actually draws about a set of markers. Two sets with the
 // same key look identical on screen, so there is nothing to redraw between
-// them - which is the common case, since every Remix revalidation hands out a
+// them - which is the common case, since every revalidation hands out a
 // brand new array holding the very same locations.
 function markersKeyOf(markers: LocationMapMarker[]): string {
   return markers
@@ -36,7 +36,7 @@ function markersKeyOf(markers: LocationMapMarker[]): string {
 }
 
 // Google maps are slow to build and they visibly flash while they fetch their
-// tiles. React unmounts a route's components on every navigation and Remix
+// tiles. React unmounts a route's components on every navigation and React Router
 // hands out fresh loader data on every revalidation, so a map whose lifetime
 // is a component's lifetime gets thrown away and rebuilt constantly. The maps
 // therefore live out here, outside of React, in a small pool: a component

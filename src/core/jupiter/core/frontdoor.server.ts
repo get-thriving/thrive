@@ -1,5 +1,5 @@
 import { AppDistribution, AppPlatform, AppShell } from "@jupiter/webapi-client";
-import { createCookie } from "@remix-run/node";
+import { createCookie } from "react-router";
 import { UAParser } from "ua-parser-js";
 
 import { FRONTDOOR_COOKIE_NAME } from "#/core/infra/names";

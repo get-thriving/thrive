@@ -57,8 +57,25 @@ from itests.helpers import (
     open_leaf_publish_panel,
     open_trunk_publish_panel,
     type_editorjs_content_and_wait_for_save,
+    wait_for_hydration,
 )
 from itests.webui.entities.conftest import AnotherUserAndWorkspace
+
+
+def _choose_dir_autocomplete_option(page: Page, label: str) -> None:
+    """Pick a folder from an open MUI autocomplete.
+
+    The field already contains the current folder. Replace that text so the
+    filter is the target name, then confirm with Enter. Clicking the option
+    misses because MUI replaces the ``<li>`` while highlighting it.
+    """
+    expect(page.get_by_role("listbox")).to_be_visible(timeout=30000)
+    page.keyboard.press("ControlOrMeta+A")
+    page.keyboard.type(label)
+    expect(
+        page.get_by_role("option").filter(has_text=label).first
+    ).to_be_visible(timeout=30000)
+    page.keyboard.press("Enter")
 
 
 def type_docs_doc_editor_and_wait_for_save(page: Page, body_text: str) -> None:
@@ -287,9 +304,9 @@ def test_webui_docs_dir_move_folder_via_settings(page: Page, create_dir) -> None
     child = create_dir("Child UI")
 
     page.goto(f"/app/workspace/apps/docs/{child.ref_id}/settings")
+    wait_for_hydration(page)
     page.get_by_label("Parent folder", exact=True).click()
-    page.keyboard.type("Parent UI")
-    page.get_by_role("option").filter(has_text="Parent UI").first.click()
+    _choose_dir_autocomplete_option(page, "Parent UI")
     page.locator("button[id='docs-dir-settings-save']").click()
     page.wait_for_url(re.compile(rf".*/docs/{child.ref_id}$"))
 
@@ -305,9 +322,9 @@ def test_webui_docs_doc_move_doc_via_settings(
     doc = create_doc("Move Me Doc", "body", parent_dir_ref_id=dir_a.ref_id)
 
     page.goto(f"/app/workspace/apps/docs/{dir_a.ref_id}/doc/{doc.ref_id}/settings")
+    wait_for_hydration(page)
     page.get_by_label("Folder", exact=True).click()
-    page.keyboard.type("Move Doc Dir B")
-    page.get_by_role("option").filter(has_text="Move Doc Dir B").first.click()
+    _choose_dir_autocomplete_option(page, "Move Doc Dir B")
     page.locator("button[id='docs-doc-settings-save']").click()
     page.wait_for_url(
         re.compile(rf".*/docs/{dir_b.ref_id}/doc/{doc.ref_id}$"),

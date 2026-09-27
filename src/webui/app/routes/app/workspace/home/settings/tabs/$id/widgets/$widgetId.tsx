@@ -1,14 +1,17 @@
 import { NamedEntityTag, WidgetDimension } from "@jupiter/webapi-client";
 import { FormControl, InputLabel } from "@mui/material";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction,
+} from "react-router";
 import {
+  redirect,
   useActionData,
   useNavigation,
   useParams,
   useSearchParams,
-} from "@remix-run/react";
+} from "react-router";
 import { useContext, useState, useEffect } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
@@ -29,10 +32,9 @@ import {
   handleActionApiError,
   handleLoaderApiError,
 } from "@jupiter/core/infra/errors.server";
-
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -80,12 +82,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }),
     ]);
 
-    return json({
+    return {
       widget: widget.widget,
       widgetConstraints: homeConfig.widget_constraints,
       tab: tab.tab,
       widgets: tab.widgets,
-    });
+    };
   } catch (error) {
     handleLoaderApiError(error);
   }

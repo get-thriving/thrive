@@ -114,6 +114,9 @@ def _todo_update_body(ref_id: str, *, name: str) -> dict[str, object]:
         "aspect_ref_id": {"should_change": False},
         "chapter_ref_id": {"should_change": False},
         "goal_ref_id": {"should_change": False},
+        "schedulability": {"should_change": False},
+        "scheduling_event_duration_mins": {"should_change": False},
+        "scheduling_event_count": {"should_change": False},
     }
 
 
@@ -195,6 +198,9 @@ def test_api_todo_update(api_url: str, api_key: str, create_todo) -> None:
             "aspect_ref_id": {"should_change": False},
             "chapter_ref_id": {"should_change": False},
             "goal_ref_id": {"should_change": False},
+            "schedulability": {"should_change": False},
+            "scheduling_event_duration_mins": {"should_change": False},
+            "scheduling_event_count": {"should_change": False},
         },
         timeout=10,
     )

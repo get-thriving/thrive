@@ -81,8 +81,8 @@ export function LocationsMultiEditor({
         noOptionsText={noOptionsText}
         inputValue={inputValue}
         onInputChange={handleInputChange}
-        onChange={(_event, newValue) => {
-          applySelection(newValue);
+        onChange={(_event, newValue, reason, details) => {
+          applySelection(newValue, reason, details?.option);
         }}
         readOnly={!editable}
         value={selectedOptions}

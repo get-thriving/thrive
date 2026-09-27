@@ -1,4 +1,4 @@
-import { Outlet, useSearchParams } from "@remix-run/react";
+import { Outlet, useSearchParams } from "react-router";
 import { AnimatePresence } from "framer-motion";
 
 import { createAnotherNonce } from "#/core/infra/create-and-another";

@@ -1,5 +1,5 @@
 import { Button, ButtonGroup } from "@mui/material";
-import { Link, type ShouldRevalidateFunction } from "@remix-run/react";
+import { Link, type ShouldRevalidateFunction } from "react-router";
 import { useContext } from "react";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import { CommunityLink } from "@jupiter/core/infra/component/community-link";

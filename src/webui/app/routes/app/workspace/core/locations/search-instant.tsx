@@ -1,11 +1,9 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "react-router";
 import { z } from "zod";
 import { parseQuery } from "zodix";
 import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 const LOCATION_SEARCH_DEFAULT_LIMIT = 10;
 
@@ -21,12 +19,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const query = parsed.query?.trim() ?? "";
 
   if (query === "") {
-    return json(
-      noErrorSomeData({
-        query: parsed.query,
-        result: undefined,
-      }),
-    );
+    return noErrorSomeData({
+      query: parsed.query,
+      result: undefined,
+    });
   }
 
   try {
@@ -38,12 +34,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
       include_archived: false,
       include_candidates: parsed.includeCandidates !== "false",
     });
-    return json(
-      noErrorSomeData({
-        query: parsed.query,
-        result,
-      }),
-    );
+    return noErrorSomeData({
+      query: parsed.query,
+      result,
+    });
   } catch (error) {
     return handleActionApiError(error);
   }

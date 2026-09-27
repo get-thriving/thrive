@@ -6,6 +6,12 @@ packages:
   - "src/desktop"
   - "src/mobile"
 
+# pnpm 10 reads this from .npmrc (`node-linker`). pnpm 11, which the Docker
+# images install, only reads it here. Hoisted matches local installs and puts
+# transitive packages such as @mui/system on the workspace root, where Vite's
+# resolve.dedupe looks for them.
+nodeLinker: hoisted
+
 # Allow dependency install/postinstall scripts (pnpm v10+ strictDepBuilds / allowBuilds; replaces package.json "pnpm.onlyBuiltDependencies").
 allowBuilds:
   capacitor: true
