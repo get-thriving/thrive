@@ -17,9 +17,11 @@ export enum TimePlanViewMode {
   TIMELINE = "timeline",
   CALENDAR = "calendar",
   CALENDAR_3_DAYS = "calendar-3-days",
+  SCHEDULE_DAY = "schedule-day",
+  SCHEDULE_3_DAYS = "schedule-3-days",
 }
 
-// How many days the focused weekly calendar shows - today and the two that
+// How many days the focused weekly calendar or schedule shows - today and the two that
 // follow, sliding back to the week's last three when there aren't that many
 // left (Fri/Sat/Sun stay Fri, Sat, Sun).
 const TIME_PLAN_THREE_DAY_CALENDAR_DAYS = 3;
@@ -51,6 +53,42 @@ export function timePlanViewModeIsCalendar(
   );
 }
 
+export function timePlanViewModeIsSchedule(
+  viewMode: TimePlanViewMode,
+): viewMode is
+  TimePlanViewMode.SCHEDULE_DAY | TimePlanViewMode.SCHEDULE_3_DAYS {
+  return (
+    viewMode === TimePlanViewMode.SCHEDULE_DAY ||
+    viewMode === TimePlanViewMode.SCHEDULE_3_DAYS
+  );
+}
+
+// The views that show the activities in a column of their own, next to the
+// events of the period - drawn either as a calendar or as a schedule.
+export type TimePlanViewModeWithEvents =
+  | TimePlanViewMode.CALENDAR
+  | TimePlanViewMode.CALENDAR_3_DAYS
+  | TimePlanViewMode.SCHEDULE_DAY
+  | TimePlanViewMode.SCHEDULE_3_DAYS;
+
+export function timePlanViewModeShowsEvents(
+  viewMode: TimePlanViewMode,
+): viewMode is TimePlanViewModeWithEvents {
+  return (
+    timePlanViewModeIsCalendar(viewMode) || timePlanViewModeIsSchedule(viewMode)
+  );
+}
+
+// Whether a view only looks at a three day window of a week.
+export function timePlanViewModeIsThreeDays(
+  viewMode: TimePlanViewMode,
+): boolean {
+  return (
+    viewMode === TimePlanViewMode.CALENDAR_3_DAYS ||
+    viewMode === TimePlanViewMode.SCHEDULE_3_DAYS
+  );
+}
+
 export function timePlanViewModeIsAllowed(
   viewMode: TimePlanViewMode,
   workspace: Workspace,
@@ -61,11 +99,13 @@ export function timePlanViewModeIsAllowed(
     case TimePlanViewMode.KANBAN_BY_EISEN:
       return timePlanAllowsKanbanViews(timePlan);
     case TimePlanViewMode.CALENDAR:
+    case TimePlanViewMode.SCHEDULE_DAY:
       return (
         isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE) &&
         timePlanAllowsCalendarView(timePlan)
       );
     case TimePlanViewMode.CALENDAR_3_DAYS:
+    case TimePlanViewMode.SCHEDULE_3_DAYS:
       return (
         isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE) &&
         timePlan.period === RecurringTaskPeriod.WEEKLY

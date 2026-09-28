@@ -29,6 +29,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import DateRangeIcon from "@mui/icons-material/DateRange";
 import FlareIcon from "@mui/icons-material/Flare";
 import FlagIcon from "@mui/icons-material/Flag";
+import ViewAgendaIcon from "@mui/icons-material/ViewAgenda";
 import ViewKanbanIcon from "@mui/icons-material/ViewKanban";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
@@ -104,6 +105,7 @@ import {
   timePlanPathIsAddingTimeEvent,
   timePlanViewModeIsAllowed,
   timePlanViewModeIsCalendar,
+  timePlanViewModeShowsEvents,
   withTimePlanDisplay,
 } from "#/core/apps/time_plans/view-mode";
 import { eisenIcon, eisenName } from "#/core/common/eisen";
@@ -937,7 +939,7 @@ function TimePlanViewContent() {
   // there says its piece as briefly as it can. On a small screen that list
   // sits in a tab of its own, with the whole width, so it isn't compact.
   const activitiesAreCompact =
-    timePlanViewModeIsCalendar(selectedView) && isBigScreen;
+    timePlanViewModeShowsEvents(selectedView) && isBigScreen;
   const activitiesAsList = (() => {
     switch (selectedGrouping) {
       case TimePlanGrouping.MERGED:
@@ -1265,12 +1267,39 @@ function TimePlanViewContent() {
                               loaderData.timePlan,
                             ),
                           },
+                          {
+                            value: TimePlanViewMode.SCHEDULE_DAY,
+                            text: "Schedule Day",
+                            icon: <ViewAgendaIcon />,
+                            gatedOn: WorkspaceFeature.SCHEDULE,
+                            disabled: !timePlanAllowsCalendarView(
+                              loaderData.timePlan,
+                            ),
+                          },
+                          {
+                            value: TimePlanViewMode.SCHEDULE_3_DAYS,
+                            text: "Schedule 3 Days",
+                            icon: <ViewAgendaIcon />,
+                            gatedOn: WorkspaceFeature.SCHEDULE,
+                            disabled: !timePlanAllowsCalendarView(
+                              loaderData.timePlan,
+                            ),
+                          },
                         ]
                       : [
                           {
                             value: TimePlanViewMode.CALENDAR,
                             text: "Calendar",
                             icon: <CalendarMonthIcon />,
+                            gatedOn: WorkspaceFeature.SCHEDULE,
+                            disabled: !timePlanAllowsCalendarView(
+                              loaderData.timePlan,
+                            ),
+                          },
+                          {
+                            value: TimePlanViewMode.SCHEDULE_DAY,
+                            text: "Schedule",
+                            icon: <ViewAgendaIcon />,
                             gatedOn: WorkspaceFeature.SCHEDULE,
                             disabled: !timePlanAllowsCalendarView(
                               loaderData.timePlan,
@@ -1518,7 +1547,7 @@ function TimePlanViewContent() {
 
           {selectedView === TimePlanViewMode.LIST && activitiesAsList}
 
-          {timePlanViewModeIsCalendar(selectedView) &&
+          {timePlanViewModeShowsEvents(selectedView) &&
             timePlanAllowsCalendarView(loaderData.timePlan) && (
               <TimePlanCalendarActivities
                 timePlan={loaderData.timePlan}

@@ -23,15 +23,19 @@ import type {
 import { CalendarEventDragProvider } from "#/core/calendar/component/event-drag";
 import { ViewAsCalendarDaily } from "#/core/calendar/component/view-as-calendar-daily";
 import { ViewAsCalendarWeekly } from "#/core/calendar/component/view-as-calendar-weekly";
+import { ViewAsScheduleDailyAndWeekly } from "#/core/calendar/component/view-as-schedule-daily-and-weekly";
 import { allDaysBetween } from "#/core/common/adate";
 import { TabPanel } from "#/core/infra/component/tab-panel";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { activityRefIdByCalendarEvent } from "#/core/apps/time_plans/calendar-event";
+import type { TimePlanViewModeWithEvents } from "#/core/apps/time_plans/view-mode";
 import {
   timePlanFocusedCalendarDate,
   timePlanThreeDayCalendarDates,
   TimePlanViewMode,
+  timePlanViewModeIsSchedule,
+  timePlanViewModeIsThreeDays,
 } from "#/core/apps/time_plans/view-mode";
 
 // How often the "right now" line on the calendar catches up with the clock.
@@ -57,7 +61,9 @@ interface TimePlanCalendarActivitiesProps {
   // A leaf for making a new event is open on this plan, so the calendar
   // shows where it would land.
   isAdding?: boolean;
-  viewMode: TimePlanViewMode.CALENDAR | TimePlanViewMode.CALENDAR_3_DAYS;
+  // Whether the events are drawn on a calendar or listed as a schedule, and
+  // for how many days.
+  viewMode: TimePlanViewModeWithEvents;
   additionalTimezones?: Array<Timezone>;
   // Saves an event dragged or stretched on the calendar; without it the move
   // is posted and the plan reloads.
@@ -71,6 +77,8 @@ interface TimePlanCalendarActivitiesProps {
 // planned for - the events made out of those activities included. On a
 // big screen the two sit side by side; on a small one they take tabs of
 // their own, and the calendar is a single day rather than the whole week.
+// The schedule views list the same events instead, for one day at a time or
+// for a three day window of the week.
 export function TimePlanCalendarActivities(
   props: TimePlanCalendarActivitiesProps,
 ) {
@@ -105,8 +113,9 @@ export function TimePlanCalendarActivities(
   ]);
 
   const today = rightNow.toISODate() as ADate;
+  const isSchedule = timePlanViewModeIsSchedule(props.viewMode);
   const threeDayWindow =
-    props.viewMode === TimePlanViewMode.CALENDAR_3_DAYS &&
+    timePlanViewModeIsThreeDays(props.viewMode) &&
     props.timePlan.period === RecurringTaskPeriod.WEEKLY;
   const periodDates = useMemo(
     () => allDaysBetween(props.periodStartDate, props.periodEndDate),
@@ -172,6 +181,52 @@ export function TimePlanCalendarActivities(
     </Typography>
   );
 
+  // A single day of the schedule, picked out of the week for a weekly plan.
+  const daySchedule = (
+    <>
+      {visibleDates.length > 1 && (
+        <TimePlanCalendarDayPicker
+          dates={visibleDates}
+          today={today}
+          selectedDate={selectedDay}
+          onSelect={setSelectedDay}
+        />
+      )}
+      {props.entries === undefined && noEventsMessage}
+      {props.entries !== undefined && (
+        <ViewAsScheduleDailyAndWeekly
+          {...calendarProps}
+          period={RecurringTaskPeriod.DAILY}
+          periodStartDate={selectedDay}
+          periodEndDate={selectedDay}
+        />
+      )}
+    </>
+  );
+
+  // Every visible day of the schedule at once - the three day window of a
+  // week, one row group per day.
+  const threeDaySchedule = (
+    <>
+      {props.entries === undefined && noEventsMessage}
+      {props.entries !== undefined && (
+        <ViewAsScheduleDailyAndWeekly
+          {...calendarProps}
+          period={RecurringTaskPeriod.WEEKLY}
+          periodStartDate={visibleDates[0] ?? props.periodStartDate}
+          periodEndDate={
+            visibleDates[visibleDates.length - 1] ?? props.periodEndDate
+          }
+        />
+      )}
+    </>
+  );
+
+  const schedule =
+    props.viewMode === TimePlanViewMode.SCHEDULE_3_DAYS && threeDayWindow
+      ? threeDaySchedule
+      : daySchedule;
+
   const dayCalendar = (
     <>
       {visibleDates.length > 1 && (
@@ -233,14 +288,18 @@ export function TimePlanCalendarActivities(
                 overflowX: "auto",
               }}
             >
-              {props.entries === undefined && noEventsMessage}
+              {isSchedule && schedule}
 
-              {props.entries !== undefined &&
+              {!isSchedule && props.entries === undefined && noEventsMessage}
+
+              {!isSchedule &&
+                props.entries !== undefined &&
                 props.timePlan.period === RecurringTaskPeriod.DAILY && (
                   <ViewAsCalendarDaily {...calendarProps} />
                 )}
 
-              {props.entries !== undefined &&
+              {!isSchedule &&
+                props.entries !== undefined &&
                 props.timePlan.period === RecurringTaskPeriod.WEEKLY && (
                   <ViewAsCalendarWeekly
                     {...calendarProps}
@@ -258,7 +317,7 @@ export function TimePlanCalendarActivities(
               onChange={(_, newValue) => setSmallScreenTab(newValue)}
             >
               <Tab label="Activities" />
-              <Tab label="Day" />
+              <Tab label={isSchedule ? "Schedule" : "Day"} />
             </Tabs>
             <TabPanel
               value={smallScreenTab}
@@ -267,7 +326,7 @@ export function TimePlanCalendarActivities(
               {props.activities}
             </TabPanel>
             <TabPanel value={smallScreenTab} index={SMALL_SCREEN_DAY_TAB}>
-              {dayCalendar}
+              {isSchedule ? schedule : dayCalendar}
             </TabPanel>
           </>
         )}
