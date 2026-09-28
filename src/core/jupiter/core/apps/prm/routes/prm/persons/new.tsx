@@ -1,5 +1,5 @@
 import type { RecurringTaskPeriod } from "@jupiter/webapi-client";
-import { Difficulty, Eisen } from "@jupiter/webapi-client";
+import { Difficulty, Eisen, Schedulability } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type {
   ActionFunctionArgs,
@@ -135,7 +135,13 @@ export async function action({ request }: ActionFunctionArgs) {
               form.catchUpDueAtMonth === ""
             ? undefined
             : parseInt(form.catchUpDueAtMonth),
-      ...schedulingParamsCreateArgs(form),
+      // Without a catch up period nothing gets generated, so there's
+      // nothing to schedule either.
+      ...schedulingParamsCreateArgs(
+        form.catchUpPeriod === "none"
+          ? { schedulability: Schedulability.NOT_SCHEDULABLE }
+          : form,
+      ),
     });
 
     if (isCreateAndAnother(form.intent)) {
@@ -236,11 +242,13 @@ export default function NewPerson() {
           actionData={actionData}
         />
 
-        <SchedulingParamsBlock
-          inputsEnabled={inputsEnabled}
-          difficulty={catchUpPeriod === "none" ? null : catchUpDifficulty}
-          actionData={actionData}
-        />
+        {catchUpPeriod !== "none" && (
+          <SchedulingParamsBlock
+            inputsEnabled={inputsEnabled}
+            difficulty={catchUpDifficulty}
+            actionData={actionData}
+          />
+        )}
       </SectionCard>
     </LeafPanel>
   );

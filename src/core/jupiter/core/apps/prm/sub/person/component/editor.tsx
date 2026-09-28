@@ -1,14 +1,16 @@
 import type {
   Circle,
   Contact,
+  Difficulty,
   Location,
   Person,
+  RecurringTaskPeriod,
   Tag,
   UserLight,
 } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { entityLinkStd } from "#/core/common/entity-link";
 import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
@@ -80,6 +82,21 @@ export function PersonEditor(props: PersonEditorProps) {
     [props.allCircles, props.personCircles, props.circleRefIds],
   );
 
+  // Scheduling only means something when catch ups get generated.
+  const initialCatchUpPeriod = person.catch_up_params?.period ?? "none";
+  const [catchUpPeriod, setCatchUpPeriod] = useState<
+    RecurringTaskPeriod | "none"
+  >(initialCatchUpPeriod);
+  useEffect(() => {
+    setCatchUpPeriod(initialCatchUpPeriod);
+  }, [initialCatchUpPeriod]);
+  const initialCatchUpDifficulty = person.catch_up_params?.difficulty ?? null;
+  const [catchUpDifficulty, setCatchUpDifficulty] =
+    useState<Difficulty | null>(initialCatchUpDifficulty);
+  useEffect(() => {
+    setCatchUpDifficulty(initialCatchUpDifficulty);
+  }, [initialCatchUpDifficulty]);
+
   return (
     <>
       <Stack direction={isBigScreen ? "row" : "column"} spacing={1}>
@@ -148,15 +165,20 @@ export function PersonEditor(props: PersonEditorProps) {
         actionableFromMonth={person.catch_up_params?.actionable_from_month}
         dueAtDay={person.catch_up_params?.due_at_day}
         dueAtMonth={person.catch_up_params?.due_at_month}
+        onChangePeriod={setCatchUpPeriod}
+        onChangeDifficulty={setCatchUpDifficulty}
         inputsEnabled={props.inputsEnabled}
         actionData={props.actionResult}
       />
 
-      <SchedulingParamsBlock
-        inputsEnabled={props.inputsEnabled}
-        schedulingParams={person.scheduling_params}
-        actionData={props.actionResult}
-      />
+      {catchUpPeriod !== "none" && (
+        <SchedulingParamsBlock
+          inputsEnabled={props.inputsEnabled}
+          schedulingParams={person.scheduling_params}
+          difficulty={catchUpDifficulty}
+          actionData={props.actionResult}
+        />
+      )}
     </>
   );
 }

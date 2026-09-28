@@ -5,6 +5,7 @@ import {
   InboxTaskStatus,
   NamedEntityTag,
   RecurringTaskPeriod,
+  Schedulability,
   WorkspaceFeature,
   Tag,
 } from "@jupiter/webapi-client";
@@ -253,7 +254,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
                   ? undefined
                   : parseInt(form.catchUpDueAtMonth),
           },
-          ...schedulingParamsUpdateArgs(form),
+          // Without a catch up period nothing gets generated, so there's
+          // nothing to schedule either.
+          ...schedulingParamsUpdateArgs(
+            form.catchUpPeriod === undefined || form.catchUpPeriod === "none"
+              ? { schedulability: Schedulability.NOT_SCHEDULABLE }
+              : form,
+          ),
         });
 
         return redirect(`/app/workspace/apps/prm/persons`);
