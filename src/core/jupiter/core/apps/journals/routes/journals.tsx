@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type {
   JournalFindResultEntry,
   JournalStats,
@@ -44,10 +45,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -81,6 +79,10 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "journals";
 
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+});
+
 export default function Journals() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
@@ -90,10 +92,9 @@ export default function Journals() {
   const shouldShowABranch = useTrunkNeedsToShowBranch();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+  const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
     PANEL_ID,
-    "tags",
-    stringFilterCodec,
+    FILTERS,
   );
 
   const entries = loaderData.entries;
@@ -164,7 +165,7 @@ export default function Journals() {
                 text: tag.name,
               })),
               selectedTagsRefId,
-              setSelectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
             NavSingle({
               id: "journals-questions",

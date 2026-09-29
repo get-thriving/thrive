@@ -1,3 +1,4 @@
+import { z } from "zod";
 import {
   ADate,
   ChapterSummary,
@@ -54,10 +55,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -107,6 +105,10 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "time-plans";
 
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+});
+
 export default function TimePlans() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
@@ -152,10 +154,9 @@ export default function TimePlans() {
     timePlanTagsByTimePlanRefId.set(entry.time_plan.ref_id, entry.tags ?? []);
   }
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+  const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
     PANEL_ID,
-    "tags",
-    stringFilterCodec,
+    FILTERS,
   );
   const filteredSortedTimePlans = sortedTimePlans.filter((tp) => {
     if (selectedTagsRefId.length === 0) {
@@ -226,7 +227,7 @@ export default function TimePlans() {
                 text: tag.name,
               })),
               selectedTagsRefId,
-              setSelectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
           ]}
         />

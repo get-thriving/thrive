@@ -89,10 +89,7 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
-import {
-  enumFilterCodec,
-  useSectionFilterOne,
-} from "@jupiter/core/infra/component/use-section-filter";
+import { useSectionFilters } from "@jupiter/core/infra/component/use-section-filter";
 
 import { useServiceProperties } from "~/logic/config";
 
@@ -129,6 +126,11 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "inbox-tasks";
 
+const FILTERS = z.object({
+  view: z.nativeEnum(View).default(View.SWIFTVIEW),
+  actionableTime: z.nativeEnum(ActionableTime).default(ActionableTime.NOW),
+});
+
 export default function InboxTasks() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const { entries } = useLoaderDataSafeForAnimation<typeof loader>();
@@ -156,12 +158,10 @@ export default function InboxTasks() {
 
   const filteredSortedInboxTasks = sortedInboxTasks;
 
-  const [selectedView, setSelectedView] = useSectionFilterOne(
-    PANEL_ID,
-    "view",
-    View.SWIFTVIEW,
-    enumFilterCodec(View),
-  );
+  const [
+    { view: selectedView, actionableTime: selectedActionableTime },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS);
 
   const kanbanBoardMoveFetcher = useFetcher<SomeErrorNoData>();
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
@@ -317,14 +317,6 @@ export default function InboxTasks() {
     }, 0);
   }
 
-  const [selectedActionableTime, setSelectedActionableTime] =
-    useSectionFilterOne(
-      PANEL_ID,
-      "actionable-time",
-      ActionableTime.NOW,
-      enumFilterCodec(ActionableTime),
-    );
-
   const shouldDoAGc = figureOutIfGcIsRecommended(
     entries,
     optimisticUpdates,
@@ -362,7 +354,7 @@ export default function InboxTasks() {
                 },
                 { value: View.LIST, text: "List", icon: <ViewListIcon /> },
               ],
-              (selected) => setSelectedView(selected),
+              (selected) => setFilters({ view: selected }),
             ),
             FilterFewOptionsCompact(
               "Actionable",
@@ -384,7 +376,7 @@ export default function InboxTasks() {
                   icon: <FlareIcon />,
                 },
               ],
-              (selected) => setSelectedActionableTime(selected),
+              (selected) => setFilters({ actionableTime: selected }),
             ),
           ]}
         />

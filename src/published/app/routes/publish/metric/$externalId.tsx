@@ -46,10 +46,7 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
-import {
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "@jupiter/core/infra/component/use-section-filter";
+import { useSectionFilters } from "@jupiter/core/infra/component/use-section-filter";
 import { ignoringSectionFilterChanges } from "@jupiter/core/infra/section-filters";
 
 import {
@@ -132,18 +129,20 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "published-metric";
 
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+  contacts: z.array(z.string()).default([]),
+});
+
 export default function PublishedMetric() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
-    PANEL_ID,
-    "tags",
-    stringFilterCodec,
-  );
-  const [selectedContactsRefId, setSelectedContactsRefId] =
-    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
+  const [
+    { tags: selectedTagsRefId, contacts: selectedContactsRefId },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS);
 
   const allEntriesSorted = useMemo(
     () =>
@@ -244,7 +243,7 @@ export default function PublishedMetric() {
                     text: tag.name,
                   })),
                   selectedTagsRefId,
-                  setSelectedTagsRefId,
+                  (tags) => setFilters({ tags }),
                 ),
                 FilterManyOptions(
                   "Contacts",
@@ -253,7 +252,7 @@ export default function PublishedMetric() {
                     text: contact.name,
                   })),
                   selectedContactsRefId,
-                  setSelectedContactsRefId,
+                  (contacts) => setFilters({ contacts }),
                 ),
               ]}
             />

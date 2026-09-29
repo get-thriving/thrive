@@ -1,3 +1,4 @@
+import { z } from "zod";
 import {
   DocsHelpSubject,
   type DirLoadResult,
@@ -33,12 +34,7 @@ import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useLeafNeedsToShowLeaflet } from "#/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
-import {
-  enumFilterCodec,
-  stringFilterCodec,
-  useSectionFilterMany,
-  useSectionFilterOne,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 enum DocsSortOrder {
   CREATED_ASC = "created_asc",
@@ -60,6 +56,11 @@ interface PublishedDocDirPanelProps {
 
 const PANEL_ID = "published-docs";
 
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+  sort: z.nativeEnum(DocsSortOrder).default(DocsSortOrder.MODIFIED_DESC),
+});
+
 export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -72,17 +73,8 @@ export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
   // service carries that prefix as its router basename.
   const basePath = `/doc/dirtree/${externalId}`;
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
-    PANEL_ID,
-    "tags",
-    stringFilterCodec,
-  );
-  const [sortOrder, setSortOrder] = useSectionFilterOne(
-    PANEL_ID,
-    "sort",
-    DocsSortOrder.MODIFIED_DESC,
-    enumFilterCodec(DocsSortOrder),
-  );
+  const [{ tags: selectedTagsRefId, sort: sortOrder }, setFilters] =
+    useSectionFilters(PANEL_ID, FILTERS);
 
   const filteredSubdirs =
     selectedTagsRefId.length === 0
@@ -168,7 +160,7 @@ export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
                       text: "Name (Z–A)",
                     },
                   ],
-                  setSortOrder,
+                  (sort) => setFilters({ sort }),
                 ),
                 FilterManyOptions(
                   "Tags",
@@ -177,7 +169,7 @@ export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
                     text: tag.name,
                   })),
                   selectedTagsRefId,
-                  setSelectedTagsRefId,
+                  (tags) => setFilters({ tags }),
                 ),
               ]}
             />

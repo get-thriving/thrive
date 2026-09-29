@@ -32,10 +32,7 @@ import type { Tag } from "@jupiter/webapi-client";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
-import {
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "@jupiter/core/infra/component/use-section-filter";
+import { useSectionFilters } from "@jupiter/core/infra/component/use-section-filter";
 
 const ParamsSchema = z.object({});
 
@@ -65,6 +62,10 @@ export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
 const PANEL_ID = "schedule-streams";
 
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+});
+
 export default function ScheduleStreamViewAll() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const [query] = useSearchParams();
@@ -73,10 +74,9 @@ export default function ScheduleStreamViewAll() {
   const inputsEnabled = navigation.state === "idle";
 
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+  const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
     PANEL_ID,
-    "tags",
-    stringFilterCodec,
+    FILTERS,
   );
 
   const filteredEntries = loaderData.entries.filter((entry) => {
@@ -110,7 +110,7 @@ export default function ScheduleStreamViewAll() {
                 text: tag.name,
               })),
               selectedTagsRefId,
-              setSelectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
           ]}
         />

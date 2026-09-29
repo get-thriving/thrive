@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { PublishEntity } from "@jupiter/webapi-client";
 import {
   DocsHelpSubject,
@@ -37,10 +38,7 @@ import { publishedShareUrl } from "#/core/common/sub/publish/published-share-url
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
-import {
-  enumFilterCodec,
-  useSectionFilterMany,
-} from "@jupiter/core/infra/component/use-section-filter";
+import { useSectionFilters } from "@jupiter/core/infra/component/use-section-filter";
 
 import { ServicePropertiesContext } from "~/logic/config";
 
@@ -74,6 +72,10 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "publish";
 
+const FILTERS = z.object({
+  ownerTypes: z.array(z.nativeEnum(NamedEntityTag)).default([]),
+});
+
 export default function PublishEntities() {
   const { publishEntities, publishOwnerFilterTags } =
     useLoaderDataSafeForAnimation<typeof loader>();
@@ -81,10 +83,9 @@ export default function PublishEntities() {
   const serviceProperties = useContext(ServicePropertiesContext);
   const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
-  const [selectedOwnerTypes, setSelectedOwnerTypes] = useSectionFilterMany(
+  const [{ ownerTypes: selectedOwnerTypes }, setFilters] = useSectionFilters(
     PANEL_ID,
-    "owner-types",
-    enumFilterCodec(NamedEntityTag),
+    FILTERS,
   );
 
   const ownerTypeOptions = useMemo(
@@ -133,7 +134,7 @@ export default function PublishEntities() {
               "Entity type",
               ownerTypeOptions,
               selectedOwnerTypes,
-              setSelectedOwnerTypes,
+              (ownerTypes) => setFilters({ ownerTypes }),
             ),
           ]}
         />

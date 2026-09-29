@@ -61,10 +61,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  enumFilterCodec,
-  useSectionFilterOne,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -193,6 +190,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 const PANEL_ID = "time-plan-add-from-big-plan-inbox-tasks";
 
+const FILTERS = z.object({
+  actionableTime: z.nativeEnum(ActionableTime).default(ActionableTime.ONE_WEEK),
+});
+
 export default function TimePlanAddFromBigPlanInboxTasks() {
   const { id } = useParams();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
@@ -222,13 +223,8 @@ export default function TimePlanAddFromBigPlanInboxTasks() {
     entriesByRefId[entry.inbox_task.ref_id] = inboxTaskFindEntryToParent(entry);
   }
 
-  const [selectedActionableTime, setSelectedActionableTime] =
-    useSectionFilterOne(
-      PANEL_ID,
-      "actionable-time",
-      ActionableTime.ONE_WEEK,
-      enumFilterCodec(ActionableTime),
-    );
+  const [{ actionableTime: selectedActionableTime }, setFilters] =
+    useSectionFilters(PANEL_ID, FILTERS);
 
   const sortedInboxTasks = sortInboxTasksByEisenAndDifficulty(
     loaderData.inboxTasks.map((e) => e.inbox_task),
@@ -306,7 +302,7 @@ export default function TimePlanAddFromBigPlanInboxTasks() {
                     text: "One Month",
                   },
                 ],
-                (selected) => setSelectedActionableTime(selected),
+                (selected) => setFilters({ actionableTime: selected }),
               ),
             ]}
           />

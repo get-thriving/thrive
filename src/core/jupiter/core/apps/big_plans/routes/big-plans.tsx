@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type {
   AspectSummary,
   BigPlanFindResultEntry,
@@ -43,12 +44,7 @@ import {
 } from "#/core/infra/component/section-actions";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import {
-  enumFilterCodec,
-  stringFilterCodec,
-  useSectionFilterMany,
-  useSectionFilterOne,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 import {
   DisplayType,
   useLeafNeedsToShowLeaflet,
@@ -103,7 +99,12 @@ enum View {
 }
 
 const PANEL_ID = "big-plans";
-const VIEW_CODEC = enumFilterCodec(View);
+
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+  contacts: z.array(z.string()).default([]),
+  view: z.nativeEnum(View),
+});
 
 export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
@@ -114,13 +115,23 @@ export default function BigPlans() {
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
-    PANEL_ID,
-    "tags",
-    stringFilterCodec,
-  );
-  const [selectedContactsRefId, setSelectedContactsRefId] =
-    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
+  const topLevelInfo = useContext(TopLevelInfoContext);
+
+  const initialView = isWorkspaceFeatureAvailable(
+    topLevelInfo.workspace,
+    WorkspaceFeature.LIFE_PLAN,
+  )
+    ? View.TIMELINE_BY_ASPECT
+    : View.TIMELINE;
+
+  const [
+    {
+      tags: selectedTagsRefId,
+      contacts: selectedContactsRefId,
+      view: selectedView,
+    },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS, { view: initialView });
 
   const entriesByRefId = new Map<string, BigPlanParent>();
   for (const entry of loaderData.bigPlans as Array<BigPlanFindResultEntry>) {
@@ -143,21 +154,6 @@ export default function BigPlans() {
       );
     return tagsOk && contactsOk;
   });
-
-  const topLevelInfo = useContext(TopLevelInfoContext);
-
-  const initialView = isWorkspaceFeatureAvailable(
-    topLevelInfo.workspace,
-    WorkspaceFeature.LIFE_PLAN,
-  )
-    ? View.TIMELINE_BY_ASPECT
-    : View.TIMELINE;
-  const [selectedView, setSelectedView] = useSectionFilterOne(
-    PANEL_ID,
-    "view",
-    initialView,
-    VIEW_CODEC,
-  );
 
   const thisYear = DateTime.local({ zone: topLevelInfo.user.timezone }).startOf(
     "year",
@@ -257,7 +253,7 @@ export default function BigPlans() {
                 },
                 { value: View.LIST, text: "List", icon: <ViewListIcon /> },
               ],
-              (selected) => setSelectedView(selected),
+              (selected) => setFilters({ view: selected }),
             ),
             FilterManyOptions(
               "Tags",
@@ -266,7 +262,7 @@ export default function BigPlans() {
                 text: tag.name,
               })),
               selectedTagsRefId,
-              setSelectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
             FilterManyOptions(
               "Contacts",
@@ -275,7 +271,7 @@ export default function BigPlans() {
                 text: contact.name,
               })),
               selectedContactsRefId,
-              setSelectedContactsRefId,
+              (contacts) => setFilters({ contacts }),
             ),
           ]}
         />

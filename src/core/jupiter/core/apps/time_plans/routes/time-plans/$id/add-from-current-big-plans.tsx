@@ -75,10 +75,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  enumFilterCodec,
-  useSectionFilterOne,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 enum View {
   LIST_MERGED = "list-merged",
@@ -206,6 +203,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 const PANEL_ID = "time-plan-add-from-current-big-plans";
 
+const FILTERS = z.object({
+  view: z.nativeEnum(View),
+});
+
 export default function TimePlanAddFromCurrentBigPlans() {
   const { id } = useParams();
   const [query] = useSearchParams();
@@ -251,11 +252,10 @@ export default function TimePlanAddFromCurrentBigPlans() {
 
   const thisYear = aDateToDate(loaderData.timePlan.right_now).startOf("year");
 
-  const [selectedView, setSelectedView] = useSectionFilterOne(
+  const [{ view: selectedView }, setFilters] = useSectionFilters(
     PANEL_ID,
-    "view",
-    inferDefaultSelectedView(topLevelInfo.workspace),
-    enumFilterCodec(View),
+    FILTERS,
+    { view: inferDefaultSelectedView(topLevelInfo.workspace) },
   );
 
   return (
@@ -325,7 +325,7 @@ export default function TimePlanAddFromCurrentBigPlans() {
                     gatedOn: WorkspaceFeature.LIFE_PLAN,
                   },
                 ],
-                (selected) => setSelectedView(selected),
+                (selected) => setFilters({ view: selected }),
               ),
             ]}
           />

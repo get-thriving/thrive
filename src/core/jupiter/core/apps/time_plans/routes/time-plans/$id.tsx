@@ -88,13 +88,11 @@ import {
 } from "#/core/apps/time_plans/root";
 import {
   resolveTimePlanGrouping,
-  TIME_PLAN_GROUPING_PARAM,
   TIME_PLAN_PANEL_ID,
   TimePlanGrouping,
 } from "#/core/apps/time_plans/grouping";
 import {
   resolveTimePlanViewMode,
-  TIME_PLAN_VIEW_PARAM,
   TimePlanViewMode,
   timePlanPathIsAddingTimeEvent,
   timePlanViewModeIsAllowed,
@@ -142,13 +140,8 @@ import {
   NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import type { SectionFilterCodec } from "#/core/infra/component/use-section-filter";
-import {
-  enumFilterCodec,
-  stringFilterCodec,
-  useSectionFilterMany,
-  useSectionFilterOne,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import { sectionFilterBoolean } from "#/core/infra/section-filters";
 import { SectionCard } from "#/core/infra/component/section-card";
 import { JournalStack } from "#/core/apps/journals/component/stack";
 import { TimePlanEditor } from "#/core/apps/time_plans/component/editor";
@@ -189,7 +182,6 @@ import {
 } from "#/core/apps/time_plans/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import type { loader as timePlanActivityLoader } from "#/core/apps/time_plans/routes/time-plans/$id/$activityId";
-import { newURLParams } from "#/core/infra/navigation";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import type { LoaderDataOf } from "#/core/infra/component/use-loader-data-for-animation";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
@@ -215,28 +207,19 @@ enum GroupVisibility {
   SHOW_ALL = "show-all",
 }
 
-const TIME_PLAN_ACTIVITY_FEASABILITY_VALUES = new Set<string>(
-  Object.values(TimePlanActivityFeasability),
-);
-
-// Kinds, feasabilities and doneness all go in the one "show" filter.
-const TIME_PLAN_ACTIVITY_FILTER_CODEC: SectionFilterCodec<TimePlanActivityFilterValue> =
-  {
-    encode: (value) =>
-      typeof value === "boolean" ? (value ? "done" : "not-done") : value,
-    decode: (raw) => {
-      if (raw === "done") {
-        return true;
-      } else if (raw === "not-done") {
-        return false;
-      } else if (TIME_PLAN_ACTIVITY_KIND_VALUES.has(raw)) {
-        return raw as TimePlanActivityKind;
-      } else if (TIME_PLAN_ACTIVITY_FEASABILITY_VALUES.has(raw)) {
-        return raw as TimePlanActivityFeasability;
-      }
-      return undefined;
-    },
-  };
+// How the plan is being looked at, kept in the URL. The view and grouping
+// are resolved against what the workspace and the plan allow.
+const FILTERS = z.object({
+  view: z.nativeEnum(TimePlanViewMode).optional(),
+  grouping: z.nativeEnum(TimePlanGrouping).optional(),
+  groupVisibility: z
+    .nativeEnum(GroupVisibility)
+    .default(GroupVisibility.NON_EMPTY_ONLY),
+  kind: z.array(z.nativeEnum(TimePlanActivityKind)).default([]),
+  feasability: z.array(z.nativeEnum(TimePlanActivityFeasability)).default([]),
+  done: z.array(sectionFilterBoolean).default([]),
+  aspects: z.array(z.string()).default([]),
+});
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -672,7 +655,7 @@ function TimePlanViewContent() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isBigScreen = useBigScreen();
-  const [query, setQuery] = useSearchParams();
+  const [query] = useSearchParams();
   const location = useLocation();
 
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
@@ -824,7 +807,18 @@ function TimePlanViewContent() {
   // ones again. Adding a time event is done against the calendar of the
   // period, so that leaf puts it on screen even when the URL is still
   // carrying another view to restore when the adding is done.
-  const timePlanViewParam = query.get(TIME_PLAN_VIEW_PARAM);
+  const [
+    {
+      view: timePlanViewParam,
+      grouping: timePlanGroupingParam,
+      groupVisibility: selectedGroupVisibility,
+      kind: selectedKinds,
+      feasability: selectedFeasabilities,
+      done: selectedDoneness,
+      aspects: selectedAspects,
+    },
+    setFilters,
+  ] = useSectionFilters(TIME_PLAN_PANEL_ID, FILTERS);
   const isAddingTimeEvent = timePlanPathIsAddingTimeEvent(location.pathname);
   const resolvedView = resolveTimePlanViewMode(
     timePlanViewParam,
@@ -842,54 +836,9 @@ function TimePlanViewContent() {
       ? TimePlanViewMode.CALENDAR
       : resolvedView;
   const selectedGrouping = resolveTimePlanGrouping(
-    query.get(TIME_PLAN_GROUPING_PARAM),
+    timePlanGroupingParam,
     topLevelInfo.workspace,
     loaderData.timePlan,
-  );
-
-  function setSelectedView(view: TimePlanViewMode) {
-    setQuery(newURLParams(query, TIME_PLAN_VIEW_PARAM, view), {
-      replace: true,
-      preventScrollReset: true,
-    });
-  }
-
-  function setSelectedGrouping(grouping: TimePlanGrouping) {
-    setQuery(newURLParams(query, TIME_PLAN_GROUPING_PARAM, grouping), {
-      replace: true,
-      preventScrollReset: true,
-    });
-  }
-
-  const [selectedGroupVisibility, setSelectedGroupVisibility] =
-    useSectionFilterOne(
-      TIME_PLAN_PANEL_ID,
-      "group-visibility",
-      GroupVisibility.NON_EMPTY_ONLY,
-      enumFilterCodec(GroupVisibility),
-    );
-  const [selectedActivityFilters, setSelectedActivityFilters] =
-    useSectionFilterMany(
-      TIME_PLAN_PANEL_ID,
-      "show",
-      TIME_PLAN_ACTIVITY_FILTER_CODEC,
-    );
-  const selectedKinds: TimePlanActivityKind[] = [];
-  const selectedFeasabilities: TimePlanActivityFeasability[] = [];
-  const selectedDoneness: boolean[] = [];
-  for (const value of selectedActivityFilters) {
-    if (typeof value === "boolean") {
-      selectedDoneness.push(value);
-    } else if (TIME_PLAN_ACTIVITY_KIND_VALUES.has(value)) {
-      selectedKinds.push(value as TimePlanActivityKind);
-    } else {
-      selectedFeasabilities.push(value as TimePlanActivityFeasability);
-    }
-  }
-  const [selectedAspects, setSelectedAspects] = useSectionFilterMany(
-    TIME_PLAN_PANEL_ID,
-    "aspects",
-    stringFilterCodec,
   );
 
   const groupingMaps = {
@@ -1343,7 +1292,7 @@ function TimePlanViewContent() {
                           },
                         ]),
                   ],
-                  (selected) => setSelectedView(selected),
+                  (selected) => setFilters({ view: selected }),
                 ),
                 FilterFewOptionsCompact(
                   "Grouping",
@@ -1367,7 +1316,7 @@ function TimePlanViewContent() {
                       gatedOn: WorkspaceFeature.LIFE_PLAN,
                     },
                   ],
-                  (selected) => setSelectedGrouping(selected),
+                  (selected) => setFilters({ grouping: selected }),
                 ),
                 FilterManyOptions<TimePlanActivityFilterValue>(
                   "Filter",
@@ -1394,8 +1343,26 @@ function TimePlanViewContent() {
                     { value: true, text: "Done" },
                     { value: false, text: "Not Done" },
                   ],
-                  selectedActivityFilters,
-                  setSelectedActivityFilters,
+                  [
+                    ...selectedKinds,
+                    ...selectedFeasabilities,
+                    ...selectedDoneness,
+                  ],
+                  (selected) => {
+                    const kind: TimePlanActivityKind[] = [];
+                    const feasability: TimePlanActivityFeasability[] = [];
+                    const done: boolean[] = [];
+                    for (const value of selected) {
+                      if (typeof value === "boolean") {
+                        done.push(value);
+                      } else if (TIME_PLAN_ACTIVITY_KIND_VALUES.has(value)) {
+                        kind.push(value as TimePlanActivityKind);
+                      } else {
+                        feasability.push(value as TimePlanActivityFeasability);
+                      }
+                    }
+                    setFilters({ kind, feasability, done });
+                  },
                 ),
                 ...(isWorkspaceFeatureAvailable(
                   topLevelInfo.workspace,
@@ -1412,7 +1379,7 @@ function TimePlanViewContent() {
                           ),
                         })),
                         selectedAspects,
-                        setSelectedAspects,
+                        (aspects) => setFilters({ aspects }),
                       ),
                     ]
                   : []),
@@ -1439,7 +1406,7 @@ function TimePlanViewContent() {
                             gatedOn: WorkspaceFeature.LIFE_PLAN,
                           },
                         ],
-                        (selected) => setSelectedGroupVisibility(selected),
+                        (selected) => setFilters({ groupVisibility: selected }),
                       ),
                     ]
                   : []),

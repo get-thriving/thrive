@@ -1,13 +1,17 @@
 import type { ShouldRevalidateFunctionArgs } from "react-router";
 import { describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 
 import {
   ignoringSectionFilterChanges,
   isSectionFilterParam,
+  readSectionFilters,
   searchWithoutSectionFilters,
+  sectionFilterBoolean,
   sectionFilterPanelOf,
   sectionFilterParam,
   withSectionFiltersPreserved,
+  writeSectionFilters,
 } from "#/core/infra/section-filters";
 
 const BIG_PLANS = "/app/workspace/apps/big-plans";
@@ -188,5 +192,123 @@ describe("ignoringSectionFilterChanges", () => {
     shouldRevalidate(args(filtered, filtered));
     shouldRevalidate(args(BIG_PLANS, `${filtered}&invalidateTopLevel=true`));
     expect(inner).toHaveBeenCalledTimes(3);
+  });
+});
+
+enum View {
+  LIST = "list",
+  TIMELINE = "timeline",
+}
+
+const FILTERS = z.object({
+  view: z.nativeEnum(View).default(View.TIMELINE),
+  groupBy: z.nativeEnum(View).nullable(),
+  tags: z.array(z.string()).default([]),
+  done: z.array(sectionFilterBoolean).default([]),
+});
+
+describe("readSectionFilters", () => {
+  it("falls back to the defaults when nothing is in the URL", () => {
+    expect(readSectionFilters(new URLSearchParams(), "p", FILTERS)).toEqual({
+      view: View.TIMELINE,
+      groupBy: null,
+      tags: [],
+      done: [],
+    });
+  });
+
+  it("reads each filter from its kebab-case param", () => {
+    const search = new URLSearchParams(
+      q({
+        "p[view]": "list",
+        "p[group-by]": "timeline",
+        "p[tags]": ["a", "b", "a"],
+        "p[done]": ["true", "false"],
+        "other[view]": "list",
+      }),
+    );
+    expect(readSectionFilters(search, "p", FILTERS)).toEqual({
+      view: View.LIST,
+      groupBy: View.TIMELINE,
+      tags: ["a", "b"],
+      done: [true, false],
+    });
+  });
+
+  it("drops what a schema refuses", () => {
+    const search = new URLSearchParams(
+      q({ "p[view]": "nope", "p[done]": ["maybe", "true"] }),
+    );
+    const filters = readSectionFilters(search, "p", FILTERS);
+    expect(filters.view).toBe(View.TIMELINE);
+    expect(filters.done).toEqual([true]);
+  });
+
+  it("takes defaults known only at the time of reading", () => {
+    const schema = z.object({ view: z.nativeEnum(View) });
+    expect(
+      readSectionFilters(new URLSearchParams(), "p", schema, {
+        view: View.LIST,
+      }).view,
+    ).toBe(View.LIST);
+    expect(() =>
+      readSectionFilters(new URLSearchParams(), "p", schema),
+    ).toThrow();
+  });
+});
+
+describe("writeSectionFilters", () => {
+  it("writes the filters it's given and leaves every other param", () => {
+    const result = writeSectionFilters(
+      new URLSearchParams(q({ keep: "1", "p[tags]": "old" })),
+      "p",
+      FILTERS,
+      { view: View.LIST, tags: ["a", "b"], done: [false] },
+    );
+    expect(result.get("keep")).toBe("1");
+    expect(result.get("p[view]")).toBe("list");
+    expect(result.getAll("p[tags]")).toEqual(["a", "b"]);
+    expect(result.getAll("p[done]")).toEqual(["false"]);
+    expect(readSectionFilters(result, "p", FILTERS)).toEqual({
+      view: View.LIST,
+      groupBy: null,
+      tags: ["a", "b"],
+      done: [false],
+    });
+  });
+
+  it("takes out filters set back to their default", () => {
+    const result = writeSectionFilters(
+      new URLSearchParams(
+        q({ "p[view]": "list", "p[group-by]": "list", "p[tags]": "a" }),
+      ),
+      "p",
+      FILTERS,
+      { view: View.TIMELINE, groupBy: null, tags: [] },
+    );
+    expect(result.toString()).toBe("");
+  });
+
+  it("compares against defaults known only at the time of writing", () => {
+    const schema = z.object({ view: z.nativeEnum(View) });
+    const defaults = { view: View.LIST };
+    expect(
+      writeSectionFilters(
+        new URLSearchParams(),
+        "p",
+        schema,
+        { view: View.LIST },
+        defaults,
+      ).toString(),
+    ).toBe("");
+    expect(
+      writeSectionFilters(
+        new URLSearchParams(),
+        "p",
+        schema,
+        { view: View.TIMELINE },
+        defaults,
+      ).get("p[view]"),
+    ).toBe("timeline");
   });
 });

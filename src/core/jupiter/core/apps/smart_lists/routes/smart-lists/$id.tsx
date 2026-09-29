@@ -42,11 +42,8 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  booleanFilterCodec,
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import { sectionFilterBoolean } from "#/core/infra/section-filters";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -179,6 +176,12 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "smart-list";
 
+const FILTERS = z.object({
+  done: z.array(sectionFilterBoolean).default([]),
+  tags: z.array(z.string()).default([]),
+  contacts: z.array(z.string()).default([]),
+});
+
 export default function SmartListViewItems() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const navigation = useNavigation();
@@ -192,18 +195,14 @@ export default function SmartListViewItems() {
 
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
 
-  const [selectedDoneness, setSelectedDoneness] = useSectionFilterMany(
-    PANEL_ID,
-    "done",
-    booleanFilterCodec,
-  );
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
-    PANEL_ID,
-    "tags",
-    stringFilterCodec,
-  );
-  const [selectedContactsRefId, setSelectedContactsRefId] =
-    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
+  const [
+    {
+      done: selectedDoneness,
+      tags: selectedTagsRefId,
+      contacts: selectedContactsRefId,
+    },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS);
 
   const filteredSmartListItems = loaderData.smartListItems.filter((item) => {
     const doneOk =
@@ -267,7 +266,7 @@ export default function SmartListViewItems() {
                 { value: false, text: "Is not done" },
               ],
               selectedDoneness,
-              setSelectedDoneness,
+              (done) => setFilters({ done }),
             ),
             FilterManyOptions(
               "Tags",
@@ -276,7 +275,7 @@ export default function SmartListViewItems() {
                 text: tag.name,
               })),
               selectedTagsRefId,
-              setSelectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
             FilterManyOptions(
               "Contacts",
@@ -285,7 +284,7 @@ export default function SmartListViewItems() {
                 text: contact.name,
               })),
               selectedContactsRefId,
-              setSelectedContactsRefId,
+              (contacts) => setFilters({ contacts }),
             ),
           ]}
         />

@@ -12,6 +12,7 @@
  * which params are filters, and teach `shouldRevalidate` to look past them.
  */
 import type { ShouldRevalidateFunction } from "react-router";
+import { z } from "zod";
 
 // A deliberate "load it all again", which nothing here stands in the way of.
 const INVALIDATE_TOP_LEVEL_PARAM = "invalidateTopLevel";
@@ -156,4 +157,157 @@ function noSharedParamChanged(
 
 function urlWithoutHash(url: URL): string {
   return `${url.pathname}${url.search}`;
+}
+
+/**
+ * The filters of a panel, as a zod object. Each key is a filter - written in
+ * the URL in kebab-case, so `groupVisibility` is `panel[group-visibility]` -
+ * and each value a schema which parses the filter from its string in the
+ * URL: an enum, a string, `sectionFilterBoolean`, or an array of those for a
+ * filter which takes many values (which is then repeated in the URL).
+ *
+ * Values are written back with `String(value)`, so whatever a schema outputs
+ * must parse back to itself from that. Anything in the URL a schema refuses
+ * is dropped, and the filter falls back to its default.
+ *
+ * A filter's default is the schema's own (`.default(...)`, `.nullable()` or
+ * `.optional()`), or else one given at the time of reading - for defaults
+ * which depend on the workspace or the screen. Defaults aren't written to the
+ * URL.
+ */
+export type SectionFiltersShape = Record<
+  string,
+  z.ZodType<unknown, z.ZodTypeDef, SectionFilterInput>
+>;
+export type SectionFiltersSchema = z.ZodObject<SectionFiltersShape>;
+type SectionFilterInput = string | Array<string> | null | undefined;
+
+/** A yes/no filter, kept in the URL as `true` or `false`. */
+export const sectionFilterBoolean = z
+  .enum(["true", "false"])
+  .transform((value) => value === "true");
+
+export type SectionFilters<S extends SectionFiltersSchema> = z.output<S>;
+
+/** Reads the filters of a panel out of a query string. */
+export function readSectionFilters<S extends SectionFiltersSchema>(
+  search: URLSearchParams,
+  panelId: string,
+  schema: S,
+  defaults?: Partial<SectionFilters<S>>,
+): SectionFilters<S> {
+  const result: Record<string, unknown> = {};
+
+  for (const [key, field] of Object.entries(schema.shape)) {
+    const param = sectionFilterParam(panelId, filterNameOf(key));
+    const fallback = defaultOf(key, field, defaults);
+    const element = arrayElementOf(field);
+
+    if (element !== undefined) {
+      const values: Array<unknown> = [];
+      for (const raw of search.getAll(param)) {
+        const parsed = element.safeParse(raw);
+        if (parsed.success && !values.includes(parsed.data)) {
+          values.push(parsed.data);
+        }
+      }
+      result[key] = values.length > 0 ? values : fallback;
+    } else {
+      const raw = search.get(param);
+      const parsed = raw === null ? undefined : field.safeParse(raw);
+      result[key] =
+        parsed !== undefined && parsed.success && parsed.data !== undefined
+          ? parsed.data
+          : fallback;
+    }
+  }
+
+  return result as SectionFilters<S>;
+}
+
+/**
+ * Writes some of the filters of a panel into a query string, leaving every
+ * other param as it was. A filter set to its default is taken out.
+ */
+export function writeSectionFilters<S extends SectionFiltersSchema>(
+  search: URLSearchParams,
+  panelId: string,
+  schema: S,
+  update: Partial<SectionFilters<S>>,
+  defaults?: Partial<SectionFilters<S>>,
+): URLSearchParams {
+  const result = new URLSearchParams(search);
+
+  for (const [key, value] of Object.entries(update)) {
+    const field = schema.shape[key];
+    if (field === undefined) {
+      continue;
+    }
+    const param = sectionFilterParam(panelId, filterNameOf(key));
+    const fallback = defaultOf(key, field, defaults);
+    result.delete(param);
+
+    if (arrayElementOf(field) !== undefined) {
+      const values = (value ?? []) as Array<unknown>;
+      if (!sameValues(values, fallback as Array<unknown> | undefined)) {
+        for (const item of values) {
+          result.append(param, String(item));
+        }
+      }
+    } else if (value !== fallback && value !== null && value !== undefined) {
+      result.set(param, String(value));
+    }
+  }
+
+  return result;
+}
+
+function filterNameOf(key: string): string {
+  return key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+}
+
+function defaultOf(
+  key: string,
+  field: z.ZodTypeAny,
+  defaults: Record<string, unknown> | undefined,
+): unknown {
+  if (defaults !== undefined && key in defaults) {
+    return defaults[key];
+  }
+  const parsed = field.safeParse(undefined);
+  if (parsed.success) {
+    return parsed.data;
+  }
+  // A nullable filter has "nothing chosen" - null - as its default.
+  const parsedNull = field.safeParse(null);
+  if (parsedNull.success) {
+    return parsedNull.data;
+  }
+  throw new Error(`Section filter "${key}" has no default`);
+}
+
+// The element schema of a filter which takes many values, if it's one.
+function arrayElementOf(field: z.ZodTypeAny): z.ZodTypeAny | undefined {
+  let current: z.ZodTypeAny = field;
+  for (;;) {
+    if (current instanceof z.ZodArray) {
+      return current.element;
+    } else if (current instanceof z.ZodDefault) {
+      current = current._def.innerType;
+    } else if (
+      current instanceof z.ZodOptional ||
+      current instanceof z.ZodNullable
+    ) {
+      current = current.unwrap();
+    } else {
+      return undefined;
+    }
+  }
+}
+
+function sameValues(a: Array<unknown>, b: Array<unknown> | undefined): boolean {
+  if (b === undefined) {
+    return a.length === 0;
+  }
+  return a.length === b.length && a.every((value, i) => value === b[i]);
 }

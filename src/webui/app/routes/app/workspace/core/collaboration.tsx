@@ -57,10 +57,7 @@ import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
-import {
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "@jupiter/core/infra/component/use-section-filter";
+import { useSectionFilters } from "@jupiter/core/infra/component/use-section-filter";
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
@@ -149,6 +146,10 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "collaboration";
 
+const FILTERS = z.object({
+  subjects: z.array(z.string()).default([]),
+});
+
 export default function Collaboration() {
   const {
     invites,
@@ -161,8 +162,10 @@ export default function Collaboration() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
   const [selectedTab, setSelectedTab] = useState(0);
-  const [selectedSubjectRefIds, setSelectedSubjectRefIds] =
-    useSectionFilterMany(PANEL_ID, "subjects", stringFilterCodec);
+  const [{ subjects: selectedSubjectRefIds }, setFilters] = useSectionFilters(
+    PANEL_ID,
+    FILTERS,
+  );
   const requestActionFetcher = useFetcher();
 
   const personFilterOptions = useMemo(
@@ -249,7 +252,7 @@ export default function Collaboration() {
               "Person",
               personFilterOptions,
               selectedSubjectRefIds,
-              setSelectedSubjectRefIds,
+              (subjects) => setFilters({ subjects }),
             ),
           ]}
         />

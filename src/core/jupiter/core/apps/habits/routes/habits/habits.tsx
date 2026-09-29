@@ -88,12 +88,7 @@ import { HabitStackTag } from "#/core/apps/habits/component/habit-stack-tag";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  enumFilterCodec,
-  stringFilterCodec,
-  useSectionFilterMany,
-  useSectionFilterOne,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -208,6 +203,16 @@ export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
 const PANEL_ID = "habits";
 
+const FILTERS = z.object({
+  grouping: z.nativeEnum(Grouping),
+  periodBreakdown: z.nativeEnum(PeriodBreakdown),
+  groupVisibility: z
+    .nativeEnum(GroupVisibility)
+    .default(GroupVisibility.NON_EMPTY_ONLY),
+  tags: z.array(z.string()).default([]),
+  contacts: z.array(z.string()).default([]),
+});
+
 export default function Habits() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
@@ -276,33 +281,21 @@ export default function Habits() {
     WorkspaceFeature.LIFE_PLAN,
   );
 
-  const [selectedGrouping, setSelectedGrouping] = useSectionFilterOne(
-    PANEL_ID,
-    "grouping",
-    lifePlanAvailable ? Grouping.BY_ASPECT_AND_GOAL : Grouping.FLAT,
-    enumFilterCodec(Grouping),
-  );
-  const [selectedPeriodBreakdown, setSelectedPeriodBreakdown] =
-    useSectionFilterOne(
-      PANEL_ID,
-      "period-breakdown",
-      isBigScreen ? PeriodBreakdown.BY_PERIOD : PeriodBreakdown.LIST,
-      enumFilterCodec(PeriodBreakdown),
-    );
-  const [selectedGroupVisibility, setSelectedGroupVisibility] =
-    useSectionFilterOne(
-      PANEL_ID,
-      "group-visibility",
-      GroupVisibility.NON_EMPTY_ONLY,
-      enumFilterCodec(GroupVisibility),
-    );
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
-    PANEL_ID,
-    "tags",
-    stringFilterCodec,
-  );
-  const [selectedContactsRefId, setSelectedContactsRefId] =
-    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
+  const [
+    {
+      grouping: selectedGrouping,
+      periodBreakdown: selectedPeriodBreakdown,
+      groupVisibility: selectedGroupVisibility,
+      tags: selectedTagsRefId,
+      contacts: selectedContactsRefId,
+    },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS, {
+    grouping: lifePlanAvailable ? Grouping.BY_ASPECT_AND_GOAL : Grouping.FLAT,
+    periodBreakdown: isBigScreen
+      ? PeriodBreakdown.BY_PERIOD
+      : PeriodBreakdown.LIST,
+  });
 
   const tagsByRefId: { [tag: string]: Tag } = {};
   for (const tag of loaderData.allTags) {
@@ -446,7 +439,7 @@ export default function Habits() {
                 },
                 { value: Grouping.FLAT, text: "Flat", icon: <ViewListIcon /> },
               ],
-              (selected) => setSelectedGrouping(selected),
+              (selected) => setFilters({ grouping: selected }),
             ),
             ...(isBigScreen
               ? [
@@ -465,7 +458,7 @@ export default function Habits() {
                         icon: <ViewListIcon />,
                       },
                     ],
-                    (selected) => setSelectedPeriodBreakdown(selected),
+                    (selected) => setFilters({ periodBreakdown: selected }),
                   ),
                 ]
               : []),
@@ -487,7 +480,7 @@ export default function Habits() {
                         gatedOn: WorkspaceFeature.LIFE_PLAN,
                       },
                     ],
-                    (selected) => setSelectedGroupVisibility(selected),
+                    (selected) => setFilters({ groupVisibility: selected }),
                   ),
                 ]
               : []),
@@ -498,7 +491,7 @@ export default function Habits() {
                 text: tag.name,
               })),
               selectedTagsRefId,
-              setSelectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
             FilterManyOptions(
               "Contacts",
@@ -507,7 +500,7 @@ export default function Habits() {
                 text: contact.name,
               })),
               selectedContactsRefId,
-              setSelectedContactsRefId,
+              (contacts) => setFilters({ contacts }),
             ),
             NavSingle({
               id: "habits-stacks",

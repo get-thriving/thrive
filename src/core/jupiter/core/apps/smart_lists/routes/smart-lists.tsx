@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction,
@@ -30,10 +31,7 @@ import { UserLightChip } from "#/core/users/components/user-light-chip";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -64,6 +62,10 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "smart-lists";
 
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+});
+
 export default function SmartLists() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -79,10 +81,9 @@ export default function SmartLists() {
     );
   }
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+  const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
     PANEL_ID,
-    "tags",
-    stringFilterCodec,
+    FILTERS,
   );
   const filteredEntries = loaderData.entries.filter((entry) => {
     if (selectedTagsRefId.length === 0) {
@@ -111,7 +112,7 @@ export default function SmartLists() {
                 text: tag.name,
               })),
               selectedTagsRefId,
-              setSelectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
           ]}
         />

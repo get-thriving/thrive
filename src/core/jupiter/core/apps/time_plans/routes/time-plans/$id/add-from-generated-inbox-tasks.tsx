@@ -78,10 +78,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  enumFilterCodec,
-  useSectionFilterOne,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -194,6 +191,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 const PANEL_ID = "time-plan-add-from-generated-inbox-tasks";
 
+const FILTERS = z.object({
+  period: z.nativeEnum(RecurringTaskPeriod),
+  actionableTime: z.nativeEnum(ActionableTime).default(ActionableTime.ONE_WEEK),
+});
+
 export default function TimePlanAddFromCurrentInboxTasks() {
   const { id } = useParams();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
@@ -218,25 +220,19 @@ export default function TimePlanAddFromCurrentInboxTasks() {
     new Set<string>(),
   );
 
-  const [selectedPeriod, setSelectedPeriod] = useSectionFilterOne(
-    PANEL_ID,
-    "period",
-    query.showFromPeriod ? query.showFromPeriod : RecurringTaskPeriod.DAILY,
-    enumFilterCodec(RecurringTaskPeriod),
-  );
+  const [
+    { period: selectedPeriod, actionableTime: selectedActionableTime },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS, {
+    period: query.showFromPeriod
+      ? query.showFromPeriod
+      : RecurringTaskPeriod.DAILY,
+  });
 
   const entriesByRefId: { [key: string]: InboxTaskParent } = {};
   for (const entry of loaderData.inboxTasks) {
     entriesByRefId[entry.inbox_task.ref_id] = inboxTaskFindEntryToParent(entry);
   }
-
-  const [selectedActionableTime, setSelectedActionableTime] =
-    useSectionFilterOne(
-      PANEL_ID,
-      "actionable-time",
-      ActionableTime.ONE_WEEK,
-      enumFilterCodec(ActionableTime),
-    );
 
   const sortedInboxTasks = sortInboxTasksByEisenAndDifficulty(
     loaderData.inboxTasks.map((e) => e.inbox_task),
@@ -321,7 +317,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
                     text: "One Month",
                   },
                 ],
-                (selected) => setSelectedActionableTime(selected),
+                (selected) => setFilters({ actionableTime: selected }),
               ),
               FilterFewOptionsCompact(
                 "From Period",
@@ -348,7 +344,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
                     text: "From Yearly",
                   },
                 ],
-                (selected) => setSelectedPeriod(selected),
+                (selected) => setFilters({ period: selected }),
               ),
             ]}
           />

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type {
   Contact,
   Tag,
@@ -42,10 +43,7 @@ import { UserLightChip } from "#/core/users/components/user-light-chip";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -78,18 +76,20 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "wish-list";
 
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+  contacts: z.array(z.string()).default([]),
+});
+
 export default function TravelWishWishlist() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const entries = loaderData.entries as Array<TravelWishFindResultEntry>;
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
-    PANEL_ID,
-    "tags",
-    stringFilterCodec,
-  );
-  const [selectedContactsRefId, setSelectedContactsRefId] =
-    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
+  const [
+    { tags: selectedTagsRefId, contacts: selectedContactsRefId },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS);
 
   const entriesByRefId = new Map<string, TravelWishFindResultEntry>();
   for (const entry of entries) {
@@ -168,7 +168,7 @@ export default function TravelWishWishlist() {
                 text: tag.name,
               })),
               selectedTagsRefId,
-              setSelectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
             FilterManyOptions(
               "Contacts",
@@ -177,7 +177,7 @@ export default function TravelWishWishlist() {
                 text: contact.name,
               })),
               selectedContactsRefId,
-              setSelectedContactsRefId,
+              (contacts) => setFilters({ contacts }),
             ),
           ]}
         />

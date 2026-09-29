@@ -1,3 +1,4 @@
+import { z } from "zod";
 import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import type {
   LoaderFunctionArgs,
@@ -64,10 +65,7 @@ import { TabPanel } from "#/core/infra/component/tab-panel";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -114,6 +112,11 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "persons";
 
+const FILTERS = z.object({
+  circles: z.array(z.string()).default([]),
+  tags: z.array(z.string()).default([]),
+});
+
 export default function Persons() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -121,16 +124,10 @@ export default function Persons() {
 
   const entries = loaderData.entries as Array<PersonFindResultEntry>;
 
-  const [selectedCirclesRefId, setSelectedCirclesRefId] = useSectionFilterMany(
-    PANEL_ID,
-    "circles",
-    stringFilterCodec,
-  );
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
-    PANEL_ID,
-    "tags",
-    stringFilterCodec,
-  );
+  const [
+    { circles: selectedCirclesRefId, tags: selectedTagsRefId },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS);
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
     [key: string]: InboxTaskOptimisticState;
   }>({});
@@ -259,7 +256,7 @@ export default function Persons() {
                 text: String(c.name),
               })),
               selectedCirclesRefId,
-              setSelectedCirclesRefId,
+              (circles) => setFilters({ circles }),
             ),
             FilterManyOptions(
               "Tags",
@@ -268,7 +265,7 @@ export default function Persons() {
                 text: tag.name,
               })),
               selectedTagsRefId,
-              setSelectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
           ]}
         />

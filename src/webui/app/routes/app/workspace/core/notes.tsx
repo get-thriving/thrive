@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { Note } from "@jupiter/webapi-client";
 import { DocsHelpSubject, NamedEntityTag } from "@jupiter/webapi-client";
 import type {
@@ -31,10 +32,7 @@ import { parseNoteOwner } from "#/core/common/sub/notes/parse-note-owner";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
-import {
-  enumFilterCodec,
-  useSectionFilterMany,
-} from "@jupiter/core/infra/component/use-section-filter";
+import { useSectionFilters } from "@jupiter/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -66,16 +64,19 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "notes";
 
+const FILTERS = z.object({
+  ownerTypes: z.array(z.nativeEnum(NamedEntityTag)).default([]),
+});
+
 export default function Notes() {
   const { notes, noteOwnerFilterTags } =
     useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
-  const [selectedOwnerTypes, setSelectedOwnerTypes] = useSectionFilterMany(
+  const [{ ownerTypes: selectedOwnerTypes }, setFilters] = useSectionFilters(
     PANEL_ID,
-    "owner-types",
-    enumFilterCodec(NamedEntityTag),
+    FILTERS,
   );
 
   const ownerTypeOptions = useMemo(
@@ -124,7 +125,7 @@ export default function Notes() {
               "Owner type",
               ownerTypeOptions,
               selectedOwnerTypes,
-              setSelectedOwnerTypes,
+              (ownerTypes) => setFilters({ ownerTypes }),
             ),
           ]}
         />

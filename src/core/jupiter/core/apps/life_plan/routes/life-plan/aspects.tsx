@@ -35,10 +35,7 @@ import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.LEAF,
@@ -74,6 +71,10 @@ export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
 const PANEL_ID = "life-plan-aspects";
 
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+});
+
 export default function Aspects() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -82,10 +83,9 @@ export default function Aspects() {
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+  const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
     PANEL_ID,
-    "tags",
-    stringFilterCodec,
+    FILTERS,
   );
 
   const entriesByRefId = new Map(
@@ -134,7 +134,7 @@ export default function Aspects() {
                     text: tag.name,
                   })),
                   selectedTagsRefId,
-                  setSelectedTagsRefId,
+                  (tags) => setFilters({ tags }),
                 ),
               ]}
             />

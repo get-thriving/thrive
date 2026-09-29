@@ -48,10 +48,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -180,6 +177,11 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "metric";
 
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+  contacts: z.array(z.string()).default([]),
+});
+
 export default function Metric() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
@@ -190,13 +192,10 @@ export default function Metric() {
     !loaderData.metric.archived &&
     accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
-    PANEL_ID,
-    "tags",
-    stringFilterCodec,
-  );
-  const [selectedContactsRefId, setSelectedContactsRefId] =
-    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
+  const [
+    { tags: selectedTagsRefId, contacts: selectedContactsRefId },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS);
 
   const tagsByMetricEntryRefId = new Map<string, Tag[]>();
   for (const et of loaderData.metricEntryTags) {
@@ -292,7 +291,7 @@ export default function Metric() {
                 text: tag.name,
               })),
               selectedTagsRefId,
-              setSelectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
             FilterManyOptions(
               "Contacts",
@@ -301,7 +300,7 @@ export default function Metric() {
                 text: contact.name,
               })),
               selectedContactsRefId,
-              setSelectedContactsRefId,
+              (contacts) => setFilters({ contacts }),
             ),
           ]}
         />

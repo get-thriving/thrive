@@ -37,12 +37,11 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
+import { useSectionFilters } from "@jupiter/core/infra/component/use-section-filter";
 import {
-  booleanFilterCodec,
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "@jupiter/core/infra/component/use-section-filter";
-import { ignoringSectionFilterChanges } from "@jupiter/core/infra/section-filters";
+  sectionFilterBoolean,
+  ignoringSectionFilterChanges,
+} from "@jupiter/core/infra/section-filters";
 
 import {
   buildPublishedPageMeta,
@@ -121,23 +120,25 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "published-smart-list";
 
+const FILTERS = z.object({
+  done: z.array(sectionFilterBoolean).default([]),
+  tags: z.array(z.string()).default([]),
+  contacts: z.array(z.string()).default([]),
+});
+
 export default function PublishedSmartList() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
-  const [selectedDoneness, setSelectedDoneness] = useSectionFilterMany(
-    PANEL_ID,
-    "done",
-    booleanFilterCodec,
-  );
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
-    PANEL_ID,
-    "tags",
-    stringFilterCodec,
-  );
-  const [selectedContactsRefId, setSelectedContactsRefId] =
-    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
+  const [
+    {
+      done: selectedDoneness,
+      tags: selectedTagsRefId,
+      contacts: selectedContactsRefId,
+    },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS);
 
   const filteredSmartListItems = useMemo(
     () =>
@@ -197,7 +198,7 @@ export default function PublishedSmartList() {
                     { value: false, text: "Is not done" },
                   ],
                   selectedDoneness,
-                  setSelectedDoneness,
+                  (done) => setFilters({ done }),
                 ),
                 FilterManyOptions(
                   "Tags",
@@ -206,7 +207,7 @@ export default function PublishedSmartList() {
                     text: tag.name,
                   })),
                   selectedTagsRefId,
-                  setSelectedTagsRefId,
+                  (tags) => setFilters({ tags }),
                 ),
                 FilterManyOptions(
                   "Contacts",
@@ -215,7 +216,7 @@ export default function PublishedSmartList() {
                     text: contact.name,
                   })),
                   selectedContactsRefId,
-                  setSelectedContactsRefId,
+                  (contacts) => setFilters({ contacts }),
                 ),
               ]}
             />

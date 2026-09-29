@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction,
@@ -31,10 +32,7 @@ import { UserLightChip } from "#/core/users/components/user-light-chip";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  stringFilterCodec,
-  useSectionFilterMany,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -66,14 +64,17 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const PANEL_ID = "metrics";
 
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+});
+
 export default function Metrics() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+  const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
     PANEL_ID,
-    "tags",
-    stringFilterCodec,
+    FILTERS,
   );
 
   const shouldShowABranch = useTrunkNeedsToShowBranch();
@@ -107,7 +108,7 @@ export default function Metrics() {
                 text: tag.name,
               })),
               selectedTagsRefId,
-              setSelectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
           ]}
         />

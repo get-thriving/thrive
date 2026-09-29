@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type {
   Chapter,
   Contact,
@@ -84,12 +85,7 @@ import { ChoreStackTag } from "#/core/apps/chores/component/chore-stack-tag";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
-import {
-  enumFilterCodec,
-  stringFilterCodec,
-  useSectionFilterMany,
-  useSectionFilterOne,
-} from "#/core/infra/component/use-section-filter";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -158,6 +154,16 @@ export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
 const PANEL_ID = "chores";
 
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+  contacts: z.array(z.string()).default([]),
+  grouping: z.nativeEnum(Grouping),
+  periodBreakdown: z.nativeEnum(PeriodBreakdown),
+  groupVisibility: z
+    .nativeEnum(GroupVisibility)
+    .default(GroupVisibility.NON_EMPTY_ONLY),
+});
+
 export default function Chores() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
@@ -171,13 +177,25 @@ export default function Chores() {
     entriesByRefId.set(entry.chore.ref_id, entry);
   }
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
-    PANEL_ID,
-    "tags",
-    stringFilterCodec,
+  const lifePlanAvailable = isWorkspaceFeatureAvailable(
+    topLevelInfo.workspace,
+    WorkspaceFeature.LIFE_PLAN,
   );
-  const [selectedContactsRefId, setSelectedContactsRefId] =
-    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
+  const [
+    {
+      tags: selectedTagsRefId,
+      contacts: selectedContactsRefId,
+      grouping: selectedGrouping,
+      periodBreakdown: selectedPeriodBreakdown,
+      groupVisibility: selectedGroupVisibility,
+    },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS, {
+    grouping: lifePlanAvailable ? Grouping.BY_ASPECT_AND_GOAL : Grouping.FLAT,
+    periodBreakdown: isBigScreen
+      ? PeriodBreakdown.BY_PERIOD
+      : PeriodBreakdown.LIST,
+  });
 
   const [mobileTab, setMobileTab] = useState<"chores" | "inbox-tasks">(
     "chores",
@@ -269,32 +287,6 @@ export default function Chores() {
     return tagsOk && contactsOk;
   });
 
-  const lifePlanAvailable = isWorkspaceFeatureAvailable(
-    topLevelInfo.workspace,
-    WorkspaceFeature.LIFE_PLAN,
-  );
-
-  const [selectedGrouping, setSelectedGrouping] = useSectionFilterOne(
-    PANEL_ID,
-    "grouping",
-    lifePlanAvailable ? Grouping.BY_ASPECT_AND_GOAL : Grouping.FLAT,
-    enumFilterCodec(Grouping),
-  );
-  const [selectedPeriodBreakdown, setSelectedPeriodBreakdown] =
-    useSectionFilterOne(
-      PANEL_ID,
-      "period-breakdown",
-      isBigScreen ? PeriodBreakdown.BY_PERIOD : PeriodBreakdown.LIST,
-      enumFilterCodec(PeriodBreakdown),
-    );
-  const [selectedGroupVisibility, setSelectedGroupVisibility] =
-    useSectionFilterOne(
-      PANEL_ID,
-      "group-visibility",
-      GroupVisibility.NON_EMPTY_ONLY,
-      enumFilterCodec(GroupVisibility),
-    );
-
   // Shared chores may reference aspects from another workspace. Include
   // those for grouping/display, detached from foreign parent chains.
   const viewerAspects = loaderData.allAspects || [];
@@ -359,7 +351,7 @@ export default function Chores() {
                 },
                 { value: Grouping.FLAT, text: "Flat", icon: <ViewListIcon /> },
               ],
-              (selected) => setSelectedGrouping(selected),
+              (selected) => setFilters({ grouping: selected }),
             ),
             ...(isBigScreen
               ? [
@@ -378,7 +370,7 @@ export default function Chores() {
                         icon: <ViewListIcon />,
                       },
                     ],
-                    (selected) => setSelectedPeriodBreakdown(selected),
+                    (selected) => setFilters({ periodBreakdown: selected }),
                   ),
                 ]
               : []),
@@ -400,7 +392,7 @@ export default function Chores() {
                         gatedOn: WorkspaceFeature.LIFE_PLAN,
                       },
                     ],
-                    (selected) => setSelectedGroupVisibility(selected),
+                    (selected) => setFilters({ groupVisibility: selected }),
                   ),
                 ]
               : []),
@@ -411,7 +403,7 @@ export default function Chores() {
                 text: tag.name,
               })),
               selectedTagsRefId,
-              setSelectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
             FilterManyOptions(
               "Contacts",
@@ -420,7 +412,7 @@ export default function Chores() {
                 text: contact.name,
               })),
               selectedContactsRefId,
-              setSelectedContactsRefId,
+              (contacts) => setFilters({ contacts }),
             ),
             NavSingle({
               id: "chores-stacks",
