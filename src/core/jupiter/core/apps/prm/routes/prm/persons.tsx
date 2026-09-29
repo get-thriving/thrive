@@ -1,3 +1,4 @@
+import { z } from "zod";
 import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import type {
   LoaderFunctionArgs,
@@ -64,6 +65,7 @@ import { TabPanel } from "#/core/infra/component/tab-panel";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -108,6 +110,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
+const PANEL_ID = "persons";
+
+const FILTERS = z.object({
+  circles: z.array(z.string()).default([]),
+  tags: z.array(z.string()).default([]),
+});
+
 export default function Persons() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -115,10 +124,10 @@ export default function Persons() {
 
   const entries = loaderData.entries as Array<PersonFindResultEntry>;
 
-  const [selectedCirclesRefId, setSelectedCirclesRefId] = useState<string[]>(
-    [],
-  );
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [
+    { circles: selectedCirclesRefId, tags: selectedTagsRefId },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS);
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
     [key: string]: InboxTaskOptimisticState;
   }>({});
@@ -246,7 +255,8 @@ export default function Persons() {
                 value: c.ref_id,
                 text: String(c.name),
               })),
-              setSelectedCirclesRefId,
+              selectedCirclesRefId,
+              (circles) => setFilters({ circles }),
             ),
             FilterManyOptions(
               "Tags",
@@ -254,7 +264,8 @@ export default function Persons() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
-              setSelectedTagsRefId,
+              selectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
           ]}
         />

@@ -70,6 +70,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -247,6 +248,12 @@ function isAddableStackInTimePlan(
   );
 }
 
+const PANEL_ID = "time-plan-add-from-current-habits";
+
+const FILTERS = z.object({
+  show: z.nativeEnum(ShowFilter).default(ShowFilter.IN_PERIOD),
+});
+
 export default function TimePlanAddFromCurrentHabits() {
   const { id } = useParams();
   const [query] = useSearchParams();
@@ -274,7 +281,10 @@ export default function TimePlanAddFromCurrentHabits() {
   const [targetHabitStackRefIds, setTargetHabitStackRefIds] = useState(
     new Set<string>(),
   );
-  const [showFilter, setShowFilter] = useState(ShowFilter.IN_PERIOD);
+  const [{ show: showFilter }, setFilters] = useSectionFilters(
+    PANEL_ID,
+    FILTERS,
+  );
 
   const inboxTasksByHabitRefId = groupInboxTasksByOwnerRefId(
     loaderData.inboxTasks,
@@ -495,7 +505,7 @@ export default function TimePlanAddFromCurrentHabits() {
                     text: "All",
                   },
                 ],
-                (selected) => setShowFilter(selected),
+                (selected) => setFilters({ show: selected }),
               ),
             ]}
           />

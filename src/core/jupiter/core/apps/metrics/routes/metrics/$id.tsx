@@ -13,7 +13,7 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { redirect, useNavigation } from "react-router";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 
@@ -48,6 +48,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -174,6 +175,13 @@ export async function action({ request, params }: LoaderFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
+const PANEL_ID = "metric";
+
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+  contacts: z.array(z.string()).default([]),
+});
+
 export default function Metric() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
@@ -184,10 +192,10 @@ export default function Metric() {
     !loaderData.metric.archived &&
     accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
-  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
-    [],
-  );
+  const [
+    { tags: selectedTagsRefId, contacts: selectedContactsRefId },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS);
 
   const tagsByMetricEntryRefId = new Map<string, Tag[]>();
   for (const et of loaderData.metricEntryTags) {
@@ -282,7 +290,8 @@ export default function Metric() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
-              setSelectedTagsRefId,
+              selectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
             FilterManyOptions(
               "Contacts",
@@ -290,7 +299,8 @@ export default function Metric() {
                 value: contact.ref_id,
                 text: contact.name,
               })),
-              setSelectedContactsRefId,
+              selectedContactsRefId,
+              (contacts) => setFilters({ contacts }),
             ),
           ]}
         />

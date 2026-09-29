@@ -1,5 +1,9 @@
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import type { LoaderFunctionArgs, MetaFunction } from "react-router";
+import type {
+  LoaderFunctionArgs,
+  MetaFunction,
+  ShouldRevalidateFunction,
+} from "react-router";
 import type { Tag } from "@jupiter/webapi-client";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -10,6 +14,7 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
+import { ignoringSectionFilterChanges } from "@jupiter/core/infra/section-filters";
 
 import {
   buildPublishedPageMeta,
@@ -76,6 +81,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export const meta: MetaFunction<typeof loader> = ({ data }) =>
   metaDescriptorsForPublishedPage(data?.pageMeta);
+
+// The filters of the page this opens over are no reason to load it again.
+export const shouldRevalidate: ShouldRevalidateFunction =
+  ignoringSectionFilterChanges(
+    ({ defaultShouldRevalidate }) => defaultShouldRevalidate,
+  );
 
 export default function PublishedDocDirChild() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

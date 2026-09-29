@@ -99,6 +99,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 enum InboxTasksView {
   KANBAN_BY_EISEN = "kanban-by-eisen",
@@ -462,6 +463,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
+const PANEL_ID = "big-plan";
+
+const FILTERS = z.object({
+  inboxTasksView: z.nativeEnum(InboxTasksView),
+});
+
 export default function BigPlan() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
@@ -540,9 +547,12 @@ export default function BigPlan() {
   const sortedTimeEventEntries =
     sortInboxTaskTimeEventsNaturally(timeEventEntries);
 
-  const [selectedInboxTasksView, setSelectedInboxTasksView] = useState(
-    isBigScreen ? InboxTasksView.KANBAN_BY_EISEN : InboxTasksView.KANBAN,
-  );
+  const [{ inboxTasksView: selectedInboxTasksView }, setFilters] =
+    useSectionFilters(PANEL_ID, FILTERS, {
+      inboxTasksView: isBigScreen
+        ? InboxTasksView.KANBAN_BY_EISEN
+        : InboxTasksView.KANBAN,
+    });
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
     [key: string]: InboxTaskOptimisticState;
   }>({});
@@ -790,7 +800,7 @@ export default function BigPlan() {
                       icon: <ViewListIcon />,
                     },
                   ],
-                  (selected) => setSelectedInboxTasksView(selected),
+                  (selected) => setFilters({ inboxTasksView: selected }),
                 ),
               ]}
             />

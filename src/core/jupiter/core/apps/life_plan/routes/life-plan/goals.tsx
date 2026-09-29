@@ -6,7 +6,7 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { useNavigation } from "react-router";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { z } from "zod";
 
 import { EntityNameComponent } from "#/core/common/component/entity-name";
@@ -35,6 +35,7 @@ import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.LEAF,
@@ -68,6 +69,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
+const PANEL_ID = "life-plan-goals";
+
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+});
+
 export default function Goals() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -76,7 +83,10 @@ export default function Goals() {
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
+    PANEL_ID,
+    FILTERS,
+  );
 
   const allAspectsByRefId = new Map(
     loaderData.allAspects.map((aspect) => [aspect.ref_id, aspect]),
@@ -127,7 +137,8 @@ export default function Goals() {
                     value: tag.ref_id,
                     text: tag.name,
                   })),
-                  setSelectedTagsRefId,
+                  selectedTagsRefId,
+                  (tags) => setFilters({ tags }),
                 ),
               ]}
             />

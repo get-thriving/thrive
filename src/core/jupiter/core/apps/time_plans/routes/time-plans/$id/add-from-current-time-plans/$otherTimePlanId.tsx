@@ -72,6 +72,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -245,6 +246,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
+const PANEL_ID = "time-plan-add-from-current-time-plans";
+
+const FILTERS = z.object({
+  kind: z.nativeEnum(TimePlanActivityKind).nullable(),
+  feasability: z.nativeEnum(TimePlanActivityFeasability).nullable(),
+});
+
 export default function TimePlanAddFromCurrentTimePlans() {
   const { id, otherTimePlanId } = useParams();
   const [query] = useSearchParams();
@@ -271,11 +279,8 @@ export default function TimePlanAddFromCurrentTimePlans() {
     new Set<string>(),
   );
 
-  const [filterKind, setFilterKind] = useState<TimePlanActivityKind | null>(
-    null,
-  );
-  const [filterFeasability, setFilterFeasability] =
-    useState<TimePlanActivityFeasability | null>(null);
+  const [{ kind: filterKind, feasability: filterFeasability }, setFilters] =
+    useSectionFilters(PANEL_ID, FILTERS);
   const [selectedKind, setSelectedKind] = useState(TimePlanActivityKind.FINISH);
   const [selectedFeasability, setSelectedFeasability] = useState(
     TimePlanActivityFeasability.NICE_TO_HAVE,
@@ -396,7 +401,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
               }),
               FilterFewOptionsCompact(
                 "Kind",
-                null,
+                filterKind,
                 [
                   {
                     value: null,
@@ -411,11 +416,11 @@ export default function TimePlanAddFromCurrentTimePlans() {
                     text: "Make Progress",
                   },
                 ],
-                (selected) => setFilterKind(selected),
+                (selected) => setFilters({ kind: selected }),
               ),
               FilterFewOptionsCompact(
                 "Feasability",
-                null,
+                filterFeasability,
                 [
                   {
                     value: null,
@@ -434,7 +439,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
                     text: "Stretch",
                   },
                 ],
-                (selected) => setFilterFeasability(selected),
+                (selected) => setFilters({ feasability: selected }),
               ),
             ]}
           />

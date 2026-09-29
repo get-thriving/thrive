@@ -1,3 +1,4 @@
+import { z } from "zod";
 import {
   ADate,
   ChapterSummary,
@@ -18,7 +19,7 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { Link, useNavigation } from "react-router";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 
 import {
@@ -54,6 +55,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -101,6 +103,12 @@ export const shouldRevalidate: ShouldRevalidateFunction =
     TIME_PLANS_OWNED_PARAMS,
   );
 
+const PANEL_ID = "time-plans";
+
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+});
+
 export default function TimePlans() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
@@ -146,7 +154,10 @@ export default function TimePlans() {
     timePlanTagsByTimePlanRefId.set(entry.time_plan.ref_id, entry.tags ?? []);
   }
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
+    PANEL_ID,
+    FILTERS,
+  );
   const filteredSortedTimePlans = sortedTimePlans.filter((tp) => {
     if (selectedTagsRefId.length === 0) {
       return true;
@@ -215,7 +226,8 @@ export default function TimePlans() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
-              setSelectedTagsRefId,
+              selectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
           ]}
         />

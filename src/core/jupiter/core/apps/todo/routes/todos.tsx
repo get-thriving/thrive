@@ -1,3 +1,4 @@
+import { z } from "zod";
 import {
   Aspect,
   Chapter,
@@ -83,6 +84,7 @@ import { UserLightChip } from "#/core/users/components/user-light-chip";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -126,19 +128,28 @@ const EISENS = [
   Eisen.REGULAR,
 ];
 
+const PANEL_ID = "todos";
+
+const FILTERS = z.object({
+  contacts: z.array(z.string()).default([]),
+  view: z.nativeEnum(View).default(View.SWIFTVIEW),
+  actionableTime: z.nativeEnum(ActionableTime).default(ActionableTime.NOW),
+});
+
 export default function Todos() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
   const kanbanBoardMoveFetcher = useFetcher<SomeErrorNoData>();
 
-  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
-    [],
-  );
-  const [selectedView, setSelectedView] = useState(View.SWIFTVIEW);
-  const [selectedActionableTime, setSelectedActionableTime] = useState(
-    ActionableTime.NOW,
-  );
+  const [
+    {
+      contacts: selectedContactsRefId,
+      view: selectedView,
+      actionableTime: selectedActionableTime,
+    },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS);
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
     [key: string]: InboxTaskOptimisticState;
   }>({});
@@ -336,7 +347,7 @@ export default function Todos() {
                   icon: <ViewKanbanIcon />,
                 },
               ],
-              setSelectedView,
+              (view) => setFilters({ view }),
             ),
             FilterFewOptionsCompact(
               "Actionable",
@@ -358,7 +369,7 @@ export default function Todos() {
                   icon: <FlareIcon />,
                 },
               ],
-              setSelectedActionableTime,
+              (actionableTime) => setFilters({ actionableTime }),
             ),
             FilterManyOptions(
               "Contacts",
@@ -366,7 +377,8 @@ export default function Todos() {
                 value: contact.ref_id,
                 text: contact.name,
               })),
-              setSelectedContactsRefId,
+              selectedContactsRefId,
+              (contacts) => setFilters({ contacts }),
             ),
           ]}
         />

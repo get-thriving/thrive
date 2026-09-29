@@ -1,10 +1,11 @@
+import { z } from "zod";
 import type { Note } from "@jupiter/webapi-client";
 import { DocsHelpSubject, NamedEntityTag } from "@jupiter/webapi-client";
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction,
 } from "react-router";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo } from "react";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import {
   EntityCard,
@@ -31,6 +32,7 @@ import { parseNoteOwner } from "#/core/common/sub/notes/parse-note-owner";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { useSectionFilters } from "@jupiter/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -60,15 +62,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
+const PANEL_ID = "notes";
+
+const FILTERS = z.object({
+  ownerTypes: z.array(z.nativeEnum(NamedEntityTag)).default([]),
+});
+
 export default function Notes() {
   const { notes, noteOwnerFilterTags } =
     useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
-  const [selectedOwnerTypes, setSelectedOwnerTypes] = useState<
-    NamedEntityTag[]
-  >([]);
+  const [{ ownerTypes: selectedOwnerTypes }, setFilters] = useSectionFilters(
+    PANEL_ID,
+    FILTERS,
+  );
 
   const ownerTypeOptions = useMemo(
     () =>
@@ -115,7 +124,8 @@ export default function Notes() {
             FilterManyOptions(
               "Owner type",
               ownerTypeOptions,
-              setSelectedOwnerTypes,
+              selectedOwnerTypes,
+              (ownerTypes) => setFilters({ ownerTypes }),
             ),
           ]}
         />

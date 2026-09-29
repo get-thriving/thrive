@@ -53,6 +53,7 @@ import {
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
 import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 
@@ -114,6 +115,8 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
   );
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigate();
+  // Closing a panel goes back to whatever is under it filtered as it was.
+  const preserveFilters = useSectionFiltersPreserver();
   const containerRef = useRef<HTMLDivElement>(null);
   const isPresent = useIsPresent();
   const [expansionState, setExpansionState] = useState<
@@ -412,7 +415,9 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                 <IconButton
                   onClick={() => {
                     setExpansionState("exit");
-                    const returnLocation = props.returnLocation as string;
+                    const returnLocation = preserveFilters(
+                      props.returnLocation as string,
+                    );
                     setTimeout(() => navigation(returnLocation), 500);
                   }}
                 >

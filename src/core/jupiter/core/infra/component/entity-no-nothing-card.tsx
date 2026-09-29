@@ -10,6 +10,7 @@ import {
 import { Form, Link } from "react-router";
 
 import { DocsHelp } from "#/core/infra/component/docs-help";
+import { useSectionFiltersPreservedTo } from "#/core/infra/component/use-section-filter";
 
 interface EntityNoNothingCardProps {
   title: string;
@@ -20,6 +21,10 @@ interface EntityNoNothingCardProps {
 }
 
 export function EntityNoNothingCard(props: EntityNoNothingCardProps) {
+  const newEntityLocation = useSectionFiltersPreservedTo(
+    props.newEntityLocations,
+  );
+
   return (
     <Card>
       <CardHeader title={props.title} />
@@ -32,12 +37,12 @@ export function EntityNoNothingCard(props: EntityNoNothingCardProps) {
         </Typography>
       </CardContent>
       <CardActions>
-        {props.newEntityLocations && (
+        {newEntityLocation && (
           <Button
             variant="contained"
             size="small"
             component={Link}
-            to={props.newEntityLocations}
+            to={newEntityLocation}
           >
             Add New
           </Button>

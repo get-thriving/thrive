@@ -9,7 +9,7 @@ import type {
 import { redirect, useNavigation } from "react-router";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 
 import Check from "#/core/infra/component/check";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
@@ -42,6 +42,8 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import { sectionFilterBoolean } from "#/core/infra/section-filters";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -172,6 +174,14 @@ export async function action({ request, params }: LoaderFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
+const PANEL_ID = "smart-list";
+
+const FILTERS = z.object({
+  done: z.array(sectionFilterBoolean).default([]),
+  tags: z.array(z.string()).default([]),
+  contacts: z.array(z.string()).default([]),
+});
+
 export default function SmartListViewItems() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const navigation = useNavigation();
@@ -185,11 +195,14 @@ export default function SmartListViewItems() {
 
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
 
-  const [selectedDoneness, setSelectedDoneness] = useState<boolean[]>([]);
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
-  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
-    [],
-  );
+  const [
+    {
+      done: selectedDoneness,
+      tags: selectedTagsRefId,
+      contacts: selectedContactsRefId,
+    },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS);
 
   const filteredSmartListItems = loaderData.smartListItems.filter((item) => {
     const doneOk =
@@ -252,7 +265,8 @@ export default function SmartListViewItems() {
                 { value: true, text: "Is done" },
                 { value: false, text: "Is not done" },
               ],
-              setSelectedDoneness,
+              selectedDoneness,
+              (done) => setFilters({ done }),
             ),
             FilterManyOptions(
               "Tags",
@@ -260,7 +274,8 @@ export default function SmartListViewItems() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
-              setSelectedTagsRefId,
+              selectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
             FilterManyOptions(
               "Contacts",
@@ -268,7 +283,8 @@ export default function SmartListViewItems() {
                 value: contact.ref_id,
                 text: contact.name,
               })),
-              setSelectedContactsRefId,
+              selectedContactsRefId,
+              (contacts) => setFilters({ contacts }),
             ),
           ]}
         />

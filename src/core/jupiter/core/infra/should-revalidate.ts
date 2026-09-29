@@ -1,70 +1,80 @@
 import type { ShouldRevalidateFunction } from "react-router";
 
-export const basicShouldRevalidate: ShouldRevalidateFunction = ({
-  currentUrl,
-  defaultShouldRevalidate,
-  formAction,
-  formMethod,
-  nextUrl,
-}) => {
-  if (
-    formAction === "/app/workspace/core/inbox-tasks/update-status-and-eisen"
-  ) {
-    return false;
-  }
+import { ignoringSectionFilterChanges } from "#/core/infra/section-filters";
 
-  if (formAction === "/app/workspace/core/notes/update") {
-    return false;
-  }
-
-  if (
-    currentUrl.pathname === nextUrl.pathname &&
-    onlyDifferenceIsInTimeEventParamsSource(
-      formMethod || "GET",
+// Section filters are only ever applied on the client, to data which is
+// loaded whole, so both of these look past them.
+export const basicShouldRevalidate: ShouldRevalidateFunction =
+  ignoringSectionFilterChanges(
+    ({
       currentUrl,
+      defaultShouldRevalidate,
+      formAction,
+      formMethod,
       nextUrl,
-    )
-  ) {
-    return false;
-  }
+    }) => {
+      if (
+        formAction === "/app/workspace/core/inbox-tasks/update-status-and-eisen"
+      ) {
+        return false;
+      }
 
-  return defaultShouldRevalidate;
-};
+      if (formAction === "/app/workspace/core/notes/update") {
+        return false;
+      }
 
-export const standardShouldRevalidate: ShouldRevalidateFunction = ({
-  currentUrl,
-  defaultShouldRevalidate,
-  formAction,
-  formMethod,
-  nextUrl,
-}) => {
-  if (
-    formAction === "/app/workspace/core/inbox-tasks/update-status-and-eisen"
-  ) {
-    return false;
-  }
+      if (
+        currentUrl.pathname === nextUrl.pathname &&
+        onlyDifferenceIsInTimeEventParamsSource(
+          formMethod || "GET",
+          currentUrl,
+          nextUrl,
+        )
+      ) {
+        return false;
+      }
 
-  if (formAction === "/app/workspace/apps/docs/update-action") {
-    return false;
-  }
+      return defaultShouldRevalidate;
+    },
+  );
 
-  if (formAction === "/app/workspace/core/notes/update") {
-    return false;
-  }
-
-  if (
-    currentUrl.pathname === nextUrl.pathname &&
-    onlyDifferenceIsInTimeEventParamsSource(
-      formMethod || "GET",
+export const standardShouldRevalidate: ShouldRevalidateFunction =
+  ignoringSectionFilterChanges(
+    ({
       currentUrl,
+      defaultShouldRevalidate,
+      formAction,
+      formMethod,
       nextUrl,
-    )
-  ) {
-    return false;
-  }
+    }) => {
+      if (
+        formAction === "/app/workspace/core/inbox-tasks/update-status-and-eisen"
+      ) {
+        return false;
+      }
 
-  return defaultShouldRevalidate;
-};
+      if (formAction === "/app/workspace/apps/docs/update-action") {
+        return false;
+      }
+
+      if (formAction === "/app/workspace/core/notes/update") {
+        return false;
+      }
+
+      if (
+        currentUrl.pathname === nextUrl.pathname &&
+        onlyDifferenceIsInTimeEventParamsSource(
+          formMethod || "GET",
+          currentUrl,
+          nextUrl,
+        )
+      ) {
+        return false;
+      }
+
+      return defaultShouldRevalidate;
+    },
+  );
 
 function onlyDifferenceIsInTimeEventParamsSource(
   formMethod: string,

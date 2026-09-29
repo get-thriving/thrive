@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type {
   AspectSummary,
   BigPlanFindResultEntry,
@@ -16,7 +17,7 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { DateTime } from "luxon";
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useContext } from "react";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import {
@@ -43,6 +44,7 @@ import {
 } from "#/core/infra/component/section-actions";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 import {
   DisplayType,
   useLeafNeedsToShowLeaflet,
@@ -96,6 +98,14 @@ enum View {
   LIST = "list",
 }
 
+const PANEL_ID = "big-plans";
+
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+  contacts: z.array(z.string()).default([]),
+  view: z.nativeEnum(View),
+});
+
 export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
 export default function BigPlans() {
@@ -105,10 +115,23 @@ export default function BigPlans() {
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
-  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
-    [],
-  );
+  const topLevelInfo = useContext(TopLevelInfoContext);
+
+  const initialView = isWorkspaceFeatureAvailable(
+    topLevelInfo.workspace,
+    WorkspaceFeature.LIFE_PLAN,
+  )
+    ? View.TIMELINE_BY_ASPECT
+    : View.TIMELINE;
+
+  const [
+    {
+      tags: selectedTagsRefId,
+      contacts: selectedContactsRefId,
+      view: selectedView,
+    },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS, { view: initialView });
 
   const entriesByRefId = new Map<string, BigPlanParent>();
   for (const entry of loaderData.bigPlans as Array<BigPlanFindResultEntry>) {
@@ -131,16 +154,6 @@ export default function BigPlans() {
       );
     return tagsOk && contactsOk;
   });
-
-  const topLevelInfo = useContext(TopLevelInfoContext);
-
-  const initialView = isWorkspaceFeatureAvailable(
-    topLevelInfo.workspace,
-    WorkspaceFeature.LIFE_PLAN,
-  )
-    ? View.TIMELINE_BY_ASPECT
-    : View.TIMELINE;
-  const [selectedView, setSelectedView] = useState(initialView);
 
   const thisYear = DateTime.local({ zone: topLevelInfo.user.timezone }).startOf(
     "year",
@@ -240,7 +253,7 @@ export default function BigPlans() {
                 },
                 { value: View.LIST, text: "List", icon: <ViewListIcon /> },
               ],
-              (selected) => setSelectedView(selected),
+              (selected) => setFilters({ view: selected }),
             ),
             FilterManyOptions(
               "Tags",
@@ -248,7 +261,8 @@ export default function BigPlans() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
-              setSelectedTagsRefId,
+              selectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
             FilterManyOptions(
               "Contacts",
@@ -256,7 +270,8 @@ export default function BigPlans() {
                 value: contact.ref_id,
                 text: contact.name,
               })),
-              setSelectedContactsRefId,
+              selectedContactsRefId,
+              (contacts) => setFilters({ contacts }),
             ),
           ]}
         />

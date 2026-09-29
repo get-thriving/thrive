@@ -49,6 +49,7 @@ import {
 } from "#/core/infra/scroll-restoration";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useHydrated } from "#/core/infra/component/use-hidrated";
+import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
 import { useTrunkNeedsToShowLeaf } from "#/core/infra/component/use-nested-entities";
 import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
 
@@ -82,6 +83,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const [showHistory, setShowHistory] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
   const [showAccess, setShowAccess] = useState(false);
+  const preserveFilters = useSectionFiltersPreserver();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const showingAlternateView = showHistory || showPublish || showAccess;
@@ -219,7 +221,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
                 <Button
                   id="branch-new-leaf-entity"
                   variant="contained"
-                  to={props.createLocation}
+                  to={preserveFilters(props.createLocation)}
                   component={Link}
                   disabled={
                     props.inputsEnabled === false || !!props.entityArchived
@@ -334,7 +336,10 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
                       : undefined,
                 }}
               >
-                <Link style={{ display: "flex" }} to={props.returnLocation}>
+                <Link
+                  style={{ display: "flex" }}
+                  to={preserveFilters(props.returnLocation)}
+                >
                   <CloseIcon />
                 </Link>
               </IconButton>

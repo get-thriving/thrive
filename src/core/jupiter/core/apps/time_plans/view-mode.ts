@@ -1,13 +1,20 @@
 import type { ADate, TimePlan, Workspace } from "@jupiter/webapi-client";
 import { RecurringTaskPeriod, WorkspaceFeature } from "@jupiter/webapi-client";
 
-import { TIME_PLAN_GROUPING_PARAM } from "#/core/apps/time_plans/grouping";
+import {
+  TIME_PLAN_GROUPING_PARAM,
+  TIME_PLAN_PANEL_ID,
+} from "#/core/apps/time_plans/grouping";
 import {
   timePlanAllowsCalendarView,
   timePlanAllowsKanbanViews,
 } from "#/core/apps/time_plans/root";
 import { aDateToDate, allDaysBetween, dateToAdate } from "#/core/common/adate";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
+import {
+  sectionFilterPanelOf,
+  sectionFilterParam,
+} from "#/core/infra/section-filters";
 
 // The ways of looking at the activities of a time plan.
 export enum TimePlanViewMode {
@@ -27,10 +34,13 @@ export enum TimePlanViewMode {
 const TIME_PLAN_THREE_DAY_CALENDAR_DAYS = 3;
 
 // The view rides along in the URL, so a reload - or coming back from one of
-// the panels a time plan opens - lands on the same one. It goes by a name of
-// its own rather than plain "view", since some of those panels live in the
-// calendar, which keeps a view of its own in the query.
-export const TIME_PLAN_VIEW_PARAM = "timePlanView";
+// the panels a time plan opens - lands on the same one. It's one of the time
+// plan's section filters, so it's namespaced away from the calendar, which
+// keeps a view of its own in the query.
+export const TIME_PLAN_VIEW_PARAM = sectionFilterParam(
+  TIME_PLAN_PANEL_ID,
+  "view",
+);
 
 export function parseTimePlanViewMode(
   raw: string | null | undefined,
@@ -56,7 +66,8 @@ export function timePlanViewModeIsCalendar(
 export function timePlanViewModeIsSchedule(
   viewMode: TimePlanViewMode,
 ): viewMode is
-  TimePlanViewMode.SCHEDULE_DAY | TimePlanViewMode.SCHEDULE_3_DAYS {
+  | TimePlanViewMode.SCHEDULE_DAY
+  | TimePlanViewMode.SCHEDULE_3_DAYS {
   return (
     viewMode === TimePlanViewMode.SCHEDULE_DAY ||
     viewMode === TimePlanViewMode.SCHEDULE_3_DAYS
@@ -227,17 +238,29 @@ export function withTimePlanView(
   );
 }
 
-// The view and grouping a link came in with, copied onto another path so
-// they survive a round trip through a panel.
+// The view, grouping and the rest of the time plan's section filters a link
+// came in with, copied onto another path so they survive a round trip
+// through a panel.
 export function withTimePlanDisplay(
   path: string,
   query: URLSearchParams,
 ): string {
-  return withTimePlanView(
+  let result = withTimePlanView(
     path,
     query.get(TIME_PLAN_VIEW_PARAM),
     query.get(TIME_PLAN_GROUPING_PARAM),
   );
+  for (const [key, value] of query.entries()) {
+    if (
+      key === TIME_PLAN_VIEW_PARAM ||
+      key === TIME_PLAN_GROUPING_PARAM ||
+      sectionFilterPanelOf(key) !== TIME_PLAN_PANEL_ID
+    ) {
+      continue;
+    }
+    result = appendTimePlanQueryParam(result, key, value);
+  }
+  return result;
 }
 
 // The view a link came in with, for passing it along further.
@@ -257,7 +280,7 @@ function appendTimePlanQueryParam(
   }
 
   const separator = path.includes("?") ? "&" : "?";
-  return `${path}${separator}${key}=${encodeURIComponent(value)}`;
+  return `${path}${separator}${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
 }
 
 // Adding a time event on a time plan opens a leaf on this same plan. The

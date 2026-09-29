@@ -14,7 +14,7 @@ import type {
 } from "react-router";
 import { Outlet } from "react-router";
 import { AnimatePresence } from "framer-motion";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
 import { aDateToDate, compareADate } from "@jupiter/core/common/adate";
@@ -46,6 +46,8 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
+import { useSectionFilters } from "@jupiter/core/infra/component/use-section-filter";
+import { ignoringSectionFilterChanges } from "@jupiter/core/infra/section-filters";
 
 import {
   buildPublishedPageMeta,
@@ -120,19 +122,27 @@ export const meta: MetaFunction<typeof loader> = ({ data }) =>
 // Single fetch only skips a loader on navigation when the route says it may be
 // skipped, so keep the default (don't refetch this parent when only a child
 // param changed).
-export const shouldRevalidate: ShouldRevalidateFunction = ({
-  defaultShouldRevalidate,
-}) => defaultShouldRevalidate;
+export const shouldRevalidate: ShouldRevalidateFunction =
+  ignoringSectionFilterChanges(
+    ({ defaultShouldRevalidate }) => defaultShouldRevalidate,
+  );
+
+const PANEL_ID = "published-metric";
+
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+  contacts: z.array(z.string()).default([]),
+});
 
 export default function PublishedMetric() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
-  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
-    [],
-  );
+  const [
+    { tags: selectedTagsRefId, contacts: selectedContactsRefId },
+    setFilters,
+  ] = useSectionFilters(PANEL_ID, FILTERS);
 
   const allEntriesSorted = useMemo(
     () =>
@@ -232,7 +242,8 @@ export default function PublishedMetric() {
                     value: tag.ref_id,
                     text: tag.name,
                   })),
-                  setSelectedTagsRefId,
+                  selectedTagsRefId,
+                  (tags) => setFilters({ tags }),
                 ),
                 FilterManyOptions(
                   "Contacts",
@@ -240,7 +251,8 @@ export default function PublishedMetric() {
                     value: contact.ref_id,
                     text: contact.name,
                   })),
-                  setSelectedContactsRefId,
+                  selectedContactsRefId,
+                  (contacts) => setFilters({ contacts }),
                 ),
               ]}
             />

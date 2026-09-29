@@ -38,6 +38,7 @@ import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useIsomorphicLayoutEffect } from "#/core/infra/component/use-isomorphic-layout-effect";
+import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
 interface NavSingleDesc {
@@ -119,6 +120,7 @@ interface FilterManyOptionsDesc<K> {
   kind: "filter-many-options";
   title: string;
   options: Array<FilterManyOption<K>>;
+  selected: Array<K>;
   onSelect: (selected: Array<K>) => void;
   hideIfOneOption?: boolean;
 }
@@ -248,12 +250,14 @@ export function FilterOptionSeparator(): FilterOptionSeparatorDesc {
 export function FilterManyOptions<K>(
   title: string,
   options: Array<FilterManyOption<K>>,
+  selected: Array<K>,
   onSelect: (selected: Array<K>) => void,
 ): FilterManyOptionsDesc<K> {
   return {
     kind: "filter-many-options",
     title: title,
     options: options,
+    selected: selected,
     onSelect: onSelect,
     hideIfOneOption: true,
   };
@@ -484,6 +488,7 @@ interface NavSingleViewProps {
 
 function NavSingleView(props: NavSingleViewProps) {
   const isBigScreen = useBigScreen();
+  const preserveFilters = useSectionFiltersPreserver();
 
   if (props.action.gatedOn) {
     const workspace = props.topLevelInfo.workspace;
@@ -503,7 +508,7 @@ function NavSingleView(props: NavSingleViewProps) {
       component={Link}
       disabled={!props.inputsEnabled || props.action.disabled}
       startIcon={props.action.icon}
-      to={props.action.link}
+      to={preserveFilters(props.action.link)}
     >
       {getRealText(props.action.text, props.isInDialog, isBigScreen)}
     </Button>
@@ -529,6 +534,7 @@ function NavMultipleView(props: NavMultipleViewProps) {
 
 function NavMultipleSpreadView(props: NavMultipleViewProps) {
   const isBigScreen = useBigScreen();
+  const preserveFilters = useSectionFiltersPreserver();
   const visibleNavs = visibleNavItems(
     props.action.navs,
     props.topLevelInfo.workspace,
@@ -552,7 +558,7 @@ function NavMultipleSpreadView(props: NavMultipleViewProps) {
             component={Link}
             disabled={!props.inputsEnabled || nav.disabled}
             startIcon={nav.icon}
-            to={nav.link}
+            to={preserveFilters(nav.link)}
           >
             {getRealText(nav.text, props.isInDialog, isBigScreen)}
           </Button>
@@ -705,6 +711,7 @@ function NavMultipleCompactView(props: NavMultipleViewProps) {
   );
   const theme = useTheme();
   const isBigScreen = useBigScreen();
+  const preserveFilters = useSectionFiltersPreserver();
 
   const visibleNavs = visibleNavItems(
     props.action.navs,
@@ -746,7 +753,7 @@ function NavMultipleCompactView(props: NavMultipleViewProps) {
           disabled={!props.inputsEnabled || realActions[selectedIndex].disabled}
           component={Link}
           startIcon={realActions[selectedIndex].icon}
-          to={realActions[selectedIndex].link}
+          to={preserveFilters(realActions[selectedIndex].link)}
         >
           {getRealText(
             realActions[selectedIndex].text || "",
@@ -788,7 +795,7 @@ function NavMultipleCompactView(props: NavMultipleViewProps) {
                     key={`nav-multiple-${index}`}
                     selected={option === realActions[selectedIndex]}
                     component={Link}
-                    to={option.link}
+                    to={preserveFilters(option.link)}
                     disabled={!props.inputsEnabled || option.disabled}
                     onClick={handleMenuItemClick}
                   >
@@ -1177,8 +1184,6 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-  const [selected, setSelected] = useState<FilterOption<K>[]>([]);
-
   const visibleOptions: FilterManyOption<K>[] = [];
   for (const [index, option] of props.action.options.entries()) {
     if (isFilterOptionSeparator(option)) {
@@ -1195,6 +1200,18 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
   }
 
   const realOptions = collapseFilterManyOptions(visibleOptions);
+  // Whoever put this filter here keeps track of what's selected - usually in
+  // the URL - so that a choice made elsewhere shows up here too.
+  const selected: FilterOption<K>[] = [];
+  for (const value of props.action.selected) {
+    const option = realOptions.find(
+      (o): o is FilterOption<K> =>
+        !isFilterOptionSeparator(o) && o.value === value,
+    );
+    if (option !== undefined) {
+      selected.push(option);
+    }
+  }
   const selectableCount = realOptions.filter(
     (option) => !isFilterOptionSeparator(option),
   ).length;
@@ -1229,7 +1246,6 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
           (option): option is FilterOption<K> =>
             !isFilterOptionSeparator(option),
         );
-        setSelected(realSelected);
         props.action.onSelect(realSelected.map((option) => option.value));
       }}
       isOptionEqualToValue={(option, value) =>

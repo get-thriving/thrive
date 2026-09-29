@@ -1,10 +1,11 @@
+import { z } from "zod";
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction,
 } from "react-router";
 import type { Tag } from "@jupiter/webapi-client";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 
 import EntityIconComponent from "#/core/infra/component/entity-icon";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
@@ -30,6 +31,7 @@ import { UserLightChip } from "#/core/users/components/user-light-chip";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -58,6 +60,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
+const PANEL_ID = "smart-lists";
+
+const FILTERS = z.object({
+  tags: z.array(z.string()).default([]),
+});
+
 export default function SmartLists() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -73,7 +81,10 @@ export default function SmartLists() {
     );
   }
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
+    PANEL_ID,
+    FILTERS,
+  );
   const filteredEntries = loaderData.entries.filter((entry) => {
     if (selectedTagsRefId.length === 0) {
       return true;
@@ -100,7 +111,8 @@ export default function SmartLists() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
-              setSelectedTagsRefId,
+              selectedTagsRefId,
+              (tags) => setFilters({ tags }),
             ),
           ]}
         />

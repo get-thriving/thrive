@@ -17,6 +17,7 @@ import type { LinkProps } from "react-router";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { FakeLink, StandardLink } from "#/core/infra/component/standard-link";
 import { useDelayedPrefetch } from "#/core/infra/component/use-delayed-prefetch";
+import { useSectionFiltersPreservedTo } from "#/core/infra/component/use-section-filter";
 
 const SWIPE_THRESHOLD = 200;
 const SWIPE_COMPLETE_THRESHOLD = 150;
@@ -180,13 +181,15 @@ interface EntityLinkProps {
 
 export function EntityLink(props: PropsWithChildren<EntityLinkProps>) {
   const { prefetch, handlers } = useDelayedPrefetch(props.prefetch);
+  // Opening an entity from a filtered list keeps the list filtered.
+  const to = useSectionFiltersPreservedTo(props.to);
 
   if (!(props.block === true)) {
     return (
       <StandardLink
         onMouseDown={(e) => e.preventDefault()}
         {...handlers}
-        to={props.to}
+        to={to}
         prefetch={prefetch}
         inline={props.inline === true ? "true" : "false"}
         light={props.light === true ? "true" : "false"}

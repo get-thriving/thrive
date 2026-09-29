@@ -27,7 +27,7 @@ import {
   useSearchParams,
 } from "react-router";
 import type { DateTime } from "luxon";
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 
@@ -75,6 +75,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 enum View {
   LIST_MERGED = "list-merged",
@@ -200,6 +201,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
+const PANEL_ID = "time-plan-add-from-current-big-plans";
+
+const FILTERS = z.object({
+  view: z.nativeEnum(View),
+});
+
 export default function TimePlanAddFromCurrentBigPlans() {
   const { id } = useParams();
   const [query] = useSearchParams();
@@ -245,13 +252,11 @@ export default function TimePlanAddFromCurrentBigPlans() {
 
   const thisYear = aDateToDate(loaderData.timePlan.right_now).startOf("year");
 
-  const [selectedView, setSelectedView] = useState(
-    inferDefaultSelectedView(topLevelInfo.workspace),
+  const [{ view: selectedView }, setFilters] = useSectionFilters(
+    PANEL_ID,
+    FILTERS,
+    { view: inferDefaultSelectedView(topLevelInfo.workspace) },
   );
-
-  useEffect(() => {
-    setSelectedView(inferDefaultSelectedView(topLevelInfo.workspace));
-  }, [topLevelInfo]);
 
   return (
     <LeafPanel
@@ -320,7 +325,7 @@ export default function TimePlanAddFromCurrentBigPlans() {
                     gatedOn: WorkspaceFeature.LIFE_PLAN,
                   },
                 ],
-                (selected) => setSelectedView(selected),
+                (selected) => setFilters({ view: selected }),
               ),
             ]}
           />
