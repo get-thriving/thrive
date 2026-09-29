@@ -4,7 +4,7 @@ import type {
 } from "react-router";
 import { useNavigation, useSearchParams } from "react-router";
 import { z } from "zod";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import {
   EntityCard,
@@ -32,6 +32,10 @@ import type { Tag } from "@jupiter/webapi-client";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import {
+  stringFilterCodec,
+  useSectionFilterMany,
+} from "@jupiter/core/infra/component/use-section-filter";
 
 const ParamsSchema = z.object({});
 
@@ -59,6 +63,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
+const PANEL_ID = "schedule-streams";
+
 export default function ScheduleStreamViewAll() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const [query] = useSearchParams();
@@ -67,7 +73,11 @@ export default function ScheduleStreamViewAll() {
   const inputsEnabled = navigation.state === "idle";
 
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+    PANEL_ID,
+    "tags",
+    stringFilterCodec,
+  );
 
   const filteredEntries = loaderData.entries.filter((entry) => {
     if (selectedTagsRefId.length === 0) {
@@ -99,6 +109,7 @@ export default function ScheduleStreamViewAll() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
+              selectedTagsRefId,
               setSelectedTagsRefId,
             ),
           ]}

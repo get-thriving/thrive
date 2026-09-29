@@ -46,14 +46,7 @@ import {
   useNavigation,
   useSearchParams,
 } from "react-router";
-import {
-  Fragment,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { Fragment, useCallback, useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 
@@ -96,6 +89,7 @@ import {
 import {
   resolveTimePlanGrouping,
   TIME_PLAN_GROUPING_PARAM,
+  TIME_PLAN_PANEL_ID,
   TimePlanGrouping,
 } from "#/core/apps/time_plans/grouping";
 import {
@@ -148,6 +142,13 @@ import {
   NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
+import type { SectionFilterCodec } from "#/core/infra/component/use-section-filter";
+import {
+  enumFilterCodec,
+  stringFilterCodec,
+  useSectionFilterMany,
+  useSectionFilterOne,
+} from "#/core/infra/component/use-section-filter";
 import { SectionCard } from "#/core/infra/component/section-card";
 import { JournalStack } from "#/core/apps/journals/component/stack";
 import { TimePlanEditor } from "#/core/apps/time_plans/component/editor";
@@ -213,6 +214,29 @@ enum GroupVisibility {
   NON_EMPTY_ONLY = "non-empty-only",
   SHOW_ALL = "show-all",
 }
+
+const TIME_PLAN_ACTIVITY_FEASABILITY_VALUES = new Set<string>(
+  Object.values(TimePlanActivityFeasability),
+);
+
+// Kinds, feasabilities and doneness all go in the one "show" filter.
+const TIME_PLAN_ACTIVITY_FILTER_CODEC: SectionFilterCodec<TimePlanActivityFilterValue> =
+  {
+    encode: (value) =>
+      typeof value === "boolean" ? (value ? "done" : "not-done") : value,
+    decode: (raw) => {
+      if (raw === "done") {
+        return true;
+      } else if (raw === "not-done") {
+        return false;
+      } else if (TIME_PLAN_ACTIVITY_KIND_VALUES.has(raw)) {
+        return raw as TimePlanActivityKind;
+      } else if (TIME_PLAN_ACTIVITY_FEASABILITY_VALUES.has(raw)) {
+        return raw as TimePlanActivityFeasability;
+      }
+      return undefined;
+    },
+  };
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -838,15 +862,35 @@ function TimePlanViewContent() {
   }
 
   const [selectedGroupVisibility, setSelectedGroupVisibility] =
-    useState<GroupVisibility>(GroupVisibility.NON_EMPTY_ONLY);
-  const [selectedKinds, setSelectedKinds] = useState<TimePlanActivityKind[]>(
-    [],
+    useSectionFilterOne(
+      TIME_PLAN_PANEL_ID,
+      "group-visibility",
+      GroupVisibility.NON_EMPTY_ONLY,
+      enumFilterCodec(GroupVisibility),
+    );
+  const [selectedActivityFilters, setSelectedActivityFilters] =
+    useSectionFilterMany(
+      TIME_PLAN_PANEL_ID,
+      "show",
+      TIME_PLAN_ACTIVITY_FILTER_CODEC,
+    );
+  const selectedKinds: TimePlanActivityKind[] = [];
+  const selectedFeasabilities: TimePlanActivityFeasability[] = [];
+  const selectedDoneness: boolean[] = [];
+  for (const value of selectedActivityFilters) {
+    if (typeof value === "boolean") {
+      selectedDoneness.push(value);
+    } else if (TIME_PLAN_ACTIVITY_KIND_VALUES.has(value)) {
+      selectedKinds.push(value as TimePlanActivityKind);
+    } else {
+      selectedFeasabilities.push(value as TimePlanActivityFeasability);
+    }
+  }
+  const [selectedAspects, setSelectedAspects] = useSectionFilterMany(
+    TIME_PLAN_PANEL_ID,
+    "aspects",
+    stringFilterCodec,
   );
-  const [selectedFeasabilities, setSelectedFeasabilities] = useState<
-    TimePlanActivityFeasability[]
-  >([]);
-  const [selectedDoneness, setSelectedDoneness] = useState<boolean[]>([]);
-  const [selectedAspects, setSelectedAspects] = useState<string[]>([]);
 
   const groupingMaps = {
     targetInboxTasksByRefId,
@@ -889,14 +933,6 @@ function TimePlanViewContent() {
     groupingMaps,
   );
   const otherActivities = niceToHaveActivities.concat(stretchActivities);
-
-  useEffect(() => {
-    setSelectedGroupVisibility(GroupVisibility.NON_EMPTY_ONLY);
-    setSelectedKinds([]);
-    setSelectedFeasabilities([]);
-    setSelectedDoneness([]);
-    setSelectedAspects([]);
-  }, [topLevelInfo.workspace, loaderData.timePlan]);
 
   const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
   const visibleAspects =
@@ -1358,25 +1394,8 @@ function TimePlanViewContent() {
                     { value: true, text: "Done" },
                     { value: false, text: "Not Done" },
                   ],
-                  (selected) => {
-                    const kinds: TimePlanActivityKind[] = [];
-                    const feasabilities: TimePlanActivityFeasability[] = [];
-                    const doneness: boolean[] = [];
-                    for (const value of selected) {
-                      if (typeof value === "boolean") {
-                        doneness.push(value);
-                      } else if (TIME_PLAN_ACTIVITY_KIND_VALUES.has(value)) {
-                        kinds.push(value as TimePlanActivityKind);
-                      } else {
-                        feasabilities.push(
-                          value as TimePlanActivityFeasability,
-                        );
-                      }
-                    }
-                    setSelectedKinds(kinds);
-                    setSelectedFeasabilities(feasabilities);
-                    setSelectedDoneness(doneness);
-                  },
+                  selectedActivityFilters,
+                  setSelectedActivityFilters,
                 ),
                 ...(isWorkspaceFeatureAvailable(
                   topLevelInfo.workspace,
@@ -1392,6 +1411,7 @@ function TimePlanViewContent() {
                             allAspectsByRefId,
                           ),
                         })),
+                        selectedAspects,
                         setSelectedAspects,
                       ),
                     ]

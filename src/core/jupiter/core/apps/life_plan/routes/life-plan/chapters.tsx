@@ -10,7 +10,7 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { useNavigation } from "react-router";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { z } from "zod";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -43,6 +43,10 @@ import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import {
+  stringFilterCodec,
+  useSectionFilterMany,
+} from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.LEAF,
@@ -80,6 +84,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
+const PANEL_ID = "life-plan-chapters";
+
 export default function Chapters() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -88,7 +94,11 @@ export default function Chapters() {
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+    PANEL_ID,
+    "tags",
+    stringFilterCodec,
+  );
 
   const birthday = lifePlanBirthdayDate(loaderData.lifePlan);
   const today = aDateToDate(topLevelInfo.today);
@@ -147,6 +157,7 @@ export default function Chapters() {
                     value: tag.ref_id,
                     text: tag.name,
                   })),
+                  selectedTagsRefId,
                   setSelectedTagsRefId,
                 ),
               ]}

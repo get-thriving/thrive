@@ -83,6 +83,12 @@ import { UserLightChip } from "#/core/users/components/user-light-chip";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import {
+  enumFilterCodec,
+  stringFilterCodec,
+  useSectionFilterMany,
+  useSectionFilterOne,
+} from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -126,19 +132,29 @@ const EISENS = [
   Eisen.REGULAR,
 ];
 
+const PANEL_ID = "todos";
+
 export default function Todos() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
   const kanbanBoardMoveFetcher = useFetcher<SomeErrorNoData>();
 
-  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
-    [],
+  const [selectedContactsRefId, setSelectedContactsRefId] =
+    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
+  const [selectedView, setSelectedView] = useSectionFilterOne(
+    PANEL_ID,
+    "view",
+    View.SWIFTVIEW,
+    enumFilterCodec(View),
   );
-  const [selectedView, setSelectedView] = useState(View.SWIFTVIEW);
-  const [selectedActionableTime, setSelectedActionableTime] = useState(
-    ActionableTime.NOW,
-  );
+  const [selectedActionableTime, setSelectedActionableTime] =
+    useSectionFilterOne(
+      PANEL_ID,
+      "actionable-time",
+      ActionableTime.NOW,
+      enumFilterCodec(ActionableTime),
+    );
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
     [key: string]: InboxTaskOptimisticState;
   }>({});
@@ -366,6 +382,7 @@ export default function Todos() {
                 value: contact.ref_id,
                 text: contact.name,
               })),
+              selectedContactsRefId,
               setSelectedContactsRefId,
             ),
           ]}

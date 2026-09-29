@@ -14,6 +14,7 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
+import { ignoringSectionFilterChanges } from "@jupiter/core/infra/section-filters";
 
 import {
   buildPublishedPageMeta,
@@ -84,9 +85,10 @@ export const meta: MetaFunction<typeof loader> = ({ data }) =>
 // Single fetch only skips a loader on navigation when the route says it may be
 // skipped, so keep the default (don't refetch this parent when only a child
 // param changed).
-export const shouldRevalidate: ShouldRevalidateFunction = ({
-  defaultShouldRevalidate,
-}) => defaultShouldRevalidate;
+export const shouldRevalidate: ShouldRevalidateFunction =
+  ignoringSectionFilterChanges(
+    ({ defaultShouldRevalidate }) => defaultShouldRevalidate,
+  );
 
 export default function PublishedDocDirView() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

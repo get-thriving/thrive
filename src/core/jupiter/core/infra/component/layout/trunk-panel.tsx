@@ -36,6 +36,7 @@ import {
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useHydrated } from "#/core/infra/component/use-hidrated";
+import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
 import {
   useLeafNeedsToShowLeaflet,
   useTrunkNeedsToShowBranch,
@@ -72,6 +73,7 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const [showPublish, setShowPublish] = useState(false);
   const [showAccess, setShowAccess] = useState(false);
+  const preserveFilters = useSectionFiltersPreserver();
 
   const showingAlternateView = showPublish || showAccess;
   const hasPublish =
@@ -209,7 +211,7 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
                 <Button
                   id="trunk-new-leaf-entity"
                   variant="contained"
-                  to={props.createLocation}
+                  to={preserveFilters(props.createLocation)}
                   component={Link}
                 >
                   <AddIcon />

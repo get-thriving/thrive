@@ -64,6 +64,10 @@ import { TabPanel } from "#/core/infra/component/tab-panel";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import {
+  stringFilterCodec,
+  useSectionFilterMany,
+} from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -108,6 +112,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
+const PANEL_ID = "persons";
+
 export default function Persons() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -115,10 +121,16 @@ export default function Persons() {
 
   const entries = loaderData.entries as Array<PersonFindResultEntry>;
 
-  const [selectedCirclesRefId, setSelectedCirclesRefId] = useState<string[]>(
-    [],
+  const [selectedCirclesRefId, setSelectedCirclesRefId] = useSectionFilterMany(
+    PANEL_ID,
+    "circles",
+    stringFilterCodec,
   );
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+    PANEL_ID,
+    "tags",
+    stringFilterCodec,
+  );
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
     [key: string]: InboxTaskOptimisticState;
   }>({});
@@ -246,6 +258,7 @@ export default function Persons() {
                 value: c.ref_id,
                 text: String(c.name),
               })),
+              selectedCirclesRefId,
               setSelectedCirclesRefId,
             ),
             FilterManyOptions(
@@ -254,6 +267,7 @@ export default function Persons() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
+              selectedTagsRefId,
               setSelectedTagsRefId,
             ),
           ]}

@@ -68,6 +68,10 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import {
+  enumFilterCodec,
+  useSectionFilterOne,
+} from "#/core/infra/component/use-section-filter";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -187,6 +191,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
+const PANEL_ID = "time-plan-add-from-included-habit-tasks";
+
 export default function TimePlanAddFromIncludedHabitTasks() {
   const { id } = useParams();
   const [query] = useSearchParams();
@@ -215,9 +221,13 @@ export default function TimePlanAddFromIncludedHabitTasks() {
     entriesByRefId[entry.inbox_task.ref_id] = inboxTaskFindEntryToParent(entry);
   }
 
-  const [selectedActionableTime, setSelectedActionableTime] = useState(
-    ActionableTime.ONE_WEEK,
-  );
+  const [selectedActionableTime, setSelectedActionableTime] =
+    useSectionFilterOne(
+      PANEL_ID,
+      "actionable-time",
+      ActionableTime.ONE_WEEK,
+      enumFilterCodec(ActionableTime),
+    );
 
   const sortedInboxTasks = sortInboxTasksByEisenAndDifficulty(
     loaderData.inboxTasks.map((e) => e.inbox_task),

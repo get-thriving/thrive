@@ -16,7 +16,7 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { DateTime } from "luxon";
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useContext } from "react";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import {
@@ -43,6 +43,12 @@ import {
 } from "#/core/infra/component/section-actions";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import {
+  enumFilterCodec,
+  stringFilterCodec,
+  useSectionFilterMany,
+  useSectionFilterOne,
+} from "#/core/infra/component/use-section-filter";
 import {
   DisplayType,
   useLeafNeedsToShowLeaflet,
@@ -96,6 +102,9 @@ enum View {
   LIST = "list",
 }
 
+const PANEL_ID = "big-plans";
+const VIEW_CODEC = enumFilterCodec(View);
+
 export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
 export default function BigPlans() {
@@ -105,10 +114,13 @@ export default function BigPlans() {
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
-  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
-    [],
+  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+    PANEL_ID,
+    "tags",
+    stringFilterCodec,
   );
+  const [selectedContactsRefId, setSelectedContactsRefId] =
+    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
 
   const entriesByRefId = new Map<string, BigPlanParent>();
   for (const entry of loaderData.bigPlans as Array<BigPlanFindResultEntry>) {
@@ -140,7 +152,12 @@ export default function BigPlans() {
   )
     ? View.TIMELINE_BY_ASPECT
     : View.TIMELINE;
-  const [selectedView, setSelectedView] = useState(initialView);
+  const [selectedView, setSelectedView] = useSectionFilterOne(
+    PANEL_ID,
+    "view",
+    initialView,
+    VIEW_CODEC,
+  );
 
   const thisYear = DateTime.local({ zone: topLevelInfo.user.timezone }).startOf(
     "year",
@@ -248,6 +265,7 @@ export default function BigPlans() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
+              selectedTagsRefId,
               setSelectedTagsRefId,
             ),
             FilterManyOptions(
@@ -256,6 +274,7 @@ export default function BigPlans() {
                 value: contact.ref_id,
                 text: contact.name,
               })),
+              selectedContactsRefId,
               setSelectedContactsRefId,
             ),
           ]}

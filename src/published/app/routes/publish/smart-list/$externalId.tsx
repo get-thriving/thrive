@@ -7,7 +7,7 @@ import type {
 } from "react-router";
 import { Outlet } from "react-router";
 import { AnimatePresence } from "framer-motion";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
 import Check from "@jupiter/core/infra/component/check";
@@ -37,6 +37,12 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
+import {
+  booleanFilterCodec,
+  stringFilterCodec,
+  useSectionFilterMany,
+} from "@jupiter/core/infra/component/use-section-filter";
+import { ignoringSectionFilterChanges } from "@jupiter/core/infra/section-filters";
 
 import {
   buildPublishedPageMeta,
@@ -108,20 +114,30 @@ export const meta: MetaFunction<typeof loader> = ({ data }) =>
 // Single fetch only skips a loader on navigation when the route says it may be
 // skipped, so keep the default (don't refetch this parent when only a child
 // param changed).
-export const shouldRevalidate: ShouldRevalidateFunction = ({
-  defaultShouldRevalidate,
-}) => defaultShouldRevalidate;
+export const shouldRevalidate: ShouldRevalidateFunction =
+  ignoringSectionFilterChanges(
+    ({ defaultShouldRevalidate }) => defaultShouldRevalidate,
+  );
+
+const PANEL_ID = "published-smart-list";
 
 export default function PublishedSmartList() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
-  const [selectedDoneness, setSelectedDoneness] = useState<boolean[]>([]);
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
-  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
-    [],
+  const [selectedDoneness, setSelectedDoneness] = useSectionFilterMany(
+    PANEL_ID,
+    "done",
+    booleanFilterCodec,
   );
+  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+    PANEL_ID,
+    "tags",
+    stringFilterCodec,
+  );
+  const [selectedContactsRefId, setSelectedContactsRefId] =
+    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
 
   const filteredSmartListItems = useMemo(
     () =>
@@ -180,6 +196,7 @@ export default function PublishedSmartList() {
                     { value: true, text: "Is done" },
                     { value: false, text: "Is not done" },
                   ],
+                  selectedDoneness,
                   setSelectedDoneness,
                 ),
                 FilterManyOptions(
@@ -188,6 +205,7 @@ export default function PublishedSmartList() {
                     value: tag.ref_id,
                     text: tag.name,
                   })),
+                  selectedTagsRefId,
                   setSelectedTagsRefId,
                 ),
                 FilterManyOptions(
@@ -196,6 +214,7 @@ export default function PublishedSmartList() {
                     value: contact.ref_id,
                     text: contact.name,
                   })),
+                  selectedContactsRefId,
                   setSelectedContactsRefId,
                 ),
               ]}

@@ -7,7 +7,7 @@ import {
 } from "@jupiter/webapi-client";
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo } from "react";
 
 import { EntityNameOneLineComponent } from "#/core/common/component/entity-name";
 import { TimeDiffTag } from "#/core/common/component/time-diff-tag";
@@ -33,6 +33,12 @@ import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useLeafNeedsToShowLeaflet } from "#/core/infra/component/use-nested-entities";
 import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import {
+  enumFilterCodec,
+  stringFilterCodec,
+  useSectionFilterMany,
+  useSectionFilterOne,
+} from "#/core/infra/component/use-section-filter";
 
 enum DocsSortOrder {
   CREATED_ASC = "created_asc",
@@ -52,6 +58,8 @@ interface PublishedDocDirPanelProps {
   returnLocation?: string;
 }
 
+const PANEL_ID = "published-docs";
+
 export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -64,9 +72,16 @@ export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
   // service carries that prefix as its router basename.
   const basePath = `/doc/dirtree/${externalId}`;
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
-  const [sortOrder, setSortOrder] = useState<DocsSortOrder>(
+  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+    PANEL_ID,
+    "tags",
+    stringFilterCodec,
+  );
+  const [sortOrder, setSortOrder] = useSectionFilterOne(
+    PANEL_ID,
+    "sort",
     DocsSortOrder.MODIFIED_DESC,
+    enumFilterCodec(DocsSortOrder),
   );
 
   const filteredSubdirs =
@@ -161,6 +176,7 @@ export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
                     value: tag.ref_id,
                     text: tag.name,
                   })),
+                  selectedTagsRefId,
                   setSelectedTagsRefId,
                 ),
               ]}

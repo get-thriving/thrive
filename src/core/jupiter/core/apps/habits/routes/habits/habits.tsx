@@ -88,6 +88,12 @@ import { HabitStackTag } from "#/core/apps/habits/component/habit-stack-tag";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import {
+  enumFilterCodec,
+  stringFilterCodec,
+  useSectionFilterMany,
+  useSectionFilterOne,
+} from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -200,6 +206,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
+const PANEL_ID = "habits";
+
 export default function Habits() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
@@ -268,19 +276,33 @@ export default function Habits() {
     WorkspaceFeature.LIFE_PLAN,
   );
 
-  const [selectedGrouping, setSelectedGrouping] = useState<Grouping>(
+  const [selectedGrouping, setSelectedGrouping] = useSectionFilterOne(
+    PANEL_ID,
+    "grouping",
     lifePlanAvailable ? Grouping.BY_ASPECT_AND_GOAL : Grouping.FLAT,
+    enumFilterCodec(Grouping),
   );
   const [selectedPeriodBreakdown, setSelectedPeriodBreakdown] =
-    useState<PeriodBreakdown>(
+    useSectionFilterOne(
+      PANEL_ID,
+      "period-breakdown",
       isBigScreen ? PeriodBreakdown.BY_PERIOD : PeriodBreakdown.LIST,
+      enumFilterCodec(PeriodBreakdown),
     );
   const [selectedGroupVisibility, setSelectedGroupVisibility] =
-    useState<GroupVisibility>(GroupVisibility.NON_EMPTY_ONLY);
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
-  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
-    [],
+    useSectionFilterOne(
+      PANEL_ID,
+      "group-visibility",
+      GroupVisibility.NON_EMPTY_ONLY,
+      enumFilterCodec(GroupVisibility),
+    );
+  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+    PANEL_ID,
+    "tags",
+    stringFilterCodec,
   );
+  const [selectedContactsRefId, setSelectedContactsRefId] =
+    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
 
   const tagsByRefId: { [tag: string]: Tag } = {};
   for (const tag of loaderData.allTags) {
@@ -475,6 +497,7 @@ export default function Habits() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
+              selectedTagsRefId,
               setSelectedTagsRefId,
             ),
             FilterManyOptions(
@@ -483,6 +506,7 @@ export default function Habits() {
                 value: contact.ref_id,
                 text: contact.name,
               })),
+              selectedContactsRefId,
               setSelectedContactsRefId,
             ),
             NavSingle({

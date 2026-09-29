@@ -70,6 +70,10 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import {
+  enumFilterCodec,
+  useSectionFilterOne,
+} from "#/core/infra/component/use-section-filter";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -247,6 +251,8 @@ function isAddableStackInTimePlan(
   );
 }
 
+const PANEL_ID = "time-plan-add-from-current-chores";
+
 export default function TimePlanAddFromCurrentChores() {
   const { id } = useParams();
   const [query] = useSearchParams();
@@ -274,7 +280,12 @@ export default function TimePlanAddFromCurrentChores() {
   const [targetChoreStackRefIds, setTargetChoreStackRefIds] = useState(
     new Set<string>(),
   );
-  const [showFilter, setShowFilter] = useState(ShowFilter.IN_PERIOD);
+  const [showFilter, setShowFilter] = useSectionFilterOne(
+    PANEL_ID,
+    "show",
+    ShowFilter.IN_PERIOD,
+    enumFilterCodec(ShowFilter),
+  );
 
   const inboxTasksByChoreRefId = groupInboxTasksByOwnerRefId(
     loaderData.inboxTasks,

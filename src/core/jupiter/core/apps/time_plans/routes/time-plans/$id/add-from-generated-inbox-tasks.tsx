@@ -78,6 +78,10 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import {
+  enumFilterCodec,
+  useSectionFilterOne,
+} from "#/core/infra/component/use-section-filter";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -188,6 +192,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
+const PANEL_ID = "time-plan-add-from-generated-inbox-tasks";
+
 export default function TimePlanAddFromCurrentInboxTasks() {
   const { id } = useParams();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
@@ -212,8 +218,11 @@ export default function TimePlanAddFromCurrentInboxTasks() {
     new Set<string>(),
   );
 
-  const [selectedPeriod, setSelectedPeriod] = useState(
+  const [selectedPeriod, setSelectedPeriod] = useSectionFilterOne(
+    PANEL_ID,
+    "period",
     query.showFromPeriod ? query.showFromPeriod : RecurringTaskPeriod.DAILY,
+    enumFilterCodec(RecurringTaskPeriod),
   );
 
   const entriesByRefId: { [key: string]: InboxTaskParent } = {};
@@ -221,9 +230,13 @@ export default function TimePlanAddFromCurrentInboxTasks() {
     entriesByRefId[entry.inbox_task.ref_id] = inboxTaskFindEntryToParent(entry);
   }
 
-  const [selectedActionableTime, setSelectedActionableTime] = useState(
-    ActionableTime.ONE_WEEK,
-  );
+  const [selectedActionableTime, setSelectedActionableTime] =
+    useSectionFilterOne(
+      PANEL_ID,
+      "actionable-time",
+      ActionableTime.ONE_WEEK,
+      enumFilterCodec(ActionableTime),
+    );
 
   const sortedInboxTasks = sortInboxTasksByEisenAndDifficulty(
     loaderData.inboxTasks.map((e) => e.inbox_task),

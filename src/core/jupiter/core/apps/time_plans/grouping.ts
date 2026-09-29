@@ -2,6 +2,7 @@ import type { TimePlan, Workspace } from "@jupiter/webapi-client";
 import { RecurringTaskPeriod, WorkspaceFeature } from "@jupiter/webapi-client";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
+import { sectionFilterParam } from "#/core/infra/section-filters";
 
 // How the activities of a time plan are grouped: all together, by aspect,
 // or by aspect and then by goal.
@@ -13,7 +14,14 @@ export enum TimePlanGrouping {
 
 // The grouping rides along in the URL, so a reload - or coming back from one
 // of the panels a time plan opens - lands on the same one.
-export const TIME_PLAN_GROUPING_PARAM = "timePlanGrouping";
+// The section filters of a time plan are kept in the URL under this panel.
+export const TIME_PLAN_PANEL_ID = "time-plan";
+
+// It's one of the time plan's section filters.
+export const TIME_PLAN_GROUPING_PARAM = sectionFilterParam(
+  TIME_PLAN_PANEL_ID,
+  "grouping",
+);
 
 export function parseTimePlanGrouping(
   raw: string | null | undefined,

@@ -12,7 +12,7 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { Link } from "react-router";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { Button, Stack } from "@mui/material";
 import TuneIcon from "@mui/icons-material/Tune";
 import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
@@ -44,6 +44,10 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import {
+  stringFilterCodec,
+  useSectionFilterMany,
+} from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -75,6 +79,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
+const PANEL_ID = "journals";
+
 export default function Journals() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
@@ -84,7 +90,11 @@ export default function Journals() {
   const shouldShowABranch = useTrunkNeedsToShowBranch();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+    PANEL_ID,
+    "tags",
+    stringFilterCodec,
+  );
 
   const entries = loaderData.entries;
   const entriesByRefId = new Map<string, JournalFindResultEntry>();
@@ -153,6 +163,7 @@ export default function Journals() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
+              selectedTagsRefId,
               setSelectedTagsRefId,
             ),
             NavSingle({

@@ -84,6 +84,12 @@ import { ChoreStackTag } from "#/core/apps/chores/component/chore-stack-tag";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import {
+  enumFilterCodec,
+  stringFilterCodec,
+  useSectionFilterMany,
+  useSectionFilterOne,
+} from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -150,6 +156,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 
+const PANEL_ID = "chores";
+
 export default function Chores() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
@@ -163,10 +171,13 @@ export default function Chores() {
     entriesByRefId.set(entry.chore.ref_id, entry);
   }
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
-  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
-    [],
+  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+    PANEL_ID,
+    "tags",
+    stringFilterCodec,
   );
+  const [selectedContactsRefId, setSelectedContactsRefId] =
+    useSectionFilterMany(PANEL_ID, "contacts", stringFilterCodec);
 
   const [mobileTab, setMobileTab] = useState<"chores" | "inbox-tasks">(
     "chores",
@@ -263,15 +274,26 @@ export default function Chores() {
     WorkspaceFeature.LIFE_PLAN,
   );
 
-  const [selectedGrouping, setSelectedGrouping] = useState<Grouping>(
+  const [selectedGrouping, setSelectedGrouping] = useSectionFilterOne(
+    PANEL_ID,
+    "grouping",
     lifePlanAvailable ? Grouping.BY_ASPECT_AND_GOAL : Grouping.FLAT,
+    enumFilterCodec(Grouping),
   );
   const [selectedPeriodBreakdown, setSelectedPeriodBreakdown] =
-    useState<PeriodBreakdown>(
+    useSectionFilterOne(
+      PANEL_ID,
+      "period-breakdown",
       isBigScreen ? PeriodBreakdown.BY_PERIOD : PeriodBreakdown.LIST,
+      enumFilterCodec(PeriodBreakdown),
     );
   const [selectedGroupVisibility, setSelectedGroupVisibility] =
-    useState<GroupVisibility>(GroupVisibility.NON_EMPTY_ONLY);
+    useSectionFilterOne(
+      PANEL_ID,
+      "group-visibility",
+      GroupVisibility.NON_EMPTY_ONLY,
+      enumFilterCodec(GroupVisibility),
+    );
 
   // Shared chores may reference aspects from another workspace. Include
   // those for grouping/display, detached from foreign parent chains.
@@ -388,6 +410,7 @@ export default function Chores() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
+              selectedTagsRefId,
               setSelectedTagsRefId,
             ),
             FilterManyOptions(
@@ -396,6 +419,7 @@ export default function Chores() {
                 value: contact.ref_id,
                 text: contact.name,
               })),
+              selectedContactsRefId,
               setSelectedContactsRefId,
             ),
             NavSingle({

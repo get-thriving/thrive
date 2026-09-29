@@ -2,7 +2,7 @@ import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction,
 } from "react-router";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import type { MetricFindResponseEntry, Tag } from "@jupiter/webapi-client";
 
@@ -31,6 +31,10 @@ import { UserLightChip } from "#/core/users/components/user-light-chip";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import {
+  stringFilterCodec,
+  useSectionFilterMany,
+} from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -60,11 +64,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
+const PANEL_ID = "metrics";
+
 export default function Metrics() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+    PANEL_ID,
+    "tags",
+    stringFilterCodec,
+  );
 
   const shouldShowABranch = useTrunkNeedsToShowBranch();
   const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
@@ -96,6 +106,7 @@ export default function Metrics() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
+              selectedTagsRefId,
               setSelectedTagsRefId,
             ),
           ]}

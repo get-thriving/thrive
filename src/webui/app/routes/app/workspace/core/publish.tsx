@@ -9,7 +9,7 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { Button, Box, Stack, Typography } from "@mui/material";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo } from "react";
 import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import {
   EntityCard,
@@ -37,6 +37,10 @@ import { publishedShareUrl } from "#/core/common/sub/publish/published-share-url
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import {
+  enumFilterCodec,
+  useSectionFilterMany,
+} from "@jupiter/core/infra/component/use-section-filter";
 
 import { ServicePropertiesContext } from "~/logic/config";
 
@@ -68,6 +72,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
+const PANEL_ID = "publish";
+
 export default function PublishEntities() {
   const { publishEntities, publishOwnerFilterTags } =
     useLoaderDataSafeForAnimation<typeof loader>();
@@ -75,9 +81,11 @@ export default function PublishEntities() {
   const serviceProperties = useContext(ServicePropertiesContext);
   const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
-  const [selectedOwnerTypes, setSelectedOwnerTypes] = useState<
-    NamedEntityTag[]
-  >([]);
+  const [selectedOwnerTypes, setSelectedOwnerTypes] = useSectionFilterMany(
+    PANEL_ID,
+    "owner-types",
+    enumFilterCodec(NamedEntityTag),
+  );
 
   const ownerTypeOptions = useMemo(
     () =>
@@ -124,6 +132,7 @@ export default function PublishEntities() {
             FilterManyOptions(
               "Entity type",
               ownerTypeOptions,
+              selectedOwnerTypes,
               setSelectedOwnerTypes,
             ),
           ]}

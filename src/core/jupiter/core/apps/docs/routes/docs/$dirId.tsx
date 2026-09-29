@@ -21,7 +21,7 @@ import {
 } from "@mui/icons-material";
 import { Alert, AlertTitle, Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 
@@ -66,6 +66,12 @@ import { handleLoaderApiError } from "#/core/infra/errors.server";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import {
+  enumFilterCodec,
+  stringFilterCodec,
+  useSectionFilterMany,
+  useSectionFilterOne,
+} from "#/core/infra/component/use-section-filter";
 
 const ParamsSchema = z.object({
   dirId: z.string(),
@@ -200,6 +206,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
+const PANEL_ID = "docs";
+
 export default function DocsInFolder() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const navigation = useNavigation();
@@ -208,9 +216,16 @@ export default function DocsInFolder() {
   const isBigScreen = useBigScreen();
   const compactDocCardLayout = !isBigScreen;
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
-  const [sortOrder, setSortOrder] = useState<DocsSortOrder>(
+  const [selectedTagsRefId, setSelectedTagsRefId] = useSectionFilterMany(
+    PANEL_ID,
+    "tags",
+    stringFilterCodec,
+  );
+  const [sortOrder, setSortOrder] = useSectionFilterOne(
+    PANEL_ID,
+    "sort",
     DocsSortOrder.MODIFIED_DESC,
+    enumFilterCodec(DocsSortOrder),
   );
 
   const dirLoad = loaderData.dirLoad;
@@ -372,6 +387,7 @@ export default function DocsInFolder() {
                 value: tag.ref_id,
                 text: tag.name,
               })),
+              selectedTagsRefId,
               setSelectedTagsRefId,
             ),
           ]}
