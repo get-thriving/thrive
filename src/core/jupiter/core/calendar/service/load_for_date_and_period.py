@@ -775,6 +775,23 @@ class CalendarLoadForDateAndPeriodService:
                 tt.ref_id: tt for tt in activity_target_todo_tasks
             }
 
+        # The status of a todo task lives on its owned inbox task, so load
+        # those too, to be able to show it for the activity.
+        activity_target_todo_task_inbox_tasks_by_id: dict[EntityId, InboxTask] = {}
+        if activity_target_todo_tasks_by_id:
+            activity_target_todo_task_inbox_tasks = await uow.get(
+                InboxTaskRepository
+            ).find_all_for_owner_created_desc(
+                owner=[
+                    EntityLink.std(NamedEntityTag.TODO_TASK.value, tt_ref_id)
+                    for tt_ref_id in activity_target_todo_tasks_by_id
+                ],
+                allow_archived=True,
+            )
+            for it in activity_target_todo_task_inbox_tasks:
+                if it.owner.ref_id not in activity_target_todo_task_inbox_tasks_by_id:
+                    activity_target_todo_task_inbox_tasks_by_id[it.owner.ref_id] = it
+
         activity_target_habit_ref_ids = [
             a.target.ref_id for a in time_plan_activities if a.is_target_habit
         ]
@@ -834,8 +851,12 @@ class CalendarLoadForDateAndPeriodService:
         time_plan_activity_entries = [
             TimePlanActivityEntry(
                 time_plan_activity=activity,
-                target_inbox_task=activity_target_inbox_tasks_by_id.get(
-                    activity.target.ref_id
+                target_inbox_task=(
+                    activity_target_todo_task_inbox_tasks_by_id.get(
+                        activity.target.ref_id
+                    )
+                    if activity.is_target_todo_task
+                    else activity_target_inbox_tasks_by_id.get(activity.target.ref_id)
                 ),
                 target_big_plan=activity_target_big_plans_by_id.get(
                     activity.target.ref_id
