@@ -48,6 +48,7 @@ import {
   InboxTaskParent,
   InboxTaskOptimisticState,
 } from "#/core/common/sub/inbox_tasks/root";
+import type { StreakInactivePeriodRange } from "#/core/apps/habits/streak-calendar";
 import {
   isWidgetDimensionFlex,
   isWidgetDimensionKSized,
@@ -63,6 +64,7 @@ const WIDGET_HEIGHT_IN_REM_BASE = 14;
 interface HabitStreakEntry {
   habit: Habit;
   streakMarks: HabitStreakMark[];
+  streakInactivePeriods: StreakInactivePeriodRange[];
 }
 
 interface BigPlanEntry {

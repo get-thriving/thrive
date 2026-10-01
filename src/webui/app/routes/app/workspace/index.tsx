@@ -318,6 +318,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       streakMarkEarliestDate: h.streak_mark_earliest_date,
       streakMarkLatestDate: h.streak_mark_latest_date,
       streakMarks: h.streak_marks,
+      streakInactivePeriods: h.streak_inactive_periods,
     })),
     keyBigPlansResults: keyBigPlansResults?.map((bp) => ({
       bigPlan: bp.big_plan,

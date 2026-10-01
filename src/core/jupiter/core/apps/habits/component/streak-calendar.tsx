@@ -1,9 +1,4 @@
-import {
-  ADate,
-  Habit,
-  HabitStreakMark,
-  InboxTaskStatus,
-} from "@jupiter/webapi-client";
+import { ADate, Habit, HabitStreakMark } from "@jupiter/webapi-client";
 import {
   Box,
   IconButton,
@@ -23,6 +18,14 @@ import { Link } from "react-router";
 import { DateTime } from "luxon";
 
 import { aDateToDate, dateToAdate } from "#/core/common/adate";
+import {
+  computeDonenessForStreakMark,
+  dayCellKind,
+  inactiveReasonLabel,
+  isInactiveOnDate,
+  type StreakInactivePeriodRange,
+  weekCellState,
+} from "#/core/apps/habits/streak-calendar";
 
 const CELL_SIZE = (theme: Theme) => theme.typography.htmlFontSize - 2;
 export const CELL_FULL_SIZE = (theme: Theme) => CELL_SIZE(theme) + 2;
@@ -33,6 +36,7 @@ interface HabitStreakCalendarProps {
   currentToday: ADate;
   habit: Habit;
   streakMarks: HabitStreakMark[];
+  inactivePeriods: StreakInactivePeriodRange[];
   noLabel?: boolean;
   label?: string;
   showNav?: boolean;
@@ -61,21 +65,6 @@ export function HabitStreakCalendar(props: HabitStreakCalendarProps) {
       streakMark.date,
       computeDonenessForStreakMark(streakMark.statuses),
     );
-  }
-
-  const dataPerWeek: Map<string, number> = new Map();
-  const mergedStatuses: Record<string, Record<string, InboxTaskStatus>> = {};
-  for (const streakMark of props.streakMarks) {
-    const weekStart = aDateToDate(streakMark.date).startOf("week").toISODate()!;
-    if (!mergedStatuses[weekStart]) {
-      mergedStatuses[weekStart] = {};
-    }
-    for (const [key, value] of Object.entries(streakMark.statuses)) {
-      mergedStatuses[weekStart][key] = value;
-    }
-  }
-  for (const [weekStart, statuses] of Object.entries(mergedStatuses)) {
-    dataPerWeek.set(weekStart, computeDonenessForStreakMark(statuses));
   }
 
   return (
@@ -122,8 +111,10 @@ export function HabitStreakCalendar(props: HabitStreakCalendarProps) {
         weeksBetween={weeksBetween}
         currentToday={props.currentToday}
         dataPerDay={dataPerDay}
-        dataPerWeek={dataPerWeek}
+        streakMarks={props.streakMarks}
+        inactivePeriods={props.inactivePeriods}
       />
+      <InactiveLegend />
     </StyledDiv>
   );
 }
@@ -166,7 +157,8 @@ interface OneYearProps {
   currentToday: ADate;
   weeksBetween: DateTime<true>[];
   dataPerDay: Map<string, number>;
-  dataPerWeek: Map<string, number>;
+  streakMarks: HabitStreakMark[];
+  inactivePeriods: StreakInactivePeriodRange[];
 }
 
 function OneYear(props: OneYearProps) {
@@ -177,7 +169,17 @@ function OneYear(props: OneYearProps) {
       sx={{ marginLeft: "auto", marginRight: "auto", width: "fit-content" }}
     >
       {props.weeksBetween.map((weekStart, index) => {
-        const weekTooltip = `Week of ${weekStart.toISODate()}`;
+        const weekDays = Array.from({ length: 7 }, (_, dayIndex) => {
+          return weekStart.plus({ days: dayIndex }).toISODate()!;
+        });
+        const weekState = weekCellState(
+          weekDays,
+          props.streakMarks,
+          props.inactivePeriods,
+        );
+        const weekTooltip = weekState.fullyInactive
+          ? `Week of ${weekStart.toISODate()} – inactive`
+          : `Week of ${weekStart.toISODate()}`;
         return (
           <OneCol
             key={index}
@@ -187,9 +189,17 @@ function OneYear(props: OneYearProps) {
             <Tooltip title={weekTooltip}>
               <span>
                 <OneCell
-                  isToday={false}
-                  isFuture={false}
-                  doneness={props.dataPerWeek.get(weekStart.toISODate()!)}
+                  kind={
+                    weekState.fullyInactive
+                      ? "inactive"
+                      : dayCellKind({
+                          isToday: false,
+                          isFuture: false,
+                          isInactive: false,
+                          doneness: weekState.doneness,
+                        })
+                  }
+                  doneness={weekState.doneness}
                 />
               </span>
             </Tooltip>
@@ -201,22 +211,30 @@ function OneYear(props: OneYearProps) {
               }}
             ></span>
 
-            {Array.from({ length: 7 }).map((_, dayIndex) => {
-              const day = weekStart.plus({ days: dayIndex });
-              const value = props.dataPerDay.get(day.toISODate()!);
-              const theValue = value !== undefined ? `- ${value}%` : "";
-              const isToday = props.currentToday == day.toISODate();
-              const tooltip = isToday
-                ? "Today"
-                : `${day.toISODate()} ${theValue}`;
+            {weekDays.map((dayIso, dayIndex) => {
+              const value = props.dataPerDay.get(dayIso);
+              const inactive = isInactiveOnDate(dayIso, props.inactivePeriods);
+              const kind = dayCellKind({
+                isToday: props.currentToday == dayIso,
+                isFuture: dayIso > props.currentToday,
+                isInactive: inactive,
+                doneness: value,
+              });
+              const reason = inactiveReasonLabel(dayIso, props.inactivePeriods);
+              const tooltip =
+                kind === "today"
+                  ? "Today"
+                  : kind === "inactive"
+                    ? reason
+                      ? `${dayIso} – inactive (${reason})`
+                      : `${dayIso} – inactive`
+                    : value !== undefined
+                      ? `${dayIso} - ${value}%`
+                      : dayIso;
               return (
                 <Tooltip key={dayIndex} title={tooltip}>
                   <span>
-                    <OneCell
-                      isToday={isToday}
-                      isFuture={day.toISODate() > props.currentToday}
-                      doneness={value}
-                    />
+                    <OneCell kind={kind} doneness={value} />
                   </span>
                 </Tooltip>
               );
@@ -253,8 +271,7 @@ function OneCol(props: OneColProps) {
 }
 
 interface OneCellProps {
-  isToday: boolean;
-  isFuture: boolean;
+  kind: "today" | "future" | "inactive" | "doneness" | "missing";
   doneness: number | undefined;
 }
 
@@ -266,32 +283,37 @@ function OneCell(props: OneCellProps) {
         width: CELL_SIZE(theme),
         height: CELL_SIZE(theme),
         margin: "1px",
-        backgroundColor: props.isToday
-          ? "#ffd700"
-          : props.isFuture
-            ? theme.palette.info.light
-            : bucketedColorScale(props.doneness),
+        backgroundColor:
+          props.kind === "today"
+            ? "#ffd700"
+            : props.kind === "future"
+              ? theme.palette.info.light
+              : props.kind === "inactive"
+                ? theme.palette.grey[700]
+                : bucketedColorScale(props.doneness),
       }}
     ></Box>
   );
 }
 
-function computeDonenessForStreakMark(
-  statuses: Record<string, InboxTaskStatus>,
-): number {
-  // look at number of done statuses in streakMark.statuses
-  let doneStatuses = 0;
-  let allStatuses = 0;
-  for (const status of Object.values(statuses)) {
-    if (status === InboxTaskStatus.DONE) {
-      doneStatuses++;
-    }
-    allStatuses++;
-  }
-  if (allStatuses === 0) {
-    return 0;
-  }
-  return Math.floor((doneStatuses / allStatuses) * 100);
+function InactiveLegend() {
+  const theme = useTheme();
+  return (
+    <Stack
+      direction="row"
+      spacing={1}
+      sx={{ alignSelf: "center", alignItems: "center", marginTop: "0.5rem" }}
+    >
+      <Box
+        sx={{
+          width: CELL_SIZE(theme),
+          height: CELL_SIZE(theme),
+          backgroundColor: theme.palette.grey[700],
+        }}
+      />
+      <Typography variant="caption">Inactive</Typography>
+    </Stack>
+  );
 }
 
 function bucketedColorScale(value: number | undefined): string {

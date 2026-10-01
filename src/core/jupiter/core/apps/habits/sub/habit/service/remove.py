@@ -5,6 +5,9 @@ from jupiter.core.apps.habits.streak_mark import (
     HabitStreakMarkRepository,
 )
 from jupiter.core.apps.habits.sub.habit.root import Habit
+from jupiter.core.apps.habits.sub.streak_inactive_period.root import (
+    HabitStreakInactivePeriod,
+)
 from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -25,6 +28,7 @@ from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
 
 
 class HabitRemoveService:
@@ -88,6 +92,21 @@ class HabitRemoveService:
         for streak_mark in all_streak_marks:
             await uow.get(HabitStreakMarkRepository).remove(
                 (streak_mark.habit.ref_id, streak_mark.date)
+            )
+
+        inactive_periods = await uow.get_for(
+            HabitStreakInactivePeriod
+        ).find_all_generic(
+            parent_ref_id=habit.ref_id,
+            allow_archived=True,
+        )
+        for inactive_period in inactive_periods:
+            await generic_crown_remover(
+                ctx,
+                uow,
+                progress_reporter,
+                HabitStreakInactivePeriod,
+                inactive_period.ref_id,
             )
 
         await uow.get_for(Habit).remove(ctx, ref_id)

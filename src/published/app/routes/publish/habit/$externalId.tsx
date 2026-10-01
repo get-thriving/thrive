@@ -87,6 +87,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       streakMarks: result.streak_marks,
       streakMarkEarliestDate: result.streak_mark_earliest_date,
       streakMarkLatestDate: result.streak_mark_latest_date,
+      streakInactivePeriods: result.streak_inactive_periods,
     };
   } catch (error) {
     handleLoaderApiError(error);
@@ -152,6 +153,7 @@ export default function PublishedHabit() {
           currentToday={topLevelInfo.today}
           habit={loaderData.habit}
           streakMarks={loaderData.streakMarks}
+          inactivePeriods={loaderData.streakInactivePeriods}
         />
       </SectionCard>
 

@@ -429,6 +429,15 @@ from .habit_stack_update_args_goal_ref_id import HabitStackUpdateArgsGoalRefId
 from .habit_stack_update_args_habit_ref_ids import HabitStackUpdateArgsHabitRefIds
 from .habit_stack_update_args_name import HabitStackUpdateArgsName
 from .habit_stack_update_result import HabitStackUpdateResult
+from .habit_streak_inactive_period import HabitStreakInactivePeriod
+from .habit_streak_inactive_period_archive_args import HabitStreakInactivePeriodArchiveArgs
+from .habit_streak_inactive_period_create_args import HabitStreakInactivePeriodCreateArgs
+from .habit_streak_inactive_period_create_result import HabitStreakInactivePeriodCreateResult
+from .habit_streak_inactive_period_remove_args import HabitStreakInactivePeriodRemoveArgs
+from .habit_streak_inactive_period_reset_args import HabitStreakInactivePeriodResetArgs
+from .habit_streak_inactive_period_reset_result import HabitStreakInactivePeriodResetResult
+from .habit_streak_inactive_period_update_args import HabitStreakInactivePeriodUpdateArgs
+from .habit_streak_inactive_period_update_result import HabitStreakInactivePeriodUpdateResult
 from .habit_streak_mark import HabitStreakMark
 from .habit_streak_mark_statuses import HabitStreakMarkStatuses
 from .habit_summary import HabitSummary
@@ -1786,6 +1795,15 @@ __all__ = (
     "HabitStackUpdateArgsHabitRefIds",
     "HabitStackUpdateArgsName",
     "HabitStackUpdateResult",
+    "HabitStreakInactivePeriod",
+    "HabitStreakInactivePeriodArchiveArgs",
+    "HabitStreakInactivePeriodCreateArgs",
+    "HabitStreakInactivePeriodCreateResult",
+    "HabitStreakInactivePeriodRemoveArgs",
+    "HabitStreakInactivePeriodResetArgs",
+    "HabitStreakInactivePeriodResetResult",
+    "HabitStreakInactivePeriodUpdateArgs",
+    "HabitStreakInactivePeriodUpdateResult",
     "HabitStreakMark",
     "HabitStreakMarkStatuses",
     "HabitSummary",

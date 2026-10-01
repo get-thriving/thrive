@@ -5,6 +5,9 @@ from jupiter.core.apps.habits.repeats_strategy import (
 )
 from jupiter.core.apps.habits.streak_mark import HabitStreakMark
 from jupiter.core.apps.habits.sub.habit.name import HabitName
+from jupiter.core.apps.habits.sub.streak_inactive_period.root import (
+    HabitStreakInactivePeriod,
+)
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.scheduling_params import SchedulingParams
@@ -71,6 +74,10 @@ class Habit(LeafEntity):
     )
     streak_marks = ContainsManyRecords(
         HabitStreakMark,
+        habit_ref_id=IsRefId(),
+    )
+    streak_inactive_periods = OwnsMany(
+        HabitStreakInactivePeriod,
         habit_ref_id=IsRefId(),
     )
 

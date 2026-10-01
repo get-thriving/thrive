@@ -10,6 +10,7 @@ import type { Contact } from './Contact';
 import type { Goal } from './Goal';
 import type { Habit } from './Habit';
 import type { HabitStack } from './HabitStack';
+import type { HabitStreakInactivePeriod } from './HabitStreakInactivePeriod';
 import type { HabitStreakMark } from './HabitStreakMark';
 import type { InboxTask } from './InboxTask';
 import type { Location } from './Location';
@@ -33,6 +34,7 @@ export type HabitLoadResult = {
     streak_marks: Array<HabitStreakMark>;
     streak_mark_earliest_date: ADate;
     streak_mark_latest_date: ADate;
+    streak_inactive_periods: Array<HabitStreakInactivePeriod>;
     tags: Array<Tag>;
     contacts: Array<Contact>;
     location?: (Location | null);

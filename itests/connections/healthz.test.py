@@ -1,17 +1,21 @@
 """Integration tests for the MCP server connection."""
 
+import http.client
 import ssl
 import urllib.request
+from typing import cast
 
 # Docker dev terminates TLS with a self-signed cert. Playwright ignores those
 # errors; urllib does not.
 _UNVERIFIED_SSL = ssl._create_unverified_context()  # nosec B323
 
 
-def _open(url: str) -> urllib.request.addinfourl:
+def _open(url: str) -> http.client.HTTPResponse:
     if url.startswith("https://"):
-        return urllib.request.urlopen(url, context=_UNVERIFIED_SSL)  # nosec B310
-    return urllib.request.urlopen(url)  # nosec B310
+        response = urllib.request.urlopen(url, context=_UNVERIFIED_SSL)  # nosec B310
+    else:
+        response = urllib.request.urlopen(url)  # nosec B310
+    return cast(http.client.HTTPResponse, response)
 
 
 def _healthz_url(service_url: str) -> str:

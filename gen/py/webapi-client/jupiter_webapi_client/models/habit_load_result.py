@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from ..models.goal import Goal
     from ..models.habit import Habit
     from ..models.habit_stack import HabitStack
+    from ..models.habit_streak_inactive_period import HabitStreakInactivePeriod
     from ..models.habit_streak_mark import HabitStreakMark
     from ..models.inbox_task import InboxTask
     from ..models.location import Location
@@ -42,6 +43,7 @@ class HabitLoadResult:
         streak_marks (list[HabitStreakMark]):
         streak_mark_earliest_date (str): A date or possibly a datetime for the application.
         streak_mark_latest_date (str): A date or possibly a datetime for the application.
+        streak_inactive_periods (list[HabitStreakInactivePeriod]):
         tags (list[Tag]):
         contacts (list[Contact]):
         time_event_blocks (list[TimeEventInDayBlock]):
@@ -63,6 +65,7 @@ class HabitLoadResult:
     streak_marks: list[HabitStreakMark]
     streak_mark_earliest_date: str
     streak_mark_latest_date: str
+    streak_inactive_periods: list[HabitStreakInactivePeriod]
     tags: list[Tag]
     contacts: list[Contact]
     time_event_blocks: list[TimeEventInDayBlock]
@@ -106,6 +109,11 @@ class HabitLoadResult:
         streak_mark_earliest_date = self.streak_mark_earliest_date
 
         streak_mark_latest_date = self.streak_mark_latest_date
+
+        streak_inactive_periods = []
+        for streak_inactive_periods_item_data in self.streak_inactive_periods:
+            streak_inactive_periods_item = streak_inactive_periods_item_data.to_dict()
+            streak_inactive_periods.append(streak_inactive_periods_item)
 
         tags = []
         for tags_item_data in self.tags:
@@ -192,6 +200,7 @@ class HabitLoadResult:
                 "streak_marks": streak_marks,
                 "streak_mark_earliest_date": streak_mark_earliest_date,
                 "streak_mark_latest_date": streak_mark_latest_date,
+                "streak_inactive_periods": streak_inactive_periods,
                 "tags": tags,
                 "contacts": contacts,
                 "time_event_blocks": time_event_blocks,
@@ -224,6 +233,7 @@ class HabitLoadResult:
         from ..models.goal import Goal  # noqa: PLC0415
         from ..models.habit import Habit  # noqa: PLC0415
         from ..models.habit_stack import HabitStack  # noqa: PLC0415
+        from ..models.habit_streak_inactive_period import HabitStreakInactivePeriod  # noqa: PLC0415
         from ..models.habit_streak_mark import HabitStreakMark  # noqa: PLC0415
         from ..models.inbox_task import InboxTask  # noqa: PLC0415
         from ..models.location import Location  # noqa: PLC0415
@@ -259,6 +269,13 @@ class HabitLoadResult:
         streak_mark_earliest_date = d.pop("streak_mark_earliest_date")
 
         streak_mark_latest_date = d.pop("streak_mark_latest_date")
+
+        streak_inactive_periods = []
+        _streak_inactive_periods = d.pop("streak_inactive_periods")
+        for streak_inactive_periods_item_data in _streak_inactive_periods:
+            streak_inactive_periods_item = HabitStreakInactivePeriod.from_dict(streak_inactive_periods_item_data)
+
+            streak_inactive_periods.append(streak_inactive_periods_item)
 
         tags = []
         _tags = d.pop("tags")
@@ -411,6 +428,7 @@ class HabitLoadResult:
             streak_marks=streak_marks,
             streak_mark_earliest_date=streak_mark_earliest_date,
             streak_mark_latest_date=streak_mark_latest_date,
+            streak_inactive_periods=streak_inactive_periods,
             tags=tags,
             contacts=contacts,
             time_event_blocks=time_event_blocks,

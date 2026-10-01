@@ -392,10 +392,7 @@ export function useLocationsLinkEditor({
         commitExisting([], true);
         return;
       }
-      if (
-        reason === "removeOption" &&
-        changedOption?.kind === "existing"
-      ) {
+      if (reason === "removeOption" && changedOption?.kind === "existing") {
         commitExisting(
           selectedOptionsRef.current.filter(
             (option) =>

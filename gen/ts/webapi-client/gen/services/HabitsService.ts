@@ -27,6 +27,14 @@ import type { HabitStackLoadResult } from '../models/HabitStackLoadResult';
 import type { HabitStackRemoveArgs } from '../models/HabitStackRemoveArgs';
 import type { HabitStackUpdateArgs } from '../models/HabitStackUpdateArgs';
 import type { HabitStackUpdateResult } from '../models/HabitStackUpdateResult';
+import type { HabitStreakInactivePeriodArchiveArgs } from '../models/HabitStreakInactivePeriodArchiveArgs';
+import type { HabitStreakInactivePeriodCreateArgs } from '../models/HabitStreakInactivePeriodCreateArgs';
+import type { HabitStreakInactivePeriodCreateResult } from '../models/HabitStreakInactivePeriodCreateResult';
+import type { HabitStreakInactivePeriodRemoveArgs } from '../models/HabitStreakInactivePeriodRemoveArgs';
+import type { HabitStreakInactivePeriodResetArgs } from '../models/HabitStreakInactivePeriodResetArgs';
+import type { HabitStreakInactivePeriodResetResult } from '../models/HabitStreakInactivePeriodResetResult';
+import type { HabitStreakInactivePeriodUpdateArgs } from '../models/HabitStreakInactivePeriodUpdateArgs';
+import type { HabitStreakInactivePeriodUpdateResult } from '../models/HabitStreakInactivePeriodUpdateResult';
 import type { HabitSuspendArgs } from '../models/HabitSuspendArgs';
 import type { HabitUnsuspendArgs } from '../models/HabitUnsuspendArgs';
 import type { HabitUpdateArgs } from '../models/HabitUpdateArgs';
@@ -555,6 +563,146 @@ export class HabitsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/habit-stack-update',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * The command for archiving a habit streak inactive period.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public habitStreakInactivePeriodArchive(
+        requestBody?: HabitStreakInactivePeriodArchiveArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/habit-streak-inactive-period-archive',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * The command for creating a habit streak inactive period.
+     * @param requestBody The input data
+     * @returns HabitStreakInactivePeriodCreateResult Successful response
+     * @throws ApiError
+     */
+    public habitStreakInactivePeriodCreate(
+        requestBody?: HabitStreakInactivePeriodCreateArgs,
+    ): CancelablePromise<HabitStreakInactivePeriodCreateResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/habit-streak-inactive-period-create',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * The command for removing a habit streak inactive period.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public habitStreakInactivePeriodRemove(
+        requestBody?: HabitStreakInactivePeriodRemoveArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/habit-streak-inactive-period-remove',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Mark the streak so far inactive, leaving today open.
+     * @param requestBody The input data
+     * @returns HabitStreakInactivePeriodResetResult Successful response
+     * @throws ApiError
+     */
+    public habitStreakInactivePeriodReset(
+        requestBody?: HabitStreakInactivePeriodResetArgs,
+    ): CancelablePromise<HabitStreakInactivePeriodResetResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/habit-streak-inactive-period-reset',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * The command for updating a habit streak inactive period.
+     * @param requestBody The input data
+     * @returns HabitStreakInactivePeriodUpdateResult Successful response
+     * @throws ApiError
+     */
+    public habitStreakInactivePeriodUpdate(
+        requestBody?: HabitStreakInactivePeriodUpdateArgs,
+    ): CancelablePromise<HabitStreakInactivePeriodUpdateResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/habit-streak-inactive-period-update',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

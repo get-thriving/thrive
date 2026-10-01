@@ -197,6 +197,21 @@ from jupiter_webapi_client.api.habits.habit_stack_remove import (
 from jupiter_webapi_client.api.habits.habit_stack_update import (
     asyncio_detailed as habit_stack_update,
 )
+from jupiter_webapi_client.api.habits.habit_streak_inactive_period_archive import (
+    asyncio_detailed as habit_streak_inactive_period_archive,
+)
+from jupiter_webapi_client.api.habits.habit_streak_inactive_period_create import (
+    asyncio_detailed as habit_streak_inactive_period_create,
+)
+from jupiter_webapi_client.api.habits.habit_streak_inactive_period_remove import (
+    asyncio_detailed as habit_streak_inactive_period_remove,
+)
+from jupiter_webapi_client.api.habits.habit_streak_inactive_period_reset import (
+    asyncio_detailed as habit_streak_inactive_period_reset,
+)
+from jupiter_webapi_client.api.habits.habit_streak_inactive_period_update import (
+    asyncio_detailed as habit_streak_inactive_period_update,
+)
 from jupiter_webapi_client.api.habits.habit_suspend import (
     asyncio_detailed as habit_suspend,
 )
@@ -1183,6 +1198,27 @@ async def main() -> None:
             "habits",
             JupiterApiGatewayMethod.get(habit_find),
             JupiterApiGatewayMethod.post(habit_create),
+            JupiterApiResource.build(
+                "streak-inactive-periods",
+                JupiterApiGatewayMethod.post(habit_streak_inactive_period_create),
+                JupiterApiResource.build(
+                    "reset",
+                    JupiterApiGatewayMethod.post(habit_streak_inactive_period_reset),
+                ),
+                JupiterApiResource.build(
+                    ":ref_id",
+                    JupiterApiGatewayMethod.put(habit_streak_inactive_period_update),
+                    JupiterApiGatewayMethod.delete(
+                        habit_streak_inactive_period_archive
+                    ),
+                    JupiterApiResource.build(
+                        "remove",
+                        JupiterApiGatewayMethod.delete(
+                            habit_streak_inactive_period_remove
+                        ),
+                    ),
+                ),
+            ),
             JupiterApiResource.build(
                 "stacks",
                 JupiterApiGatewayMethod.get(habit_stack_find),

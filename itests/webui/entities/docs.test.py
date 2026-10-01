@@ -72,9 +72,9 @@ def _choose_dir_autocomplete_option(page: Page, label: str) -> None:
     expect(page.get_by_role("listbox")).to_be_visible(timeout=30000)
     page.keyboard.press("ControlOrMeta+A")
     page.keyboard.type(label)
-    expect(
-        page.get_by_role("option").filter(has_text=label).first
-    ).to_be_visible(timeout=30000)
+    expect(page.get_by_role("option").filter(has_text=label).first).to_be_visible(
+        timeout=30000
+    )
     page.keyboard.press("Enter")
 
 

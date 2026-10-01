@@ -154,6 +154,15 @@ A habit can be suspended, via the `Suspended` property. Being marked as such
 meansthat the task won't be generated at all. For example, going to the gym
 might be suspended whileyou're recovering from an illness.
 
+The streak calendar can also mark a stretch of days as inactive, for example
+when the habit was recorded badly or you were travelling. The name of the
+stretch is what shows on those days. Those days turn dark
+grey and drop out of the weekly summary. The underlying task history stays put,
+so archiving the inactive stretch brings the original colours back. An archived
+stretch can then be removed. Reset streak covers everything up to yesterday and
+leaves today open. A stretch cannot end after today. Published habit pages show
+the same grey days.
+
 A habit can also have a difficulty, just like a regular task. This will be
 copiedto all the instantiated tasks that are created.
 

@@ -7,6 +7,10 @@ from jupiter.core.apps.habits.streak_mark import (
     HabitStreakMark,
     HabitStreakMarkRepository,
 )
+from jupiter.core.apps.habits.sub.streak_inactive_period.root import (
+    HabitStreakInactivePeriod,
+    HabitStreakInactivePeriodRepository,
+)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
@@ -14,7 +18,10 @@ from jupiter.framework.storage.repository import (
     RecordAlreadyExistsError,
     RecordNotFoundError,
 )
-from jupiter.framework.storage.sqlite.repository import SqliteRecordRepository
+from jupiter.framework.storage.sqlite.repository import (
+    SqliteLeafEntityRepository,
+    SqliteRecordRepository,
+)
 from jupiter.framework.storage.sqlite.row import RowType
 from sqlalchemy import (
     JSON,
@@ -226,3 +233,35 @@ class SqliteHabitStreakMarkRepository(
         return self._realm_codec_registry.db_decode(
             HabitStreakMark, cast(Mapping[str, RealmThing], row._mapping)
         )
+
+
+class SqliteHabitStreakInactivePeriodRepository(
+    SqliteLeafEntityRepository[HabitStreakInactivePeriod],
+    HabitStreakInactivePeriodRepository,
+):
+    """The SQLite repository for habit streak inactive periods."""
+
+    async def find_all_for_habit_overlapping(
+        self,
+        habit_ref_id: EntityId,
+        start_date: ADate,
+        end_date: ADate,
+        allow_archived: bool = False,
+    ) -> list[HabitStreakInactivePeriod]:
+        """Find periods that overlap the inclusive date range."""
+        query = (
+            select(self._table)
+            .where(self._table.c.habit_ref_id == habit_ref_id.as_int())
+            .where(
+                self._table.c.start_date
+                <= self._realm_codec_registry.db_encode(end_date)
+            )
+            .where(
+                self._table.c.end_date
+                >= self._realm_codec_registry.db_encode(start_date)
+            )
+        )
+        if not allow_archived:
+            query = query.where(self._table.c.archived.is_(False))
+        result = await self._connection.execute(query)
+        return [self._row_to_entity(row) for row in result]

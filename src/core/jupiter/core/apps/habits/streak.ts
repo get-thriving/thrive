@@ -1,12 +1,14 @@
 import { ADate, EntityId, HabitStreakMark } from "@jupiter/webapi-client";
 
 import { aDateToDate } from "#/core/common/adate";
+import type { StreakInactivePeriodRange } from "#/core/apps/habits/streak-calendar";
 
 export interface KeyHabitStreak {
   habitRefId: EntityId;
   streakMarkEarliestDate: ADate;
   streakMarkLatestDate: ADate;
   streakMarks: HabitStreakMark[];
+  inactivePeriods: StreakInactivePeriodRange[];
 }
 
 export function limitKeyHabitResultsBasedOnScreenSize(
@@ -23,6 +25,7 @@ export function limitKeyHabitResultsBasedOnScreenSize(
       ...h,
       streakMarkEarliestDate: realEarliestDate,
       streakMarks: h.streakMarks.filter((s) => s.date >= realEarliestDate),
+      inactivePeriods: h.inactivePeriods,
     };
   });
 }

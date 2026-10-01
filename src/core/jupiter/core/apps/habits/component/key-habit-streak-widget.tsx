@@ -48,6 +48,7 @@ export function HabitKeyHabitStreakWidget(props: WidgetProps) {
           streakMarkEarliestDate: habitStreak.earliestDate,
           streakMarkLatestDate: habitStreak.latestDate,
           streakMarks: e.streakMarks,
+          inactivePeriods: e.streakInactivePeriods,
         })),
         daysToInclude,
       ),
@@ -137,6 +138,7 @@ function HorizontalStreak({
                 currentToday={habitStreak.currentToday}
                 habit={habitsByRefId.get(entry.habitRefId)!}
                 streakMarks={entry.streakMarks}
+                inactivePeriods={entry.inactivePeriods}
                 noLabel={habitStreak.noLabel}
                 label={habitStreak.label}
                 showNav={habitStreak.showNav}
@@ -174,6 +176,7 @@ function VerticalStreak({ widgetProps, keyHabitStreak }: VerticalStreakProps) {
             currentToday={habitStreak.currentToday}
             habit={habitsByRefId.get(entry.habitRefId)!}
             streakMarks={entry.streakMarks}
+            inactivePeriods={entry.inactivePeriods}
             noLabel={habitStreak.noLabel}
             label={habitStreak.label}
             showNav={habitStreak.showNav}

@@ -91,8 +91,9 @@ export function PersonEditor(props: PersonEditorProps) {
     setCatchUpPeriod(initialCatchUpPeriod);
   }, [initialCatchUpPeriod]);
   const initialCatchUpDifficulty = person.catch_up_params?.difficulty ?? null;
-  const [catchUpDifficulty, setCatchUpDifficulty] =
-    useState<Difficulty | null>(initialCatchUpDifficulty);
+  const [catchUpDifficulty, setCatchUpDifficulty] = useState<Difficulty | null>(
+    initialCatchUpDifficulty,
+  );
   useEffect(() => {
     setCatchUpDifficulty(initialCatchUpDifficulty);
   }, [initialCatchUpDifficulty]);

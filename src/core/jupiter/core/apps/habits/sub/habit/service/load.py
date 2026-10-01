@@ -6,6 +6,10 @@ from jupiter.core.apps.habits.streak_mark import (
 )
 from jupiter.core.apps.habits.sub.habit.root import Habit
 from jupiter.core.apps.habits.sub.stack.root import HabitStack
+from jupiter.core.apps.habits.sub.streak_inactive_period.root import (
+    HabitStreakInactivePeriod,
+    HabitStreakInactivePeriodRepository,
+)
 from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
 from jupiter.core.apps.life_plan.sub.chapters.root import Chapter
 from jupiter.core.apps.life_plan.sub.goals.root import Goal
@@ -63,6 +67,7 @@ class HabitLoadResult(UseCaseResultBase):
     streak_marks: list[HabitStreakMark]
     streak_mark_earliest_date: ADate
     streak_mark_latest_date: ADate
+    streak_inactive_periods: list[HabitStreakInactivePeriod]
     tags: list[Tag]
     contacts: list[Contact]
     location: Location | None
@@ -164,6 +169,17 @@ class HabitLoadService:
             streak_mark_earliest_date,
             streak_mark_latest_date,
         )
+        streak_inactive_periods = await uow.get(
+            HabitStreakInactivePeriodRepository
+        ).find_all_for_habit_overlapping(
+            habit.ref_id,
+            streak_mark_earliest_date,
+            streak_mark_latest_date,
+            allow_archived=True,
+        )
+        streak_inactive_periods.sort(
+            key=lambda period: (period.start_date, period.end_date)
+        )
 
         tag_link = await uow.get(TagLinkRepository).load_optional_for_owner(
             owner=EntityLink.std(NamedEntityTag.HABIT.value, habit.ref_id),
@@ -230,6 +246,7 @@ class HabitLoadService:
             streak_marks=streak_marks,
             streak_mark_earliest_date=streak_mark_earliest_date,
             streak_mark_latest_date=streak_mark_latest_date,
+            streak_inactive_periods=streak_inactive_periods,
             tags=tags,
             contacts=contacts,
             location=location,

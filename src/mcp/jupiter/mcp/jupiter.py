@@ -193,6 +193,21 @@ from jupiter_webapi_client.api.habits.habit_stack_remove import (
 from jupiter_webapi_client.api.habits.habit_stack_update import (
     asyncio_detailed as habit_stack_update,
 )
+from jupiter_webapi_client.api.habits.habit_streak_inactive_period_archive import (
+    asyncio_detailed as habit_streak_inactive_period_archive,
+)
+from jupiter_webapi_client.api.habits.habit_streak_inactive_period_create import (
+    asyncio_detailed as habit_streak_inactive_period_create,
+)
+from jupiter_webapi_client.api.habits.habit_streak_inactive_period_remove import (
+    asyncio_detailed as habit_streak_inactive_period_remove,
+)
+from jupiter_webapi_client.api.habits.habit_streak_inactive_period_reset import (
+    asyncio_detailed as habit_streak_inactive_period_reset,
+)
+from jupiter_webapi_client.api.habits.habit_streak_inactive_period_update import (
+    asyncio_detailed as habit_streak_inactive_period_update,
+)
 from jupiter_webapi_client.api.habits.habit_suspend import (
     asyncio_detailed as habit_suspend,
 )
@@ -1180,6 +1195,31 @@ async def main() -> None:
         JupiterMcpTool.tool("remove-habit", "Remove a habit", habit_remove),
         JupiterMcpTool.tool("suspend-habit", "Suspend a habit", habit_suspend),
         JupiterMcpTool.tool("unsuspend-habit", "Unsuspend a habit", habit_unsuspend),
+        JupiterMcpTool.tool(
+            "create-habit-streak-inactive-period",
+            "Mark a date range on a habit streak as inactive",
+            habit_streak_inactive_period_create,
+        ),
+        JupiterMcpTool.tool(
+            "reset-habit-streak",
+            "Mark a habit streak inactive through yesterday",
+            habit_streak_inactive_period_reset,
+        ),
+        JupiterMcpTool.tool(
+            "update-habit-streak-inactive-period",
+            "Update a habit streak inactive period",
+            habit_streak_inactive_period_update,
+        ),
+        JupiterMcpTool.tool(
+            "archive-habit-streak-inactive-period",
+            "Archive a habit streak inactive period",
+            habit_streak_inactive_period_archive,
+        ),
+        JupiterMcpTool.tool(
+            "remove-habit-streak-inactive-period",
+            "Remove a habit streak inactive period",
+            habit_streak_inactive_period_remove,
+        ),
         # --- Habit Stacks ---
         JupiterMcpResource.resource("jupiter://habit-stacks", habit_stack_find),
         JupiterMcpTool.tool("find-habit-stacks", "Find habit stacks", habit_stack_find),

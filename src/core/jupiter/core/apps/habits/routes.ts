@@ -15,9 +15,30 @@ const { route } = relative(import.meta.dirname);
 export const habitsRoutes: RouteConfigEntry[] = [
   route("habits", "routes/habits.tsx", { id: "apps/habits" }, [
     route("habits", "routes/habits/habits.tsx", { id: "apps/habits/habits" }, [
-      route(":id", "routes/habits/habits/$id.tsx", {
-        id: "apps/habits/habits/$id",
-      }),
+      route(
+        ":id",
+        "routes/habits/habits/$id.tsx",
+        {
+          id: "apps/habits/habits/$id",
+        },
+        [
+          route(
+            "streak-inactive-periods/new",
+            "routes/habits/habits/$id/streak-inactive-periods/new.tsx",
+            { id: "apps/habits/habits/$id/streak-inactive-periods/new" },
+          ),
+          route(
+            "streak-inactive-periods/reset",
+            "routes/habits/habits/$id/streak-inactive-periods/reset.tsx",
+            { id: "apps/habits/habits/$id/streak-inactive-periods/reset" },
+          ),
+          route(
+            "streak-inactive-periods/:periodId",
+            "routes/habits/habits/$id/streak-inactive-periods/$periodId.tsx",
+            { id: "apps/habits/habits/$id/streak-inactive-periods/$periodId" },
+          ),
+        ],
+      ),
       route("new", "routes/habits/habits/new.tsx", {
         id: "apps/habits/habits/new",
       }),

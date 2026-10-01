@@ -194,6 +194,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       streakMarkEarliestDate: h.streak_mark_earliest_date,
       streakMarkLatestDate: h.streak_mark_latest_date,
       streakMarks: h.streak_marks,
+      inactivePeriods: h.streak_inactive_periods,
     })),
     habitInboxTasks: habitInboxTasksResponse.entries,
   };
@@ -377,6 +378,7 @@ export default function Habits() {
       entries: loaderData.keyHabitStreaks.map((h) => ({
         habit: entriesByRefId.get(h.habitRefId)!.habit,
         streakMarks: h.streakMarks,
+        streakInactivePeriods: h.inactivePeriods,
       })),
       label: "Latest Streak",
       showNav: true,
