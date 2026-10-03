@@ -115,3 +115,13 @@ class HabitStreakInactivePeriodRepository(
         allow_archived: bool = False,
     ) -> list[HabitStreakInactivePeriod]:
         """Find periods that overlap the inclusive date range."""
+
+    @abc.abstractmethod
+    async def find_all_for_habits_overlapping(
+        self,
+        habit_ref_ids: list[EntityId],
+        start_date: ADate,
+        end_date: ADate,
+        allow_archived: bool = False,
+    ) -> list[HabitStreakInactivePeriod]:
+        """Find periods for several habits that overlap the inclusive date range."""

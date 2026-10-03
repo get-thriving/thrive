@@ -84,3 +84,9 @@ class HabitStreakMarkRepository(
         self, habit_ref_id: EntityId, start_date: ADate, end_date: ADate
     ) -> list[HabitStreakMark]:
         """Find all streak marks between two dates."""
+
+    @abc.abstractmethod
+    async def find_all_for_habits_between_dates(
+        self, habit_ref_ids: list[EntityId], start_date: ADate, end_date: ADate
+    ) -> list[HabitStreakMark]:
+        """Find all streak marks between two dates for several habits at once."""
