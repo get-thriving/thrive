@@ -9,7 +9,7 @@ import {
 import {
   BigScreenHomeTabWidgetPlacement,
   ChapterSummary,
-  HabitLoadResult,
+  HabitFindStreaksResult,
   HomeTab,
   HomeTabTarget,
   HomeWidget,
@@ -199,7 +199,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       const latestDate = DateTime.now().toISODate();
 
       const [keyHabitResults, keyBigPlansResults] = await Promise.all([
-        (async (): Promise<HabitLoadResult[] | undefined> => {
+        (async (): Promise<HabitFindStreaksResult | undefined> => {
           if (
             !needsKeyHabitStreaks ||
             !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.HABITS)
@@ -209,18 +209,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
           const keyHabits =
             summaryResponse.habits?.filter((habit) => habit.is_key) || [];
           if (keyHabits.length === 0) {
-            return [];
+            return {
+              streak_mark_earliest_date: earliestDate,
+              streak_mark_latest_date: latestDate,
+              entries: [],
+            };
           }
-          return Promise.all(
-            keyHabits.map((habit) =>
-              apiClient.habits.habitLoad({
-                ref_id: habit.ref_id,
-                allow_archived: false,
-                include_streak_marks_earliest_date: earliestDate,
-                include_streak_marks_latest_date: latestDate,
-              }),
-            ),
-          );
+          return apiClient.habits.habitFindStreaks({
+            filter_ref_ids: keyHabits.map((habit) => habit.ref_id),
+            include_streak_marks_earliest_date: earliestDate,
+            include_streak_marks_latest_date: latestDate,
+          });
         })(),
         (async (): Promise<BigPlanLoadResult[] | undefined> => {
           if (
@@ -251,6 +250,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     needsHabitInbox
       ? apiClient.inboxTasks.inboxTaskFind({
           allow_archived: false,
+          filter_just_workable: true,
           filter_namespace: [HABIT],
         })
       : Promise.resolve(undefined),
@@ -313,10 +313,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     choreInboxTasks: choreInboxTasksResponse?.entries,
     todoInboxTasks: todoInboxTasksResponse?.entries,
     personInboxTasks: personInboxTasksResponse?.entries,
-    keyHabitResults: keyHabitResults?.map((h) => ({
+    keyHabitResults: keyHabitResults?.entries.map((h) => ({
       habit: h.habit,
-      streakMarkEarliestDate: h.streak_mark_earliest_date,
-      streakMarkLatestDate: h.streak_mark_latest_date,
+      streakMarkEarliestDate: keyHabitResults.streak_mark_earliest_date,
+      streakMarkLatestDate: keyHabitResults.streak_mark_latest_date,
       streakMarks: h.streak_marks,
       streakInactivePeriods: h.streak_inactive_periods,
     })),

@@ -399,6 +399,9 @@ from .habit_entry import HabitEntry
 from .habit_find_args import HabitFindArgs
 from .habit_find_result import HabitFindResult
 from .habit_find_result_entry import HabitFindResultEntry
+from .habit_find_streaks_args import HabitFindStreaksArgs
+from .habit_find_streaks_result import HabitFindStreaksResult
+from .habit_find_streaks_result_entry import HabitFindStreaksResultEntry
 from .habit_find_suitable_for_time_plan_args import HabitFindSuitableForTimePlanArgs
 from .habit_find_suitable_for_time_plan_result import HabitFindSuitableForTimePlanResult
 from .habit_find_suitable_for_time_plan_result_entry import HabitFindSuitableForTimePlanResultEntry
@@ -1765,6 +1768,9 @@ __all__ = (
     "HabitFindArgs",
     "HabitFindResult",
     "HabitFindResultEntry",
+    "HabitFindStreaksArgs",
+    "HabitFindStreaksResult",
+    "HabitFindStreaksResultEntry",
     "HabitFindSuitableForTimePlanArgs",
     "HabitFindSuitableForTimePlanResult",
     "HabitFindSuitableForTimePlanResultEntry",

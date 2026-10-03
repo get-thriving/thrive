@@ -5,7 +5,6 @@ import type {
   Goal,
   GoalSummary,
   HabitFindResultEntry,
-  HabitLoadResult,
   HabitStack,
   InboxTask,
   Aspect,
@@ -126,52 +125,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
     latestDate = DateTime.now().toISODate();
   }
 
-  const responsePromise = apiClient.habits.habitFind({
-    allow_archived: false,
-    include_tags: true,
-    include_notes: false,
-    include_life_plan: true,
-    include_inbox_tasks: false,
-  });
-  // Loading the key habits needs the habit list, so it chains off that call
-  // while everything else runs concurrently.
-  const keyHabitResultsPromise = responsePromise.then(
-    async (response): Promise<HabitLoadResult[]> => {
-      const keyHabitRefIds = response.entries
-        .filter((e) => e.habit.is_key)
-        .map((e) => e.habit.ref_id);
-
-      if (keyHabitRefIds.length === 0) {
-        return [];
-      }
-      return await Promise.all(
-        keyHabitRefIds.map((refId) =>
-          apiClient.habits.habitLoad({
-            ref_id: refId,
-            allow_archived: false,
-            include_streak_marks_earliest_date: earliestDate,
-            include_streak_marks_latest_date: latestDate,
-          }),
-        ),
-      );
-    },
-  );
-
   const [
     summaryResponse,
     response,
     habitInboxTasksResponse,
     allTags,
     allContacts,
-    keyHabitResults,
+    keyHabitStreaksResponse,
   ] = await Promise.all([
     apiClient.application.getSummaries({
       include_aspects: true,
       include_goals: true,
     }),
-    responsePromise,
+    apiClient.habits.habitFind({
+      allow_archived: false,
+      include_tags: true,
+      include_notes: false,
+      include_life_plan: true,
+      include_inbox_tasks: false,
+    }),
     apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
+      filter_just_workable: true,
       filter_namespace: [HABIT],
     }),
     apiClient.tags.tagFind({
@@ -180,7 +155,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     apiClient.contacts.contactFind({
       allow_archived: false,
     }),
-    keyHabitResultsPromise,
+    apiClient.habits.habitFindStreaks({
+      filter_only_key: true,
+      include_streak_marks_earliest_date: earliestDate,
+      include_streak_marks_latest_date: latestDate,
+    }),
   ]);
 
   return {
@@ -189,10 +168,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allGoals: summaryResponse.goals as Array<GoalSummary>,
     allTags: allTags.tags,
     allContacts: allContacts.contacts as Array<Contact>,
-    keyHabitStreaks: keyHabitResults.map((h) => ({
+    keyHabitStreaks: keyHabitStreaksResponse.entries.map((h) => ({
       habitRefId: h.habit.ref_id,
-      streakMarkEarliestDate: h.streak_mark_earliest_date,
-      streakMarkLatestDate: h.streak_mark_latest_date,
+      streakMarkEarliestDate: keyHabitStreaksResponse.streak_mark_earliest_date,
+      streakMarkLatestDate: keyHabitStreaksResponse.streak_mark_latest_date,
       streakMarks: h.streak_marks,
       inactivePeriods: h.streak_inactive_periods,
     })),

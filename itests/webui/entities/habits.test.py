@@ -13,6 +13,9 @@ from jupiter_webapi_client.api.gen.gen_do import (
 from jupiter_webapi_client.api.habits.habit_create import (
     sync_detailed as habit_create_sync,
 )
+from jupiter_webapi_client.api.habits.habit_find_streaks import (
+    sync_detailed as habit_find_streaks_sync,
+)
 from jupiter_webapi_client.api.habits.habit_load import (
     sync_detailed as habit_load_sync,
 )
@@ -30,6 +33,10 @@ from jupiter_webapi_client.models.gen_do_args import GenDoArgs
 from jupiter_webapi_client.models.habit import Habit
 from jupiter_webapi_client.models.habit_create_args import HabitCreateArgs
 from jupiter_webapi_client.models.habit_create_result import HabitCreateResult
+from jupiter_webapi_client.models.habit_find_streaks_args import HabitFindStreaksArgs
+from jupiter_webapi_client.models.habit_find_streaks_result import (
+    HabitFindStreaksResult,
+)
 from jupiter_webapi_client.models.habit_load_args import HabitLoadArgs
 from jupiter_webapi_client.models.habit_load_result import HabitLoadResult
 from jupiter_webapi_client.models.habit_repeats_strategy import HabitRepeatsStrategy
@@ -391,6 +398,44 @@ def test_webui_habit_list_groups_by_stack(
     expect(group).to_contain_text("Stacked Habit B")
     expect(group).not_to_contain_text("Loose Habit")
     expect(page.locator(f"#habit-{unstacked.ref_id}")).to_contain_text("Loose Habit")
+
+
+def test_webui_habit_find_streaks_for_key_habits(
+    page: Page, logged_in_client: AuthenticatedClient, create_habit
+) -> None:
+    key_habit = create_habit("Key Streak Habit", is_key=True)
+    other_habit = create_habit("Non-Key Streak Habit")
+
+    only_key = get_parsed_from_response(
+        HabitFindStreaksResult,
+        habit_find_streaks_sync(
+            client=logged_in_client,
+            body=HabitFindStreaksArgs(filter_only_key=True),
+        ),
+    )
+    only_key_ref_ids = {e.habit.ref_id for e in only_key.entries}
+    assert key_habit.ref_id in only_key_ref_ids
+    assert other_habit.ref_id not in only_key_ref_ids
+    assert all(e.habit.is_key for e in only_key.entries)
+
+    by_ref_ids = get_parsed_from_response(
+        HabitFindStreaksResult,
+        habit_find_streaks_sync(
+            client=logged_in_client,
+            body=HabitFindStreaksArgs(
+                filter_ref_ids=[key_habit.ref_id, other_habit.ref_id]
+            ),
+        ),
+    )
+    assert {e.habit.ref_id for e in by_ref_ids.entries} == {
+        key_habit.ref_id,
+        other_habit.ref_id,
+    }
+
+    page.goto("/app/workspace/apps/habits/habits")
+    expect(page.locator(f"#habit-{key_habit.ref_id}")).to_contain_text(
+        "Key Streak Habit"
+    )
 
 
 def test_webui_habit_inbox_task_shows_stack(
