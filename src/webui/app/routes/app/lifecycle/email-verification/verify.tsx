@@ -221,7 +221,12 @@ export default function EmailVerificationVerify() {
           </Typography>
 
           {codeResent && (
-            <Typography variant="body1" color="success.main">
+            <Typography
+              variant="body1"
+              sx={{
+                color: "success.main",
+              }}
+            >
               A new verification code has been sent to your email.
             </Typography>
           )}

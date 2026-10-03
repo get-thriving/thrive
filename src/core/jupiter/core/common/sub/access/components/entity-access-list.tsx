@@ -90,7 +90,12 @@ export function EntityAccessList(props: EntityAccessListProps) {
 
   if (entries.length === 0) {
     return (
-      <Typography variant="body2" color="text.secondary">
+      <Typography
+        variant="body2"
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         No other users have access.
       </Typography>
     );
@@ -200,7 +205,13 @@ function EntityAccessEntryRow(props: EntityAccessEntryRowProps) {
     sourceNote = (
       <>
         <SlimChip label="Inherited" color="info" />
-        <Typography variant="body2" color="text.secondary" component="span">
+        <Typography
+          variant="body2"
+          component="span"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           from{" "}
           {sourcePath !== null ? (
             <EntityLink to={sourcePath} inline>

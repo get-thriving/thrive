@@ -56,7 +56,7 @@ export const handle = {
   displayType: DisplayType.LEAF,
 };
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request, url, params }: LoaderFunctionArgs) {
   try {
     const { externalId } = parseParams(params, ParamsSchema);
     const apiClient = await getGuestApiClient(request);
@@ -87,7 +87,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return {
       pageMeta: buildPublishedPageMeta({
-        request,
+        url,
         entityType: NamedEntityTag.SMART_LIST,
         name: response.smart_list.name,
         summary: `${response.smart_list_items.length} items`,
@@ -107,8 +107,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) =>
-  metaDescriptorsForPublishedPage(data?.pageMeta);
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) =>
+  metaDescriptorsForPublishedPage(loaderData?.pageMeta);
 
 // Single fetch only skips a loader on navigation when the route says it may be
 // skipped, so keep the default (don't refetch this parent when only a child

@@ -9,16 +9,16 @@ license = "MIT"
 dependencies = [
     "jupiter-core",
     "jupiter-framework",
-    "fastapi>=0.115.11,<0.116",
-    "uvicorn>=0.34.0,<0.35",
+    "fastapi>=0.142.2,<0.143",
+    "uvicorn>=0.54.0,<0.55",
     "pydantic>=2.10.6,<3",
-    "websockets>=15.0.1,<16",
-    "gunicorn>=23.0.0,<24",
-    "python-multipart>=0.0.20,<0.0.21",
+    "websockets>=17.1,<18",
+    "gunicorn>=26.2.0,<27",
+    "python-multipart>=0.0.32,<0.0.33",
     "apscheduler>=3.11.0,<4",
     "inflection>=0.5.1,<0.6",
     "wsproto>=1.2.0,<2",
-    "aiodns>=3.2.0,<4",
+    "aiodns>=4.0.4,<5",
 ]
 
 [project.urls]

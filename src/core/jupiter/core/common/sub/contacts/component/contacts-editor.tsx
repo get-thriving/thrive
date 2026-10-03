@@ -184,7 +184,7 @@ export function ContactsEditor({
         readOnly={!editable}
         disableCloseOnSelect
         defaultValue={initialDefaultValue}
-        renderTags={renderLimitedAutocompleteTags<string>()}
+        renderValue={renderLimitedAutocompleteTags<string>()}
         renderOption={(props, option, { selected }) => (
           <li {...props}>
             <Checkbox

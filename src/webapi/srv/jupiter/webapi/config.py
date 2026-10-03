@@ -470,7 +470,7 @@ class JupiterWebApiAppForm(
 
         return {
             "access_token": result[1].auth_token_ext.auth_token_str,
-            "token_type": "bearer",
+            "token_type": "bearer",  # nosec B105
         }
 
 

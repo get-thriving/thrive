@@ -15,6 +15,7 @@ import {
   OutlinedInput,
   Stack,
 } from "@mui/material";
+import type { JSX } from "react";
 
 import { entityLinkStd } from "#/core/common/entity-link";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
@@ -153,7 +154,13 @@ export function ScheduleEventFullDaysEditor(
           </FormControl>
         </Stack>
 
-        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap gap={2}>
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          useFlexGap
+          sx={{
+            gap: 2,
+          }}
+        >
           <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
             <TagsEditor
               name="tags_names"

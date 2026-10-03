@@ -277,20 +277,20 @@ function buildComponents(): ThemeOptions["components"] {
     MuiButton: {
       defaultProps: { disableElevation: true },
       styleOverrides: {
-        root: {
+        root: ({ theme }: { theme: Theme }) => ({
           textTransform: "none",
           borderRadius: 8,
           fontWeight: 600,
           letterSpacing: "0.01em",
           paddingInline: "1.1rem",
-        },
-        sizeSmall: { paddingInline: "0.75rem" },
-        // Colored outlined buttons keep MUI's tinted border - that border is
-        // what makes a destructive action read as destructive.
-        outlinedInherit: ({ theme }: { theme: Theme }) => ({
-          borderColor: theme.palette.divider,
-          "&:hover": { borderColor: theme.palette.text.secondary },
+          // Colored outlined buttons keep MUI's tinted border - that border is
+          // what makes a destructive action read as destructive.
+          "&.MuiButton-outlined.MuiButton-colorInherit": {
+            borderColor: theme.palette.divider,
+            "&:hover": { borderColor: theme.palette.text.secondary },
+          },
         }),
+        sizeSmall: { paddingInline: "0.75rem" },
       },
     },
 

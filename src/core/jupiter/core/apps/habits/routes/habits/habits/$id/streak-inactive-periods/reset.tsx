@@ -50,7 +50,7 @@ export const handle = {
   displayType: DisplayType.LEAFLET,
 };
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, url, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id: habitId } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, ResetFormSchema);
@@ -61,7 +61,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       name: form.name,
     });
 
-    return redirect(habitLocation(habitId, new URL(request.url).search));
+    return redirect(habitLocation(habitId, url.search));
   } catch (error) {
     return handleActionApiError(error);
   }

@@ -66,8 +66,7 @@ export function timePlanViewModeIsCalendar(
 export function timePlanViewModeIsSchedule(
   viewMode: TimePlanViewMode,
 ): viewMode is
-  | TimePlanViewMode.SCHEDULE_DAY
-  | TimePlanViewMode.SCHEDULE_3_DAYS {
+  TimePlanViewMode.SCHEDULE_DAY | TimePlanViewMode.SCHEDULE_3_DAYS {
   return (
     viewMode === TimePlanViewMode.SCHEDULE_DAY ||
     viewMode === TimePlanViewMode.SCHEDULE_3_DAYS

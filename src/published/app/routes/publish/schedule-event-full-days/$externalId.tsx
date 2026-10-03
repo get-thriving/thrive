@@ -30,7 +30,7 @@ export const handle = {
   displayType: DisplayType.LEAF,
 };
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request, url, params }: LoaderFunctionArgs) {
   try {
     const { externalId } = parseParams(params, ParamsSchema);
     const apiClient = await getGuestApiClient(request);
@@ -41,7 +41,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return {
       pageMeta: buildPublishedPageMeta({
-        request,
+        url,
         entityType: NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS,
         name: result.schedule_event_full_days.name,
         note: result.note,
@@ -60,8 +60,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) =>
-  metaDescriptorsForPublishedPage(data?.pageMeta);
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) =>
+  metaDescriptorsForPublishedPage(loaderData?.pageMeta);
 
 export default function PublishedScheduleEventFullDays() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
@@ -104,7 +104,12 @@ export default function PublishedScheduleEventFullDays() {
         {note ? (
           <EntityNoteEditor initialNote={note} inputsEnabled={false} />
         ) : (
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             No note.
           </Typography>
         )}

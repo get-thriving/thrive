@@ -24,13 +24,13 @@ export function isCreateAndAnother(intent: string | undefined): boolean {
  * The creation page itself, query included - so whatever context the page was
  * opened with is still around for the next entity - with the nonce moved on.
  */
-export function createAnotherLocation(request: Request): string {
-  const url = new URL(request.url);
-  url.searchParams.set(
+export function createAnotherLocation(url: URL): string {
+  const next = new URL(url.href);
+  next.searchParams.set(
     CREATE_ANOTHER_NONCE_PARAM,
-    nextCreateAnotherNonce(url.searchParams.get(CREATE_ANOTHER_NONCE_PARAM)),
+    nextCreateAnotherNonce(next.searchParams.get(CREATE_ANOTHER_NONCE_PARAM)),
   );
-  return `${url.pathname}${url.search}`;
+  return `${next.pathname}${next.search}`;
 }
 
 /** The nonce a page is on right now - the empty one before any create. */

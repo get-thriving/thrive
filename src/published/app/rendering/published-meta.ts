@@ -17,11 +17,11 @@ export type PublishedPageMeta = {
   indexable: boolean;
 };
 
-export function publishedCanonicalUrl(request: Request): string {
-  const url = new URL(request.url);
-  url.search = "";
-  url.hash = "";
-  return url.href;
+export function publishedCanonicalUrl(url: URL): string {
+  const canonical = new URL(url.href);
+  canonical.search = "";
+  canonical.hash = "";
+  return canonical.href;
 }
 
 export function publishedSummaryFromNote(
@@ -59,7 +59,7 @@ export function publishedDirListingSummary(dirLoad: {
 }
 
 export function buildPublishedPageMeta(args: {
-  request: Request;
+  url: URL;
   entityType: string;
   name: string;
   summary?: string | null;
@@ -81,7 +81,7 @@ export function buildPublishedPageMeta(args: {
     entityType: args.entityType,
     summary: truncatePublishedDescription(summary),
     dateModified: args.dateModified ?? null,
-    canonicalUrl: publishedCanonicalUrl(args.request),
+    canonicalUrl: publishedCanonicalUrl(args.url),
     ogType: args.ogType ?? "article",
     indexable: args.indexable ?? false,
   };
@@ -138,8 +138,8 @@ export function metaDescriptorsForPublishedPage(
 export function createPublishedMetaFunction<
   Loader extends (...args: never[]) => Promise<unknown>,
 >(): MetaFunction<Loader> {
-  return ({ data }) =>
+  return ({ loaderData }) =>
     metaDescriptorsForPublishedPage(
-      (data as { pageMeta?: PublishedPageMeta } | undefined)?.pageMeta,
+      (loaderData as { pageMeta?: PublishedPageMeta } | undefined)?.pageMeta,
     );
 }

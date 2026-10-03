@@ -13,21 +13,21 @@
   "repository": "https://github.com/get-thriving/thrive",
   "documentation": "https://docs.get-thriving.com",
   "dependencies": {
-    "@capacitor/android": "^7.0.0",
-    "@capacitor/app": "^7.0.0",
-    "@capacitor/core": "^7.0.0",
-    "@capacitor/device": "^7.0.0",
-    "@capacitor/ios": "^7.0.0",
-    "@capacitor/splash-screen": "^7.0.0",
-    "@capacitor/keyboard": "^7.0.0",
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/device": "^8.0.3",
+    "@capacitor/ios": "^8.5.2",
+    "@capacitor/keyboard": "^8.0.6",
+    "@capacitor/splash-screen": "^8.0.2",
     "@jupiter/webapi-client": "workspace:*",
-    "dotenv": "^16.4.7"
+    "dotenv": "^18.0.5"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
-    "@capacitor/cli": "^7.0.0",
-    "@trapezedev/configure": "^7.1.3",
-    "vite": "^6.2.2",
-    "vite-plugin-handlebars": "^1.5.0"
+    "@capacitor/cli": "^8.5.2",
+    "@trapezedev/configure": "^7.1.10",
+    "vite": "^8.3.2",
+    "vite-plugin-handlebars": "^2.0.3"
   }
 }

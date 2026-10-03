@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import type { PanInfo } from "framer-motion";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import type { PropsWithChildren } from "react";
+import type { JSX, PropsWithChildren } from "react";
 import type { LinkProps } from "react-router";
 
 import { useBigScreen } from "#/core/infra/component/use-big-screen";

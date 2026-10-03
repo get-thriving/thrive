@@ -1268,8 +1268,7 @@ type ViewAsCalendarTimeEventInDayTriggerProps =
       onClick?: () => void;
     };
 
-interface ViewAsCalendarTimeEventInDayCellContentProps
-  extends ViewAsCalendarTimeEventInDayCellProps {
+interface ViewAsCalendarTimeEventInDayCellContentProps extends ViewAsCalendarTimeEventInDayCellProps {
   eventTriggerProps: ViewAsCalendarTimeEventInDayTriggerProps;
 }
 
@@ -2077,9 +2076,15 @@ function ViewAsScheduleTimeEventInDayTimeCell(
       period={props.period}
       isbigscreen={isBigScreen.toString()}
     >
-      [{props.startTime.toFormat("HH:mm")} - {props.endTime.toFormat("HH:mm")}]
+      [{props.startTime.toFormat("HH:mm")}- {props.endTime.toFormat("HH:mm")}]
       {buffersLabel !== undefined && (
-        <Typography variant="caption" component="div" color="text.secondary">
+        <Typography
+          variant="caption"
+          component="div"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {buffersLabel}
         </Typography>
       )}

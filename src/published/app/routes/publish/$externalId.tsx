@@ -66,7 +66,7 @@ function publishedEntityLocation(externalId: string, owner: string): string {
   }
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request, url, params }: LoaderFunctionArgs) {
   try {
     const { externalId } = parseParams(params, ParamsSchema);
     const apiClient = await getGuestApiClient(request);
@@ -77,7 +77,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     // Preserve any query string (e.g. calendar date/period/view) so that
     // shareable deep links survive the redirect to the entity-specific route.
-    const { search } = new URL(request.url);
+    const { search } = url;
 
     return redirect(
       publishedEntityLocation(externalId, result.publish_entity.owner) + search,

@@ -2,7 +2,7 @@
 # Render builds this file on its own. `mise run build:docker` builds the
 # matching target in infra/docker/node.Dockerfile, which installs dependencies and
 # compiles the WebAPI client once for both apps. Keep this file aligned.
-FROM node:22.14 AS node-base
+FROM node:22.23.3 AS node-base
 
 LABEL maintainer='mike@get-thriving.com'
 

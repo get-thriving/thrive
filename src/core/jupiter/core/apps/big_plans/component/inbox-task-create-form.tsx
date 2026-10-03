@@ -51,8 +51,7 @@ export interface BigPlanInboxTaskCreateFormData {
   timePlan: TimePlan | null;
 }
 
-export interface BigPlanInboxTaskCreateFormProps
-  extends BigPlanInboxTaskCreateFormData {
+export interface BigPlanInboxTaskCreateFormProps extends BigPlanInboxTaskCreateFormData {
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
   actionResult: ActionResult<unknown> | undefined;

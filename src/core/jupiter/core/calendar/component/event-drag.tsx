@@ -86,8 +86,7 @@ const DRAG_LABEL_WIDTH_PX = 220;
 const FOLLOW_POINTER_MOVE_PX = 16;
 
 export type CalendarEventDragKind =
-  | "schedule-event-in-day"
-  | "time-event-in-day-block";
+  "schedule-event-in-day" | "time-event-in-day-block";
 
 export interface CalendarEventDragTarget {
   // What the server needs to know to move the event.
@@ -1452,7 +1451,7 @@ export function useCalendarEventDragActive(): boolean {
 // has wandered into.
 export function useCalendarDayColumn(
   date: ADate,
-  elementRef: React.RefObject<HTMLElement>,
+  elementRef: React.RefObject<HTMLElement | null>,
 ) {
   const controller = useContext(CalendarEventDragContext)?.controller ?? null;
 

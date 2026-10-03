@@ -12,7 +12,11 @@ interface Props {
 export function RecurringTaskPeriodProgress(props: Props) {
   return (
     <>
-      <Typography color="text.secondary">
+      <Typography
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         ({props.doneCount} done / {props.generatedCount} generated)
       </Typography>
       <ADateTag label="Due" date={props.nextDueDate} />

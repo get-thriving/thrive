@@ -63,11 +63,9 @@ export function ViewAsCalendarMonthly(props: ViewAsProps) {
                 label={day.toFormat("d")}
                 forceColumn={isBigScreen}
                 showCompact={!isBigScreen}
-                stats={
-                  props.stats!.per_subperiod.find(
-                    (s) => s.period_start_date === day.toISODate(),
-                  )!
-                }
+                stats={props.stats!.per_subperiod.find(
+                  (s) => s.period_start_date === day.toISODate(),
+                )!}
                 calendarLocation={props.calendarLocation}
               />
             </Box>

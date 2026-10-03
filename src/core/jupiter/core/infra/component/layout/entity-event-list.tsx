@@ -101,7 +101,12 @@ export function EntityEventRow({ entry, user }: EntityEventRowProps) {
         <em>{entry.event_name}</em>
       </Typography>
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {formattedTimestamp} &middot; v{entry.entity_version} &middot;{" "}
           {entry.source}
         </Typography>
@@ -151,7 +156,12 @@ export function EntityEventList({
   return (
     <Stack spacing={2}>
       {entries.length === 0 && (
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {emptyMessage}
         </Typography>
       )}

@@ -191,9 +191,7 @@ export function useCalendarNavigation(): CalendarNavigationValue {
 
 export type OpenCalendarInDayEvent = {
   kind:
-    | "schedule-event-in-day"
-    | "time-event-in-day-block"
-    | "time-plan-activity";
+    "schedule-event-in-day" | "time-event-in-day-block" | "time-plan-activity";
   refId: string;
 };
 

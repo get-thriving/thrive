@@ -165,9 +165,12 @@ export default function PublishEntities() {
               >
                 <Stack
                   direction="row"
-                  alignItems="center"
                   spacing={1}
-                  sx={{ width: "100%", paddingRight: "1rem" }}
+                  sx={{
+                    alignItems: "center",
+                    width: "100%",
+                    paddingRight: "1rem",
+                  }}
                 >
                   <Box sx={{ flex: 1, minWidth: 0 }}>
                     <EntityLink
@@ -175,7 +178,13 @@ export default function PublishEntities() {
                     >
                       <PublishOwnerTypeChip owner={publishEntity.owner} />
                       <SlimChip label={publishEntity.status} color="default" />
-                      <Typography variant="body2" color="text.secondary" noWrap>
+                      <Typography
+                        variant="body2"
+                        noWrap
+                        sx={{
+                          color: "text.secondary",
+                        }}
+                      >
                         {publicUrl}
                       </Typography>
                     </EntityLink>

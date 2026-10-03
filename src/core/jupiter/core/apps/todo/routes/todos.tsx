@@ -803,20 +803,40 @@ function TodoSwiftView(props: TodoSwiftViewProps) {
   if (props.isBigScreen) {
     return (
       <Grid container spacing={2}>
-        <Grid item xs={12} md={3}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 3,
+          }}
+        >
           {renderBucket("Due today", dueToday, { initialDueDate: "day" })}
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 3,
+          }}
+        >
           {renderBucket("Due this week", dueThisWeek, {
             initialDueDate: "week",
           })}
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 3,
+          }}
+        >
           {renderBucket("Due this month", dueThisMonth, {
             initialDueDate: "month",
           })}
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 3,
+          }}
+        >
           {renderBucket("Due later", dueLater, { initialDueDate: "year" })}
         </Grid>
       </Grid>

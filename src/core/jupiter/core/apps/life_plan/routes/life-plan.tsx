@@ -35,7 +35,7 @@ import { parseForm } from "zodix";
 import HistoryIcon from "@mui/icons-material/History";
 import AddIcon from "@mui/icons-material/Add";
 import TuneIcon from "@mui/icons-material/Tune";
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useContext, useState, type JSX } from "react";
 import { DateTime } from "luxon";
 
 import {
@@ -628,8 +628,8 @@ export default function LifePlanView() {
                               direction="row"
                               spacing={1}
                               useFlexGap
-                              flexWrap="wrap"
                               sx={{
+                                flexWrap: "wrap",
                                 paddingTop: "0.5rem",
                                 paddingBottom: "0.5rem",
                                 paddingLeft: "1rem",

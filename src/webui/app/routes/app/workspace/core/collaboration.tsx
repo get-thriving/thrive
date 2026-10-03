@@ -418,9 +418,7 @@ export default function Collaboration() {
 
 function filterEntriesBySubject<
   T extends
-    | CollaborationEntry
-    | CollaborationRequestEntry
-    | CollaborationInviteEntry,
+    CollaborationEntry | CollaborationRequestEntry | CollaborationInviteEntry,
 >(entries: T[], selectedSubjectRefIds: EntityId[]): T[] {
   if (selectedSubjectRefIds.length === 0) {
     return entries;

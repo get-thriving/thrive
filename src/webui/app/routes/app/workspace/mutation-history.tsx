@@ -32,9 +32,8 @@ export const handle = {
   displayType: DisplayType.TRUNK,
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, url }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const url = new URL(request.url);
   const retrieveOffset = url.searchParams.get("offset");
   const retrieveLimit = url.searchParams.get("limit");
 
@@ -124,7 +123,12 @@ export default function MutationHistory() {
           />
 
           {(entries as InvocationEntry[]).length === 0 && (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               No mutation invocations found.
             </Typography>
           )}
@@ -208,7 +212,12 @@ function InvocationRow({
       </Box>
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.5 }}>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {formattedTimestamp} &middot; {entry.source}
         </Typography>
         <IconButton size="small" onClick={() => setShowArgs((s) => !s)}>

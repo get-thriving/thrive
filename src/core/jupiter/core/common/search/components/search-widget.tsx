@@ -186,8 +186,7 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
   const inputsEnabled = searchFetcher.state === "idle";
 
   const instantAction = searchFetcher.data as
-    | WorkspaceSearchInstantResponse
-    | undefined;
+    WorkspaceSearchInstantResponse | undefined;
 
   const limitAsked =
     instantAction !== undefined &&
@@ -262,8 +261,11 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
             <Stack
               direction="row"
               spacing={1}
-              alignItems="center"
-              sx={{ display: { xs: "flex", sm: "none" }, mb: 1 }}
+              sx={{
+                alignItems: "center",
+                display: { xs: "flex", sm: "none" },
+                mb: 1,
+              }}
             >
               <TextField
                 inputRef={searchInputRef}
@@ -276,12 +278,14 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
                   setSearchOffset(0);
                   setSearchQuery(e.target.value);
                 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon fontSize="small" color="action" />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon fontSize="small" color="action" />
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
               <IconButton
@@ -305,8 +309,11 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
             <Stack
               direction="row"
               spacing={1}
-              alignItems="center"
-              sx={{ display: { xs: "flex", sm: "none" }, flexWrap: "wrap" }}
+              sx={{
+                alignItems: "center",
+                display: { xs: "flex", sm: "none" },
+                flexWrap: "wrap",
+              }}
             >
               <Box sx={{ flex: "1 1 auto", minWidth: 0 }}>
                 <TagsFilterPicker
@@ -360,8 +367,10 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
             <Stack
               direction="row"
               spacing={1}
-              alignItems="center"
-              sx={{ display: { xs: "none", sm: "flex" } }}
+              sx={{
+                alignItems: "center",
+                display: { xs: "none", sm: "flex" },
+              }}
             >
               <TextField
                 inputRef={searchInputRef}
@@ -374,12 +383,14 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
                   setSearchOffset(0);
                   setSearchQuery(e.target.value);
                 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon fontSize="small" color="action" />
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon fontSize="small" color="action" />
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
               <Box

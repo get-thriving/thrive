@@ -2,7 +2,7 @@ import { Draggable, Droppable } from "@hello-pangea/dnd";
 import type { InboxTask, Eisen } from "@jupiter/webapi-client";
 import { InboxTaskStatus } from "@jupiter/webapi-client";
 import { Box, Stack, Typography, styled } from "@mui/material";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import { memo } from "react";
 
 import {

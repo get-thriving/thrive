@@ -100,7 +100,12 @@ export function PublishPanel(props: PublishPanelProps) {
       }
     >
       {props.publishEntity === null ? (
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {knownNotOwner
             ? "Only the owner of this entity can publish it."
             : "Publish this entity to share a read-only link with others."}
@@ -109,7 +114,12 @@ export function PublishPanel(props: PublishPanelProps) {
         <Stack spacing={2}>
           <Typography variant="body2">
             Status:{" "}
-            <Typography component="span" fontWeight="medium">
+            <Typography
+              component="span"
+              sx={{
+                fontWeight: "medium",
+              }}
+            >
               {props.publishEntity.status}
             </Typography>
           </Typography>

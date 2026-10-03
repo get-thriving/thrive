@@ -67,7 +67,7 @@ export function TagsFilterPicker({
             .filter((id): id is EntityId => Boolean(id));
           onChange(next);
         }}
-        renderTags={renderLimitedAutocompleteTags<string>()}
+        renderValue={renderLimitedAutocompleteTags<string>()}
         renderOption={(liProps, option, { selected }) => (
           <li {...liProps}>
             <Checkbox

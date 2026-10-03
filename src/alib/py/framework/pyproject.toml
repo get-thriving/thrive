@@ -8,7 +8,7 @@ readme = "README.md"
 license = "MIT"
 dependencies = [
     "apscheduler>=3.11.0,<4",
-    "mcp>=1.26.0",
+    "mcp>=2.3.0",
     "sentry-sdk>=2.49.0",
 ]
 

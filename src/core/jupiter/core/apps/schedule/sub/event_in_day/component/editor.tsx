@@ -8,6 +8,7 @@ import type {
 } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+import type { JSX } from "react";
 
 import { entityLinkStd } from "#/core/common/entity-link";
 import { TimeEventBuffersEditor } from "#/core/common/sub/time_events/component/buffers-editor";
@@ -155,7 +156,13 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
           <FieldError actionResult={props.actionResult} fieldName="/name" />
         </FormControl>
 
-        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap gap={2}>
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          useFlexGap
+          sx={{
+            gap: 2,
+          }}
+        >
           <FormControl fullWidth sx={{ flexGrow: 1, minWidth: 0 }}>
             <TagsEditor
               name="tags_names"
@@ -201,7 +208,13 @@ export function ScheduleEventInDayEditor(props: ScheduleEventInDayEditorProps) {
           </FormControl>
         </Stack>
 
-        <Stack direction="row" useFlexGap gap={2}>
+        <Stack
+          direction="row"
+          useFlexGap
+          sx={{
+            gap: 2,
+          }}
+        >
           <FormControl fullWidth>
             <InputLabel id="startDate" shrink margin="dense">
               Start Date

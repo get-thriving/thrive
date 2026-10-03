@@ -32,7 +32,7 @@ from jupiter.framework.service.rest.api_gateway_method import (
     _resolve_attrs_hints,
 )
 from jupiter.framework.service_properties import ServiceProperties
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
@@ -168,7 +168,7 @@ class McpApiGatewayResource(
 
     def attach(  # type: ignore[explicit-any]
         self,
-        mcp_server: FastMCP,
+        mcp_server: MCPServer,
         auth_token_var: ContextVar[str | None],
         ports: Any,
     ) -> None:

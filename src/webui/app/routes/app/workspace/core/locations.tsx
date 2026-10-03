@@ -122,7 +122,13 @@ export default function Locations() {
                   <IsKeyTag isKey={location.is_key} />
                   <EntityNameComponent name={location.name} />
                   {location.address_line && (
-                    <Typography variant="body2" color="text.secondary" noWrap>
+                    <Typography
+                      variant="body2"
+                      noWrap
+                      sx={{
+                        color: "text.secondary",
+                      }}
+                    >
                       {location.address_line}
                     </Typography>
                   )}

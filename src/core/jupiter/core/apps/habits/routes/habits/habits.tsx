@@ -29,7 +29,7 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { useFetcher } from "react-router";
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useContext, useState, type JSX } from "react";
 import { DateTime } from "luxon";
 import { z } from "zod";
 import { parseQuery } from "zodix";

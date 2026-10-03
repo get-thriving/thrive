@@ -51,7 +51,7 @@ export const handle = {
   displayType: DisplayType.LEAFLET,
 };
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, url, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id: bigPlanId } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, CreateFormSchema);
@@ -64,7 +64,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
 
     if (isCreateAndAnother(form.intent)) {
-      return redirect(createAnotherLocation(request));
+      return redirect(createAnotherLocation(url));
     }
 
     return redirect(

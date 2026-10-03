@@ -5,7 +5,8 @@
     "**/*.tsx",
     "vite.config.mts",
     "react-router.config.ts",
-    "../core/editorjs.d.ts"
+    "../core/editorjs.d.ts",
+    "../core/luxon.d.ts"
   ],
   "compilerOptions": {
     "types": ["@react-router/node", "vite/client", "google.maps"],
@@ -22,7 +23,6 @@
     "strict": true,
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"],
       "#/core/*": ["../core/jupiter/core/*"],

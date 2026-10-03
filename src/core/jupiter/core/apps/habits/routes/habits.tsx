@@ -4,8 +4,7 @@ import type {
 } from "react-router";
 import { redirect, Outlet } from "react-router";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const url = new URL(request.url);
+export async function loader({ url }: LoaderFunctionArgs) {
   const pathname = url.pathname.replace(/\/$/, "");
   if (pathname === "/app/workspace/apps/habits") {
     return redirect(`/app/workspace/apps/habits/habits${url.search}`);

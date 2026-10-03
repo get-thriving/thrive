@@ -141,7 +141,14 @@ export default function NewVacationFromWish() {
           />
         </FormControl>
 
-        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          sx={{
+            flexWrap: "wrap",
+          }}
+        >
           {loaderData.tags.map((tag) => (
             <TagTag key={tag.ref_id} tag={tag} />
           ))}

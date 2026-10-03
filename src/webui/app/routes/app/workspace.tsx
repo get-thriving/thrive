@@ -247,8 +247,10 @@ export default function Workspace() {
             anchorEl={accountMenuAnchorEl}
             open={accountMenuOpen}
             onClose={handleAccountMenuClose}
-            MenuListProps={{
-              "aria-labelledby": "basic-button",
+            slotProps={{
+              list: {
+                "aria-labelledby": "basic-button",
+              },
             }}
           >
             {isUserFeatureAvailable(

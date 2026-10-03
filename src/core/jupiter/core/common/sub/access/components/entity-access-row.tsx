@@ -22,7 +22,12 @@ export function EntityAccessRow(props: EntityAccessRowProps) {
           alignItems: "center",
         }}
       >
-        <Typography variant="body2" fontWeight="bold">
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: "bold",
+          }}
+        >
           {props.label}:
         </Typography>
         <Typography variant="body2">{props.userLabel}</Typography>
@@ -38,7 +43,12 @@ export function EntityAccessRow(props: EntityAccessRowProps) {
             rowGap: 0.5,
           }}
         >
-          <Typography variant="body2" fontWeight="bold">
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: "bold",
+            }}
+          >
             access:
           </Typography>
           {props.accessLevelControl}

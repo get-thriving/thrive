@@ -33,8 +33,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   };
 }
 
-export function meta({ data }: { data: LoaderDataOf<typeof loader> }) {
-  return [{ title: getPublicName(data.globalProperties) }];
+export function meta({
+  loaderData,
+}: {
+  loaderData: LoaderDataOf<typeof loader>;
+}) {
+  return [{ title: getPublicName(loaderData.globalProperties) }];
 }
 
 export function links() {

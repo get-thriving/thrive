@@ -37,7 +37,12 @@ export function LifeChaptersWidget(props: WidgetProps) {
 
       {sortedChapters && sortedChapters.length > 0 && (
         <Box sx={{ flex: 1, overflow: "auto" }}>
-          <Stack direction="column" gap={0.5}>
+          <Stack
+            direction="column"
+            sx={{
+              gap: 0.5,
+            }}
+          >
             {sortedChapters.map((chapter) => {
               const aspectName = aspectsByRefId?.[chapter.aspect_ref_id]?.name;
               const label = aspectName

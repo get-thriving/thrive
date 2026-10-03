@@ -30,7 +30,7 @@ import FlareIcon from "@mui/icons-material/Flare";
 import ViewKanbanIcon from "@mui/icons-material/ViewKanban";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import { Box, Stack, Tab, Tabs, Typography, styled } from "@mui/material";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction,

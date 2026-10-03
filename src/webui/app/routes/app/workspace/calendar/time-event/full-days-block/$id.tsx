@@ -77,10 +77,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 }
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, url, params }: ActionFunctionArgs) {
   await getSession(request.headers.get("Cookie"));
   parseParams(params, ParamsSchema);
-  const url = new URL(request.url);
 
   return redirect(calendarLeafReturnLocation(url.searchParams));
 }

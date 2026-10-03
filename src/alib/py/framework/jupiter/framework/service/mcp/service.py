@@ -12,7 +12,7 @@ from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.ports import Ports
 from jupiter.framework.service.service import Service
 from jupiter.framework.service_properties import ServiceProperties
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 from mcp.server.transport_security import TransportSecuritySettings
 from starlette.middleware.cors import CORSMiddleware
 
@@ -29,7 +29,7 @@ class _McpKeyPathMiddleware:
 
     Matches paths of the form ``/v1/{mcp_key}/mcp[/…]``, exchanges the key for
     an auth token (setting a ContextVar), rewrites the path to ``/mcp[/…]``,
-    and forwards to the FastMCP ASGI app.  All other paths are forwarded to the
+    and forwards to the MCPServer ASGI app.  All other paths are forwarded to the
     FastAPI app (which serves ``/healthz``).
 
     This is implemented as a plain ASGI callable (not
@@ -144,7 +144,7 @@ class _McpKeyPathMiddleware:
                     return
 
                 ctx = self._auth_token_var.set(token)
-                # Rewrite path so FastMCP sees /mcp[/…]
+                # Rewrite path so MCPServer sees /mcp[/…]
                 suffix: str = match.group(2) or ""
                 new_path = "/mcp" + suffix
                 new_scope = dict(scope)
@@ -166,7 +166,7 @@ class McpItem(ABC):
     @abstractmethod
     def attach(  # type: ignore[explicit-any]
         self,
-        mcp_server: FastMCP,
+        mcp_server: MCPServer,
         auth_token_var: ContextVar[str | None],
         ports: Any,
     ) -> None:
@@ -181,7 +181,7 @@ class McpService(
     """An MCP service at the framework level."""
 
     _auth_token_var: Final[ContextVar[str | None]]  # type: ignore[misc]
-    _mcp_server: Final[FastMCP]  # type: ignore[misc]
+    _mcp_server: Final[MCPServer]  # type: ignore[misc]
     _fast_app: Final[FastAPI]  # type: ignore[misc]
     _items: list[McpItem]
 
@@ -195,12 +195,7 @@ class McpService(
         """Initialise the service."""
         super().__init__(ports, global_properties, service_properties)
         self._auth_token_var = ContextVar("mcp_auth_token", default=None)
-        self._mcp_server = FastMCP(
-            self.description,
-            transport_security=TransportSecuritySettings(
-                enable_dns_rebinding_protection=False
-            ),
-        )
+        self._mcp_server = MCPServer(self.description)
         self._fast_app = FastAPI(title=self.description, version=self.version)
         self._items = items
 
@@ -234,7 +229,11 @@ class McpService(
 
     async def run(self) -> None:
         """Run the service."""
-        mcp_asgi_app = self._mcp_server.streamable_http_app()
+        mcp_asgi_app = self._mcp_server.streamable_http_app(
+            transport_security=TransportSecuritySettings(
+                enable_dns_rebinding_protection=False
+            ),
+        )
 
         combined_app = _McpKeyPathMiddleware(
             mcp_asgi_app=mcp_asgi_app,

@@ -10,13 +10,13 @@ dependencies = [
     "jupiter-framework",
     "jupiter-core",
     "jupiter-webapi-client",
-    "fastapi>=0.115.11,<0.116",
-    "uvicorn>=0.34.0,<0.35",
+    "fastapi>=0.142.2,<0.143",
+    "uvicorn>=0.54.0,<0.55",
     "pydantic>=2.10.6,<3",
-    "gunicorn>=23.0.0,<24",
+    "gunicorn>=26.2.0,<27",
     "python-dotenv>=1.0.1,<2",
     "greenlet>=3.1.1,<4",
-    "mcp>=1.9.0,<2",
+    "mcp>=2.3.0,<3",
 ]
 
 [project.urls]

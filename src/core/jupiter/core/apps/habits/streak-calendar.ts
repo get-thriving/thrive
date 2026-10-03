@@ -13,11 +13,7 @@ export interface StreakMarkStatuses {
 }
 
 export type DayCellKind =
-  | "today"
-  | "future"
-  | "inactive"
-  | "doneness"
-  | "missing";
+  "today" | "future" | "inactive" | "doneness" | "missing";
 
 function periodCountsAsInactive(period: StreakInactivePeriodRange): boolean {
   return period.archived !== true;

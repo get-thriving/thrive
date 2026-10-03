@@ -38,8 +38,7 @@ import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
 import { SERVICE_PROPERTIES } from "~/logic/config.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const url = new URL(request.url);
+export async function loader({ request, url }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie");
   const inWorkspace = isWorkspacePath(url.pathname);
 
@@ -77,8 +76,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   );
 }
 
-export function meta({ data }: { data: LoaderDataOf<typeof loader> }) {
-  return [{ title: getPublicName(data.globalProperties) }];
+export function meta({
+  loaderData,
+}: {
+  loaderData: LoaderDataOf<typeof loader>;
+}) {
+  return [{ title: getPublicName(loaderData.globalProperties) }];
 }
 
 export function links() {

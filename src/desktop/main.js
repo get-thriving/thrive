@@ -184,12 +184,10 @@ async function handlePickServer(win, serverUrlString) {
       redirect: "manual",
     });
 
-    if (
-      !(
-        latestVersionResponse.status === 302 ||
-        latestVersionResponse.status === 301
-      )
-    ) {
+    if (!(
+      latestVersionResponse.status === 302 ||
+      latestVersionResponse.status === 301
+    )) {
       throw new Error("The server doesn't appear to be an instance");
     }
 
@@ -202,12 +200,10 @@ async function handlePickServer(win, serverUrlString) {
         { redirect: "manual" },
       );
 
-      if (
-        !(
-          latestVersionResponse.status === 302 ||
-          latestVersionResponse.status === 301
-        )
-      ) {
+      if (!(
+        latestVersionResponse.status === 302 ||
+        latestVersionResponse.status === 301
+      )) {
         throw new Error("The server doesn't appear to be an instance");
       }
     }

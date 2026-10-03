@@ -56,7 +56,7 @@ export const handle = {
   displayType: DisplayType.LEAFLET,
 };
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, url, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id: habitId, periodId } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, UpdateFormSchema);
@@ -70,21 +70,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
           start_date: form.startDate,
           end_date: form.endDate,
         });
-        return redirect(habitLocation(habitId, new URL(request.url).search));
+        return redirect(habitLocation(habitId, url.search));
       }
 
       case "archive": {
         await apiClient.habits.habitStreakInactivePeriodArchive({
           ref_id: periodId,
         });
-        return redirect(habitLocation(habitId, new URL(request.url).search));
+        return redirect(habitLocation(habitId, url.search));
       }
 
       case "remove": {
         await apiClient.habits.habitStreakInactivePeriodRemove({
           ref_id: periodId,
         });
-        return redirect(habitLocation(habitId, new URL(request.url).search));
+        return redirect(habitLocation(habitId, url.search));
       }
 
       default:

@@ -95,7 +95,7 @@ run = "libyear toml pyproject.toml"
 
 ["root:libyear:pnpm-libyear"]
 hide = true
-run = "npx libyear"
+run = "npx libyear --package-manager pnpm"
 
 ["root:libyear"]
 description = "Check root libyear"

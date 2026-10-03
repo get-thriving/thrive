@@ -47,7 +47,9 @@ export function RowAndColSelector(props: RowAndColSelectorProps) {
         }}
         disabled={!props.inputsEnabled}
         fullWidth
-        inputProps={{ min: 0, readOnly: true }}
+        slotProps={{
+          htmlInput: { min: 0, readOnly: true },
+        }}
       />
       <TextField
         label="Column"
@@ -64,9 +66,11 @@ export function RowAndColSelector(props: RowAndColSelectorProps) {
         }}
         disabled={!props.inputsEnabled}
         fullWidth
-        inputProps={{
-          min: 0,
-          readOnly: true,
+        slotProps={{
+          htmlInput: {
+            min: 0,
+            readOnly: true,
+          },
         }}
       />
       <WidgetPlacementQuickSelector

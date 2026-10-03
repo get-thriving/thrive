@@ -104,8 +104,10 @@ export function LocationOptionRow({
           <Typography
             variant="caption"
             component="span"
-            color="text.secondary"
-            sx={{ lineHeight: 1.3 }}
+            sx={{
+              color: "text.secondary",
+              lineHeight: 1.3,
+            }}
           >
             {address}
           </Typography>

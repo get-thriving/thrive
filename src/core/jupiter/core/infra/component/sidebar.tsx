@@ -517,7 +517,9 @@ interface StyledMotionDrawerProps {
   isBigScreen: boolean;
 }
 
-const StyledMotionDrawer = styled(motion.div)<StyledMotionDrawerProps>(
+const StyledMotionDrawer = styled(motion.div, {
+  shouldForwardProp: (prop) => prop !== "isBigScreen",
+})<StyledMotionDrawerProps>(
   ({ theme, isBigScreen }) => `
     position: fixed;
     top: 0px;

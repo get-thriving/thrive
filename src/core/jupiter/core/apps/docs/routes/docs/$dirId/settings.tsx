@@ -208,7 +208,12 @@ export default function DirFolderSettings() {
       >
         <Stack spacing={2}>
           {isRoot && (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               The collection root folder cannot be renamed or moved. You can
               still edit tags below.
             </Typography>

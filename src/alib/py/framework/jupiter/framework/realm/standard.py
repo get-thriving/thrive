@@ -2010,7 +2010,7 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
             if issubclass(the_type, base_type) and (
                 type_realm is realm or type_realm is DatabaseRealm
             ):
-                yielded_types.add(the_type)
+                yielded_types.add(the_type)  # type: ignore[arg-type]
                 yield the_type
 
         for the_type, type_realm in self._decoders_registry.keys():
@@ -2021,7 +2021,7 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
             if issubclass(the_type, base_type) and (
                 type_realm is realm or type_realm is DatabaseRealm
             ):
-                yielded_types.add(the_type)
+                yielded_types.add(the_type)  # type: ignore[arg-type]
                 yield the_type
 
     def get_encoder(

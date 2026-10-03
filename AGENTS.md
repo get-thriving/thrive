@@ -17,7 +17,7 @@ Thrive (codenamed Jupiter) is a life planning tool with a monorepo containing:
 
 ### Tool versions
 
-The project uses **mise** as its tool/task runner. Required tools: Python 3.13.0, Node 22.14.0, pnpm, uv. Activate mise in your shell with `eval "$(~/.local/bin/mise activate bash)"`.
+The project uses **mise** as its tool/task runner. Required tools: Python 3.13.0, Node 22.23.3, pnpm, uv. Activate mise in your shell with `eval "$(~/.local/bin/mise activate bash)"`.
 
 ### Installing dependencies
 

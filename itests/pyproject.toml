@@ -9,7 +9,7 @@ license = "MIT"
 dependencies = [
     "jupiter-core",
     "jupiter-webapi-client",
-    "pytest-playwright>=0.7.0,<0.8",
+    "pytest-playwright>=0.9.0,<0.10",
     "playwright>=1.51.0,<2",
 ]
 

@@ -225,7 +225,12 @@ export function OverlappingEventsPeekPanel(
           >
             <Box sx={{ flexGrow: 1 }}>
               <Typography variant="subtitle2">{props.title}</Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 {props.subtitle}
               </Typography>
             </Box>

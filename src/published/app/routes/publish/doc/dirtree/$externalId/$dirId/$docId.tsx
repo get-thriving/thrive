@@ -31,7 +31,7 @@ export const handle = {
   displayType: DisplayType.LEAFLET,
 };
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request, url, params }: LoaderFunctionArgs) {
   try {
     const { externalId, dirId, docId } = parseParams(params, ParamsSchema);
     const apiClient = await getGuestApiClient(request);
@@ -44,7 +44,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return {
       pageMeta: buildPublishedPageMeta({
-        request,
+        url,
         entityType: NamedEntityTag.DOC,
         name: result.doc.name,
         note: result.note,
@@ -62,8 +62,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) =>
-  metaDescriptorsForPublishedPage(data?.pageMeta);
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) =>
+  metaDescriptorsForPublishedPage(loaderData?.pageMeta);
 
 export default function PublishedDocFromDir() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();

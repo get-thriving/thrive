@@ -99,7 +99,7 @@ run = "true"
 
 ["package:src:published:libyear:pnpm-libyear"]
 hide = true
-run = "cd src/published && npx libyear"
+run = "cd src/published && npx libyear --package-manager pnpm"
 
 ["package:src:published:libyear"]
 description = "Check src/published libyear"

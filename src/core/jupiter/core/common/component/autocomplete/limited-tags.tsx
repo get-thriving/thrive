@@ -1,4 +1,4 @@
-import type { AutocompleteRenderGetTagProps } from "@mui/material";
+import type { AutocompleteRenderValueGetItemProps } from "@mui/material";
 import { Box, Chip } from "@mui/material";
 
 /** Always show this many selected chips, even while the field is focused. */
@@ -15,7 +15,7 @@ export function renderLimitedAutocompleteTags<T>(
   const labelOf = getLabel ?? ((option: T) => String(option));
   function LimitedAutocompleteTags(
     value: T[],
-    getTagProps: AutocompleteRenderGetTagProps,
+    getItemProps: AutocompleteRenderValueGetItemProps<true>,
   ) {
     if (value.length === 0) {
       return null;
@@ -35,7 +35,7 @@ export function renderLimitedAutocompleteTags<T>(
         }}
       >
         {visible.map((option, index) => {
-          const { key, ...tagProps } = getTagProps({ index });
+          const { key, ...tagProps } = getItemProps({ index });
           return (
             <Chip
               key={key}

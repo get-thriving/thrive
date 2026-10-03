@@ -83,11 +83,10 @@ export const handle = {
   displayType: DisplayType.LEAF,
 };
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request, url, params }: LoaderFunctionArgs) {
   try {
     const { externalId } = parseParams(params, ParamsSchema);
     const query = parseQuery(request, QuerySchema);
-    const url = new URL(request.url);
 
     const { platform } = inferPlatformAndDistribution(
       request.headers.get("User-Agent"),
@@ -104,8 +103,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           query.period as (typeof ALLOWED_PERIODS)[number],
         ))
     ) {
-      url.searchParams.set("date", query.date || DateTime.now().toISODate());
-      url.searchParams.set(
+      const next = new URL(url.href);
+      next.searchParams.set("date", query.date || DateTime.now().toISODate());
+      next.searchParams.set(
         "period",
         query.period &&
           ALLOWED_PERIODS.includes(
@@ -114,18 +114,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           ? query.period
           : defaultPeriod,
       );
-      url.searchParams.set("view", query.view || View.CALENDAR);
+      next.searchParams.set("view", query.view || View.CALENDAR);
 
       // `pathname` still carries `/publish`, and React Router adds that basename
       // again onto a relative redirect. Strip it so the Location is
       // `/publish/schedule-stream/...` rather than `/publish/publish/...`.
-      const pathWithinRouter = url.pathname.startsWith(
+      const pathWithinRouter = next.pathname.startsWith(
         `${PUBLISHED_ROUTE_PREFIX}/`,
       )
-        ? url.pathname.slice(PUBLISHED_ROUTE_PREFIX.length)
-        : url.pathname;
+        ? next.pathname.slice(PUBLISHED_ROUTE_PREFIX.length)
+        : next.pathname;
 
-      return redirect(pathWithinRouter + url.search);
+      return redirect(pathWithinRouter + next.search);
     }
 
     const apiClient = await getGuestApiClient(request);
@@ -144,7 +144,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return {
       pageMeta: buildPublishedPageMeta({
-        request,
+        url,
         entityType: NamedEntityTag.SCHEDULE_STREAM,
         name: streamResponse.schedule_stream.name,
         dateModified: streamResponse.schedule_stream.last_modified_time,
@@ -167,8 +167,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) =>
-  metaDescriptorsForPublishedPage(data?.pageMeta);
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) =>
+  metaDescriptorsForPublishedPage(loaderData?.pageMeta);
 
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;

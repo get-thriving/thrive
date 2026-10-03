@@ -24,7 +24,13 @@ export function LifecycleOAuthProviderButtons({
   }
 
   return (
-    <Stack spacing={1} width="100%" direction="row">
+    <Stack
+      spacing={1}
+      direction="row"
+      sx={{
+        width: "100%",
+      }}
+    >
       <Button
         component={Link}
         to={GOOGLE_PREPARE_LINK}

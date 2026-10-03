@@ -31,7 +31,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { Link } from "react-router";
-import type { Dispatch, RefObject, SetStateAction } from "react";
+import type { Dispatch, JSX, RefObject, SetStateAction } from "react";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete";
@@ -587,7 +587,7 @@ const COMPACT_MENU_POPPER_MODIFIERS = [
 function useCompactMenuSurface(
   open: boolean,
   setOpen: Dispatch<SetStateAction<boolean>>,
-  anchorRef: RefObject<HTMLDivElement>,
+  anchorRef: RefObject<HTMLDivElement | null>,
 ) {
   const paperRef = useRef<HTMLDivElement>(null);
   const [maxHeight, setMaxHeight] = useState<number | undefined>();
@@ -1256,13 +1256,13 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
       getOptionDisabled={(option) =>
         isFilterOptionSeparator(option) || option.disabled || false
       }
-      renderTags={(tagValue, getTagProps) => {
+      renderValue={(tagValue, getItemProps) => {
         if (tagValue.length === 0) {
           return null;
         }
 
         const extra = tagValue.length - 1;
-        const { key, ...firstTagProps } = getTagProps({ index: 0 });
+        const { key, ...firstTagProps } = getItemProps({ index: 0 });
 
         return (
           <Box

@@ -34,7 +34,7 @@ export const handle = {
   displayType: DisplayType.LEAFLET,
 };
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request, url, params }: LoaderFunctionArgs) {
   try {
     const { externalId, itemId } = parseParams(params, ParamsSchema);
     const apiClient = await getGuestApiClient(request);
@@ -47,7 +47,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return {
       pageMeta: buildPublishedPageMeta({
-        request,
+        url,
         entityType: NamedEntityTag.SMART_LIST_ITEM,
         name: result.item.name,
         note: result.note,
@@ -65,8 +65,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) =>
-  metaDescriptorsForPublishedPage(data?.pageMeta);
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) =>
+  metaDescriptorsForPublishedPage(loaderData?.pageMeta);
 
 // The filters of the page this opens over are no reason to load it again.
 export const shouldRevalidate: ShouldRevalidateFunction =
@@ -103,7 +103,12 @@ export default function PublishedSmartListItemFromList() {
         {note ? (
           <EntityNoteEditor initialNote={note} inputsEnabled={false} />
         ) : (
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             No note.
           </Typography>
         )}

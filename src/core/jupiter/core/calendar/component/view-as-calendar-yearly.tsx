@@ -43,11 +43,9 @@ export function ViewAsCalendarYearly(props: ViewAsProps) {
             label="Jan"
             forceColumn={isBigScreen}
             showCompact={!isBigScreen}
-            stats={
-              props.stats.per_subperiod.find(
-                (s) => s.period_start_date === `${periodStartDate.year}-01-01`,
-              )!
-            }
+            stats={props.stats.per_subperiod.find(
+              (s) => s.period_start_date === `${periodStartDate.year}-01-01`,
+            )!}
             calendarLocation={props.calendarLocation}
           />
         </Box>
@@ -57,11 +55,9 @@ export function ViewAsCalendarYearly(props: ViewAsProps) {
             label="Feb"
             forceColumn={isBigScreen}
             showCompact={!isBigScreen}
-            stats={
-              props.stats.per_subperiod.find(
-                (s) => s.period_start_date === `${periodStartDate.year}-02-01`,
-              )!
-            }
+            stats={props.stats.per_subperiod.find(
+              (s) => s.period_start_date === `${periodStartDate.year}-02-01`,
+            )!}
             calendarLocation={props.calendarLocation}
           />
         </Box>
@@ -71,11 +67,9 @@ export function ViewAsCalendarYearly(props: ViewAsProps) {
             label="Mar"
             forceColumn={isBigScreen}
             showCompact={!isBigScreen}
-            stats={
-              props.stats.per_subperiod.find(
-                (s) => s.period_start_date === `${periodStartDate.year}-03-01`,
-              )!
-            }
+            stats={props.stats.per_subperiod.find(
+              (s) => s.period_start_date === `${periodStartDate.year}-03-01`,
+            )!}
             calendarLocation={props.calendarLocation}
           />
         </Box>
@@ -94,11 +88,9 @@ export function ViewAsCalendarYearly(props: ViewAsProps) {
             label="Apr"
             forceColumn={isBigScreen}
             showCompact={!isBigScreen}
-            stats={
-              props.stats.per_subperiod.find(
-                (s) => s.period_start_date === `${periodStartDate.year}-04-01`,
-              )!
-            }
+            stats={props.stats.per_subperiod.find(
+              (s) => s.period_start_date === `${periodStartDate.year}-04-01`,
+            )!}
             calendarLocation={props.calendarLocation}
           />
         </Box>
@@ -108,11 +100,9 @@ export function ViewAsCalendarYearly(props: ViewAsProps) {
             label="May"
             forceColumn={isBigScreen}
             showCompact={!isBigScreen}
-            stats={
-              props.stats.per_subperiod.find(
-                (s) => s.period_start_date === `${periodStartDate.year}-05-01`,
-              )!
-            }
+            stats={props.stats.per_subperiod.find(
+              (s) => s.period_start_date === `${periodStartDate.year}-05-01`,
+            )!}
             calendarLocation={props.calendarLocation}
           />
         </Box>
@@ -122,11 +112,9 @@ export function ViewAsCalendarYearly(props: ViewAsProps) {
             label="Jun"
             forceColumn={isBigScreen}
             showCompact={!isBigScreen}
-            stats={
-              props.stats.per_subperiod.find(
-                (s) => s.period_start_date === `${periodStartDate.year}-06-01`,
-              )!
-            }
+            stats={props.stats.per_subperiod.find(
+              (s) => s.period_start_date === `${periodStartDate.year}-06-01`,
+            )!}
             calendarLocation={props.calendarLocation}
           />
         </Box>
@@ -145,11 +133,9 @@ export function ViewAsCalendarYearly(props: ViewAsProps) {
             label="Jul"
             forceColumn={isBigScreen}
             showCompact={!isBigScreen}
-            stats={
-              props.stats.per_subperiod.find(
-                (s) => s.period_start_date === `${periodStartDate.year}-07-01`,
-              )!
-            }
+            stats={props.stats.per_subperiod.find(
+              (s) => s.period_start_date === `${periodStartDate.year}-07-01`,
+            )!}
             calendarLocation={props.calendarLocation}
           />
         </Box>
@@ -159,11 +145,9 @@ export function ViewAsCalendarYearly(props: ViewAsProps) {
             label="Aug"
             forceColumn={isBigScreen}
             showCompact={!isBigScreen}
-            stats={
-              props.stats.per_subperiod.find(
-                (s) => s.period_start_date === `${periodStartDate.year}-08-01`,
-              )!
-            }
+            stats={props.stats.per_subperiod.find(
+              (s) => s.period_start_date === `${periodStartDate.year}-08-01`,
+            )!}
             calendarLocation={props.calendarLocation}
           />
         </Box>
@@ -173,11 +157,9 @@ export function ViewAsCalendarYearly(props: ViewAsProps) {
             label="Sep"
             forceColumn={isBigScreen}
             showCompact={!isBigScreen}
-            stats={
-              props.stats.per_subperiod.find(
-                (s) => s.period_start_date === `${periodStartDate.year}-09-01`,
-              )!
-            }
+            stats={props.stats.per_subperiod.find(
+              (s) => s.period_start_date === `${periodStartDate.year}-09-01`,
+            )!}
             calendarLocation={props.calendarLocation}
           />
         </Box>
@@ -196,11 +178,9 @@ export function ViewAsCalendarYearly(props: ViewAsProps) {
             label="Oct"
             forceColumn={isBigScreen}
             showCompact={!isBigScreen}
-            stats={
-              props.stats.per_subperiod.find(
-                (s) => s.period_start_date === `${periodStartDate.year}-10-01`,
-              )!
-            }
+            stats={props.stats.per_subperiod.find(
+              (s) => s.period_start_date === `${periodStartDate.year}-10-01`,
+            )!}
             calendarLocation={props.calendarLocation}
           />
         </Box>
@@ -210,11 +190,9 @@ export function ViewAsCalendarYearly(props: ViewAsProps) {
             label="Nov"
             forceColumn={isBigScreen}
             showCompact={!isBigScreen}
-            stats={
-              props.stats.per_subperiod.find(
-                (s) => s.period_start_date === `${periodStartDate.year}-11-01`,
-              )!
-            }
+            stats={props.stats.per_subperiod.find(
+              (s) => s.period_start_date === `${periodStartDate.year}-11-01`,
+            )!}
             calendarLocation={props.calendarLocation}
           />
         </Box>
@@ -224,11 +202,9 @@ export function ViewAsCalendarYearly(props: ViewAsProps) {
             label="Dec"
             forceColumn={isBigScreen}
             showCompact={!isBigScreen}
-            stats={
-              props.stats.per_subperiod.find(
-                (s) => s.period_start_date === `${periodStartDate.year}-12-01`,
-              )!
-            }
+            stats={props.stats.per_subperiod.find(
+              (s) => s.period_start_date === `${periodStartDate.year}-12-01`,
+            )!}
             calendarLocation={props.calendarLocation}
           />
         </Box>

@@ -607,7 +607,9 @@ interface LeafPanelFrameProps {
   isBigScreen: boolean;
 }
 
-const LeafPanelFrame = styled(motion.div)<LeafPanelFrameProps>(
+const LeafPanelFrame = styled(motion.div, {
+  shouldForwardProp: (prop) => prop !== "isLeaflet" && prop !== "isBigScreen",
+})<LeafPanelFrameProps>(
   ({ theme, isLeaflet, isBigScreen }) => `
       position: ${isBigScreen ? "fixed" : "static"};
       left: ${isBigScreen ? "unset" : "0px"};

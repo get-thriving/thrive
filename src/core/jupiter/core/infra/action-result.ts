@@ -17,9 +17,7 @@ export interface NoErrorSomeData<T> {
 }
 
 export type ActionResult<T> =
-  | NoErrorNoData
-  | SomeErrorNoData
-  | NoErrorSomeData<T>;
+  NoErrorNoData | SomeErrorNoData | NoErrorSomeData<T>;
 
 export function isNoErrorSomeData<T>(
   action: ActionResult<T>,

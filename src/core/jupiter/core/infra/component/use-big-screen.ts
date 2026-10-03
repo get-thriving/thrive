@@ -7,7 +7,16 @@ import { FrontDoorInfoContext } from "#/core/infra/frontdoor-info-context";
 export function useBigScreen(): boolean {
   const frontDoorInfo = useContext(FrontDoorInfoContext);
   const theme = useTheme();
-  const mediaQuery = useMediaQuery(theme.breakpoints.up("md"));
+  // A desktop browser is wide on the first paint. `useMediaQuery` otherwise
+  // starts false and flips after hydration, and the page jumps under a click
+  // that was aimed at the first layout.
+  const startsWide =
+    (frontDoorInfo.appShell === AppShell.BROWSER ||
+      frontDoorInfo.appShell === AppShell.PWA) &&
+    frontDoorInfo.appPlatform === AppPlatform.DESKTOP_MACOS;
+  const mediaQuery = useMediaQuery(theme.breakpoints.up("md"), {
+    defaultMatches: startsWide,
+  });
 
   switch (frontDoorInfo.appShell) {
     case AppShell.BROWSER:

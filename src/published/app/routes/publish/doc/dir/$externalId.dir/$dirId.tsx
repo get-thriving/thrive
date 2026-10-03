@@ -31,7 +31,7 @@ export const handle = {
   displayType: DisplayType.TRUNK,
 };
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request, url, params }: LoaderFunctionArgs) {
   try {
     const { externalId, dirId } = parseParams(params, ParamsSchema);
     const apiClient = await getGuestApiClient(request);
@@ -61,7 +61,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return {
       pageMeta: buildPublishedPageMeta({
-        request,
+        url,
         entityType: NamedEntityTag.DIR,
         name: dirLoad.dir.name,
         summary: publishedDirListingSummary(dirLoad),
@@ -79,8 +79,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) =>
-  metaDescriptorsForPublishedPage(data?.pageMeta);
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) =>
+  metaDescriptorsForPublishedPage(loaderData?.pageMeta);
 
 // The filters of the page this opens over are no reason to load it again.
 export const shouldRevalidate: ShouldRevalidateFunction =

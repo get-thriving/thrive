@@ -29,7 +29,7 @@ import type {
 import { useFetcher } from "react-router";
 import { Box, Card, Tab, Tabs } from "@mui/material";
 import { DateTime } from "luxon";
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useContext, useState, type JSX } from "react";
 
 import { CHORE } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { ChoreInboxTasksWidget } from "#/core/apps/chores/component/inbox-tasks-widget";

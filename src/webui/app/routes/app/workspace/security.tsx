@@ -116,8 +116,10 @@ export default function Security() {
               <Stack
                 direction="row"
                 spacing={1}
-                alignItems="center"
-                flexWrap="wrap"
+                sx={{
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
               >
                 <Typography variant="body2">
                   Password management is only available for local accounts.

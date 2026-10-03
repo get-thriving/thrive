@@ -198,9 +198,7 @@ const TIME_PLAN_ACTIVITY_KIND_VALUES = new Set<string>(
 );
 
 type TimePlanActivityFilterValue =
-  | TimePlanActivityKind
-  | TimePlanActivityFeasability
-  | boolean;
+  TimePlanActivityKind | TimePlanActivityFeasability | boolean;
 
 enum GroupVisibility {
   NON_EMPTY_ONLY = "non-empty-only",
@@ -433,7 +431,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 }
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, url, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, UpdateFormSchema);
@@ -441,7 +439,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   // comes along with it and can be handed back on the way out.
   const timePlanLocation = withTimePlanDisplay(
     `/app/workspace/apps/time-plans/${id}`,
-    new URL(request.url).searchParams,
+    url.searchParams,
   );
 
   try {
@@ -580,7 +578,7 @@ export default function TimePlanView() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const activityLoaderData = useMatches().find(
     (match) => match.id === TIME_PLAN_ACTIVITY_ROUTE_ID,
-  )?.data as LoaderDataOf<typeof timePlanActivityLoader> | undefined;
+  )?.loaderData as LoaderDataOf<typeof timePlanActivityLoader> | undefined;
 
   // The entities of the plan live in a store that both this route's loader and
   // the activity panel's seed, so local edits can show up without reloading

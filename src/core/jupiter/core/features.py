@@ -1,6 +1,7 @@
 """Even features are expressed here."""
 
 from collections.abc import Iterable
+from typing import cast
 
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.value import CompositeValue, EnumValue, enum_value, value
@@ -72,11 +73,13 @@ class UserFeatureFlagsControls(CompositeValue):
         checked_feature_flags: UserFeatureFlags = {}
 
         for feature, control in self.controls.items():
-            if feature in feature_flags_delta:
+            # A dict keyed by a one-member enum looks total to mypy, so a bare
+            # `in` check is flagged as always true.
+            if cast(bool, feature in feature_flags_delta):
                 checked_feature_flags[feature] = control.check(
                     feature.value, feature_flags_delta[feature]
                 )
-            elif feature in current_feature_flags:
+            elif cast(bool, feature in current_feature_flags):
                 checked_feature_flags[feature] = current_feature_flags[feature]
             else:
                 checked_feature_flags[feature] = control.standard_flag

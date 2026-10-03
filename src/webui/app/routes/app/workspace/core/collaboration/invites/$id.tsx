@@ -170,7 +170,14 @@ export default function CollaborationInvite() {
         }
       >
         <Stack spacing={2} useFlexGap>
-          <Stack direction="row" useFlexGap spacing={1} alignItems="center">
+          <Stack
+            direction="row"
+            useFlexGap
+            spacing={1}
+            sx={{
+              alignItems: "center",
+            }}
+          >
             <FormControl sx={{ flexGrow: 1, minWidth: "8rem" }}>
               <InputLabel id="entity-type">Entity Type</InputLabel>
               <OutlinedInput

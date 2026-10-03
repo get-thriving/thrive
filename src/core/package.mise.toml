@@ -167,7 +167,7 @@ run = "true"
 
 ["package:src:core:libyear:pnpm-libyear"]
 hide = true
-run = "cd src/core && npx libyear"
+run = "cd src/core && npx libyear --package-manager pnpm"
 
 ["package:src:core:libyear:libyear-toml"]
 hide = true

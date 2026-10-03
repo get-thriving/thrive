@@ -92,11 +92,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   };
 }
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, url, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, CreateFormSchema);
-  const timePlanView = new URL(request.url).searchParams;
+  const timePlanView = url.searchParams;
 
   try {
     const { startDate, startTimeInDay } = timeEventInDayBlockParamsToUtc(

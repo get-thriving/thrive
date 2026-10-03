@@ -1,6 +1,7 @@
 {
   "include": [
     "editorjs.d.ts",
+    "luxon.d.ts",
     "jupiter/core/**/*.ts",
     "jupiter/core/**/*.tsx",
     "vitest.config.ts"
@@ -20,7 +21,6 @@
     "strict": true,
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "rootDir": ".",
     "paths": {
       "#/core/*": ["./jupiter/core/*"]

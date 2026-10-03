@@ -141,14 +141,16 @@ export function DocEditor({
           label="Name"
           name="name"
           variant="standard"
-          InputProps={{
-            readOnly: !inputsEnabled,
-          }}
           disabled={!inputsEnabled}
           defaultValue={noteName}
           onChange={(e) => {
             setDataModified(true);
             setNoteName(e.target.value);
+          }}
+          slotProps={{
+            input: {
+              readOnly: !inputsEnabled,
+            },
           }}
         />
         {rightOfName}

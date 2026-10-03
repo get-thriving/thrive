@@ -111,7 +111,7 @@ export function LocationsFilterPicker({
         }}
         readOnly={!inputsEnabled}
         value={selectedOptions}
-        renderTags={renderLimitedAutocompleteTags(
+        renderValue={renderLimitedAutocompleteTags(
           (option: ExistingOption) => option.location.name,
         )}
         renderOption={(liProps, option, { selected }) => {
@@ -131,16 +131,20 @@ export function LocationsFilterPicker({
             {...params}
             label={label ?? "Locations"}
             size={size}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {searching ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
+            slotProps={{
+              ...params.slotProps,
+
+              input: {
+                ...params.slotProps.input,
+                endAdornment: (
+                  <>
+                    {searching ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null}
+                    {params.slotProps.input.endAdornment}
+                  </>
+                ),
+              },
             }}
           />
         )}

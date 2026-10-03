@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { Link, useLocation } from "react-router";
 import { motion, useIsPresent } from "framer-motion";
-import type { PropsWithChildren } from "react";
+import type { JSX, PropsWithChildren } from "react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type {
   EntityId,

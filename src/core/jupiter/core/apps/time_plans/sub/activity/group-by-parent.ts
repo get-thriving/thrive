@@ -182,13 +182,7 @@ function parentForActivity(
 
 function parentForEntity(
   entity:
-    | BigPlan
-    | Chore
-    | ChoreStack
-    | Habit
-    | HabitStack
-    | TodoTask
-    | undefined,
+    BigPlan | Chore | ChoreStack | Habit | HabitStack | TodoTask | undefined,
 ): ActivityParent | null {
   if (!entity) {
     return null;

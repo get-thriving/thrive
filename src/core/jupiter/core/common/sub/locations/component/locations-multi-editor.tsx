@@ -86,7 +86,7 @@ export function LocationsMultiEditor({
         }}
         readOnly={!editable}
         value={selectedOptions}
-        renderTags={renderLimitedAutocompleteTags(optionLabel)}
+        renderValue={renderLimitedAutocompleteTags(optionLabel)}
         renderOption={(liProps, option, { selected }) => {
           const { key, ...optionProps } = liProps;
           return (
@@ -103,16 +103,20 @@ export function LocationsMultiEditor({
           <TextField
             {...params}
             label={label ?? "Locations"}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {searching ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
+            slotProps={{
+              ...params.slotProps,
+
+              input: {
+                ...params.slotProps.input,
+                endAdornment: (
+                  <>
+                    {searching ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null}
+                    {params.slotProps.input.endAdornment}
+                  </>
+                ),
+              },
             }}
           />
         )}

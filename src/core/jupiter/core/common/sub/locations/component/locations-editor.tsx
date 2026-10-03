@@ -112,16 +112,20 @@ export function LocationsEditor({
           <TextField
             {...params}
             label={label ?? "Location"}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {searching ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
+            slotProps={{
+              ...params.slotProps,
+
+              input: {
+                ...params.slotProps.input,
+                endAdornment: (
+                  <>
+                    {searching ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null}
+                    {params.slotProps.input.endAdornment}
+                  </>
+                ),
+              },
             }}
           />
         )}

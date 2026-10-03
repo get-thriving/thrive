@@ -82,19 +82,19 @@ export const handle = {
   displayType: DisplayType.BRANCH,
 };
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request, url, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id, widgetId } = parseParams(params, ParamsSchema);
-  const url = new URL(request.url);
   const query = parseQuerySafe(request, QuerySchema);
 
   if (query.error) {
+    const next = new URL(url.href);
     if (widgetId) {
-      url.searchParams.set("action", Action.MOVE_WIDGET);
+      next.searchParams.set("action", Action.MOVE_WIDGET);
     } else {
-      url.searchParams.set("action", Action.ADD_WIDGET);
+      next.searchParams.set("action", Action.ADD_WIDGET);
     }
-    return redirect(url.pathname + url.search);
+    return redirect(next.pathname + next.search);
   }
 
   try {

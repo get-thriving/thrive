@@ -73,7 +73,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   };
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, url }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const form = await parseForm(request, HabitCreateFormSchema);
 
@@ -81,7 +81,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const result = await apiClient.habits.habitCreate(habitCreateArgs(form));
 
     if (isCreateAndAnother(form.intent)) {
-      return redirect(createAnotherLocation(request));
+      return redirect(createAnotherLocation(url));
     }
 
     return redirect(

@@ -43,7 +43,13 @@ export function DateInputWithSuggestions(props: DateInputWithSuggestionsProps) {
   };
 
   return (
-    <Stack direction="row" spacing={1} alignItems="center">
+    <Stack
+      direction="row"
+      spacing={1}
+      sx={{
+        alignItems: "center",
+      }}
+    >
       <OutlinedInput
         type="date"
         label={props.label}

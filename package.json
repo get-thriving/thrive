@@ -10,27 +10,34 @@
   "repository": "https://github.com/get-thriving/thrive",
   "documentation": "https://docs.get-thriving.com",
   "devDependencies": {
-    "@modelcontextprotocol/inspector": "0.21.1",
-    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
-    "@typescript-eslint/eslint-plugin": "^8.29.0",
-    "@typescript-eslint/parser": "^8.29.0",
+    "@modelcontextprotocol/inspector": "2.9.0",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.71.0",
+    "@typescript-eslint/parser": "^8.71.0",
+    "baseline-browser-mapping": "^2.11.27",
     "eslint": "^8.57.1",
-    "eslint-config-prettier": "^10.1.1",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-config-react-app": "^7.0.1",
     "eslint-import-resolver-typescript": "^4.4.5",
-    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-react": "^7.37.4",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-toml": "^0.12.0",
-    "handlebars": "^4.7.8",
-    "libyear": "^0.8.0",
-    "markdownlint-cli2": "^0.19.1",
-    "openapi-typescript-codegen": "^0.29.0",
-    "pm2": "^6.0.5",
-    "prettier": "^3.5.3",
-    "prettier-plugin-organize-imports": "^4.1.0",
-    "typescript": "^5.8.2",
-    "vitest": "^5.0.0"
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-toml": "^0.13.1",
+    "handlebars": "^4.7.9",
+    "libyear": "^0.9.3",
+    "markdownlint-cli2": "^0.23.3",
+    "openapi-typescript-codegen": "^0.31.0",
+    "pm2": "^7.0.4",
+    "prettier": "^3.9.9",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.3.0",
+      "react-dom": "19.3.0"
+    }
   }
 }

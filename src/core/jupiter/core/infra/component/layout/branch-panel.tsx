@@ -24,6 +24,7 @@ import {
 import { Form, Link, useLocation } from "react-router";
 import { motion, useIsPresent } from "framer-motion";
 import {
+  type JSX,
   type PropsWithChildren,
   useCallback,
   useContext,

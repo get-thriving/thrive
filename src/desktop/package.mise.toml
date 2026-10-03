@@ -67,7 +67,7 @@ run = "true"
 
 ["package:src:desktop:libyear:pnpm-libyear"]
 hide = true
-run = "cd src/desktop && npx libyear"
+run = "cd src/desktop && npx libyear --package-manager pnpm"
 
 ["package:src:desktop:libyear"]
 description = "Check src/desktop libyear"

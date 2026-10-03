@@ -63,10 +63,9 @@ const QuerySchema = z.object({
   view: z.nativeEnum(View).optional(),
 });
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, url }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const query = parseQuery(request, QuerySchema);
-  const url = new URL(request.url);
 
   const { platform } = inferPlatformAndDistribution(
     request.headers.get("User-Agent"),
@@ -78,8 +77,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     query.view === undefined
   ) {
     // We do it like this so we keep the query params that are already there.
-    url.searchParams.set("date", query.date || DateTime.now().toISODate());
-    url.searchParams.set(
+    const next = new URL(url.href);
+    next.searchParams.set("date", query.date || DateTime.now().toISODate());
+    next.searchParams.set(
       "period",
       query.period ||
         (platform === AppPlatform.MOBILE_IOS ||
@@ -87,9 +87,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
           ? RecurringTaskPeriod.DAILY
           : RecurringTaskPeriod.WEEKLY),
     );
-    url.searchParams.set("view", query.view || View.CALENDAR);
+    next.searchParams.set("view", query.view || View.CALENDAR);
 
-    return redirect(url.pathname + url.search);
+    return redirect(next.pathname + next.search);
   }
 
   const response = await apiClient.calendar.calendarLoadForDateAndPeriod({

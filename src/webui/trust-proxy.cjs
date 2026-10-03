@@ -4,13 +4,17 @@
 // browser origin is https://host:port while Express reports http, and React
 // Router rejects the login POST as a CSRF mismatch. This wraps the Express
 // that react-router-serve loads so the app trusts X-Forwarded-Proto / Host.
+//
+// Serve 8 imports Express from an ES module, which loads the resolved file
+// path. require() loads the bare "express" name. Both go through Module._load.
 const Module = require("module");
-const originalRequire = Module.prototype.require;
+const originalLoad = Module._load;
+const expressEntry = require.resolve("express");
 
-Module.prototype.require = function (id) {
-  const loaded = originalRequire.apply(this, arguments);
+Module._load = function (request) {
+  const loaded = originalLoad.apply(this, arguments);
   if (
-    id !== "express" ||
+    (request !== "express" && request !== expressEntry) ||
     typeof loaded !== "function" ||
     loaded.__trustProxyPatched
   ) {

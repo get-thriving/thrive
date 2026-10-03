@@ -53,7 +53,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   };
 }
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, url, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id: bigPlanId } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, BigPlanInboxTaskCreateFormSchema);
@@ -64,7 +64,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
 
     if (isCreateAndAnother(form.intent)) {
-      return redirect(createAnotherLocation(request));
+      return redirect(createAnotherLocation(url));
     }
 
     return redirect(

@@ -230,7 +230,12 @@ export default function DocSettings() {
       >
         <Stack spacing={2}>
           {loaderData.doc.archived && (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               This doc is archived; settings cannot be edited.
             </Typography>
           )}

@@ -10,7 +10,6 @@ module.exports = {
       files: ['**/*.{ts,tsx,js,jsx}'],
       parser: '@typescript-eslint/parser',
       parserOptions: {
-        projectService: true,
         ecmaVersion: 2020,
         sourceType: 'module',
         ecmaFeatures: { jsx: true },
@@ -36,29 +35,34 @@ module.exports = {
         }],
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+        // New in eslint-plugin-react-hooks 7. They flag existing effect and
+        // memo patterns; the classic rules-of-hooks and exhaustive-deps stay on.
+        'react-hooks/set-state-in-effect': 'off',
+        'react-hooks/refs': 'off',
+        'react-hooks/preserve-manual-memoization': 'off',
         'no-restricted-imports': ['error', { patterns: ['.*'] }],
       },
       settings: {
         // Only evaluated for JS/TS files, so no warning when linting TOML
         react: { version: 'detect' },
-        'import/resolver': {
-          typescript: {
-            project: [
-              'src/webui/tsconfig.json',
-              'src/published/tsconfig.json',
-              'src/core/tsconfig.json',
-            ],
-          },
-        },
       },
     },
 
-    // Narrower project-specific override (optional but nice): TS config per pkg
+    // One tsconfig per package. The import resolver warns, and does extra
+    // lookups, when `project` lists more than one — and each package is linted
+    // on its own, with its own path mappings.
     {
       files: ['src/webui/**/*.{ts,tsx}'],
       parserOptions: {
         tsconfigRootDir: __dirname,
         project: ['src/webui/tsconfig.json'],
+      },
+      settings: {
+        'import/resolver': {
+          typescript: {
+            project: 'src/webui/tsconfig.json',
+          },
+        },
       },
     },
     {
@@ -67,12 +71,26 @@ module.exports = {
         tsconfigRootDir: __dirname,
         project: ['src/published/tsconfig.json'],
       },
+      settings: {
+        'import/resolver': {
+          typescript: {
+            project: 'src/published/tsconfig.json',
+          },
+        },
+      },
     },
     {
       files: ['src/core/**/*.{ts,tsx}'],
       parserOptions: {
         tsconfigRootDir: __dirname,
         project: ['src/core/tsconfig.json'],
+      },
+      settings: {
+        'import/resolver': {
+          typescript: {
+            project: 'src/core/tsconfig.json',
+          },
+        },
       },
     },
 

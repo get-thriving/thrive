@@ -185,11 +185,7 @@ function UnknownErrorAlert() {
  * route error response or a plain error.
  */
 type ErrorKind =
-  | "access-denied"
-  | "session-expired"
-  | "not-found"
-  | "error"
-  | "unknown";
+  "access-denied" | "session-expired" | "not-found" | "error" | "unknown";
 
 function classifyError(error: unknown): ErrorKind {
   // A 401 carrying a reason is a missing grant rather than a stale session.

@@ -198,13 +198,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, url, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id, otherTimePlanId } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, UpdateFormSchema);
   // The panel was opened from a time plan being looked at one way or another
   // - whatever it does, it hands that back on the way out.
-  const timePlanView = new URL(request.url).searchParams;
+  const timePlanView = url.searchParams;
   const timePlanLocation = withTimePlanView(
     `/app/workspace/apps/time-plans/${id}`,
     timePlanView,

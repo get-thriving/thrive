@@ -118,8 +118,10 @@ export function LocationSearchNameField({
                 <Typography
                   variant="caption"
                   component="span"
-                  color="text.secondary"
-                  sx={{ lineHeight: 1.3 }}
+                  sx={{
+                    color: "text.secondary",
+                    lineHeight: 1.3,
+                  }}
                 >
                   {address}
                 </Typography>
@@ -135,16 +137,20 @@ export function LocationSearchNameField({
           name="name"
           autoComplete="off"
           inputRef={nameInputRef}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {searching ? (
-                  <CircularProgress color="inherit" size={20} />
-                ) : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
+          slotProps={{
+            ...params.slotProps,
+
+            input: {
+              ...params.slotProps.input,
+              endAdornment: (
+                <>
+                  {searching ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
+                  {params.slotProps.input.endAdornment}
+                </>
+              ),
+            },
           }}
         />
       )}

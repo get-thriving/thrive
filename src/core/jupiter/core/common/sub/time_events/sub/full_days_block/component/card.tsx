@@ -68,7 +68,12 @@ export function TimeEventFullDaysBlockCard(
       >
         <EntityNameComponent name={name} />
         {location && (
-          <Typography fontSize="inherit" sx={{ display: "block" }}>
+          <Typography
+            sx={{
+              fontSize: "inherit",
+              display: "block",
+            }}
+          >
             @{location.name}
           </Typography>
         )}

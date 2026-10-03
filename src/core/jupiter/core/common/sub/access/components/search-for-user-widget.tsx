@@ -158,21 +158,26 @@ export function SearchForUserWidget({
             label={label ?? "Users"}
             size={size}
             autoComplete="off"
-            inputProps={{
-              ...params.inputProps,
-              autoComplete: "new-password",
-              name: "jupiter-user-search",
-            }}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {loading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
+            slotProps={{
+              ...params.slotProps,
+
+              input: {
+                ...params.slotProps.input,
+                endAdornment: (
+                  <>
+                    {loading ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null}
+                    {params.slotProps.input.endAdornment}
+                  </>
+                ),
+              },
+
+              htmlInput: {
+                ...params.slotProps.htmlInput,
+                autoComplete: "new-password",
+                name: "jupiter-user-search",
+              },
             }}
           />
         )}

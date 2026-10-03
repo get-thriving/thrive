@@ -99,7 +99,7 @@ run = "true"
 
 ["package:src:webui:libyear:pnpm-libyear"]
 hide = true
-run = "cd src/webui && npx libyear"
+run = "cd src/webui && npx libyear --package-manager pnpm"
 
 ["package:src:webui:libyear"]
 description = "Check src/webui libyear"

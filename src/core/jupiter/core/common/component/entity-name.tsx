@@ -17,9 +17,13 @@ export function EntityNameComponent({
 }: EntityNameProps) {
   return (
     <Typography
-      fontSize={!compact ? "inherit" : "0.85rem"}
       color={color}
-      sx={sx}
+      sx={[
+        {
+          fontSize: !compact ? "inherit" : "0.85rem",
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
     >
       {name}
     </Typography>
@@ -28,7 +32,12 @@ export function EntityNameComponent({
 
 export function EntityNameOneLineComponent({ compact, name }: EntityNameProps) {
   return (
-    <Typography fontSize={!compact ? "inherit" : "0.85rem"} noWrap>
+    <Typography
+      noWrap
+      sx={{
+        fontSize: !compact ? "inherit" : "0.85rem",
+      }}
+    >
       {name}
     </Typography>
   );

@@ -7,7 +7,7 @@ import {
   styled,
 } from "@mui/material";
 import { Form } from "react-router";
-import type { PropsWithChildren } from "react";
+import type { JSX, PropsWithChildren } from "react";
 
 import { useInterceptedSubmit } from "#/core/infra/component/intent-interceptor";
 import { CARD_INNER_CORNER_RADIUS } from "#/core/infra/component/theme";

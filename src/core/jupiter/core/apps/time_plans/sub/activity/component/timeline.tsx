@@ -264,7 +264,12 @@ export function TimePlanTimelineActivityBars(
           paddingBottom: "0.5rem",
         }}
       >
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {props.timePlan.start_date}
         </Typography>
         {showMonthMarkers &&
@@ -282,12 +287,22 @@ export function TimePlanTimelineActivityBars(
                 pointerEvents: "none",
               }}
             >
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 {m.label}
               </Typography>
             </Box>
           ))}
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {props.timePlan.end_date}
         </Typography>
       </Box>

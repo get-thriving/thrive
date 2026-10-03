@@ -66,10 +66,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   };
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, url }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const form = await parseForm(request, CreateFormSchema);
-  const url = new URL(request.url);
 
   try {
     const response = await apiClient.schedule.scheduleExportCreate({
@@ -79,7 +78,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     if (isCreateAndAnother(form.intent)) {
-      return redirect(createAnotherLocation(request));
+      return redirect(createAnotherLocation(url));
     }
 
     return redirect(
