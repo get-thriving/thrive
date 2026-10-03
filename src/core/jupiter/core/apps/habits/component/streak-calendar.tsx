@@ -38,7 +38,6 @@ interface HabitStreakCalendarProps {
   streakMarks: HabitStreakMark[];
   inactivePeriods: StreakInactivePeriodRange[];
   noLabel?: boolean;
-  noLegend?: boolean;
   label?: string;
   showNav?: boolean;
   getNavUrl?: (earliestDate: ADate, latestDate: ADate) => string;
@@ -115,7 +114,6 @@ export function HabitStreakCalendar(props: HabitStreakCalendarProps) {
         streakMarks={props.streakMarks}
         inactivePeriods={props.inactivePeriods}
       />
-      {!props.noLegend && <InactiveLegend />}
     </StyledDiv>
   );
 }
@@ -294,26 +292,6 @@ function OneCell(props: OneCellProps) {
                 : bucketedColorScale(props.doneness),
       }}
     ></Box>
-  );
-}
-
-function InactiveLegend() {
-  const theme = useTheme();
-  return (
-    <Stack
-      direction="row"
-      spacing={1}
-      sx={{ alignSelf: "center", alignItems: "center", marginTop: "0.5rem" }}
-    >
-      <Box
-        sx={{
-          width: CELL_SIZE(theme),
-          height: CELL_SIZE(theme),
-          backgroundColor: theme.palette.grey[700],
-        }}
-      />
-      <Typography variant="caption">Inactive</Typography>
-    </Stack>
   );
 }
 
