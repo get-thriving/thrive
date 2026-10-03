@@ -140,6 +140,7 @@ function HorizontalStreak({
                 streakMarks={entry.streakMarks}
                 inactivePeriods={entry.inactivePeriods}
                 noLabel={habitStreak.noLabel}
+                noLegend
                 label={habitStreak.label}
                 showNav={habitStreak.showNav}
                 getNavUrl={habitStreak.getNavUrl}
@@ -178,6 +179,7 @@ function VerticalStreak({ widgetProps, keyHabitStreak }: VerticalStreakProps) {
             streakMarks={entry.streakMarks}
             inactivePeriods={entry.inactivePeriods}
             noLabel={habitStreak.noLabel}
+            noLegend
             label={habitStreak.label}
             showNav={habitStreak.showNav}
             getNavUrl={habitStreak.getNavUrl}

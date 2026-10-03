@@ -38,6 +38,7 @@ interface HabitStreakCalendarProps {
   streakMarks: HabitStreakMark[];
   inactivePeriods: StreakInactivePeriodRange[];
   noLabel?: boolean;
+  noLegend?: boolean;
   label?: string;
   showNav?: boolean;
   getNavUrl?: (earliestDate: ADate, latestDate: ADate) => string;
@@ -114,7 +115,7 @@ export function HabitStreakCalendar(props: HabitStreakCalendarProps) {
         streakMarks={props.streakMarks}
         inactivePeriods={props.inactivePeriods}
       />
-      <InactiveLegend />
+      {!props.noLegend && <InactiveLegend />}
     </StyledDiv>
   );
 }
