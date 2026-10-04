@@ -228,6 +228,31 @@ class PostgresHabitStreakMarkRepository(
         results = result.fetchall()
         return [self._row_to_entity(row) for row in results]
 
+    async def find_all_for_habits_between_dates(
+        self, habit_ref_ids: list[EntityId], start_date: ADate, end_date: ADate
+    ) -> list[HabitStreakMark]:
+        """Find all streak marks between two dates for several habits at once."""
+        if not habit_ref_ids:
+            return []
+        result = await self._connection.execute(
+            select(self._habit_streak_mark_table)
+            .where(
+                self._habit_streak_mark_table.c.habit_ref_id.in_(
+                    [ref_id.as_int() for ref_id in habit_ref_ids]
+                )
+            )
+            .where(
+                self._habit_streak_mark_table.c.date
+                >= self._realm_codec_registry.db_encode(start_date)
+            )
+            .where(
+                self._habit_streak_mark_table.c.date
+                <= self._realm_codec_registry.db_encode(end_date)
+            )
+        )
+        results = result.fetchall()
+        return [self._row_to_entity(row) for row in results]
+
     def _row_to_entity(self, row: RowType) -> HabitStreakMark:
         """Convert a row to an entity."""
         return self._realm_codec_registry.db_decode(
@@ -252,6 +277,37 @@ class PostgresHabitStreakInactivePeriodRepository(
         query = (
             select(self._table)
             .where(self._table.c.habit_ref_id == habit_ref_id.as_int())
+            .where(
+                self._table.c.start_date
+                <= self._realm_codec_registry.db_encode(end_date)
+            )
+            .where(
+                self._table.c.end_date
+                >= self._realm_codec_registry.db_encode(start_date)
+            )
+        )
+        if not allow_archived:
+            query = query.where(self._table.c.archived.is_(False))
+        result = await self._connection.execute(query)
+        return [self._row_to_entity(row) for row in result]
+
+    async def find_all_for_habits_overlapping(
+        self,
+        habit_ref_ids: list[EntityId],
+        start_date: ADate,
+        end_date: ADate,
+        allow_archived: bool = False,
+    ) -> list[HabitStreakInactivePeriod]:
+        """Find periods for several habits that overlap the inclusive date range."""
+        if not habit_ref_ids:
+            return []
+        query = (
+            select(self._table)
+            .where(
+                self._table.c.habit_ref_id.in_(
+                    [ref_id.as_int() for ref_id in habit_ref_ids]
+                )
+            )
             .where(
                 self._table.c.start_date
                 <= self._realm_codec_registry.db_encode(end_date)

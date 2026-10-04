@@ -7,6 +7,8 @@ import type { HabitCreateArgs } from '../models/HabitCreateArgs';
 import type { HabitCreateResult } from '../models/HabitCreateResult';
 import type { HabitFindArgs } from '../models/HabitFindArgs';
 import type { HabitFindResult } from '../models/HabitFindResult';
+import type { HabitFindStreaksArgs } from '../models/HabitFindStreaksArgs';
+import type { HabitFindStreaksResult } from '../models/HabitFindStreaksResult';
 import type { HabitFindSuitableForTimePlanArgs } from '../models/HabitFindSuitableForTimePlanArgs';
 import type { HabitFindSuitableForTimePlanResult } from '../models/HabitFindSuitableForTimePlanResult';
 import type { HabitLoadArgs } from '../models/HabitLoadArgs';
@@ -111,6 +113,38 @@ export class HabitsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/habit-find',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Find the streaks of several habits at once.
+     *
+     * A lighter alternative to loading each habit just to draw its streak, with
+     * a constant number of queries however many habits there are.
+     *
+     * @param requestBody The input data
+     * @returns HabitFindStreaksResult Successful response
+     * @throws ApiError
+     */
+    public habitFindStreaks(
+        requestBody?: HabitFindStreaksArgs,
+    ): CancelablePromise<HabitFindStreaksResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/habit-find-streaks',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
