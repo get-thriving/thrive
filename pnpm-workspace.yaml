@@ -31,3 +31,5 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
   "@modelcontextprotocol/ext-apps": true
+  # postinstall runs scripts/install-clients.mjs. The WebUI image does not need that.
+  "@modelcontextprotocol/inspector": false
