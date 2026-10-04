@@ -24,6 +24,8 @@ import type { GetSummariesResult } from '../models/GetSummariesResult';
 import type { InitArgs } from '../models/InitArgs';
 import type { InitCreateUserLocalArgs } from '../models/InitCreateUserLocalArgs';
 import type { InitCreateUserLocalResult } from '../models/InitCreateUserLocalResult';
+import type { InitCreateUserOrLoginAppleArgs } from '../models/InitCreateUserOrLoginAppleArgs';
+import type { InitCreateUserOrLoginAppleResult } from '../models/InitCreateUserOrLoginAppleResult';
 import type { InitCreateUserOrLoginGoogleArgs } from '../models/InitCreateUserOrLoginGoogleArgs';
 import type { InitCreateUserOrLoginGoogleResult } from '../models/InitCreateUserOrLoginGoogleResult';
 import type { InitCreateWorkspaceArgs } from '../models/InitCreateWorkspaceArgs';
@@ -150,6 +152,34 @@ export class ApplicationService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/init-create-user-local',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for creating or logging in a user after Apple OAuth callback.
+     * @param requestBody The input data
+     * @returns InitCreateUserOrLoginAppleResult Successful response
+     * @throws ApiError
+     */
+    public initCreateUserOrLoginApple(
+        requestBody?: InitCreateUserOrLoginAppleArgs,
+    ): CancelablePromise<InitCreateUserOrLoginAppleResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/init-create-user-or-login-apple',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

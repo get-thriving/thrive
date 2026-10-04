@@ -28,6 +28,7 @@ members = [
     "jupiter-webapi-search-mutation-requeue-do-all",
     "jupiter-webapi-srv",
     "jupiter-webapi-stats-do-all",
+    "jupiter-webapi-sync-apple-user-data-do-all",
     "jupiter-webapi-sync-google-user-data-do-all",
 ]
 
@@ -2103,6 +2104,49 @@ dev = [{ name = "types-requests", specifier = ">=2.32.0,<3" }]
 name = "jupiter-webapi-stats-do-all"
 version = "0.1.0"
 source = { virtual = "src/webapi/stats-do-all" }
+dependencies = [
+    { name = "aiodns" },
+    { name = "apscheduler" },
+    { name = "fastapi" },
+    { name = "gunicorn" },
+    { name = "inflection" },
+    { name = "jupiter-core" },
+    { name = "jupiter-framework" },
+    { name = "pydantic" },
+    { name = "python-multipart" },
+    { name = "uvicorn" },
+    { name = "websockets" },
+    { name = "wsproto" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "types-requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiodns", specifier = ">=4.0.4,<5" },
+    { name = "apscheduler", specifier = ">=3.11.0,<4" },
+    { name = "fastapi", specifier = ">=0.142.2,<0.143" },
+    { name = "gunicorn", specifier = ">=26.2.0,<27" },
+    { name = "inflection", specifier = ">=0.5.1,<0.6" },
+    { name = "jupiter-core", editable = "src/core" },
+    { name = "jupiter-framework", editable = "src/alib/py/framework" },
+    { name = "pydantic", specifier = ">=2.10.6,<3" },
+    { name = "python-multipart", specifier = ">=0.0.32,<0.0.33" },
+    { name = "uvicorn", specifier = ">=0.54.0,<0.55" },
+    { name = "websockets", specifier = ">=17.1,<18" },
+    { name = "wsproto", specifier = ">=1.2.0,<2" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "types-requests", specifier = ">=2.32.0,<3" }]
+
+[[package]]
+name = "jupiter-webapi-sync-apple-user-data-do-all"
+version = "0.1.0"
+source = { virtual = "src/webapi/sync-apple-user-data-do-all" }
 dependencies = [
     { name = "aiodns" },
     { name = "apscheduler" },

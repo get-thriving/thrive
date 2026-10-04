@@ -5,6 +5,7 @@ from collections.abc import Iterable
 
 from jupiter.core.api_key.root import APIKey
 from jupiter.core.auth.auth_method import UserAuthMethod
+from jupiter.core.auth.sub.apple.root import AuthApple
 from jupiter.core.auth.sub.email_verification.root import EmailVerificationAttempt
 from jupiter.core.auth.sub.google.root import AuthGoogle
 from jupiter.core.auth.sub.local.root import AuthLocal
@@ -57,6 +58,7 @@ class User(RootEntity):
 
     auth_local = ContainsAtMostOne(AuthLocal, user_ref_id=IsRefId())
     auth_google = ContainsAtMostOne(AuthGoogle, user_ref_id=IsRefId())
+    auth_apple = ContainsAtMostOne(AuthApple, user_ref_id=IsRefId())
     score_log = ContainsOne(ScoreLog, user_ref_id=IsRefId())
     web_ui_settings = ContainsOne(WebUiSettings, user_ref_id=IsRefId())
     api_keys = ContainsMany(APIKey, user_ref_id=IsRefId())
@@ -135,6 +137,31 @@ class User(RootEntity):
                 feature_flags_delta=feature_flags, current_feature_flags={}
             ),
             auth_method=UserAuthMethod.GOOGLE,
+            verified=verified,
+        )
+
+    @staticmethod
+    @create_entity_action
+    def new_standard_user_apple(
+        ctx: DomainContext,
+        email_address: EmailAddress,
+        name: UserName,
+        feature_flag_controls: UserFeatureFlagsControls,
+        feature_flags: UserFeatureFlags,
+        verified: bool,
+    ) -> "User":
+        """Create a new user with Apple authentication."""
+        return User._create(
+            ctx,
+            category=UserCategory.STANDARD,
+            email_address=email_address,
+            name=name,
+            avatar=Avatar.from_user_name(name),
+            timezone=UTC,
+            feature_flags=feature_flag_controls.validate_and_complete(
+                feature_flags_delta=feature_flags, current_feature_flags={}
+            ),
+            auth_method=UserAuthMethod.APPLE,
             verified=verified,
         )
 

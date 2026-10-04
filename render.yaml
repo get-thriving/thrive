@@ -66,6 +66,22 @@ envVarGroups:
         sync: false
       - key: GOOGLE_MAPS_API_KEY
         sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REFRESH_TOKEN_ENCRYPTION_KEY
+        sync: false
+      - key: APPLE_TEAM_ID
+        sync: false
+      - key: APPLE_KEY_ID
+        sync: false
+      - key: APPLE_SERVICES_ID
+        sync: false
+      - key: APPLE_PRIVATE_KEY
+        sync: false
+      - key: APPLE_REFRESH_TOKEN_ENCRYPTION_KEY
+        sync: false
 
 # Repo-root-relative globs for auto-deploy builds. See https://render.com/docs/monorepo-support
 services:
@@ -296,6 +312,33 @@ services:
   region: frankfurt
   plan: starter
   schedule: "0 5 * * *"
+  autoDeploy: true
+  rootDir: .
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+- type: cron
+  name: jupiter-webapi-sync-apple-user-data-do-all
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
+  runtime: docker
+  dockerfilePath: ./src/webapi/sync-apple-user-data-do-all/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  schedule: "0 6 * * *"
   autoDeploy: true
   rootDir: .
   envVars:

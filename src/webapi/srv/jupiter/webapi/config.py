@@ -119,6 +119,11 @@ class JupiterWebApiProperties(ServiceProperties):
     google_client_id: str
     google_client_secret: str
     google_refresh_token_encryption_key: str
+    apple_team_id: str
+    apple_key_id: str
+    apple_services_id: str
+    apple_private_key: str
+    apple_refresh_token_encryption_key: str
     resend_api_key: str
     resend_from_email: EmailAddress
     google_maps_api_key: str
@@ -188,6 +193,13 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     google_refresh_token_encryption_key = cast(
         str, os.getenv("GOOGLE_REFRESH_TOKEN_ENCRYPTION_KEY")
     )
+    apple_team_id = cast(str, os.getenv("APPLE_TEAM_ID"))
+    apple_key_id = cast(str, os.getenv("APPLE_KEY_ID"))
+    apple_services_id = cast(str, os.getenv("APPLE_SERVICES_ID"))
+    apple_private_key = cast(str, os.getenv("APPLE_PRIVATE_KEY"))
+    apple_refresh_token_encryption_key = cast(
+        str, os.getenv("APPLE_REFRESH_TOKEN_ENCRYPTION_KEY")
+    )
     resend_api_key = cast(str, os.getenv("RESEND_API_KEY", ""))
     resend_from_email = EmailAddress(cast(str, os.getenv("RESEND_FROM_EMAIL", "")))
     google_maps_api_key = cast(str, os.getenv("GOOGLE_MAPS_API_KEY", ""))
@@ -220,6 +232,11 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         google_client_id=google_client_id,
         google_client_secret=google_client_secret,
         google_refresh_token_encryption_key=google_refresh_token_encryption_key,
+        apple_team_id=apple_team_id,
+        apple_key_id=apple_key_id,
+        apple_services_id=apple_services_id,
+        apple_private_key=apple_private_key,
+        apple_refresh_token_encryption_key=apple_refresh_token_encryption_key,
         resend_api_key=resend_api_key,
         resend_from_email=resend_from_email,
         google_maps_api_key=google_maps_api_key,

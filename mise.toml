@@ -37,6 +37,7 @@ includes = [
     "src/webapi/gc-do-all/package.mise.toml",
     "src/webapi/clear-abandoned-users-do-all/package.mise.toml",
     "src/webapi/sync-google-user-data-do-all/package.mise.toml",
+    "src/webapi/sync-apple-user-data-do-all/package.mise.toml",
     "src/webapi/gen-do-all/package.mise.toml",
     "src/webapi/schedule-external-sync-do-all/package.mise.toml",
     "src/webapi/search-index-backfill-do-all/package.mise.toml",

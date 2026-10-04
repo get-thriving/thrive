@@ -3,10 +3,8 @@ import { redirect } from "react-router";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseQuery } from "zodix";
-import {
-  decodeGoogleOauthRedirectState,
-  isAllowedGoogleOauthCallbackUrl,
-} from "@jupiter/core/auth/sub/google/google-oauth-redirect-state.server";
+import { isAllowedOauthCallbackUrl } from "@jupiter/core/auth/oauth-callback-url.server";
+import { decodeGoogleOauthRedirectState } from "@jupiter/core/auth/sub/google/google-oauth-redirect-state.server";
 
 import { SERVICE_PROPERTIES } from "~/logic/config.server";
 
@@ -28,11 +26,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   if (
-    !isAllowedGoogleOauthCallbackUrl(
+    !isAllowedOauthCallbackUrl(
       decoded.callbackSuccessUrl,
       SERVICE_PROPERTIES.webUiUrl,
     ) ||
-    !isAllowedGoogleOauthCallbackUrl(
+    !isAllowedOauthCallbackUrl(
       decoded.callbackFailureUrl,
       SERVICE_PROPERTIES.webUiUrl,
     )
@@ -43,12 +41,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   if (query.error !== undefined || query.code === undefined) {
-    return redirect(decoded.callbackFailureUrl);
+    return redirect(decoded.callbackFailureUrl, StatusCodes.MOVED_TEMPORARILY);
   }
 
   const successUrl = new URL(decoded.callbackSuccessUrl);
   successUrl.searchParams.set("state", query.state);
   successUrl.searchParams.set("code", query.code);
 
-  return redirect(successUrl.toString());
+  return redirect(successUrl.toString(), StatusCodes.MOVED_TEMPORARILY);
 }

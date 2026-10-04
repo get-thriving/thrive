@@ -51,6 +51,9 @@ from .app_distribution import AppDistribution
 from .app_distribution_state import AppDistributionState
 from .app_platform import AppPlatform
 from .app_shell import AppShell
+from .apple_id_token_claims import AppleIdTokenClaims
+from .apple_o_auth_token_response import AppleOAuthTokenResponse
+from .apple_oauth_redirect_state import AppleOauthRedirectState
 from .aspect import Aspect
 from .aspect_archive_args import AspectArchiveArgs
 from .aspect_create_args import AspectCreateArgs
@@ -67,6 +70,8 @@ from .aspect_update_args import AspectUpdateArgs
 from .aspect_update_args_name import AspectUpdateArgsName
 from .aspect_update_args_parent_aspect_ref_id import AspectUpdateArgsParentAspectRefId
 from .aspect_update_result import AspectUpdateResult
+from .auth_apple_get_authorisation_url_args import AuthAppleGetAuthorisationUrlArgs
+from .auth_apple_get_authorisation_url_result import AuthAppleGetAuthorisationUrlResult
 from .auth_google_get_authorisation_url_args import AuthGoogleGetAuthorisationUrlArgs
 from .auth_google_get_authorisation_url_result import AuthGoogleGetAuthorisationUrlResult
 from .big_plan import BigPlan
@@ -522,6 +527,8 @@ from .indexed_location import IndexedLocation
 from .init_args import InitArgs
 from .init_create_user_local_args import InitCreateUserLocalArgs
 from .init_create_user_local_result import InitCreateUserLocalResult
+from .init_create_user_or_login_apple_args import InitCreateUserOrLoginAppleArgs
+from .init_create_user_or_login_apple_result import InitCreateUserOrLoginAppleResult
 from .init_create_user_or_login_google_args import InitCreateUserOrLoginGoogleArgs
 from .init_create_user_or_login_google_result import InitCreateUserOrLoginGoogleResult
 from .init_create_workspace_args import InitCreateWorkspaceArgs
@@ -1063,6 +1070,7 @@ from .stats_load_runs_result import StatsLoadRunsResult
 from .stats_log import StatsLog
 from .stats_log_entry import StatsLogEntry
 from .suggested_date import SuggestedDate
+from .sync_apple_user_data_do_all_args import SyncAppleUserDataDoAllArgs
 from .sync_google_user_data_do_all_args import SyncGoogleUserDataDoAllArgs
 from .sync_target import SyncTarget
 from .table_block import TableBlock
@@ -1418,6 +1426,9 @@ __all__ = (
     "AppCore",
     "AppDistribution",
     "AppDistributionState",
+    "AppleIdTokenClaims",
+    "AppleOauthRedirectState",
+    "AppleOAuthTokenResponse",
     "AppPlatform",
     "AppShell",
     "Aspect",
@@ -1436,6 +1447,8 @@ __all__ = (
     "AspectUpdateArgsName",
     "AspectUpdateArgsParentAspectRefId",
     "AspectUpdateResult",
+    "AuthAppleGetAuthorisationUrlArgs",
+    "AuthAppleGetAuthorisationUrlResult",
     "AuthGoogleGetAuthorisationUrlArgs",
     "AuthGoogleGetAuthorisationUrlResult",
     "BigPlan",
@@ -1891,6 +1904,8 @@ __all__ = (
     "InitArgs",
     "InitCreateUserLocalArgs",
     "InitCreateUserLocalResult",
+    "InitCreateUserOrLoginAppleArgs",
+    "InitCreateUserOrLoginAppleResult",
     "InitCreateUserOrLoginGoogleArgs",
     "InitCreateUserOrLoginGoogleResult",
     "InitCreateWorkspaceArgs",
@@ -2408,6 +2423,7 @@ __all__ = (
     "StatsLog",
     "StatsLogEntry",
     "SuggestedDate",
+    "SyncAppleUserDataDoAllArgs",
     "SyncGoogleUserDataDoAllArgs",
     "SyncTarget",
     "TableBlock",

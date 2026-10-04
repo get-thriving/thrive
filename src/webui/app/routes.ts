@@ -30,6 +30,10 @@ export default [
       "routes/app/lifecycle/init/google/create-or-login-user.tsx",
     ),
     route(
+      "lifecycle/init/apple/create-or-login-user",
+      "routes/app/lifecycle/init/apple/create-or-login-user.tsx",
+    ),
+    route(
       "lifecycle/util/local/show-recovery-token",
       "routes/app/lifecycle/util/local/show-recovery-token.tsx",
     ),
@@ -64,6 +68,14 @@ export default [
     route(
       "lifecycle/init/google/ready",
       "routes/app/lifecycle/init/google/ready.tsx",
+    ),
+    route(
+      "lifecycle/init/apple/prepare",
+      "routes/app/lifecycle/init/apple/prepare.tsx",
+    ),
+    route(
+      "lifecycle/init/apple/ready",
+      "routes/app/lifecycle/init/apple/ready.tsx",
     ),
     route(
       "lifecycle/login/local/login",

@@ -7,6 +7,7 @@ import { useContext } from "react";
 import { GlobalPropertiesContext } from "#/core/config-client";
 
 const GOOGLE_PREPARE_LINK = "/app/lifecycle/init/google/prepare";
+const APPLE_PREPARE_LINK = "/app/lifecycle/init/apple/prepare";
 
 interface LifecycleOAuthProviderButtonsProps {
   disabled?: boolean;
@@ -41,7 +42,14 @@ export function LifecycleOAuthProviderButtons({
       >
         Google
       </Button>
-      <Button variant="outlined" fullWidth disabled startIcon={<AppleIcon />}>
+      <Button
+        component={Link}
+        to={APPLE_PREPARE_LINK}
+        variant="outlined"
+        fullWidth
+        disabled={disabled}
+        startIcon={<AppleIcon />}
+      >
         Apple
       </Button>
     </Stack>

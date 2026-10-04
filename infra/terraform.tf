@@ -464,6 +464,15 @@ resource "google_dns_record_set" "thrive_main_updates_send_spf_txt" {
   rrdatas      = ["\"v=spf1 include:amazonses.com ~all\""]
 }
 
+resource "google_dns_record_set" "thrive_main_updates_spf_txt" {
+  project      = google_project.get_thriving_main.project_id
+  managed_zone = google_dns_managed_zone.thrive_main.name
+  name         = "updates.get-thriving.com."
+  type         = "TXT"
+  ttl          = 3600
+  rrdatas      = ["\"v=spf1 include:amazonses.com ~all\""]
+}
+
 resource "google_dns_record_set" "thrive_main_dmarc_txt" {
   project      = google_project.get_thriving_main.project_id
   managed_zone = google_dns_managed_zone.thrive_main.name

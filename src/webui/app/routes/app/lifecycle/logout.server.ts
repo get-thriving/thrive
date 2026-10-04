@@ -1,6 +1,8 @@
 import { redirectDocument } from "react-router";
+import { clearAppleOauthState } from "@jupiter/core/auth/sub/apple/oauth-state.server";
 import { clearGoogleOauthState } from "@jupiter/core/auth/sub/google/oauth-state.server";
 import {
+  APPLE_OAUTH_STATE_COOKIE_NAME,
   AUTH_TOKEN_NAME,
   GOOGLE_OAUTH_STATE_COOKIE_NAME,
   NIGHT_MODE_COOKIE_NAME,
@@ -46,12 +48,17 @@ export async function logoutAndRedirectToLogin(request: Request) {
   );
   headers.append(
     "Set-Cookie",
+    await clearAppleOauthState(SERVICE_PROPERTIES.sessionCookieSecure),
+  );
+  headers.append(
+    "Set-Cookie",
     await clearNightModePreference(SERVICE_PROPERTIES.sessionCookieSecure),
   );
 
   for (const name of [
     SESSION_COOKIE_NAME,
     GOOGLE_OAUTH_STATE_COOKIE_NAME,
+    APPLE_OAUTH_STATE_COOKIE_NAME,
     NIGHT_MODE_COOKIE_NAME,
   ]) {
     headers.append("Set-Cookie", clearLegacyDomainScopedCookie(request, name));

@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AuthAppleGetAuthorisationUrlArgs } from '../models/AuthAppleGetAuthorisationUrlArgs';
+import type { AuthAppleGetAuthorisationUrlResult } from '../models/AuthAppleGetAuthorisationUrlResult';
 import type { AuthGoogleGetAuthorisationUrlArgs } from '../models/AuthGoogleGetAuthorisationUrlArgs';
 import type { AuthGoogleGetAuthorisationUrlResult } from '../models/AuthGoogleGetAuthorisationUrlResult';
 import type { ChangePasswordArgs } from '../models/ChangePasswordArgs';
@@ -14,6 +16,34 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class AuthService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
+    /**
+     * Build an Apple OAuth authorisation redirect URL.
+     * @param requestBody The input data
+     * @returns AuthAppleGetAuthorisationUrlResult Successful response
+     * @throws ApiError
+     */
+    public authAppleGetAuthorisationUrl(
+        requestBody?: AuthAppleGetAuthorisationUrlArgs,
+    ): CancelablePromise<AuthAppleGetAuthorisationUrlResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/auth-apple-get-authorisation-url',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
     /**
      * Use case for creating an email verification attempt.
      * @param requestBody The input data

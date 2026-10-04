@@ -16,6 +16,7 @@ from jupiter.core.apps.crm.impl.sqlite.indexing_storage_engine import (
 )
 from jupiter.core.apps.crm.impl.wix import WixCRM
 from jupiter.core.apps.crm.indexing_storage_engine import CRMIndexingStorageEngine
+from jupiter.core.auth.sub.apple.oauth_client import AppleOauthClient
 from jupiter.core.auth.sub.email_verification.email_sender import EmailSender
 from jupiter.core.auth.sub.email_verification.impl.noop import NoOpEmailSender
 from jupiter.core.auth.sub.email_verification.impl.resend import ResendEmailSender
@@ -224,6 +225,14 @@ async def main() -> None:
         refresh_token_encryption_key=service_properties.google_refresh_token_encryption_key,
         realm_codec_registry=realm_codec_registry,
     )
+    apple_oauth_client = AppleOauthClient(
+        team_id=service_properties.apple_team_id,
+        key_id=service_properties.apple_key_id,
+        services_id=service_properties.apple_services_id,
+        private_key_pem=service_properties.apple_private_key,
+        refresh_token_encryption_key=service_properties.apple_refresh_token_encryption_key,
+        realm_codec_registry=realm_codec_registry,
+    )
 
     email_sender: EmailSender
     if service_properties.email_sender_backend == JupiterWebApiEmailSender.RESEND:
@@ -255,6 +264,7 @@ async def main() -> None:
         email_sender=email_sender,
         location_resolver=location_resolver,
         google_oauth_client=google_oauth_client,
+        apple_oauth_client=apple_oauth_client,
     )
 
     # Build the app form
@@ -327,6 +337,10 @@ async def main() -> None:
                 pass
         try:
             await google_oauth_client.close()
+        finally:
+            pass
+        try:
+            await apple_oauth_client.close()
         finally:
             pass
         try:

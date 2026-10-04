@@ -1,6 +1,9 @@
 """Close an account and workspace."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.auth.service.urgent_clear_auth_info_for_user import (
+    UrgentClearAuthInfoForUser,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -66,3 +69,16 @@ class CloseAccountUseCase(
             user.ref_id,
             JupiterArchivalReason.USER,
         )
+
+    async def _perform_post_transactional_mutation_work(
+        self,
+        progress_reporter: ProgressReporter,
+        context: JupiterLoggedInMutationContext,
+        args: CloseAccountArgs,
+        result: None,
+    ) -> None:
+        """Clear provider auth credentials after the account is archived."""
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+            await UrgentClearAuthInfoForUser(self._ports.apple_oauth_client).do_it(
+                uow, context.domain_context, context.user
+            )

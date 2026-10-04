@@ -12,6 +12,12 @@ packages:
 # resolve.dedupe looks for them.
 nodeLinker: hoisted
 
+# pnpm 11 reads overrides from here. package.json "pnpm.overrides" is kept for
+# pnpm 10, which is what local mise installs.
+overrides:
+  react: 19.3.0
+  react-dom: 19.3.0
+
 # Allow dependency install/postinstall scripts (pnpm v10+ strictDepBuilds / allowBuilds; replaces package.json "pnpm.onlyBuiltDependencies").
 allowBuilds:
   capacitor: true

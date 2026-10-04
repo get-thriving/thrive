@@ -108,6 +108,11 @@ services:
     image: ${DOCKER_IMAGE_WEBAPI_SYNC_GOOGLE_USER_DATA_DO_ALL:-getthriving/webapi-sync-google-user-data-do-all:${VERSION:-latest}}
     environment:
       <<: *webapi-cron-env
+  webapi-sync-apple-user-data-do-all:
+    <<: *webapi-cron-service
+    image: ${DOCKER_IMAGE_WEBAPI_SYNC_APPLE_USER_DATA_DO_ALL:-getthriving/webapi-sync-apple-user-data-do-all:${VERSION:-latest}}
+    environment:
+      <<: *webapi-cron-env
   webapi-gen-do-all:
     <<: *webapi-cron-service
     image: ${DOCKER_IMAGE_WEBAPI_GEN_DO_ALL:-getthriving/webapi-gen-do-all:${VERSION:-latest}}

@@ -1,0 +1,35 @@
+export interface AppleOauthRedirectState {
+  callbackSuccessUrl: string;
+  callbackFailureUrl: string;
+}
+
+export function decodeAppleOauthRedirectState(
+  state: string,
+): AppleOauthRedirectState | null {
+  try {
+    const padding = "=".repeat((4 - (state.length % 4)) % 4);
+    const raw = Buffer.from(`${state}${padding}`, "base64url").toString(
+      "utf-8",
+    );
+    const payload = JSON.parse(raw) as {
+      v?: unknown;
+      callback_success_url?: unknown;
+      callback_failure_url?: unknown;
+    };
+
+    if (
+      payload.v !== 1 ||
+      typeof payload.callback_success_url !== "string" ||
+      typeof payload.callback_failure_url !== "string"
+    ) {
+      return null;
+    }
+
+    return {
+      callbackSuccessUrl: payload.callback_success_url,
+      callbackFailureUrl: payload.callback_failure_url,
+    };
+  } catch {
+    return null;
+  }
+}

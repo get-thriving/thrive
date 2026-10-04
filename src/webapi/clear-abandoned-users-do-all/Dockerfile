@@ -30,6 +30,7 @@ COPY --parents \
     src/webapi/gc-do-all/pyproject.toml \
     src/webapi/clear-abandoned-users-do-all/pyproject.toml \
     src/webapi/sync-google-user-data-do-all/pyproject.toml \
+    src/webapi/sync-apple-user-data-do-all/pyproject.toml \
     src/webapi/gen-do-all/pyproject.toml \
     src/webapi/schedule-external-sync-do-all/pyproject.toml \
     src/webapi/search-index-backfill-do-all/pyproject.toml \

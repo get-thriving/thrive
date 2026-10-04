@@ -39,6 +39,7 @@ COPY --parents \
     src/webapi/gc-do-all/pyproject.toml \
     src/webapi/clear-abandoned-users-do-all/pyproject.toml \
     src/webapi/sync-google-user-data-do-all/pyproject.toml \
+    src/webapi/sync-apple-user-data-do-all/pyproject.toml \
     src/webapi/gen-do-all/pyproject.toml \
     src/webapi/schedule-external-sync-do-all/pyproject.toml \
     src/webapi/search-index-backfill-do-all/pyproject.toml \
@@ -127,6 +128,19 @@ COPY src/webapi/sync-google-user-data-do-all/jupiter_webapi_sync_google_user_dat
 WORKDIR /jupiter/src/webapi/sync-google-user-data-do-all
 
 ENTRYPOINT ["dumb-init", "python", "-m", "jupiter_webapi_sync_google_user_data_do_all.jupiter"]
+
+FROM webapi-installed AS webapi-sync-apple-user-data-do-all
+
+RUN --mount=type=cache,id=uv,target=/root/.cache/uv,sharing=locked \
+    uv sync --frozen --no-dev --no-editable --package jupiter-webapi-sync-apple-user-data-do-all
+
+COPY src/webapi/sync-apple-user-data-do-all/README.md src/webapi/sync-apple-user-data-do-all/README.md
+COPY src/webapi/sync-apple-user-data-do-all/Config.project src/webapi/sync-apple-user-data-do-all/Config.project
+COPY src/webapi/sync-apple-user-data-do-all/jupiter_webapi_sync_apple_user_data_do_all src/webapi/sync-apple-user-data-do-all/jupiter_webapi_sync_apple_user_data_do_all
+
+WORKDIR /jupiter/src/webapi/sync-apple-user-data-do-all
+
+ENTRYPOINT ["dumb-init", "python", "-m", "jupiter_webapi_sync_apple_user_data_do_all.jupiter"]
 
 FROM webapi-installed AS webapi-gen-do-all
 

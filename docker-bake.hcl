@@ -56,6 +56,7 @@ target "webapi-cron" {
       "gc-do-all",
       "clear-abandoned-users-do-all",
       "sync-google-user-data-do-all",
+      "sync-apple-user-data-do-all",
       "gen-do-all",
       "schedule-external-sync-do-all",
       "search-index-backfill-do-all",

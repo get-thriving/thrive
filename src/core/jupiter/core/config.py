@@ -17,6 +17,7 @@ from jupiter.core.app import (
 )
 from jupiter.core.apps.crm.crm import CRM
 from jupiter.core.apps.crm.indexing_storage_engine import CRMIndexingStorageEngine
+from jupiter.core.auth.sub.apple.oauth_client import AppleOauthClient
 from jupiter.core.auth.sub.email_verification.email_sender import EmailSender
 from jupiter.core.auth.sub.google.oauth_client import GoogleOauthClient
 from jupiter.core.backend_blend import (
@@ -95,6 +96,7 @@ class JupiterPorts(DomainPorts):
     email_sender: EmailSender
     location_resolver: LocationResolver
     google_oauth_client: GoogleOauthClient | None = None
+    apple_oauth_client: AppleOauthClient | None = None
 
 
 @dataclass(frozen=True)
