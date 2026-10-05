@@ -6,11 +6,14 @@
 // chores to a time plan", and the other add-from forms) are rejected as a CSRF
 // mismatch before the action runs. Resource routes skip that check.
 //
-// This wraps the Express that react-router-serve loads so the app trusts
+// This patches the Express that react-router-serve loads so every app trusts
 // X-Forwarded-Proto / Host, then aligns those headers with the browser Origin
 // when that origin is already the public host. Serve 8 imports Express from an
 // ES module, which loads the resolved file path. require() loads the bare
-// "express" name. Both go through Module._load.
+// "express" name. Both go through Module._load, but an ES module import reads
+// module.exports from the module cache and ignores what Module._load returns.
+// So the patch changes the shared application prototype in place instead of
+// returning a wrapped factory.
 const Module = require("module");
 const { fileURLToPath } = require("url");
 const originalLoad = Module._load;
@@ -18,26 +21,28 @@ const expressEntry = require.resolve("express");
 
 Module._load = function (request) {
   const loaded = originalLoad.apply(this, arguments);
-  if (
-    !isExpressLoad(request) ||
-    typeof loaded !== "function" ||
-    loaded.__trustProxyPatched
-  ) {
-    return loaded;
+  if (isExpressLoad(request) && typeof loaded === "function") {
+    patchExpress(loaded);
   }
-
-  function express(...args) {
-    const app = loaded(...args);
-    app.set("trust proxy", 1);
-    app.use(alignForwardedOrigin);
-    return app;
-  }
-
-  Object.assign(express, loaded);
-  Object.setPrototypeOf(express, loaded);
-  express.__trustProxyPatched = true;
-  return express;
+  return loaded;
 };
+
+function patchExpress(express) {
+  const proto = express.application;
+  if (!proto || typeof proto.init !== "function" || proto.__trustProxyPatched) {
+    return;
+  }
+
+  // express() mixes this prototype into each new app and then calls init().
+  const originalInit = proto.init;
+  proto.init = function (...args) {
+    const result = originalInit.apply(this, args);
+    this.set("trust proxy", 1);
+    this.use(alignForwardedOrigin);
+    return result;
+  };
+  proto.__trustProxyPatched = true;
+}
 
 function isExpressLoad(request) {
   if (typeof request !== "string") return false;
