@@ -1042,7 +1042,10 @@ export default function TimePlanActivity() {
                   actions={[
                     NavMultipleSpread({
                       navs: [
-                        ...(timePlanAllowsInboxTasks(timePlan)
+                        // The panel can show an archived big plan, but the
+                        // pages below load it without archived entities.
+                        ...(timePlanAllowsInboxTasks(timePlan) &&
+                        !loaderData.targetBigPlan.archived
                           ? [
                               NavSingle({
                                 text: "New Inbox Task",
