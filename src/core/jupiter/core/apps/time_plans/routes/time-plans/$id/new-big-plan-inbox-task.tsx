@@ -18,6 +18,7 @@ import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { handleLoaderApiError } from "#/core/infra/errors.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -37,24 +38,28 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
   const query = parseQuery(request, QuerySchema);
-  const [timePlanResult, bigPlanResult] = await Promise.all([
-    apiClient.timePlans.timePlanLoad({
-      allow_archived: false,
-      ref_id: id,
-      include_targets: false,
-      include_completed_nontarget: false,
-      include_other_time_plans: false,
-    }),
-    apiClient.bigPlans.bigPlanLoad({
-      allow_archived: false,
-      ref_id: query.bigPlanRefId,
-    }),
-  ]);
+  try {
+    const [timePlanResult, bigPlanResult] = await Promise.all([
+      apiClient.timePlans.timePlanLoad({
+        allow_archived: false,
+        ref_id: id,
+        include_targets: false,
+        include_completed_nontarget: false,
+        include_other_time_plans: false,
+      }),
+      apiClient.bigPlans.bigPlanLoad({
+        allow_archived: false,
+        ref_id: query.bigPlanRefId,
+      }),
+    ]);
 
-  return {
-    bigPlan: bigPlanResult.big_plan,
-    timePlan: timePlanResult.time_plan,
-  };
+    return {
+      bigPlan: bigPlanResult.big_plan,
+      timePlan: timePlanResult.time_plan,
+    };
+  } catch (error) {
+    handleLoaderApiError(error);
+  }
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =
