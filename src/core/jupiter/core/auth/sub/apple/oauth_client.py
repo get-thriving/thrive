@@ -1,5 +1,6 @@
 """An OAuth2 client for Sign in with Apple."""
 
+import re
 import time
 from typing import Final, cast
 
@@ -38,6 +39,27 @@ _APPLE_REVOKE_URL = "https://appleid.apple.com/auth/revoke"
 _APPLE_ID_TOKEN_ALGORITHMS = ["RS256"]
 _CLIENT_SECRET_LIFETIME_SECONDS = 60 * 60
 _CLIENT_SECRET_RENEW_BEFORE_SECONDS = 60
+
+
+_PEM_BODY_RE = re.compile(
+    r"-----BEGIN [A-Z ]*PRIVATE KEY-----(.*?)-----END [A-Z ]*PRIVATE KEY-----", re.S
+)
+
+
+def _normalize_pem(raw: str) -> str:
+    """Rebuild a well-formed PKCS8 PEM from whatever an env var mangled it into.
+
+    Handles surrounding quotes, literal ``\\n`` sequences, CRLFs, newlines
+    collapsed into spaces, and a missing BEGIN/END header.
+    """
+    pem = raw.strip().strip("'\"").replace("\\n", "\n").replace("\r", "")
+    match = _PEM_BODY_RE.search(pem)
+    body = match.group(1) if match else pem
+    body = re.sub(r"\s+", "", body)
+    lines = [body[i : i + 64] for i in range(0, len(body), 64)]
+    return "\n".join(
+        ["-----BEGIN PRIVATE KEY-----", *lines, "-----END PRIVATE KEY-----", ""]
+    )
 
 
 class AppleRefreshTokenRevokedError(Exception):
@@ -219,10 +241,13 @@ class AppleOauthClient:
 
     def _private_key(self) -> EllipticCurvePrivateKey:
         """Parse the .p8 PEM, turning escaped newlines from env vars into real ones."""
-        pem = self._private_key_pem
-        if "\\n" in pem:
-            pem = pem.replace("\\n", "\n")
-        key = load_pem_private_key(pem.encode(), password=None)
+        pem = _normalize_pem(self._private_key_pem)
+        try:
+            key = load_pem_private_key(pem.encode(), password=None)
+        except ValueError as err:
+            raise InputValidationError(
+                "Apple private key is not a valid PEM (.p8) file"
+            ) from err
         if not isinstance(key, EllipticCurvePrivateKey):
             raise InputValidationError("Apple private key must be an EC private key")
         return key
