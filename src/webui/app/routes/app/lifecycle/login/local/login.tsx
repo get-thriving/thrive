@@ -1,7 +1,12 @@
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirectDocument, useActionData, useNavigation } from "react-router";
+import {
+  redirectDocument,
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
@@ -31,6 +36,7 @@ import {
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
+import { oauthReturnToFromUrl } from "@jupiter/core/auth/oauth-return-to";
 import { hasShellFeature, ShellFeature } from "@jupiter/core/frontdoor";
 
 import { ServicePropertiesContext } from "~/logic/config";
@@ -47,10 +53,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const apiClient = await getGuestApiClient(request);
 
+  const returnTo = oauthReturnToFromUrl(request.url);
+
   if (session.has(AUTH_TOKEN_NAME)) {
     const result = await apiClient.application.loadTopLevelInfo({});
     if (result.user || result.workspace) {
-      return redirectDocument("/app/workspace");
+      return redirectDocument(returnTo ?? "/app/workspace");
     }
   }
 
@@ -71,12 +79,15 @@ export async function action({ request }: ActionFunctionArgs) {
 
     session.set(AUTH_TOKEN_NAME, result.auth_token_ext);
 
-    // Login succeeded, send them to the home page.
-    return redirectDocument("/app/workspace", {
-      headers: {
-        "Set-Cookie": await commitSession(session),
+    // Login succeeded, send them back to what they came for, or the home page.
+    return redirectDocument(
+      oauthReturnToFromUrl(request.url) ?? "/app/workspace",
+      {
+        headers: {
+          "Set-Cookie": await commitSession(session),
+        },
       },
-    });
+    );
   } catch (error) {
     return handleActionApiError(error);
   }
@@ -86,6 +97,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function Login() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
+  const [searchParams] = useSearchParams();
 
   const serviceProperties = useContext(ServicePropertiesContext);
   const oauthProviderButtonProps = useOAuthProviderButtonProps();
@@ -150,7 +162,10 @@ export default function Login() {
             />
           }
         >
-          <LifecycleOAuthProviderButtons {...oauthProviderButtonProps} />
+          <LifecycleOAuthProviderButtons
+            {...oauthProviderButtonProps}
+            returnTo={searchParams.get("returnTo") ?? undefined}
+          />
 
           <FormControl fullWidth>
             <InputLabel id="emailAddress">Email Address</InputLabel>

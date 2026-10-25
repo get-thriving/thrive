@@ -261,6 +261,45 @@ has a "Change Server" button that takes you to the same picker.
 The mobile apps work the same way. Both the desktop and mobile apps only
 connect to `https://` servers, so your instance needs a certificate.
 
+### Apps, Scripts, And AI Assistants
+
+Thrive can be used programmatically, not just through its own apps. All three
+ways work on a self-hosted instance with the standard setup, under your domain:
+
+* **Scripts and programs** use the [API](../concepts/api.md) with an API key. It
+  lives at `https://my-thrive-instance.com/api`, with live documentation at
+  `https://my-thrive-instance.com/api/redoc`.
+* **AI assistants** use the [MCP server](../concepts/mcp.md). An assistant that
+  can sign in, such as Claude, connects to `https://my-thrive-instance.com/mcp`
+  and sends you to your own Thrive to approve it. An assistant that cannot sign in
+  uses an MCP key instead, with an address like
+  `https://my-thrive-instance.com/mcp/v1/YOUR_KEY_HERE/mcp`.
+
+The keys and the apps you have approved are managed from the Access page of your
+instance, in the account menu. Each person on an instance manages their own.
+
+A few things to know about this part of the setup:
+
+* **The nginx config does the routing.** Besides `/api` and `/mcp`, the MCP
+  server also answers a few paths at the root of your domain, which assistants use
+  to sign in: `/authorize`, `/token`, `/.well-known/oauth-protected-resource`
+  and `/.well-known/oauth-authorization-server`. The `webui.conf` you downloaded
+  forwards them, and also turns an MCP key address into the form the server
+  expects. If you put your own reverse proxy in front instead, you need to do the
+  same.
+* **It needs the domain.** The configuration for running
+  [without a domain](#running-without-the-domain-optional) does not forward the
+  MCP server. MCP keys and signing in need the standard setup, with a domain and a
+  certificate.
+* **Who needs to reach your server.** Assistants that run in the cloud, such as
+  Claude on the web and ChatGPT, connect from the internet, so your instance must
+  be reachable from there. Claude Code runs on your own machine, so it can also
+  connect to an instance that is only reachable from it.
+* **A different public address.** The server works out its own address from
+  `DOMAIN`. If people reach it under another one, add `MCP_SERVER_URL` to `.env`
+  with the public address, without the `/mcp` at the end, such as
+  `https://thrive.example.net`.
+
 ### Backups
 
 WIP

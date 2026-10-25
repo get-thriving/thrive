@@ -10,17 +10,21 @@ from typing import (
     Union,
     cast,
 )
+from urllib.parse import urlsplit
 
 import dotenv
 from jupiter.core.config import JupiterGlobalProperties
 from jupiter.framework.base.trace_id import TraceId, TraceIdDatabaseEncoder
 from jupiter.framework.ports import Ports
+from jupiter.framework.service.mcp.oauth_token_error import OAuthTokenError
+from jupiter.framework.service.mcp.oauth_tokens import OAuthTokens
 from jupiter.framework.service.mcp.resource import McpApiGatewayResource
 from jupiter.framework.service.mcp.service import McpService
 from jupiter.framework.service.mcp.tool import McpApiGatewayTool
 from jupiter.framework.service.rest.api_gateway_method import (
     WebApiClientCallable,
     WebApiClientSerializable,
+    _extract_types_from_api_call,
 )
 from jupiter.framework.service_properties import ServiceProperties
 from jupiter.mcp.headers import (
@@ -30,7 +34,24 @@ from jupiter.mcp.headers import (
 )
 from jupiter.mcp.webapi_client import WebApiClient
 from jupiter_webapi_client import AuthenticatedClient
-from jupiter_webapi_client.models import ErrorResponse
+from jupiter_webapi_client.api.auth.o_auth_token_exchange import (
+    asyncio_detailed as oauth_token_exchange,
+)
+from jupiter_webapi_client.api.auth.o_auth_token_refresh import (
+    asyncio_detailed as oauth_token_refresh,
+)
+from jupiter_webapi_client.api.mcp_key.m_cp_key_exchange import (
+    asyncio_detailed as mcp_key_exchange,
+)
+from jupiter_webapi_client.models import (
+    ErrorResponse,
+    MCPKeyExchangeArgs,
+    MCPKeyExchangeResult,
+    OAuthTokenExchangeArgs,
+    OAuthTokenExchangeResult,
+    OAuthTokenRefreshArgs,
+    OAuthTokenRefreshResult,
+)
 from jupiter_webapi_client.types import Unset
 
 _ApiArgsT = TypeVar("_ApiArgsT", bound=WebApiClientSerializable)
@@ -38,6 +59,9 @@ _ApiResultT = TypeVar("_ApiResultT", bound=WebApiClientSerializable)
 _ApiCallT = TypeVar("_ApiCallT", bound=WebApiClientCallable[Any, Any, Any])  # type: ignore[explicit-any]
 
 _TRACE_ID_ENCODER = TraceIdDatabaseEncoder()
+
+# The route in the web UI where a user signs in and approves an OAuth app.
+_CONSENT_PATH = "/app/oauth/authorize"
 
 
 @dataclass(frozen=True)
@@ -55,6 +79,25 @@ class JupiterMcpProperties(ServiceProperties):
     port: int
     sentry_dsn: str
     webapi_url: str
+    public_url: str
+    webui_url: str
+
+
+def required_url_from_env(name: str) -> str:
+    """Read an absolute http(s) URL the service cannot run without, failing at startup."""
+    raw = os.getenv(name)
+    if not raw:
+        raise Exception(
+            f"Critical error - the environment variable {name} is required, "
+            "and should be an http(s) URL"
+        )
+    parts = urlsplit(raw)
+    if parts.scheme not in ("http", "https") or not parts.netloc:
+        raise Exception(
+            f"Critical error - the environment variable {name} is not an "
+            f"http(s) URL: {raw}"
+        )
+    return raw.rstrip("/")
 
 
 def build_mcp_properties() -> JupiterMcpProperties:
@@ -87,6 +130,8 @@ def build_mcp_properties() -> JupiterMcpProperties:
         port=port,
         sentry_dsn=sentry_dsn,
         webapi_url=webapi_url,
+        public_url=required_url_from_env("PUBLIC_URL"),
+        webui_url=required_url_from_env("WEBUI_URL"),
     )
 
 
@@ -145,10 +190,6 @@ class JupiterMcpResource(
         api_call: _ApiCallT,
     ) -> Any:
         """Return a builder that constructs this resource."""
-        from jupiter.framework.service.rest.api_gateway_method import (
-            _extract_types_from_api_call,
-        )
-
         args, result = _extract_types_from_api_call(
             api_call, cls.unset_marker_type(), cls.error_response_type()
         )
@@ -210,10 +251,6 @@ class JupiterMcpTool(
         api_call: _ApiCallT,
     ) -> Any:
         """Return a builder that constructs this tool."""
-        from jupiter.framework.service.rest.api_gateway_method import (
-            _extract_types_from_api_call,
-        )
-
         args, result = _extract_types_from_api_call(
             api_call, cls.unset_marker_type(), cls.error_response_type()
         )
@@ -261,16 +298,18 @@ class JupiterMcpService(
         """The port of the app."""
         return self._service_properties.port
 
+    @property
+    def public_url(self) -> str:
+        """The externally visible base URL of the app."""
+        return self._service_properties.public_url
+
+    @property
+    def consent_url(self) -> str:
+        """The web UI page where a user signs in and approves an app."""
+        return f"{self._service_properties.webui_url}{_CONSENT_PATH}"
+
     async def _do_key_exchange(self, key_str: str) -> str | None:
         """Exchange an MCP key string for an auth token."""
-        from jupiter_webapi_client.api.mcp_key.m_cp_key_exchange import (
-            asyncio_detailed as mcp_key_exchange,
-        )
-        from jupiter_webapi_client.models import (
-            MCPKeyExchangeArgs,
-            MCPKeyExchangeResult,
-        )
-
         client = self._ports.webapi_client.client
 
         resp = await mcp_key_exchange(
@@ -282,3 +321,59 @@ class JupiterMcpService(
 
         true_resp = cast(MCPKeyExchangeResult, resp.parsed)
         return true_resp.auth_token_ext
+
+    async def _do_code_exchange(
+        self,
+        code: str,
+        code_verifier: str,
+        client_id: str,
+        redirect_uri: str,
+        resource: str,
+    ) -> OAuthTokens:
+        """Exchange an authorization code for tokens."""
+        resp = await oauth_token_exchange(
+            client=self._ports.webapi_client.client,
+            body=OAuthTokenExchangeArgs(
+                code=code,
+                code_verifier=code_verifier,
+                client_id=client_id,
+                redirect_uri=redirect_uri,
+                resource=resource,
+            ),
+        )
+        return self._tokens_or_error(resp)
+
+    async def _do_refresh(self, refresh_token: str, client_id: str) -> OAuthTokens:
+        """Exchange a refresh token for tokens."""
+        resp = await oauth_token_refresh(
+            client=self._ports.webapi_client.client,
+            body=OAuthTokenRefreshArgs(
+                refresh_token=refresh_token, client_id=client_id
+            ),
+        )
+        return self._tokens_or_error(resp)
+
+    @staticmethod
+    def _tokens_or_error(resp: Any) -> OAuthTokens:  # type: ignore[explicit-any]
+        """Turn a webapi answer into tokens, or the OAuth error it carries."""
+        if resp.status_code.is_success:
+            result = cast(
+                OAuthTokenExchangeResult | OAuthTokenRefreshResult, resp.parsed
+            )
+            return OAuthTokens(
+                access_token=result.auth_token_ext,
+                refresh_token=result.refresh_token,
+                expires_in=result.expires_in_secs,
+            )
+        if resp.status_code.is_client_error and isinstance(resp.parsed, ErrorResponse):
+            # The web API words these as OAuth errors (invalid_grant, invalid_request).
+            detail = resp.parsed.detail
+            raise OAuthTokenError(
+                (
+                    resp.parsed.reason
+                    if resp.parsed.reason.startswith("invalid_")
+                    else "invalid_request"
+                ),
+                detail if isinstance(detail, str) else "Invalid request",
+            )
+        raise OAuthTokenError("server_error", "The authorization server failed")

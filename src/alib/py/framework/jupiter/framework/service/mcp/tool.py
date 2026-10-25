@@ -2,18 +2,22 @@
 
 import inspect
 import json
+import warnings
 from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from typing import (
+    Annotated,
     Any,
     Callable,
     Generic,
+    Optional,
     TypeVar,
     get_args,
     get_origin,
 )
 
 import attr
+import httpx
 from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.ports import Ports
@@ -32,6 +36,9 @@ from jupiter.framework.service.rest.api_gateway_method import (
 )
 from jupiter.framework.service_properties import ServiceProperties
 from mcp.server.mcpserver import MCPServer
+from mcp.server.mcpserver.exceptions import ToolError
+from pydantic import Field
+from pydantic.json_schema import PydanticJsonSchemaWarning
 
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
@@ -50,6 +57,56 @@ _McpApiGatewayToolT = TypeVar(
     "_McpApiGatewayToolT",
     bound="McpApiGatewayTool[Any, Any, Any, Any, Any, Any, Any, Any, Any]",  # type: ignore[explicit-any]
 )
+
+
+class _NotProvided:
+    """Default for flattened update-action parameters the caller left out."""
+
+    def __repr__(self) -> str:
+        return "NOT_PROVIDED"
+
+
+_NOT_PROVIDED = _NotProvided()
+
+
+def _update_action_value_hint(  # type: ignore[explicit-any]
+    tp: Any, unset_marker: type[WebApiUnsetMarker]
+) -> Any | None:
+    """Return the ``value`` type hint if ``tp`` is an update-action wrapper, else ``None``.
+
+    The generated client wraps each field of an update call as
+    ``{should_change: bool, value?: T}``.
+    """
+    if not isinstance(tp, type) or not attr.has(tp):
+        return None
+    names = {f.name for f in attr.fields(tp)} - {"additional_properties"}
+    if names != {"should_change", "value"}:
+        return None
+    return _resolve_attrs_hints(tp).get("value")
+
+
+def _describe_webapi_error(status_code: int, parsed: object, content: bytes) -> str:
+    """The Web API error, as the text a ``ToolError`` carries.
+
+    Every unsuccessful Web API response is this one case. The status, reason,
+    and detail are what the model gets; there is no per-exception translation.
+    """
+    reason = getattr(parsed, "reason", None)
+    if reason is not None and not isinstance(reason, str):
+        reason = str(reason)
+    raw_detail = getattr(parsed, "detail", None)
+    if raw_detail is None:
+        detail = content.decode("utf-8", errors="replace")[:500]
+    elif isinstance(raw_detail, str):
+        detail = raw_detail
+    else:
+        detail = "; ".join(
+            f"{'.'.join(str(part) for part in item.loc)}: {item.msg}"
+            for item in raw_detail
+        )
+    if reason:
+        return f"{status_code}: {reason}: {detail}"
+    return f"{status_code}: {detail}"
 
 
 class McpTool(McpItem, ABC):
@@ -132,6 +189,7 @@ class McpApiGatewayTool(
     ) -> None:
         """Register this tool with the MCP server."""
         params: list[inspect.Parameter] = []
+        flattened_fields: set[str] = set()
         if self._args is not None and attr.has(self._args):
             hints = _resolve_attrs_hints(self._args)
             unset_marker = self.unset_marker_type()
@@ -142,12 +200,31 @@ class McpApiGatewayTool(
                 if ft is None:
                     ft = str
 
+                value_hint = _update_action_value_hint(ft, unset_marker)
+                if value_hint is not None:
+                    _, value_has_none, value_clean = _decompose_union(
+                        value_hint, unset_marker
+                    )
+                    value_prim = _to_primitive_type(value_clean)
+                    doc = "Omit to leave unchanged."
+                    if value_has_none:
+                        value_prim = Optional[value_prim]
+                        doc += " Pass null to clear."
+                    flattened_fields.add(field.name)
+                    params.append(
+                        inspect.Parameter(
+                            field.name,
+                            kind=inspect.Parameter.KEYWORD_ONLY,
+                            annotation=Annotated[value_prim, Field(description=doc)],
+                            default=_NOT_PROVIDED,
+                        )
+                    )
+                    continue
+
                 has_unset, has_none, clean = _decompose_union(ft, unset_marker)
                 prim_clean = _to_primitive_type(clean)
 
                 if has_none:
-                    from typing import Optional
-
                     prim_final: Any = Optional[prim_clean]  # type: ignore[explicit-any]
                 else:
                     prim_final = prim_clean
@@ -174,21 +251,39 @@ class McpApiGatewayTool(
         async def tool_fn(**kwargs: Any) -> str:  # type: ignore[explicit-any]
             token = auth_token_var.get()
             if token is None:
-                return json.dumps({"error": "Not authenticated"})
+                raise ToolError("Not authenticated: the MCP key is missing or invalid.")
 
             trace_id = TraceId.new()  # TODO: Extract trace id from the request
             client = get_client_fn(ports, trace_id, token)
 
             body: Any  # type: ignore[explicit-any]
             if args_type is not None:
-                body = args_type.from_dict(kwargs)
+                for name in flattened_fields:
+                    given = kwargs.pop(name, _NOT_PROVIDED)
+                    if given is _NOT_PROVIDED:
+                        kwargs[name] = {"should_change": False}
+                    else:
+                        kwargs[name] = {"should_change": True, "value": given}
+                try:
+                    body = args_type.from_dict(kwargs)
+                except (KeyError, ValueError, TypeError) as err:
+                    raise ToolError(f"Invalid arguments: {err}") from err
             else:
                 body = unset_marker_fn()
 
-            response: Any = await api_call(client=client, body=body)  # type: ignore[explicit-any]
+            try:
+                response: Any = await api_call(client=client, body=body)  # type: ignore[explicit-any]
+            except httpx.TransportError as err:
+                raise ToolError(
+                    "Could not reach the Thrive server. Try again later."
+                ) from err
 
             if not response.status_code.is_success:
-                return json.dumps({"error": str(response.parsed)})
+                raise ToolError(
+                    _describe_webapi_error(
+                        int(response.status_code), response.parsed, response.content
+                    )
+                )
 
             parsed = response.parsed
             if hasattr(parsed, "to_dict"):
@@ -200,7 +295,10 @@ class McpApiGatewayTool(
             return_annotation=str,
         )
 
-        mcp_server.tool(name=self._name, description=self._description)(tool_fn)
+        with warnings.catch_warnings():
+            # The not-provided sentinel default is deliberately not JSON-serializable.
+            warnings.simplefilter("ignore", PydanticJsonSchemaWarning)
+            mcp_server.tool(name=self._name, description=self._description)(tool_fn)
 
     @classmethod
     def unset_marker(cls) -> WebApiUnsetMarker:  # type: ignore[explicit-any]

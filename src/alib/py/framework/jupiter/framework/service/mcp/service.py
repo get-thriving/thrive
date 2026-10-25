@@ -1,15 +1,22 @@
 """An MCP service at the framework level."""
 
 import asyncio
+import base64
+import json
 import re
+import time
 from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from typing import Any, Callable, Final, Generic, TypeVar
+from urllib.parse import parse_qs, urlencode
 
 import uvicorn
-from fastapi import FastAPI, status
+from fastapi import FastAPI, Request, Response, status
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.ports import Ports
+from jupiter.framework.service.mcp.oauth_token_error import OAuthTokenError
+from jupiter.framework.service.mcp.oauth_tokens import OAuthTokens
 from jupiter.framework.service.service import Service
 from jupiter.framework.service_properties import ServiceProperties
 from mcp.server.mcpserver import MCPServer
@@ -22,6 +29,9 @@ _ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 _McpServiceT = TypeVar("_McpServiceT", bound="McpService[Any, Any, Any]")  # type: ignore[explicit-any]
 
 _MCP_KEY_PATH_RE: re.Pattern[str] = re.compile(r"^/v1/([^/]+)/mcp(/.*)?$")
+_MCP_BEARER_PATH_RE: re.Pattern[str] = re.compile(r"^/mcp(/.*)?$")
+
+_OAUTH_NO_STORE = {"Cache-Control": "no-store", "Pragma": "no-cache"}
 
 
 class _McpKeyPathMiddleware:
@@ -43,8 +53,10 @@ class _McpKeyPathMiddleware:
         fastapi_asgi_app: Any,  # type: ignore[explicit-any]
         key_exchange_fn: Callable[[str], Any],  # type: ignore[explicit-any]
         auth_token_var: ContextVar[str | None],
+        resource_metadata_url: str,
     ) -> None:
         """Initialise the middleware."""
+        self._resource_metadata_url = resource_metadata_url
         self._mcp_asgi_app = mcp_asgi_app
         self._fastapi_asgi_app = fastapi_asgi_app
         self._key_exchange_fn = key_exchange_fn
@@ -157,7 +169,80 @@ class _McpKeyPathMiddleware:
                     self._auth_token_var.reset(ctx)
                 return
 
+        if scope["type"] == "http" and _MCP_BEARER_PATH_RE.match(path):
+            headers = {k.lower(): v for k, v in scope.get("headers", [])}
+            raw_authorization = headers.get(b"authorization")
+            token = self._bearer_token(
+                raw_authorization.decode("latin-1") if raw_authorization else None
+            )
+            if token is None or not self._is_live_jwt(token):
+                await self._send_unauthorized(
+                    send, "invalid_token" if token is not None else None
+                )
+                return
+
+            ctx = self._auth_token_var.set(token)
+            try:
+                await self._mcp_asgi_app(scope, receive, send)
+            finally:
+                self._auth_token_var.reset(ctx)
+            return
+
         await self._fastapi_asgi_app(scope, receive, send)
+
+    @staticmethod
+    def _bearer_token(authorization_header: str | None) -> str | None:
+        """Extract the token from an ``Authorization: Bearer`` header."""
+        if authorization_header is None:
+            return None
+        scheme, _, token = authorization_header.partition(" ")
+        if scheme.lower() != "bearer" or not token.strip():
+            return None
+        return token.strip()
+
+    @staticmethod
+    def _is_live_jwt(token: str) -> bool:
+        """Whether the token looks like a JWT that has not expired.
+
+        This only reads the expiry, to tell clients to refresh early. The signature
+        is checked by the web API on every call, so a forged token gets nowhere.
+        """
+        parts = token.split(".")
+        if len(parts) != 3:
+            return False
+        try:
+            padded = parts[1] + "=" * (-len(parts[1]) % 4)
+            exp = json.loads(base64.urlsafe_b64decode(padded))["exp"]
+            return float(exp) > time.time()
+        except (ValueError, KeyError, TypeError):
+            return False
+
+    async def _send_unauthorized(
+        self,
+        send: Any,  # type: ignore[explicit-any]
+        error: str | None,
+    ) -> None:
+        """Answer 401, pointing the client at the metadata that starts sign in (RFC 9728)."""
+        challenge = f'Bearer resource_metadata="{self._resource_metadata_url}"'
+        if error is not None:
+            challenge += f', error="{error}"'
+        await send(
+            {
+                "type": "http.response.start",
+                "status": 401,
+                "headers": [
+                    [b"content-type", b"text/plain; charset=utf-8"],
+                    [b"www-authenticate", challenge.encode("latin-1")],
+                ],
+            }
+        )
+        await send(
+            {
+                "type": "http.response.body",
+                "body": b"Authentication required",
+                "more_body": False,
+            }
+        )
 
 
 class McpItem(ABC):
@@ -222,8 +307,118 @@ class McpService(
             """Health check endpoint."""
             return None
 
+        public = service.public_url.rstrip("/")
+        resource = f"{public}/mcp"
+
+        @service._fast_app.get("/.well-known/oauth-protected-resource")
+        async def protected_resource_metadata() -> JSONResponse:
+            """Say which resource this is, and who authorizes access to it."""
+            return JSONResponse(
+                {
+                    "resource": resource,
+                    "authorization_servers": [public],
+                    "bearer_methods_supported": ["header"],
+                }
+            )
+
+        @service._fast_app.get("/.well-known/oauth-authorization-server")
+        async def authorization_server_metadata() -> JSONResponse:
+            """Describe the authorization endpoints clients should use."""
+            return JSONResponse(
+                {
+                    "issuer": public,
+                    "authorization_endpoint": f"{public}/authorize",
+                    "token_endpoint": f"{public}/token",
+                    "response_types_supported": ["code"],
+                    "grant_types_supported": ["authorization_code", "refresh_token"],
+                    "code_challenge_methods_supported": ["S256"],
+                    "token_endpoint_auth_methods_supported": ["none"],
+                    "client_id_metadata_document_supported": True,
+                    # RFC 9207: the redirect back to the client names the issuer.
+                    "authorization_response_iss_parameter_supported": True,
+                }
+            )
+
+        @service._fast_app.get("/authorize")
+        async def authorize(request: Request) -> Response:
+            """Send the browser to the consent page with the OAuth request."""
+            params = dict(request.query_params)
+            # Nothing here is safe to redirect back to a client with: the redirect URI is
+            # only validated once the user consents. So problems are shown, not redirected.
+            if params.get("response_type") != "code":
+                return PlainTextResponse("response_type must be code", status_code=400)
+            if not params.get("client_id") or not params.get("redirect_uri"):
+                return PlainTextResponse(
+                    "client_id and redirect_uri are required", status_code=400
+                )
+            if params.get("code_challenge_method") != "S256" or not params.get(
+                "code_challenge"
+            ):
+                return PlainTextResponse("PKCE with S256 is required", status_code=400)
+            if params.get("resource", resource).rstrip("/") != resource:
+                return PlainTextResponse("Unknown resource", status_code=400)
+            params["resource"] = resource
+            # The consent page repeats this as ``iss`` in the redirect back to the
+            # client (RFC 9207). Whatever the request said is not to be trusted.
+            params["issuer"] = public
+            return RedirectResponse(
+                f"{service.consent_url}?{urlencode(params)}", status_code=302
+            )
+
+        @service._fast_app.post("/token")
+        async def token(request: Request) -> JSONResponse:
+            """Exchange a code or a refresh token for tokens."""
+            form = {
+                key: values[0]
+                for key, values in parse_qs((await request.body()).decode()).items()
+            }
+
+            def required(name: str) -> str:
+                value = form.get(name)
+                if not value:
+                    raise OAuthTokenError("invalid_request", f"{name} is required")
+                return value
+
+            try:
+                grant_type = form.get("grant_type")
+                if grant_type == "authorization_code":
+                    tokens = await service._do_code_exchange(
+                        required("code"),
+                        required("code_verifier"),
+                        required("client_id"),
+                        required("redirect_uri"),
+                        form.get("resource", resource),
+                    )
+                elif grant_type == "refresh_token":
+                    tokens = await service._do_refresh(
+                        required("refresh_token"), required("client_id")
+                    )
+                else:
+                    raise OAuthTokenError(
+                        "unsupported_grant_type", "Unsupported grant_type"
+                    )
+            except OAuthTokenError as err:
+                return JSONResponse(
+                    {"error": err.error, "error_description": err.description},
+                    status_code=400,
+                    headers=_OAUTH_NO_STORE,
+                )
+            return JSONResponse(
+                {
+                    "access_token": tokens.access_token,
+                    "token_type": "Bearer",
+                    "expires_in": tokens.expires_in,
+                    "refresh_token": tokens.refresh_token,
+                },
+                headers=_OAUTH_NO_STORE,
+            )
+
         for item in service._items:
-            item.attach(service._mcp_server, service._auth_token_var, ports)
+            item.attach(
+                service._mcp_server,
+                service._auth_token_var,
+                ports,
+            )
 
         return service
 
@@ -240,6 +435,9 @@ class McpService(
             fastapi_asgi_app=self._fast_app,
             key_exchange_fn=self._do_key_exchange,
             auth_token_var=self._auth_token_var,
+            resource_metadata_url=(
+                f"{self.public_url.rstrip('/')}/.well-known/oauth-protected-resource"
+            ),
         )
 
         cors_app = CORSMiddleware(
@@ -247,7 +445,7 @@ class McpService(
             allow_origins=["*"],
             allow_methods=["*"],
             allow_headers=["*"],
-            expose_headers=["mcp-session-id"],
+            expose_headers=["mcp-session-id", "www-authenticate"],
         )
 
         config = uvicorn.Config(
@@ -283,3 +481,28 @@ class McpService(
     @abstractmethod
     async def _do_key_exchange(self, key_str: str) -> str | None:
         """Exchange a raw MCP key string for an auth token, or return None if invalid."""
+
+    @property
+    @abstractmethod
+    def public_url(self) -> str:
+        """The externally visible base URL of this service."""
+
+    @property
+    @abstractmethod
+    def consent_url(self) -> str:
+        """The URL of the page where a user signs in and approves an app."""
+
+    @abstractmethod
+    async def _do_code_exchange(
+        self,
+        code: str,
+        code_verifier: str,
+        client_id: str,
+        redirect_uri: str,
+        resource: str,
+    ) -> OAuthTokens:
+        """Exchange an authorization code for tokens, or raise ``OAuthTokenError``."""
+
+    @abstractmethod
+    async def _do_refresh(self, refresh_token: str, client_id: str) -> OAuthTokens:
+        """Exchange a refresh token for tokens, or raise ``OAuthTokenError``."""

@@ -630,6 +630,16 @@ services:
         name: jupiter-webapi-srv
         type: web
         property: port
+    - key: PUBLIC_URL
+      fromService:
+        name: jupiter-mcp
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
+    - key: WEBUI_URL
+      fromService:
+        name: jupiter-webui
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
 - type: web
   name: jupiter-docs
   buildFilter:

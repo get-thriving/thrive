@@ -47,8 +47,8 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await parseForm(request, CreateFormSchema);
 
   try {
-    const result = await apiClient.mcpKey.mCpKeyCreate({ name: form.name });
-    return noErrorSomeData({ created: true, mcpKey: result.mcp_key });
+    const result = await apiClient.apiKey.aPiKeyCreate({ name: form.name });
+    return noErrorSomeData({ created: true, apiKey: result.api_key });
   } catch (error) {
     return handleActionApiError(error);
   }
@@ -57,7 +57,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewMcpKey() {
+export default function NewApiKey() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -68,27 +68,27 @@ export default function NewMcpKey() {
   const successData =
     actionData?.theType === "no-error-some-data" ? actionData.data : null;
   const created = successData?.created === true;
-  const mcpKey = successData?.mcpKey ?? null;
+  const apiKey = successData?.apiKey ?? null;
 
   async function copyToClipboard() {
-    if (mcpKey) {
-      await navigator.clipboard.writeText(mcpKey);
+    if (apiKey) {
+      await navigator.clipboard.writeText(apiKey);
       setHasCopied(true);
     }
   }
 
   return (
     <LeafPanel
-      key="manage-mcp/new"
-      fakeKey="manage-mcp/new"
-      returnLocation="/app/workspace/manage-mcp"
+      key="access/api-keys/new"
+      fakeKey="access/api-keys/new"
+      returnLocation="/app/workspace/access"
       inputsEnabled={inputsEnabled}
     >
       <SectionCard
-        title="New MCP Key"
+        title="New API Key"
         actions={
           <SectionActions
-            id="mcp-key-create"
+            id="api-key-create"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             expansion={created ? ActionsExpansion.ALWAYS_SHOW : undefined}
@@ -103,7 +103,7 @@ export default function NewMcpKey() {
                     }),
                     NavSingle({
                       text: "Close",
-                      link: "/app/workspace/manage-mcp",
+                      link: "/app/workspace/access",
                     }),
                   ]
                 : [
@@ -125,13 +125,13 @@ export default function NewMcpKey() {
             <OutlinedInput label="Name" name="name" readOnly={!inputsEnabled} />
             <FieldError actionResult={actionData} fieldName="/name" />
           </FormControl>
-        ) : mcpKey ? (
+        ) : apiKey ? (
           <>
             <Typography variant="body1">
-              This is your new MCP key. <em>Store it in a safe place!</em> You
+              This is your new API key. <em>Store it in a safe place!</em> You
               won&apos;t be able to see it again.
             </Typography>
-            <McpKeyBox variant="body2">{mcpKey}</McpKeyBox>
+            <ApiKeyBox variant="body2">{apiKey}</ApiKeyBox>
           </>
         ) : null}
       </SectionCard>
@@ -140,14 +140,14 @@ export default function NewMcpKey() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/manage-mcp",
+  "/app/workspace/access",
   ParamsSchema,
   {
-    error: () => `There was an error creating the MCP key! Please try again!`,
+    error: () => `There was an error creating the API key! Please try again!`,
   },
 );
 
-const McpKeyBox = styled(Typography)(({ theme }) => ({
+const ApiKeyBox = styled(Typography)(({ theme }) => ({
   marginTop: "1rem",
   padding: "0.5rem",
   textAlign: "center",

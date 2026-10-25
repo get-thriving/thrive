@@ -9,6 +9,7 @@ from jupiter.core.auth.sub.apple.root import AuthApple
 from jupiter.core.auth.sub.email_verification.root import EmailVerificationAttempt
 from jupiter.core.auth.sub.google.root import AuthGoogle
 from jupiter.core.auth.sub.local.root import AuthLocal
+from jupiter.core.auth.sub.oauth_grant.root import OAuthGrant
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.timezone import UTC, Timezone
 from jupiter.core.features import (
@@ -66,6 +67,7 @@ class User(RootEntity):
     email_verification_attempts = ContainsMany(
         EmailVerificationAttempt, user_ref_id=IsRefId()
     )
+    oauth_grants = ContainsMany(OAuthGrant, user_ref_id=IsRefId())
 
     @staticmethod
     @create_entity_action

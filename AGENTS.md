@@ -65,6 +65,17 @@ Current topics include (non-exhaustive; browse the directory):
 | 0014 | Section filters live in the URL |
 | 0015 | Shared shell for the desktop and mobile apps |
 
+## Code layout
+
+Keep one definition per file:
+
+- **One use case per file.** The use case, its args and its result live together
+  in a file named for the use case (for example `token_exchange.py`). A result
+  that several use cases share gets its own file.
+- **One value, one enum and one entity per file.** Each file is named after the
+  thing it defines (`client_id.py`, `pkce_code_challenge_method.py`, `root.py`
+  for an entity). The codecs for a value live in the same file as the value.
+
 ## Generating code
 
 Whenever some model from the core package is changed, code on the

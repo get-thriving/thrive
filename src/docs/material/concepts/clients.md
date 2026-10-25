@@ -62,3 +62,8 @@ thrive report
 
 There is an API for programmatic access to Thrive too. The
 [dedicated section](api.md) goes into much more detail.
+
+## MCP
+
+AI assistants such as Claude and ChatGPT can connect to Thrive too, through
+its MCP server. The [dedicated section](mcp.md) explains how.

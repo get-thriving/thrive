@@ -177,6 +177,8 @@ services:
       - PORT=10030
       - WEBAPI_SERVER_HOST=webapi
       - WEBAPI_SERVER_PORT=2000
+      - PUBLIC_URL=${MCP_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}}
+      - WEBUI_URL=${WEBUI_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}}
       - LOCATION_RESOLVER=${LOCATION_RESOLVER:-noop}
     restart: always
     image: ${DOCKER_IMAGE_MCP:-getthriving/mcp:${VERSION:-latest}}

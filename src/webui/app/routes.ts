@@ -89,6 +89,7 @@ export default [
       "lifecycle/login/local/login",
       "routes/app/lifecycle/login/local/login.tsx",
     ),
+    route("oauth/authorize", "routes/app/oauth/authorize.tsx"),
     route("pick-server", "routes/app/pick-server.tsx"),
     route("lifecycle/logout", "routes/app/lifecycle/logout.tsx"),
     route("render-fix", "routes/app/render-fix.tsx"),
@@ -257,13 +258,15 @@ export default [
         route("update", "routes/app/workspace/core/notes/update.tsx"),
         route(":id", "routes/app/workspace/core/notes/$id.tsx"),
       ]),
-      route("manage-api", "routes/app/workspace/manage-api.tsx", [
-        route(":id", "routes/app/workspace/manage-api/$id.tsx"),
-        route("new", "routes/app/workspace/manage-api/new.tsx"),
-      ]),
-      route("manage-mcp", "routes/app/workspace/manage-mcp.tsx", [
-        route(":id", "routes/app/workspace/manage-mcp/$id.tsx"),
-        route("new", "routes/app/workspace/manage-mcp/new.tsx"),
+      route("access", "routes/app/workspace/access.tsx", [
+        route(
+          "connected-apps/:id",
+          "routes/app/workspace/access/connected-apps/$id.tsx",
+        ),
+        route("mcp-keys/:id", "routes/app/workspace/access/mcp-keys/$id.tsx"),
+        route("mcp-keys/new", "routes/app/workspace/access/mcp-keys/new.tsx"),
+        route("api-keys/:id", "routes/app/workspace/access/api-keys/$id.tsx"),
+        route("api-keys/new", "routes/app/workspace/access/api-keys/new.tsx"),
       ]),
       route("core/tags", "routes/app/workspace/core/tags.tsx", [
         route("upsert-tags", "routes/app/workspace/core/tags/upsert-tags.tsx"),

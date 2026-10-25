@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { saveGoogleOauthState } from "@jupiter/core/auth/sub/google/oauth-state.server";
+import { oauthReturnToFromUrl } from "@jupiter/core/auth/oauth-return-to";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { isLocal } from "@jupiter/core/env";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
@@ -12,15 +13,20 @@ const GOOGLE_INIT_CALLBACK_PATH =
 const GOOGLE_READY_PATH = "/app/lifecycle/init/google/ready";
 const GOOGLE_LOGIN_FAILURE_PATH = "/app/lifecycle/login/local/login";
 
-function googleOAuthRedirectUrls() {
+function googleOAuthRedirectUrls(returnTo: string | undefined) {
   const callbackSuccessUrl = new URL(
     GOOGLE_INIT_CALLBACK_PATH,
     SERVICE_PROPERTIES.webUiUrl,
-  ).toString();
+  );
   const callbackFailureUrl = new URL(
     GOOGLE_LOGIN_FAILURE_PATH,
     SERVICE_PROPERTIES.webUiUrl,
-  ).toString();
+  );
+  if (returnTo !== undefined) {
+    // The way back to the consent page rides along both outcomes.
+    callbackSuccessUrl.searchParams.set("returnTo", returnTo);
+    callbackFailureUrl.searchParams.set("returnTo", returnTo);
+  }
 
   if (isLocal(GLOBAL_PROPERTIES.env)) {
     const localReadyUrl = new URL(
@@ -30,8 +36,8 @@ function googleOAuthRedirectUrls() {
 
     return {
       readyUrl: localReadyUrl,
-      callbackSuccessUrl,
-      callbackFailureUrl,
+      callbackSuccessUrl: callbackSuccessUrl.toString(),
+      callbackFailureUrl: callbackFailureUrl.toString(),
     };
   } else {
     const hostedGlobalReadyUrl = new URL(
@@ -41,8 +47,8 @@ function googleOAuthRedirectUrls() {
 
     return {
       readyUrl: hostedGlobalReadyUrl,
-      callbackSuccessUrl,
-      callbackFailureUrl,
+      callbackSuccessUrl: callbackSuccessUrl.toString(),
+      callbackFailureUrl: callbackFailureUrl.toString(),
     };
   }
 }
@@ -51,7 +57,7 @@ function googleOAuthRedirectUrls() {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getGuestApiClient(request);
   const { readyUrl, callbackSuccessUrl, callbackFailureUrl } =
-    googleOAuthRedirectUrls();
+    googleOAuthRedirectUrls(oauthReturnToFromUrl(request.url));
 
   const result = await apiClient.auth.authGoogleGetAuthorisationUrl({
     ready_url: readyUrl,

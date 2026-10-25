@@ -29,7 +29,7 @@ export class InboxTasksService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                400: `Error response for EntityAlreadyExistsError`,
+                400: `Error response for EntityAlreadyExistsError, InvalidOAuthRequestError, InvalidOAuthGrantError`,
                 401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
@@ -57,7 +57,7 @@ export class InboxTasksService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                400: `Error response for EntityAlreadyExistsError`,
+                400: `Error response for EntityAlreadyExistsError, InvalidOAuthRequestError, InvalidOAuthGrantError`,
                 401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
@@ -85,7 +85,7 @@ export class InboxTasksService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                400: `Error response for EntityAlreadyExistsError`,
+                400: `Error response for EntityAlreadyExistsError, InvalidOAuthRequestError, InvalidOAuthGrantError`,
                 401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
@@ -113,7 +113,7 @@ export class InboxTasksService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                400: `Error response for EntityAlreadyExistsError`,
+                400: `Error response for EntityAlreadyExistsError, InvalidOAuthRequestError, InvalidOAuthGrantError`,
                 401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
@@ -141,7 +141,7 @@ export class InboxTasksService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                400: `Error response for EntityAlreadyExistsError`,
+                400: `Error response for EntityAlreadyExistsError, InvalidOAuthRequestError, InvalidOAuthGrantError`,
                 401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,

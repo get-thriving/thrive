@@ -22,6 +22,10 @@ from jupiter.core.auth.sub.email_verification.root import (
     NoActiveEmailVerificationAttemptError,
     TooManyEmailVerificationAttemptsError,
 )
+from jupiter.core.auth.sub.oauth_grant.root import (
+    InvalidOAuthGrantError,
+    InvalidOAuthRequestError,
+)
 from jupiter.core.common.sub.access.sub.status.root import (
     UserNotAllowedAccessToEntityError,
 )
@@ -518,3 +522,31 @@ class EmailSendErrorHandler(JupiterExceptionHandler[EmailSendError]):
             msg=str(exception),
             error_type="value_error.emailsenderror",
         )
+
+
+class InvalidOAuthRequestErrorHandler(
+    JupiterExceptionHandler[InvalidOAuthRequestError]
+):
+    """Handle malformed or disallowed OAuth requests."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_400_BAD_REQUEST
+
+    def get_detail(self, exception: InvalidOAuthRequestError) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.simple("invalid_request", str(exception))
+
+
+class InvalidOAuthGrantErrorHandler(JupiterExceptionHandler[InvalidOAuthGrantError]):
+    """Handle codes and refresh tokens that don't match a live grant."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_400_BAD_REQUEST
+
+    def get_detail(self, exception: InvalidOAuthGrantError) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.simple("invalid_grant", str(exception))

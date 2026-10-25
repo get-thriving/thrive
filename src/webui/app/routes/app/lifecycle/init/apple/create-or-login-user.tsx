@@ -8,6 +8,7 @@ import {
   clearAppleOauthState,
   loadAppleOauthState,
 } from "@jupiter/core/auth/sub/apple/oauth-state.server";
+import { oauthReturnToFromUrl } from "@jupiter/core/auth/oauth-return-to";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
@@ -44,13 +45,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   if (query.error !== undefined) {
-    return redirect("/app/lifecycle/login/local/login", {
-      headers: {
-        "Set-Cookie": await clearAppleOauthState(
-          SERVICE_PROPERTIES.sessionCookieSecure,
-        ),
+    const returnTo = oauthReturnToFromUrl(request.url);
+    return redirect(
+      returnTo === undefined
+        ? "/app/lifecycle/login/local/login"
+        : `/app/lifecycle/login/local/login?returnTo=${encodeURIComponent(returnTo)}`,
+      {
+        headers: {
+          "Set-Cookie": await clearAppleOauthState(
+            SERVICE_PROPERTIES.sessionCookieSecure,
+          ),
+        },
       },
-    });
+    );
   }
 
   if (query.code === undefined) {
@@ -79,9 +86,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
       await clearAppleOauthState(SERVICE_PROPERTIES.sessionCookieSecure),
     );
 
-    return redirect(emailVerificationVerifyUrl(result.new_user.ref_id), {
-      headers,
-    });
+    // Back to the consent page the user came from, once they are verified.
+    const returnTo = oauthReturnToFromUrl(request.url);
+    return redirect(
+      returnTo !== undefined && result.new_user.verified
+        ? returnTo
+        : emailVerificationVerifyUrl(result.new_user.ref_id),
+      { headers },
+    );
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
       return redirect("/app/lifecycle/util/user-already-exists", {

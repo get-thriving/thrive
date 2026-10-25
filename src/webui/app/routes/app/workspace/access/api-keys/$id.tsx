@@ -53,13 +53,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
-    const result = await apiClient.mcpKey.mCpKeyLoad({
+    const result = await apiClient.apiKey.aPiKeyLoad({
       ref_id: id,
       allow_archived: true,
     });
 
     return {
-      mcpKey: result.mcp_key,
+      apiKey: result.api_key,
     };
   } catch (error) {
     handleLoaderApiError(error);
@@ -74,7 +74,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.mcpKey.mCpKeyUpdate({
+        await apiClient.apiKey.aPiKeyUpdate({
           ref_id: id,
           name: {
             should_change: true,
@@ -82,13 +82,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/manage-mcp/${id}`);
+        return redirect(`/app/workspace/access/api-keys/${id}`);
       }
 
       case "archive": {
-        await apiClient.mcpKey.mCpKeyArchive({ ref_id: id });
+        await apiClient.apiKey.aPiKeyArchive({ ref_id: id });
 
-        return redirect(`/app/workspace/manage-mcp`);
+        return redirect(`/app/workspace/access`);
       }
 
       default:
@@ -102,34 +102,34 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function McpKeyEdit() {
+export default function ApiKeyEdit() {
   const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
-  const mcpKey = loaderData.mcpKey;
+  const apiKey = loaderData.apiKey;
 
   return (
     <LeafPanel
-      key={`manage-mcp/${mcpKey.ref_id}`}
-      fakeKey={`manage-mcp/${mcpKey.ref_id}`}
-      returnLocation="/app/workspace/manage-mcp"
+      key={`access/api-keys/${apiKey.ref_id}`}
+      fakeKey={`access/api-keys/${apiKey.ref_id}`}
+      returnLocation="/app/workspace/access"
       inputsEnabled={inputsEnabled}
       showArchiveButton
-      entityArchived={mcpKey.archived}
+      entityArchived={apiKey.archived}
     >
       <SectionCard
-        title={`MCP Key: ${mcpKey.name}`}
+        title={`API Key: ${apiKey.name}`}
         actions={
           <SectionActions
-            id={`mcp-key-${mcpKey.ref_id}-actions`}
+            id={`api-key-${apiKey.ref_id}-actions`}
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[
               ActionSingle({
-                id: "mcp-key-update",
+                id: "api-key-update",
                 text: "Save",
                 value: "update",
                 highlight: true,
@@ -145,7 +145,7 @@ export default function McpKeyEdit() {
           <OutlinedInput
             label="Name"
             name="name"
-            defaultValue={mcpKey.name}
+            defaultValue={apiKey.name}
             readOnly={!inputsEnabled}
           />
           <FieldError actionResult={actionData} fieldName="/name" />
@@ -156,10 +156,10 @@ export default function McpKeyEdit() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/manage-mcp",
+  "/app/workspace/access",
   ParamsSchema,
   {
-    notFound: (params) => `Could not find MCP key ${params.id}!`,
-    error: () => `There was an error loading the MCP key! Please try again!`,
+    notFound: (params) => `Could not find API key ${params.id}!`,
+    error: () => `There was an error loading the API key! Please try again!`,
   },
 );

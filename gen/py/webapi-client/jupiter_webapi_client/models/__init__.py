@@ -796,6 +796,19 @@ from .note_update_result import NoteUpdateResult
 from .nuke_all_args import NukeAllArgs
 from .numbered_list_block import NumberedListBlock
 from .numbered_list_block_kind import NumberedListBlockKind
+from .o_auth_grant_archive_args import OAuthGrantArchiveArgs
+from .o_auth_grant_create_args import OAuthGrantCreateArgs
+from .o_auth_grant_create_result import OAuthGrantCreateResult
+from .o_auth_grant_find_args import OAuthGrantFindArgs
+from .o_auth_grant_find_result import OAuthGrantFindResult
+from .o_auth_grant_load_args import OAuthGrantLoadArgs
+from .o_auth_grant_load_result import OAuthGrantLoadResult
+from .o_auth_grant_status import OAuthGrantStatus
+from .o_auth_grant_summary import OAuthGrantSummary
+from .o_auth_token_exchange_args import OAuthTokenExchangeArgs
+from .o_auth_token_exchange_result import OAuthTokenExchangeResult
+from .o_auth_token_refresh_args import OAuthTokenRefreshArgs
+from .o_auth_token_refresh_result import OAuthTokenRefreshResult
 from .occasion import Occasion
 from .occasion_archive_args import OccasionArchiveArgs
 from .occasion_create_args import OccasionCreateArgs
@@ -853,6 +866,7 @@ from .person_update_args_schedulability import PersonUpdateArgsSchedulability
 from .person_update_args_scheduling_event_count import PersonUpdateArgsSchedulingEventCount
 from .person_update_args_scheduling_event_duration_mins import PersonUpdateArgsSchedulingEventDurationMins
 from .person_update_result import PersonUpdateResult
+from .pkce_code_challenge_method import PkceCodeChallengeMethod
 from .planned_time_and_effort_summary import PlannedTimeAndEffortSummary
 from .planned_time_and_effort_summary_activities_by_feasability import (
     PlannedTimeAndEffortSummaryActivitiesByFeasability,
@@ -2161,6 +2175,19 @@ __all__ = (
     "NukeAllArgs",
     "NumberedListBlock",
     "NumberedListBlockKind",
+    "OAuthGrantArchiveArgs",
+    "OAuthGrantCreateArgs",
+    "OAuthGrantCreateResult",
+    "OAuthGrantFindArgs",
+    "OAuthGrantFindResult",
+    "OAuthGrantLoadArgs",
+    "OAuthGrantLoadResult",
+    "OAuthGrantStatus",
+    "OAuthGrantSummary",
+    "OAuthTokenExchangeArgs",
+    "OAuthTokenExchangeResult",
+    "OAuthTokenRefreshArgs",
+    "OAuthTokenRefreshResult",
     "Occasion",
     "OccasionArchiveArgs",
     "OccasionCreateArgs",
@@ -2218,6 +2245,7 @@ __all__ = (
     "PersonUpdateArgsSchedulingEventCount",
     "PersonUpdateArgsSchedulingEventDurationMins",
     "PersonUpdateResult",
+    "PkceCodeChallengeMethod",
     "PlannedTimeAndEffortSummary",
     "PlannedTimeAndEffortSummaryActivitiesByFeasability",
     "PlannedTimeAndEffortSummaryHoursByFeasability",

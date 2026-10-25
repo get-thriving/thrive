@@ -5,6 +5,9 @@ typical REST API, it requires an API key to access, and it offers
 Python, Node, and (in the future) more clients for more ergonomic
 access from your favorite programming language.
 
+If you want an AI assistant such as Claude or ChatGPT to use Thrive, rather
+than your own code, see [MCP](mcp.md).
+
 All API access is scoped to a [workspace](workspaces.md). And while
 you can do many things, you cannot do all things - creating users,
 or workspaces, or any sort of operations on these are not supported.

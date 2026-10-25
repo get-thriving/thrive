@@ -33,15 +33,24 @@ interface LifecycleOAuthProviderButtonsProps {
    * can't work there, because it leaves the app for the system browser.
    */
   nativeSignIn?: NativeSignInHandlers;
+  /**
+   * Where to send the user back to once signed in, for an app that asked for
+   * access. It rides along the redirect flow, which checks it. The native
+   * flows have no use for it.
+   */
+  returnTo?: string;
 }
 
 export function LifecycleOAuthProviderButtons({
   disabled = false,
   nativeSignIn,
+  returnTo,
 }: LifecycleOAuthProviderButtonsProps) {
   const globalProperties = useContext(GlobalPropertiesContext);
   const submit = useSubmit();
   const [error, setError] = useState<string | null>(null);
+  const returnToQuery =
+    returnTo === undefined ? "" : `?returnTo=${encodeURIComponent(returnTo)}`;
 
   if (
     globalProperties.authProvider !== JupiterAuthProvider.LOCAL_GOOGLE_APPLE
@@ -91,7 +100,7 @@ export function LifecycleOAuthProviderButtons({
         {nativeSignIn === undefined ? (
           <Button
             component={Link}
-            to={GOOGLE_PREPARE_LINK}
+            to={`${GOOGLE_PREPARE_LINK}${returnToQuery}`}
             variant="outlined"
             fullWidth
             disabled={disabled}
@@ -113,7 +122,7 @@ export function LifecycleOAuthProviderButtons({
         {nativeSignIn === undefined ? (
           <Button
             component={Link}
-            to={APPLE_PREPARE_LINK}
+            to={`${APPLE_PREPARE_LINK}${returnToQuery}`}
             variant="outlined"
             fullWidth
             disabled={disabled}

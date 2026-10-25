@@ -96,6 +96,13 @@ description = "Check src/mcp module"
 depends = ["package:src:mcp:lint:*"]
 run = "true"
 
+["package:src:mcp:test"]
+description = "Run tests"
+run = """
+cd src/mcp
+python -m pytest tests $@
+"""
+
 ["package:src:mcp:audit:pip-audit"]
 hide = true
 run = '''
