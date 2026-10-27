@@ -64,6 +64,7 @@ Current topics include (non-exhaustive; browse the directory):
 | 0012 | Undo/redo sessions and groups (proposed) |
 | 0014 | Section filters live in the URL |
 | 0015 | Shared shell for the desktop and mobile apps |
+| 0017 | Multiple auth methods per user |
 
 ## Code layout
 

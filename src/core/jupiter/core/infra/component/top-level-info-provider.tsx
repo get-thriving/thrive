@@ -32,6 +32,7 @@ export function TopLevelInfoProvider(
     userFeatureFlagControls: props.userFeatureFlagControls,
     workspaceFeatureFlagControls: props.workspaceFeatureFlagControls,
     user: props.user,
+    userLinkedAuthMethods: props.userLinkedAuthMethods,
     userScoreOverview: props.userScoreOverview,
     workspace: props.workspace,
   };

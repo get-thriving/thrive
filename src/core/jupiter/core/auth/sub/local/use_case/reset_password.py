@@ -1,7 +1,6 @@
 """Use case for reseting a password."""
 
 from jupiter.core.application.use_case.login_local import InvalidLoginMethodError
-from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.auth.sub.local.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.sub.local.root import AuthLocal, IncorrectRecoveryTokenError
 from jupiter.core.auth.sub.local.sub.recovery_token.plain import RecoveryTokenPlain
@@ -19,6 +18,7 @@ from jupiter.framework.progress_reporter.reporter import (
     ProgressReporter,
 )
 from jupiter.framework.secure import secure_class
+from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -66,12 +66,12 @@ class ResetPasswordUseCase(
                 user = await uow.get(UserRepository).load_by_email_address(
                     args.email_address
                 )
-                if user.auth_method != UserAuthMethod.LOCAL:
+                try:
+                    auth = await uow.get_for(AuthLocal).load_by_parent(user.ref_id)
+                except EntityNotFoundError as err:
                     raise InvalidLoginMethodError(
                         "This account does not use local authentication"
-                    )
-
-                auth = await uow.get_for(AuthLocal).load_by_parent(user.ref_id)
+                    ) from err
                 recovery_token_entity = await uow.get_for(RecoveryToken).load_by_parent(
                     auth.ref_id
                 )

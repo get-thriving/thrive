@@ -33,7 +33,7 @@ class User:
         avatar (str): A user avatar image.
         timezone (str): A timezone in this domain.
         feature_flags (UserFeatureFlags):
-        auth_method (UserAuthMethod): The auth method for a user.
+        auth_sign_up_method (UserAuthMethod): The auth method for a user.
         verified (bool):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
@@ -50,7 +50,7 @@ class User:
     avatar: str
     timezone: str
     feature_flags: UserFeatureFlags
-    auth_method: UserAuthMethod
+    auth_sign_up_method: UserAuthMethod
     verified: bool
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
@@ -79,7 +79,7 @@ class User:
 
         feature_flags = self.feature_flags.to_dict()
 
-        auth_method = self.auth_method.value
+        auth_sign_up_method = self.auth_sign_up_method.value
 
         verified = self.verified
 
@@ -110,7 +110,7 @@ class User:
                 "avatar": avatar,
                 "timezone": timezone,
                 "feature_flags": feature_flags,
-                "auth_method": auth_method,
+                "auth_sign_up_method": auth_sign_up_method,
                 "verified": verified,
             }
         )
@@ -148,7 +148,7 @@ class User:
 
         feature_flags = UserFeatureFlags.from_dict(d.pop("feature_flags"))
 
-        auth_method = UserAuthMethod(d.pop("auth_method"))
+        auth_sign_up_method = UserAuthMethod(d.pop("auth_sign_up_method"))
 
         verified = d.pop("verified")
 
@@ -182,7 +182,7 @@ class User:
             avatar=avatar,
             timezone=timezone,
             feature_flags=feature_flags,
-            auth_method=auth_method,
+            auth_sign_up_method=auth_sign_up_method,
             verified=verified,
             archival_reason=archival_reason,
             archived_time=archived_time,

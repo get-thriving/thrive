@@ -8,6 +8,7 @@ import {
   clearAppleOauthState,
   loadAppleOauthState,
 } from "@jupiter/core/auth/sub/apple/oauth-state.server";
+import { oauthErrorMessage } from "@jupiter/core/auth/oauth-error-message";
 import { oauthReturnToFromUrl } from "@jupiter/core/auth/oauth-return-to";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
@@ -103,6 +104,20 @@ export async function loader({ request }: LoaderFunctionArgs) {
           ),
         },
       });
+    }
+
+    const message = oauthErrorMessage(error);
+    if (message !== undefined) {
+      return redirect(
+        `/app/lifecycle/login/local/login?authError=${encodeURIComponent(message)}`,
+        {
+          headers: {
+            "Set-Cookie": await clearAppleOauthState(
+              SERVICE_PROPERTIES.sessionCookieSecure,
+            ),
+          },
+        },
+      );
     }
 
     throw error;

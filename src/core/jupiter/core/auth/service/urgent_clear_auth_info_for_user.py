@@ -1,9 +1,12 @@
 """Clear provider auth credentials when an account is closed."""
 
 import logging
-from typing import Final, assert_never
+from typing import Final
 
 from jupiter.core.auth.auth_method import UserAuthMethod
+from jupiter.core.auth.service.load_linked_auth_methods import (
+    LoadLinkedAuthMethodsService,
+)
 from jupiter.core.auth.sub.apple.oauth_client import AppleOauthClient
 from jupiter.core.auth.sub.apple.root import AuthApple, AuthAppleNotFoundError
 from jupiter.core.users.root import User
@@ -30,19 +33,14 @@ class UrgentClearAuthInfoForUser:
     ) -> None:
         """Clear auth info the provider requires us to drop on account close.
 
-        Google and local accounts have nothing to revoke.
+        Apple can be linked to any account, not only ones that signed up with
+        it. Google and local accounts have nothing to revoke.
         """
-        match user.auth_method:
-            case UserAuthMethod.APPLE:
-                await self._revoke_apple_refresh_token(uow, ctx, user)
-            case UserAuthMethod.GOOGLE:
-                return
-            case UserAuthMethod.LOCAL:
-                return
-            case _ as unreachable:
-                assert_never(unreachable)
+        linked_methods = await LoadLinkedAuthMethodsService().do_it(uow, user.ref_id)
+        if UserAuthMethod.APPLE in linked_methods:
+            await self.revoke_apple_refresh_token(uow, ctx, user)
 
-    async def _revoke_apple_refresh_token(
+    async def revoke_apple_refresh_token(
         self,
         uow: DomainUnitOfWork,
         ctx: DomainContext,

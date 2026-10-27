@@ -4,6 +4,7 @@ import { redirectDocument } from "react-router";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
+import { oauthErrorMessage } from "@jupiter/core/auth/oauth-error-message";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
@@ -40,6 +41,13 @@ export async function action({ request }: ActionFunctionArgs) {
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
       return redirectDocument("/app/lifecycle/util/user-already-exists");
+    }
+
+    const message = oauthErrorMessage(error);
+    if (message !== undefined) {
+      return redirectDocument(
+        `/app/lifecycle/login/local/login?authError=${encodeURIComponent(message)}`,
+      );
     }
 
     throw error;

@@ -2,8 +2,9 @@
 
 from typing import Final, cast
 
-from jupiter.core.application.use_case.login_local import InvalidLoginMethodError
-from jupiter.core.auth.auth_method import UserAuthMethod
+from jupiter.core.auth.service.check_email_not_taken_by_other_method import (
+    CheckEmailNotTakenByOtherMethodService,
+)
 from jupiter.core.auth.sub.email_verification.service.create_email_verification_attempt import (
     CreateEmailVerificationAttemptService,
 )
@@ -96,10 +97,6 @@ class GoogleLoginService:
                 user = await uow.get_for(User).load_by_id(
                     auth_google.user.ref_id, allow_archived=True
                 )
-                if user.auth_method != UserAuthMethod.GOOGLE:
-                    raise InvalidLoginMethodError(
-                        "This account does not use Google authentication"
-                    )
                 if google_user_info.encrypted_refresh_token is not None:
                     auth_google = auth_google.update_refresh_token(
                         context.domain_context,
@@ -150,6 +147,10 @@ class GoogleLoginService:
             verified = True
         else:
             verified = google_user_info.verified
+
+        await CheckEmailNotTakenByOtherMethodService().do_it(
+            uow, google_user_info.email_address
+        )
 
         new_user = User.new_standard_user_google(
             ctx=context.domain_context,

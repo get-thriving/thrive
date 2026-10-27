@@ -95,3 +95,7 @@ class AuthGoogleRepository(StubEntityRepository[AuthGoogle], abc.ABC):
         self, google_subject_id: GoogleSubjectId
     ) -> AuthGoogle:
         """Load a Google auth record by Google subject ID."""
+
+    @abc.abstractmethod
+    async def find_all_auth(self) -> list[AuthGoogle]:
+        """Find every Google auth record, across users."""

@@ -27,7 +27,7 @@ export type User = {
     avatar: Avatar;
     timezone: Timezone;
     feature_flags: Record<string, boolean>;
-    auth_method: UserAuthMethod;
+    auth_sign_up_method: UserAuthMethod;
     verified: boolean;
 };
 

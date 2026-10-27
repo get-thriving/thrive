@@ -30,3 +30,8 @@ class SqliteAuthAppleRepository(
                 f"Apple auth record for subject {apple_subject_id} does not exist"
             )
         return self._row_to_entity(result)
+
+    async def find_all_auth(self) -> list[AuthApple]:
+        """Find every Apple auth record, across users."""
+        results = await self._connection.execute(select(self._table))
+        return [self._row_to_entity(row) for row in results]

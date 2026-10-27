@@ -581,7 +581,7 @@ class InitCreateWorkspaceUseCase(
             )
             await uow.get_for(UserWorkspaceLink).create(new_user_workspace_link)
 
-            if user.auth_method == UserAuthMethod.LOCAL:
+            if user.auth_sign_up_method == UserAuthMethod.LOCAL:
                 auth = await uow.get_for(AuthLocal).load_by_parent(args.user_id)
                 new_recovery_token_entity, new_recovery_token = (
                     RecoveryToken.new_recovery_token(

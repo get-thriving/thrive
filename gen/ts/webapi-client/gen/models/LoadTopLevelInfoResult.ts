@@ -12,6 +12,7 @@ import type { Env } from './Env';
 import type { Hosting } from './Hosting';
 import type { ScheduleStreamName } from './ScheduleStreamName';
 import type { User } from './User';
+import type { UserAuthMethod } from './UserAuthMethod';
 import type { UserFeature } from './UserFeature';
 import type { UserFeatureFlagsControls } from './UserFeatureFlagsControls';
 import type { UserScoreOverview } from './UserScoreOverview';
@@ -34,6 +35,7 @@ export type LoadTopLevelInfoResult = {
     default_workspace_feature_flags: Record<string, boolean>;
     workspace_feature_hack: WorkspaceFeature;
     user?: (User | null);
+    user_linked_auth_methods: Array<UserAuthMethod>;
     user_score_overview?: (UserScoreOverview | null);
     workspace?: (Workspace | null);
     user_feature_hack?: (UserFeature | null);

@@ -9,7 +9,6 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Logout from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import PolicyIcon from "@mui/icons-material/Policy";
-import SecurityIcon from "@mui/icons-material/Security";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import {
@@ -100,6 +99,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     userFeatureFlagControls: response.user_feature_flag_controls,
     workspaceFeatureFlagControls: response.workspace_feature_flag_controls,
     user: response.user,
+    userLinkedAuthMethods: response.user_linked_auth_methods,
     userScoreOverview: response.user_score_overview,
     workspace: response.workspace,
     allTags: allTagsResponse.tags as Array<Tag>,
@@ -183,6 +183,7 @@ export default function Workspace() {
       workspace={loaderData.workspace}
       userFeatureFlagControls={loaderData.userFeatureFlagControls}
       workspaceFeatureFlagControls={loaderData.workspaceFeatureFlagControls}
+      userLinkedAuthMethods={loaderData.userLinkedAuthMethods}
       userScoreOverview={loaderData.userScoreOverview}
     >
       <WorkspaceContainer>
@@ -299,17 +300,6 @@ export default function Workspace() {
                 <VpnKeyIcon />
               </ListItemIcon>
               <ListItemText>Access</ListItemText>
-            </MenuItem>
-            <MenuItem
-              id="security"
-              to="/app/workspace/security"
-              component={Link}
-              onClick={handleAccountMenuClose}
-            >
-              <ListItemIcon>
-                <SecurityIcon />
-              </ListItemIcon>
-              <ListItemText>Security</ListItemText>
             </MenuItem>
             <MenuItem
               id="settings"

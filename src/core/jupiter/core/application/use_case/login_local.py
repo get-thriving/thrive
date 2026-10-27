@@ -1,6 +1,5 @@
 """Use case for logging in as a particular user with local auth."""
 
-from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.auth.sub.local.password_plain import PasswordPlain
 from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.common.email_address import EmailAddress
@@ -14,6 +13,7 @@ from jupiter.core.users.root import (
 )
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework.secure import secure_class
+from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -60,12 +60,14 @@ class LoginLocalUseCase(JupiterGuestReadonlyUseCase[LoginLocalArgs, LoginLocalRe
                 user = await uow.get(UserRepository).load_by_email_address(
                     args.email_address
                 )
-                if user.auth_method != UserAuthMethod.LOCAL:
+                try:
+                    auth = await uow.get_for(AuthLocal).load_by_parent(user.ref_id)
+                except EntityNotFoundError as err:
                     raise InvalidLoginMethodError(
-                        "This account does not use local authentication"
-                    )
-
-                auth = await uow.get_for(AuthLocal).load_by_parent(user.ref_id)
+                        "This account does not use a password to sign in. "
+                        "Sign in with the method you used to create it, "
+                        "and add a password on your Account page."
+                    ) from err
 
                 if not auth.check_password_against(args.password):
                     raise InvalidLoginCredentialsError("User email or password invalid")

@@ -36,6 +36,25 @@ You can update some properties, but not your email.
 
 ![Accounts Account](../assets/accounts-account.png)
 
-Security info can also be changed.
+Your password can be changed from the sign-in methods section.
 
 ![Change Password](../assets/accounts-change-password.png)
+
+## Sign-in methods
+
+An account can have more than one way to sign in: a password, Google and Apple.
+Open the Account page to see which ones are linked, link another one, or
+unlink one. You always keep at least one.
+
+- **Linking Google or Apple.** You need to be signed in already. Press "Link"
+  next to the method and sign in with the Google or Apple account you want to
+  add. A Google or Apple account can belong to only one Thrive account.
+- **Adding a password.** If you signed up with Google or Apple, you can add a
+  password once your email is verified. You'll get a new
+  [recovery token](../how-tos/recover-your-account.md) to keep.
+- **Signing in with a method that isn't linked.** If an account with the same
+  email already exists, you'll be told how to sign in to it. Sign in that way,
+  then link the new method from the Account page.
+
+Your name and email follow the method you signed up with. Linking another
+method never changes them.

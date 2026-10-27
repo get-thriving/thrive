@@ -54,7 +54,7 @@ class User(RootEntity):
     avatar: Avatar
     timezone: Timezone
     feature_flags: UserFeatureFlags
-    auth_method: UserAuthMethod
+    auth_sign_up_method: UserAuthMethod
     verified: bool
 
     auth_local = ContainsAtMostOne(AuthLocal, user_ref_id=IsRefId())
@@ -90,7 +90,7 @@ class User(RootEntity):
             feature_flags=feature_flag_controls.validate_and_complete(
                 feature_flags_delta=feature_flags, current_feature_flags={}
             ),
-            auth_method=UserAuthMethod.LOCAL,
+            auth_sign_up_method=UserAuthMethod.LOCAL,
             verified=verified,
         )
 
@@ -113,7 +113,7 @@ class User(RootEntity):
             feature_flags=feature_flag_controls.validate_and_complete(
                 feature_flags_delta={}, current_feature_flags={}
             ),
-            auth_method=UserAuthMethod.LOCAL,
+            auth_sign_up_method=UserAuthMethod.LOCAL,
             verified=False,
         )
 
@@ -138,7 +138,7 @@ class User(RootEntity):
             feature_flags=feature_flag_controls.validate_and_complete(
                 feature_flags_delta=feature_flags, current_feature_flags={}
             ),
-            auth_method=UserAuthMethod.GOOGLE,
+            auth_sign_up_method=UserAuthMethod.GOOGLE,
             verified=verified,
         )
 
@@ -163,7 +163,7 @@ class User(RootEntity):
             feature_flags=feature_flag_controls.validate_and_complete(
                 feature_flags_delta=feature_flags, current_feature_flags={}
             ),
-            auth_method=UserAuthMethod.APPLE,
+            auth_sign_up_method=UserAuthMethod.APPLE,
             verified=verified,
         )
 
@@ -252,12 +252,6 @@ class UserRepository(RootEntityRepository[User], abc.ABC):
     @abc.abstractmethod
     async def load_by_email_address(self, email_address: EmailAddress) -> User:
         """Load a user given their email address."""
-
-    @abc.abstractmethod
-    async def find_all_unarchived_by_auth_method(
-        self, auth_method: UserAuthMethod
-    ) -> list[User]:
-        """Find all unarchived users with the given auth method."""
 
     @abc.abstractmethod
     async def find_all_light_by_ref_ids(

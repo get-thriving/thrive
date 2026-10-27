@@ -15,6 +15,7 @@ export interface TopLevelInfo {
   userFeatureFlagControls: UserFeatureFlagsControls;
   workspaceFeatureFlagControls: WorkspaceFeatureFlagsControls;
   user: User;
+  userLinkedAuthMethods: Array<UserAuthMethod>;
   userScoreOverview?: UserScoreOverview | null;
   workspace: Workspace;
 }
@@ -40,9 +41,10 @@ export const EMPTY_CONTEXT = {
     avatar: "this-is-not-a-data-url",
     timezone: "UTC",
     feature_flags: {},
-    auth_method: UserAuthMethod.LOCAL,
+    auth_sign_up_method: UserAuthMethod.LOCAL,
     verified: false,
   },
+  userLinkedAuthMethods: [UserAuthMethod.LOCAL],
   userScoreOverview: undefined,
   workspace: {
     ref_id: "bad",

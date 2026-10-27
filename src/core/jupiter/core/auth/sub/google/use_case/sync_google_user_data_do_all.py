@@ -4,13 +4,17 @@ import logging
 
 from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.auth.sub.google.oauth_client import GoogleRefreshTokenRevokedError
-from jupiter.core.auth.sub.google.root import AuthGoogle, AuthGoogleNotFoundError
+from jupiter.core.auth.sub.google.root import (
+    AuthGoogle,
+    AuthGoogleNotFoundError,
+    AuthGoogleRepository,
+)
 from jupiter.core.backend_blend import JupiterAuthProvider
 from jupiter.core.config import (
     JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
 )
-from jupiter.core.users.root import User, UserRepository
+from jupiter.core.users.root import User
 from jupiter.framework.use_case import background_mutation_use_case
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
@@ -48,9 +52,13 @@ class SyncGoogleUserDataDoAllUseCase(
         google_oauth_client = self._ports.google_oauth_client
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
-            google_users = await uow.get(
-                UserRepository
-            ).find_all_unarchived_by_auth_method(UserAuthMethod.GOOGLE)
+            google_users = []
+            for auth in await uow.get(AuthGoogleRepository).find_all_auth():
+                linked_user = await uow.get_for(User).load_optional_by_id(
+                    auth.user.ref_id
+                )
+                if linked_user is not None:
+                    google_users.append(linked_user)
 
         for user in google_users:
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
@@ -99,6 +107,11 @@ class SyncGoogleUserDataDoAllUseCase(
                         google_user_info.encrypted_refresh_token,
                     )
                     await uow.get_for(AuthGoogle).save(auth_google)
+
+                if user.auth_sign_up_method != UserAuthMethod.GOOGLE:
+                    # Only the sign up method owns the profile: email is also the
+                    # local login key, so a linked provider must not rewrite it.
+                    continue
 
                 if (
                     user.name != google_user_info.user_name

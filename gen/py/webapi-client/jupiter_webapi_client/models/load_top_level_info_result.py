@@ -13,6 +13,7 @@ from ..models.app_platform import AppPlatform
 from ..models.app_shell import AppShell
 from ..models.env import Env
 from ..models.hosting import Hosting
+from ..models.user_auth_method import UserAuthMethod
 from ..models.user_feature import UserFeature
 from ..models.workspace_feature import WorkspaceFeature
 from ..types import UNSET, Unset
@@ -49,6 +50,7 @@ class LoadTopLevelInfoResult:
         workspace_feature_flag_controls (WorkspaceFeatureFlagsControls): Feature settings controls for the workspace.
         default_workspace_feature_flags (LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags):
         workspace_feature_hack (WorkspaceFeature): A particular feature of a jupiter workspace.
+        user_linked_auth_methods (list[UserAuthMethod]):
         user (None | Unset | User):
         user_score_overview (None | Unset | UserScoreOverview):
         workspace (None | Unset | Workspace):
@@ -70,6 +72,7 @@ class LoadTopLevelInfoResult:
     workspace_feature_flag_controls: WorkspaceFeatureFlagsControls
     default_workspace_feature_flags: LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags
     workspace_feature_hack: WorkspaceFeature
+    user_linked_auth_methods: list[UserAuthMethod]
     user: None | Unset | User = UNSET
     user_score_overview: None | Unset | UserScoreOverview = UNSET
     workspace: None | Unset | Workspace = UNSET
@@ -105,6 +108,11 @@ class LoadTopLevelInfoResult:
         default_workspace_feature_flags = self.default_workspace_feature_flags.to_dict()
 
         workspace_feature_hack = self.workspace_feature_hack.value
+
+        user_linked_auth_methods = []
+        for user_linked_auth_methods_item_data in self.user_linked_auth_methods:
+            user_linked_auth_methods_item = user_linked_auth_methods_item_data.value
+            user_linked_auth_methods.append(user_linked_auth_methods_item)
 
         user: dict[str, Any] | None | Unset
         if isinstance(self.user, Unset):
@@ -192,6 +200,7 @@ class LoadTopLevelInfoResult:
                 "workspace_feature_flag_controls": workspace_feature_flag_controls,
                 "default_workspace_feature_flags": default_workspace_feature_flags,
                 "workspace_feature_hack": workspace_feature_hack,
+                "user_linked_auth_methods": user_linked_auth_methods,
             }
         )
         if user is not UNSET:
@@ -255,6 +264,13 @@ class LoadTopLevelInfoResult:
         )
 
         workspace_feature_hack = WorkspaceFeature(d.pop("workspace_feature_hack"))
+
+        user_linked_auth_methods = []
+        _user_linked_auth_methods = d.pop("user_linked_auth_methods")
+        for user_linked_auth_methods_item_data in _user_linked_auth_methods:
+            user_linked_auth_methods_item = UserAuthMethod(user_linked_auth_methods_item_data)
+
+            user_linked_auth_methods.append(user_linked_auth_methods_item)
 
         def _parse_user(data: object) -> None | Unset | User:
             if data is None:
@@ -420,6 +436,7 @@ class LoadTopLevelInfoResult:
             workspace_feature_flag_controls=workspace_feature_flag_controls,
             default_workspace_feature_flags=default_workspace_feature_flags,
             workspace_feature_hack=workspace_feature_hack,
+            user_linked_auth_methods=user_linked_auth_methods,
             user=user,
             user_score_overview=user_score_overview,
             workspace=workspace,

@@ -95,3 +95,7 @@ class AuthAppleRepository(StubEntityRepository[AuthApple], abc.ABC):
         self, apple_subject_id: AppleSubjectId
     ) -> AuthApple:
         """Load an Apple auth record by Apple subject ID."""
+
+    @abc.abstractmethod
+    async def find_all_auth(self) -> list[AuthApple]:
+        """Find every Apple auth record, across users."""

@@ -30,3 +30,8 @@ class SqliteAuthGoogleRepository(
                 f"Google auth record for subject {google_subject_id} does not exist"
             )
         return self._row_to_entity(result)
+
+    async def find_all_auth(self) -> list[AuthGoogle]:
+        """Find every Google auth record, across users."""
+        results = await self._connection.execute(select(self._table))
+        return [self._row_to_entity(row) for row in results]

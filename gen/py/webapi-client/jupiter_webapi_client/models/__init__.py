@@ -34,6 +34,8 @@ from .achieved_time_and_effort_summary_total_activities_by_doneness import (
 from .achieved_time_and_effort_summary_total_score_by_doneness import AchievedTimeAndEffortSummaryTotalScoreByDoneness
 from .acknowledge_access_invite_args import AcknowledgeAccessInviteArgs
 from .acknowledge_access_invite_result import AcknowledgeAccessInviteResult
+from .add_local_auth_args import AddLocalAuthArgs
+from .add_local_auth_result import AddLocalAuthResult
 from .api_key_archive_args import APIKeyArchiveArgs
 from .api_key_create_args import APIKeyCreateArgs
 from .api_key_create_result import APIKeyCreateResult
@@ -651,8 +653,12 @@ from .life_plan_update_eval_settings_args_scheduling_event_duration_mins import 
     LifePlanUpdateEvalSettingsArgsSchedulingEventDurationMins,
 )
 from .life_plan_update_result import LifePlanUpdateResult
+from .link_apple_args import LinkAppleArgs
+from .link_apple_native_args import LinkAppleNativeArgs
 from .link_block import LinkBlock
 from .link_block_kind import LinkBlockKind
+from .link_google_args import LinkGoogleArgs
+from .link_google_native_args import LinkGoogleNativeArgs
 from .list_item import ListItem
 from .load_access_grant_args import LoadAccessGrantArgs
 from .load_access_grant_result import LoadAccessGrantResult
@@ -1305,6 +1311,7 @@ from .travel_wish_remove_args import TravelWishRemoveArgs
 from .travel_wish_update_args import TravelWishUpdateArgs
 from .travel_wish_update_args_name import TravelWishUpdateArgsName
 from .travel_wish_update_result import TravelWishUpdateResult
+from .unlink_auth_method_args import UnlinkAuthMethodArgs
 from .update_grant_for_entity_args import UpdateGrantForEntityArgs
 from .update_grant_for_entity_result import UpdateGrantForEntityResult
 from .user import User
@@ -1429,6 +1436,8 @@ __all__ = (
     "AchievedTimeAndEffortSummaryTotalScoreByDoneness",
     "AcknowledgeAccessInviteArgs",
     "AcknowledgeAccessInviteResult",
+    "AddLocalAuthArgs",
+    "AddLocalAuthResult",
     "APIKeyArchiveArgs",
     "APIKeyCreateArgs",
     "APIKeyCreateResult",
@@ -2032,8 +2041,12 @@ __all__ = (
     "LifePlanUpdateEvalSettingsArgsSchedulingEventCount",
     "LifePlanUpdateEvalSettingsArgsSchedulingEventDurationMins",
     "LifePlanUpdateResult",
+    "LinkAppleArgs",
+    "LinkAppleNativeArgs",
     "LinkBlock",
     "LinkBlockKind",
+    "LinkGoogleArgs",
+    "LinkGoogleNativeArgs",
     "ListItem",
     "LoadAccessGrantArgs",
     "LoadAccessGrantResult",
@@ -2670,6 +2683,7 @@ __all__ = (
     "TravelWishUpdateArgs",
     "TravelWishUpdateArgsName",
     "TravelWishUpdateResult",
+    "UnlinkAuthMethodArgs",
     "UpdateGrantForEntityArgs",
     "UpdateGrantForEntityResult",
     "User",

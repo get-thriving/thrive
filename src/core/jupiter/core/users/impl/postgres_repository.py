@@ -2,7 +2,6 @@
 
 from collections.abc import Iterable
 
-from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.users.name import UserName
 from jupiter.core.users.root import (
@@ -53,17 +52,6 @@ class PostgresUserRepository(PostgresRootEntityRepository[User], UserRepository)
         if result is None:
             raise UserNotFoundError(f"User with email {email_address} does not exist")
         return self._row_to_entity(result)
-
-    async def find_all_unarchived_by_auth_method(
-        self, auth_method: UserAuthMethod
-    ) -> list[User]:
-        """Find all unarchived users with the given auth method."""
-        query_stmt = select(self._table).where(
-            self._table.c.archived.is_(False),
-            self._table.c.auth_method == auth_method.value,
-        )
-        results = await self._connection.execute(query_stmt)
-        return [self._row_to_entity(row) for row in results]
 
     async def find_all_light_by_ref_ids(
         self,

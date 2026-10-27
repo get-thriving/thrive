@@ -162,7 +162,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
 
                     await uow.get_for(User).save(user)
 
-                    if user.auth_method == UserAuthMethod.LOCAL:
+                    if user.auth_sign_up_method == UserAuthMethod.LOCAL:
                         auth = await uow.get_for(AuthLocal).load_by_parent(
                             parent_ref_id=user.ref_id
                         )

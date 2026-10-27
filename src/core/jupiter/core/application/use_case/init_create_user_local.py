@@ -2,6 +2,9 @@
 
 from typing import cast
 
+from jupiter.core.auth.service.check_email_not_taken_by_other_method import (
+    CheckEmailNotTakenByOtherMethodService,
+)
 from jupiter.core.auth.sub.email_verification.service.create_email_verification_attempt import (
     CreateEmailVerificationAttemptService,
 )
@@ -98,6 +101,9 @@ class InitCreateUserLocalUseCase(
                     raise UserAlreadyExistsButIsArchivedError(
                         "This account was previously closed and cannot be used to sign in again."
                     )
+                await CheckEmailNotTakenByOtherMethodService().do_it(
+                    uow, args.user_email_address
+                )
 
             if for_app_review:
                 new_user = User.new_app_store_review_user(

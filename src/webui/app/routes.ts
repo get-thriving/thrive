@@ -34,6 +34,30 @@ export default [
       "routes/app/lifecycle/init/apple/create-or-login-user.tsx",
     ),
     route(
+      "lifecycle/link/google/prepare",
+      "routes/app/lifecycle/link/google/prepare.tsx",
+    ),
+    route(
+      "lifecycle/link/google/native",
+      "routes/app/lifecycle/link/google/native.tsx",
+    ),
+    route(
+      "lifecycle/link/google/link-auth",
+      "routes/app/lifecycle/link/google/link-auth.tsx",
+    ),
+    route(
+      "lifecycle/link/apple/prepare",
+      "routes/app/lifecycle/link/apple/prepare.tsx",
+    ),
+    route(
+      "lifecycle/link/apple/native",
+      "routes/app/lifecycle/link/apple/native.tsx",
+    ),
+    route(
+      "lifecycle/link/apple/link-auth",
+      "routes/app/lifecycle/link/apple/link-auth.tsx",
+    ),
+    route(
       "lifecycle/util/local/show-recovery-token",
       "routes/app/lifecycle/util/local/show-recovery-token.tsx",
     ),
@@ -361,9 +385,9 @@ export default [
         route("reschedule", "routes/app/workspace/calendar/reschedule.tsx"),
         route("settings", "routes/app/workspace/calendar/settings.tsx"),
       ]),
-      route("security", "routes/app/workspace/security.tsx"),
       route("settings", "routes/app/workspace/settings.tsx"),
       route("account", "routes/app/workspace/account.tsx", [
+        route("password", "routes/app/workspace/account/password.tsx"),
         route("api-key/:id", "routes/app/workspace/account/api-key/$id.tsx"),
         route("api-key/new", "routes/app/workspace/account/api-key/new.tsx"),
         route("mcp-key/:id", "routes/app/workspace/account/mcp-key/$id.tsx"),

@@ -2,15 +2,18 @@
 
 import logging
 
-from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.auth.sub.apple.oauth_client import AppleRefreshTokenRevokedError
-from jupiter.core.auth.sub.apple.root import AuthApple, AuthAppleNotFoundError
+from jupiter.core.auth.sub.apple.root import (
+    AuthApple,
+    AuthAppleNotFoundError,
+    AuthAppleRepository,
+)
 from jupiter.core.backend_blend import JupiterAuthProvider
 from jupiter.core.config import (
     JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
 )
-from jupiter.core.users.root import UserRepository
+from jupiter.core.users.root import User
 from jupiter.framework.use_case import background_mutation_use_case
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
@@ -48,9 +51,13 @@ class SyncAppleUserDataDoAllUseCase(
         apple_oauth_client = self._ports.apple_oauth_client
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
-            apple_users = await uow.get(
-                UserRepository
-            ).find_all_unarchived_by_auth_method(UserAuthMethod.APPLE)
+            apple_users = []
+            for auth in await uow.get(AuthAppleRepository).find_all_auth():
+                linked_user = await uow.get_for(User).load_optional_by_id(
+                    auth.user.ref_id
+                )
+                if linked_user is not None:
+                    apple_users.append(linked_user)
 
         for user in apple_users:
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:

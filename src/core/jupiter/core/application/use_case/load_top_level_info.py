@@ -9,6 +9,10 @@ from jupiter.core.app import (
 )
 from jupiter.core.apps.life_plan.sub.aspects.name import AspectName
 from jupiter.core.apps.schedule.sub.stream.name import ScheduleStreamName
+from jupiter.core.auth.auth_method import UserAuthMethod
+from jupiter.core.auth.service.load_linked_auth_methods import (
+    LoadLinkedAuthMethodsService,
+)
 from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
@@ -70,6 +74,7 @@ class LoadTopLevelInfoResult(UseCaseResultBase):
     default_workspace_feature_flags: WorkspaceFeatureFlags
     workspace_feature_hack: WorkspaceFeature
     user: User | None
+    user_linked_auth_methods: list[UserAuthMethod]
     user_score_overview: UserScoreOverview | None
     workspace: Workspace | None
     user_feature_hack: UserFeature | None
@@ -97,6 +102,7 @@ class LoadTopLevelInfoUseCase(
         ) = infer_feature_flag_controls(self._global_properties)
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+            linked_auth_methods: list[UserAuthMethod] = []
             if context.auth_token is None:
                 user = None
                 workspace = None
@@ -111,6 +117,9 @@ class LoadTopLevelInfoUseCase(
                     workspace = None
                     user_score_overview = None
                 else:
+                    linked_auth_methods = await LoadLinkedAuthMethodsService().do_it(
+                        uow, user.ref_id
+                    )
                     workspace = None
                     user_score_overview = None
                     try:
@@ -144,6 +153,7 @@ class LoadTopLevelInfoUseCase(
             default_workspace_feature_flags=BASIC_WORKSPACE_FEATURE_FLAGS,
             workspace_feature_hack=WorkspaceFeature.TODO_TASK,
             user=user,
+            user_linked_auth_methods=linked_auth_methods,
             user_score_overview=user_score_overview,
             workspace=workspace,
             user_feature_hack=UserFeature.GAMIFICATION,

@@ -89,6 +89,7 @@ export default function Published() {
                   workspaceFeatureFlagControls={
                     loaderData.workspaceFeatureFlagControls
                   }
+                  userLinkedAuthMethods={[]}
                   userScoreOverview={loaderData.userScoreOverview}
                 >
                   <StandaloneContainer>

@@ -15,6 +15,7 @@ from jupiter.core.apps.life_plan.sub.aspects.errors import AspectInSignificantUs
 from jupiter.core.apps.time_plans.root import (
     TimePlanExistsForDatePeriodCombinationError,
 )
+from jupiter.core.auth.service.auth_link_errors import AuthLinkError
 from jupiter.core.auth.sub.email_verification.impl.resend import EmailSendError
 from jupiter.core.auth.sub.email_verification.root import (
     EmailAttemptVerificationExpiredError,
@@ -142,10 +143,28 @@ class InvalidLoginMethodHandler(JupiterExceptionHandler[InvalidLoginMethodError]
     def get_detail(self, exception: InvalidLoginMethodError) -> WebApiError:
         """Get the detail for the exception."""
         return WebApiError.validation(
-            "This account does not use local authentication",
+            str(exception),
             loc=["body"],
             msg=str(exception),
             error_type="value_error.invalidloginmethoderror",
+        )
+
+
+class AuthLinkErrorHandler(JupiterExceptionHandler[AuthLinkError]):
+    """Handle errors from linking and unlinking auth methods."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: AuthLinkError) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            str(exception),
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.authlinkerror",
         )
 
 

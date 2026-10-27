@@ -1,5 +1,11 @@
-import { UserFeature } from "@jupiter/webapi-client";
 import {
+  JupiterAuthProvider,
+  UserAuthMethod,
+  UserFeature,
+} from "@jupiter/webapi-client";
+import {
+  Alert,
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -11,6 +17,7 @@ import {
   InputLabel,
   OutlinedInput,
   Switch,
+  Stack,
   TextField,
   Typography,
 } from "@mui/material";
@@ -20,14 +27,17 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import {
+  Link,
   redirect,
   redirectDocument,
   useActionData,
   useNavigation,
+  useSearchParams,
+  useSubmit,
 } from "react-router";
 import { useContext, useState } from "react";
 import { z } from "zod";
-import { parseForm } from "zodix";
+import { parseForm, parseQuery } from "zodix";
 import { UserFeatureFlagsEditor } from "@jupiter/core/workspaces/component/feature-flags-editor";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
@@ -55,6 +65,8 @@ import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
+import { useOAuthProviderButtonProps } from "~/logic/native-sign-in";
+
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
@@ -76,10 +88,17 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
       .optional()
       .transform((v) => v === "on"),
   }),
+  z.object({ intent: z.literal("unlink-local") }),
+  z.object({ intent: z.literal("unlink-google") }),
+  z.object({ intent: z.literal("unlink-apple") }),
   z.object({
     intent: z.literal("close-account"),
   }),
 ]);
+
+const QuerySchema = z.object({
+  linkError: z.string().optional(),
+});
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -108,6 +127,30 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     switch (form.intent) {
+      case "unlink-local": {
+        await apiClient.application.unlinkAuthMethod({
+          auth_method: UserAuthMethod.LOCAL,
+        });
+
+        return redirect(`/app/workspace/account?invalidateTopLevel=true`);
+      }
+
+      case "unlink-google": {
+        await apiClient.application.unlinkAuthMethod({
+          auth_method: UserAuthMethod.GOOGLE,
+        });
+
+        return redirect(`/app/workspace/account?invalidateTopLevel=true`);
+      }
+
+      case "unlink-apple": {
+        await apiClient.application.unlinkAuthMethod({
+          auth_method: UserAuthMethod.APPLE,
+        });
+
+        return redirect(`/app/workspace/account?invalidateTopLevel=true`);
+      }
+
       case "update": {
         await apiClient.users.userUpdate({
           name: {
@@ -156,6 +199,17 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
+const METHOD_LABELS: Record<UserAuthMethod, string> = {
+  [UserAuthMethod.LOCAL]: "Email and password",
+  [UserAuthMethod.GOOGLE]: "Google",
+  [UserAuthMethod.APPLE]: "Apple",
+};
+
+const LINK_PATHS: Partial<Record<UserAuthMethod, string>> = {
+  [UserAuthMethod.GOOGLE]: "/app/lifecycle/link/google/prepare",
+  [UserAuthMethod.APPLE]: "/app/lifecycle/link/apple/prepare",
+};
+
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
@@ -173,6 +227,51 @@ export default function Account() {
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const [showCloseAccountDialog, setShowCloseAccountDialog] = useState(false);
+
+  const [queryRaw] = useSearchParams();
+  const query = parseQuery(queryRaw, QuerySchema);
+  const submit = useSubmit();
+  const oauthButtonProps = useOAuthProviderButtonProps();
+  const [nativeError, setNativeError] = useState<string | null>(null);
+
+  const linked = topLevelInfo.userLinkedAuthMethods;
+  const providersEnabled =
+    globalProperties.authProvider === JupiterAuthProvider.LOCAL_GOOGLE_APPLE;
+  // The redirect flow leaves the app for the system browser, so the mobile
+  // shell links through its SDKs instead.
+  const nativeSignIn = oauthButtonProps.nativeSignIn;
+  const canLinkProviders = providersEnabled && !oauthButtonProps.disabled;
+  const methods = providersEnabled
+    ? [UserAuthMethod.LOCAL, UserAuthMethod.GOOGLE, UserAuthMethod.APPLE]
+    : [UserAuthMethod.LOCAL];
+
+  async function linkNatively(method: UserAuthMethod) {
+    if (nativeSignIn === undefined) {
+      return;
+    }
+
+    setNativeError(null);
+
+    try {
+      const signedIn =
+        method === UserAuthMethod.GOOGLE
+          ? await nativeSignIn.signInWithGoogle()
+          : nativeSignIn.signInWithApple === null
+            ? null
+            : await nativeSignIn.signInWithApple();
+      if (signedIn !== null) {
+        submit(
+          signedIn.userJson === null
+            ? { code: signedIn.code }
+            : { code: signedIn.code, user: signedIn.userJson },
+          { method: "post", action: `/app/lifecycle/link/${method}/native` },
+        );
+      }
+    } catch (err) {
+      console.error(`Native ${method} link failed`, err);
+      setNativeError("Could not link. Please try again.");
+    }
+  }
 
   return (
     <TrunkPanel
@@ -212,7 +311,7 @@ export default function Account() {
                 endAdornment={
                   <InputAdornment position="end">
                     <UserAuthMethodTag
-                      authMethod={loaderData.user.auth_method}
+                      authMethod={loaderData.user.auth_sign_up_method}
                     />
                   </InputAdornment>
                 }
@@ -238,6 +337,89 @@ export default function Account() {
 
               <FieldError actionResult={actionData} fieldName="/timezone" />
             </FormControl>
+          </SectionCard>
+
+          <SectionCard title="Sign-in Methods">
+            {query.linkError && (
+              <Alert severity="warning">{query.linkError}</Alert>
+            )}
+            {nativeError && <Alert severity="error">{nativeError}</Alert>}
+            <Typography variant="body2">
+              You can sign in with any of the methods linked here. Your account
+              was created with{" "}
+              <UserAuthMethodTag
+                authMethod={loaderData.user.auth_sign_up_method}
+              />
+              .
+            </Typography>
+            {methods.map((method) => {
+              const isLinked = linked.includes(method);
+              const linkPath = LINK_PATHS[method];
+              return (
+                <Stack
+                  key={method}
+                  direction="row"
+                  spacing={2}
+                  sx={{ alignItems: "center", justifyContent: "space-between" }}
+                >
+                  <Typography>
+                    {METHOD_LABELS[method]} {isLinked ? "(linked)" : ""}
+                  </Typography>
+                  {isLinked ? (
+                    <Stack direction="row" spacing={1}>
+                      {method === UserAuthMethod.LOCAL && (
+                        <Button
+                          component={Link}
+                          to="/app/workspace/account/password"
+                          disabled={!inputsEnabled}
+                        >
+                          Change Password
+                        </Button>
+                      )}
+                      <Button
+                        type="submit"
+                        name="intent"
+                        value={`unlink-${method}`}
+                        color="warning"
+                        disabled={!inputsEnabled || linked.length <= 1}
+                      >
+                        Unlink
+                      </Button>
+                    </Stack>
+                  ) : method === UserAuthMethod.LOCAL ? (
+                    <Button
+                      component={Link}
+                      to="/app/workspace/account/password"
+                      disabled={!inputsEnabled}
+                    >
+                      Link
+                    </Button>
+                  ) : linkPath !== undefined &&
+                    canLinkProviders &&
+                    nativeSignIn !== undefined ? (
+                    (method === UserAuthMethod.GOOGLE ||
+                      nativeSignIn.signInWithApple !== null) && (
+                      <Button
+                        type="button"
+                        disabled={!inputsEnabled}
+                        onClick={() => linkNatively(method)}
+                      >
+                        Link
+                      </Button>
+                    )
+                  ) : linkPath !== undefined && canLinkProviders ? (
+                    <Button
+                      component={Link}
+                      to={linkPath}
+                      reloadDocument
+                      disabled={!inputsEnabled}
+                    >
+                      Link
+                    </Button>
+                  ) : null}
+                </Stack>
+              );
+            })}
           </SectionCard>
 
           <SectionCard
@@ -331,15 +513,17 @@ export default function Account() {
               </DialogActions>
             </Dialog>
 
-            <Button
-              id="close-account-initialize"
-              variant="contained"
-              disabled={!inputsEnabled}
-              onClick={() => setShowCloseAccountDialog(true)}
-              color="error"
-            >
-              Close Account
-            </Button>
+            <Box>
+              <Button
+                id="close-account-initialize"
+                variant="contained"
+                disabled={!inputsEnabled}
+                onClick={() => setShowCloseAccountDialog(true)}
+                color="error"
+              >
+                Close Account
+              </Button>
+            </Box>
           </SectionCard>
         </ToolPanel>
       </NestingAwareBlock>

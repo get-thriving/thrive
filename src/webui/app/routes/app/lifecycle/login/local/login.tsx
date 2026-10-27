@@ -1,5 +1,5 @@
 import { DocsHelpSubject } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import { Alert, FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   redirectDocument,
@@ -9,7 +9,7 @@ import {
 } from "react-router";
 import { useContext } from "react";
 import { z } from "zod";
-import { parseForm } from "zodix";
+import { parseForm, parseQuery } from "zodix";
 import { CommunityLink } from "@jupiter/core/infra/component/community-link";
 import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
 import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -46,6 +46,11 @@ import { commitSession, getSession } from "~/sessions";
 const LoginFormSchema = z.object({
   emailAddress: z.string(),
   password: z.string(),
+});
+
+const QuerySchema = z.object({
+  authError: z.string().optional(),
+  returnTo: z.string().optional(),
 });
 
 // @secureFn
@@ -97,7 +102,8 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function Login() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
-  const [searchParams] = useSearchParams();
+  const [queryRaw] = useSearchParams();
+  const query = parseQuery(queryRaw, QuerySchema);
 
   const serviceProperties = useContext(ServicePropertiesContext);
   const oauthProviderButtonProps = useOAuthProviderButtonProps();
@@ -126,6 +132,7 @@ export default function Login() {
 
       <LifecyclePanel>
         <GlobalError actionResult={actionData} />
+        {query.authError && <Alert severity="warning">{query.authError}</Alert>}
         <SectionCard
           title="Login"
           actionsPosition={ActionsPosition.BELOW}
@@ -164,7 +171,7 @@ export default function Login() {
         >
           <LifecycleOAuthProviderButtons
             {...oauthProviderButtonProps}
-            returnTo={searchParams.get("returnTo") ?? undefined}
+            returnTo={query.returnTo}
           />
 
           <FormControl fullWidth>
