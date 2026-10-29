@@ -506,6 +506,9 @@ from .home_widget_load_result import HomeWidgetLoadResult
 from .home_widget_move_and_resize_args import HomeWidgetMoveAndResizeArgs
 from .home_widget_remove_args import HomeWidgetRemoveArgs
 from .hosting import Hosting
+from .image_content_type import ImageContentType
+from .image_link import ImageLink
+from .image_purpose import ImagePurpose
 from .inbox_task import InboxTask
 from .inbox_task_archive_args import InboxTaskArchiveArgs
 from .inbox_task_collection import InboxTaskCollection
@@ -620,6 +623,7 @@ from .jupiter_update_crown_entity_args import JupiterUpdateCrownEntityArgs
 from .jupiter_update_leaf_support_entity_args import JupiterUpdateLeafSupportEntityArgs
 from .jupiter_upsert_leaf_support_entity_args import JupiterUpsertLeafSupportEntityArgs
 from .jupiter_web_api_email_sender import JupiterWebApiEmailSender
+from .jupiter_web_api_image_store import JupiterWebApiImageStore
 from .jupiter_web_api_search_backend import JupiterWebApiSearchBackend
 from .jupiter_web_api_storage_engine import JupiterWebApiStorageEngine
 from .life_plan import LifePlan
@@ -1908,6 +1912,9 @@ __all__ = (
     "HomeWidgetMoveAndResizeArgs",
     "HomeWidgetRemoveArgs",
     "Hosting",
+    "ImageContentType",
+    "ImageLink",
+    "ImagePurpose",
     "InboxTask",
     "InboxTaskArchiveArgs",
     "InboxTaskCollection",
@@ -2018,6 +2025,7 @@ __all__ = (
     "JupiterUpdateLeafSupportEntityArgs",
     "JupiterUpsertLeafSupportEntityArgs",
     "JupiterWebApiEmailSender",
+    "JupiterWebApiImageStore",
     "JupiterWebApiSearchBackend",
     "JupiterWebApiStorageEngine",
     "LifePlan",
