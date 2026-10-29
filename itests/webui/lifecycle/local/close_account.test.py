@@ -2,6 +2,7 @@ from jupiter_webapi_client.models.init_result import InitResult
 from playwright.sync_api import Page, expect
 
 from itests.conftest import TestUser
+from itests.helpers import wait_for_hydration
 
 
 def test_webui_lifecycle_local_close_account(
@@ -26,6 +27,14 @@ def test_webui_lifecycle_local_close_account(
     page.wait_for_url("/app/workspace")
 
     page.goto("/app/workspace/account")
+    wait_for_hydration(page)
+
+    # Once the app has come up the sidebar covers the left of the page, which is
+    # where the button is.
+    sidebar_link = page.locator('a[href="/app/workspace/core/contacts"]')
+    expect(sidebar_link).to_be_visible()
+    page.locator("#show-sidebar").click()
+    expect(sidebar_link).to_be_hidden()
 
     page.locator("#close-account-initialize").click()
     page.locator("#close-account").click()

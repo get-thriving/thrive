@@ -89,10 +89,9 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
       .optional()
       .transform((v) => v === "on"),
   }),
-  z.object({
-    intent: z.literal("upload-avatar"),
-    picture: z.instanceof(File),
-  }),
+  // The picture itself is not in here: `parseForm` turns anything that is not a
+  // string into JSON, which a file does not survive. The action reads it.
+  z.object({ intent: z.literal("upload-avatar") }),
   z.object({ intent: z.literal("clear-avatar") }),
   z.object({ intent: z.literal("unlink-local") }),
   z.object({ intent: z.literal("unlink-google") }),
@@ -159,8 +158,13 @@ export async function action({ request }: ActionFunctionArgs) {
       }
 
       case "upload-avatar": {
+        const picture = (await request.clone().formData()).get("picture");
+        if (!(picture instanceof File)) {
+          throw new Response("Bad Request", { status: 400 });
+        }
+
         // The WebAPI speaks JSON, which has no bytes.
-        const content = Buffer.from(await form.picture.arrayBuffer());
+        const content = Buffer.from(await picture.arrayBuffer());
         await apiClient.users.userAvatarUpload({
           image_base64: content.toString("base64"),
         });

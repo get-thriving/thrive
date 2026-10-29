@@ -29,7 +29,7 @@ from jupiter_webapi_client.models.user_avatar_upload_result import (
 from PIL import Image
 from playwright.sync_api import Page, expect
 
-from itests.helpers import get_parsed_from_response
+from itests.helpers import get_parsed_from_response, wait_for_hydration
 
 _LOCAL_PREFIX = "/images/avatars/"
 _APP_BAR_AVATAR = "#account-menu img.MuiAvatar-img"
@@ -143,6 +143,7 @@ def _png(size: tuple[int, int], colour: tuple[int, int, int] = (30, 30, 220)) ->
 
 
 def _choose(page: Page, name: str, mime_type: str, content: bytes) -> None:
+    wait_for_hydration(page)
     page.locator("#avatar-file").set_input_files(
         {"name": name, "mimeType": mime_type, "buffer": content}
     )
@@ -241,6 +242,7 @@ def test_removing_the_picture_goes_back_to_the_generated_one(
     _upload_a_picture(logged_in_client)
     page.goto(_ACCOUNT_PAGE)
     expect(page.locator("#remove-avatar")).to_be_visible()
+    wait_for_hydration(page)
 
     page.locator("#remove-avatar").click()
 

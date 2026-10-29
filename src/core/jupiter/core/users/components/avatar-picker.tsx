@@ -5,6 +5,7 @@ import { useFetcher } from "react-router";
 
 import type { ActionResult } from "#/core/infra/action-result";
 import { GlobalError } from "#/core/infra/component/errors";
+import { useHydrated } from "#/core/infra/component/use-hidrated";
 import {
   ACCEPTED_PICTURE_TYPES,
   MAX_PICTURE_BYTES,
@@ -27,10 +28,13 @@ interface AvatarPickerProps {
  */
 export function AvatarPicker(props: AvatarPickerProps) {
   const fetcher = useFetcher<ActionResult<unknown>>();
+  const hydrated = useHydrated();
   const [preparing, setPreparing] = useState(false);
   const [clientError, setClientError] = useState<string | null>(null);
 
   const busy = preparing || fetcher.state !== "idle";
+  // A picture chosen before hydration would go nowhere: nothing listens yet.
+  const canChoose = hydrated && props.inputsEnabled && !busy;
 
   async function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget;
@@ -74,11 +78,7 @@ export function AvatarPicker(props: AvatarPickerProps) {
           sx={{ width: 96, height: 96 }}
         />
         <Stack spacing={1} sx={{ alignItems: "flex-start" }}>
-          <Button
-            component="label"
-            variant="outlined"
-            disabled={!props.inputsEnabled || busy}
-          >
+          <Button component="label" variant="outlined" disabled={!canChoose}>
             {busy ? "Uploading…" : "Upload picture"}
             <input
               id="avatar-file"
