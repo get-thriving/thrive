@@ -59,6 +59,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { UserAuthMethodTag } from "@jupiter/core/auth/component/user-auth-method-tag";
+import { AvatarPicker } from "@jupiter/core/users/components/avatar-picker";
 import { getHosting } from "#/core/universe";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
@@ -88,6 +89,11 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
       .optional()
       .transform((v) => v === "on"),
   }),
+  z.object({
+    intent: z.literal("upload-avatar"),
+    picture: z.instanceof(File),
+  }),
+  z.object({ intent: z.literal("clear-avatar") }),
   z.object({ intent: z.literal("unlink-local") }),
   z.object({ intent: z.literal("unlink-google") }),
   z.object({ intent: z.literal("unlink-apple") }),
@@ -111,6 +117,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return {
     user: result.user,
+    avatarUrl: result.user_avatar_url,
     webUiSettings: webUiSettingsResult.web_ui_settings,
   };
 }
@@ -147,6 +154,22 @@ export async function action({ request }: ActionFunctionArgs) {
         await apiClient.application.unlinkAuthMethod({
           auth_method: UserAuthMethod.APPLE,
         });
+
+        return redirect(`/app/workspace/account?invalidateTopLevel=true`);
+      }
+
+      case "upload-avatar": {
+        // The WebAPI speaks JSON, which has no bytes.
+        const content = Buffer.from(await form.picture.arrayBuffer());
+        await apiClient.users.userAvatarUpload({
+          image_base64: content.toString("base64"),
+        });
+
+        return redirect(`/app/workspace/account?invalidateTopLevel=true`);
+      }
+
+      case "clear-avatar": {
+        await apiClient.users.userAvatarClear({});
 
         return redirect(`/app/workspace/account?invalidateTopLevel=true`);
       }
@@ -281,6 +304,32 @@ export default function Account() {
       <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
         <ToolPanel>
           <GlobalError actionResult={actionData} />
+
+          <SectionCard
+            title="Picture"
+            actions={
+              loaderData.user.avatar_image_ref_id ? (
+                <SectionActions
+                  id="picture-actions"
+                  topLevelInfo={topLevelInfo}
+                  inputsEnabled={inputsEnabled}
+                  actions={[
+                    ActionSingle({
+                      id: "remove-avatar",
+                      text: "Remove picture",
+                      value: "clear-avatar",
+                    }),
+                  ]}
+                />
+              ) : undefined
+            }
+          >
+            <AvatarPicker
+              name={loaderData.user.name}
+              avatarUrl={loaderData.avatarUrl}
+              inputsEnabled={inputsEnabled}
+            />
+          </SectionCard>
 
           <SectionCard
             title="Account"

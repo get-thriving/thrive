@@ -21,6 +21,10 @@ Thrive,but it doesn't carry any other constraints other than being non-empty.
 An account also has a timezone. This is the preferred timezone in which you wish
 to seedates.
 
+An account has a picture too. It shows up in the top bar, next to the account
+menu. Until you choose one, it is drawn from your name. See
+[Picture](#picture) below.
+
 Naturally, login credentials are linked to the account. Besides the password,
 there isalso an account recovery token that you need to [keep in a safe
 space](../how-tos/recover-your-account.md).
@@ -39,6 +43,21 @@ You can update some properties, but not your email.
 Your password can be changed from the sign-in methods section.
 
 ![Change Password](../assets/accounts-change-password.png)
+
+## Picture
+
+The Account page opens with a Picture section. Press "Upload picture" and choose
+a JPEG, PNG or WebP file. Big photos are scaled down in your browser before they
+are sent. HEIC files, which some iPhone exports produce, are not supported:
+convert them to JPEG first.
+
+The picture is cropped to a square around its middle and kept at 256 pixels at
+most, so pick one where the middle is what you want to show. Whatever else was in
+the file, including where a photo was taken, is not kept. A picture needs to be
+at least 128 pixels on its shortest side.
+
+"Remove picture" goes back to the one drawn from your name, and deletes the one
+you uploaded. Closing your account deletes it too.
 
 ## Sign-in methods
 
