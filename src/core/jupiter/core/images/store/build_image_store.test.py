@@ -31,7 +31,7 @@ def _throwaway_credentials() -> str:
             "private_key": pem,
             "client_email": "image-store@not-a-project.iam.gserviceaccount.com",
             "client_id": "1",
-            "token_uri": "https://oauth2.googleapis.com/token",
+            "token_uri": "https://oauth2.googleapis.com/token",  # nosec B105
         }
     )
 

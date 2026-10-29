@@ -22,10 +22,12 @@ class ImageLink:
         Attributes:
             url (str): A link an image can be fetched from.
 
-                Either absolute (a public bucket) or relative to the origin the page was
-                served from (``/images/...``, the WebUI serves those). The relative form
-                keeps the local store free of host and port settings: the browser resolves
-                it against whatever server the app is talking to.
+                Absolute (a public bucket), or relative to the origin the page was served
+                from (``/images/...``, the WebUI serves those). The relative form keeps the
+                local store free of host and port settings: the browser resolves it against
+                whatever server the app is talking to.
+
+                The picture generated from a user's name is a link too: an inline SVG.
             expires_at (None | str | Unset):
     """
 

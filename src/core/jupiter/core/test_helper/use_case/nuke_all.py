@@ -9,6 +9,9 @@ from jupiter.core.config import (
 from jupiter.core.env import Env
 from jupiter.core.user_workspace_link.user_workspace_link import UserWorkspaceLink
 from jupiter.core.users.root import User
+from jupiter.core.users.service.remove_user_image_objects import (
+    RemoveUserImageObjectsService,
+)
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
@@ -39,6 +42,14 @@ class NukeAllUseCase(JupiterGuestMutationUseCase[NukeAllArgs, None]):
             user_workspace_links = await uow.get_for(UserWorkspaceLink).find_all(
                 allow_archived=True
             )
+
+        # Before anything else, and with no transaction open: the rows below take
+        # the images with them, but the objects are in a store that knows nothing of that.
+        async with progress_reporter.section("Removing images"):
+            for user in users:
+                await RemoveUserImageObjectsService(
+                    self._ports.domain_storage_engine, self._ports.image_store
+                ).do_it(user.ref_id)
 
         async with progress_reporter.section("Clearing CRM indexing map"):
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:

@@ -19,6 +19,9 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
 )
 from jupiter.core.users.root import User
+from jupiter.core.users.service.remove_user_image_objects import (
+    RemoveUserImageObjectsService,
+)
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.use_case import (
@@ -47,6 +50,12 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
         """Execute the command's action."""
         user = context.user
         workspace = context.workspace
+
+        # The rows below go with the user, but the images they hold are objects in a
+        # store that knows nothing of that.
+        await RemoveUserImageObjectsService(
+            self._ports.domain_storage_engine, self._ports.image_store
+        ).do_it(user.ref_id)
 
         # Search tables FK workspace — drop derived search state before deleting the workspace row.
         async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:

@@ -10,6 +10,7 @@ import type { AppShell } from './AppShell';
 import type { AspectName } from './AspectName';
 import type { Env } from './Env';
 import type { Hosting } from './Hosting';
+import type { ImageUrl } from './ImageUrl';
 import type { ScheduleStreamName } from './ScheduleStreamName';
 import type { User } from './User';
 import type { UserAuthMethod } from './UserAuthMethod';
@@ -35,6 +36,7 @@ export type LoadTopLevelInfoResult = {
     default_workspace_feature_flags: Record<string, boolean>;
     workspace_feature_hack: WorkspaceFeature;
     user?: (User | null);
+    user_avatar_url?: (ImageUrl | null);
     user_linked_auth_methods: Array<UserAuthMethod>;
     user_score_overview?: (UserScoreOverview | null);
     workspace?: (Workspace | null);

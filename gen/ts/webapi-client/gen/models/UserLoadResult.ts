@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ImageUrl } from './ImageUrl';
 import type { User } from './User';
 import type { UserScoreHistory } from './UserScoreHistory';
 import type { UserScoreOverview } from './UserScoreOverview';
@@ -10,6 +11,7 @@ import type { UserScoreOverview } from './UserScoreOverview';
  */
 export type UserLoadResult = {
     user: User;
+    user_avatar_url: ImageUrl;
     user_score_overview?: (UserScoreOverview | null);
     user_score_history?: (UserScoreHistory | null);
 };

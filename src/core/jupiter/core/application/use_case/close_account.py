@@ -1,5 +1,7 @@
 """Close an account and workspace."""
 
+import logging
+
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.auth.service.urgent_clear_auth_info_for_user import (
     UrgentClearAuthInfoForUser,
@@ -13,6 +15,9 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
 )
 from jupiter.core.users.root import User
+from jupiter.core.users.service.remove_user_image_objects import (
+    RemoveUserImageObjectsService,
+)
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.secure import secure_class
@@ -20,6 +25,8 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.framework.utils.generic_full_archiver import generic_full_archiver
+
+LOGGER = logging.getLogger(__name__)
 
 
 @use_case_args
@@ -81,4 +88,16 @@ class CloseAccountUseCase(
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             await UrgentClearAuthInfoForUser(self._ports.apple_oauth_client).do_it(
                 uow, context.domain_context, context.user
+            )
+
+        # An archived account keeps its rows, but not a picture anyone can still
+        # fetch. The account is closed either way, whatever the store says.
+        try:
+            await RemoveUserImageObjectsService(
+                self._ports.domain_storage_engine, self._ports.image_store
+            ).do_it(context.user.ref_id)
+        except Exception:
+            LOGGER.exception(
+                "close_account could not remove the images of user ref_id=%s",
+                context.user.ref_id,
             )

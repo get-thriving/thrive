@@ -17,6 +17,7 @@ import { GcService } from './services/GcService';
 import { GenService } from './services/GenService';
 import { HabitsService } from './services/HabitsService';
 import { HomeService } from './services/HomeService';
+import { ImagesService } from './services/ImagesService';
 import { InboxTasksService } from './services/InboxTasksService';
 import { InfraService } from './services/InfraService';
 import { JournalsService } from './services/JournalsService';
@@ -57,6 +58,7 @@ export class ApiClient {
     public readonly gen: GenService;
     public readonly habits: HabitsService;
     public readonly home: HomeService;
+    public readonly images: ImagesService;
     public readonly inboxTasks: InboxTasksService;
     public readonly infra: InfraService;
     public readonly journals: JournalsService;
@@ -108,6 +110,7 @@ export class ApiClient {
         this.gen = new GenService(this.request);
         this.habits = new HabitsService(this.request);
         this.home = new HomeService(this.request);
+        this.images = new ImagesService(this.request);
         this.inboxTasks = new InboxTasksService(this.request);
         this.infra = new InfraService(this.request);
         this.journals = new JournalsService(this.request);

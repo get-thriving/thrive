@@ -508,7 +508,10 @@ from .home_widget_remove_args import HomeWidgetRemoveArgs
 from .hosting import Hosting
 from .image_content_type import ImageContentType
 from .image_link import ImageLink
+from .image_load_args import ImageLoadArgs
+from .image_load_result import ImageLoadResult
 from .image_purpose import ImagePurpose
+from .image_source import ImageSource
 from .inbox_task import InboxTask
 from .inbox_task_archive_args import InboxTaskArchiveArgs
 from .inbox_task_collection import InboxTaskCollection
@@ -1320,6 +1323,10 @@ from .update_grant_for_entity_args import UpdateGrantForEntityArgs
 from .update_grant_for_entity_result import UpdateGrantForEntityResult
 from .user import User
 from .user_auth_method import UserAuthMethod
+from .user_avatar_clear_args import UserAvatarClearArgs
+from .user_avatar_clear_result import UserAvatarClearResult
+from .user_avatar_upload_args import UserAvatarUploadArgs
+from .user_avatar_upload_result import UserAvatarUploadResult
 from .user_category import UserCategory
 from .user_change_feature_flags_args import UserChangeFeatureFlagsArgs
 from .user_feature import UserFeature
@@ -1914,7 +1921,10 @@ __all__ = (
     "Hosting",
     "ImageContentType",
     "ImageLink",
+    "ImageLoadArgs",
+    "ImageLoadResult",
     "ImagePurpose",
+    "ImageSource",
     "InboxTask",
     "InboxTaskArchiveArgs",
     "InboxTaskCollection",
@@ -2696,6 +2706,10 @@ __all__ = (
     "UpdateGrantForEntityResult",
     "User",
     "UserAuthMethod",
+    "UserAvatarClearArgs",
+    "UserAvatarClearResult",
+    "UserAvatarUploadArgs",
+    "UserAvatarUploadResult",
     "UserCategory",
     "UserChangeFeatureFlagsArgs",
     "UserFeature",

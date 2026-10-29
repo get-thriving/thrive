@@ -30,13 +30,13 @@ class User:
         category (UserCategory): The category of user.
         email_address (str): An email address.
         name (str): The user name for a user of jupiter.
-        avatar (str): A user avatar image.
         timezone (str): A timezone in this domain.
         feature_flags (UserFeatureFlags):
         auth_sign_up_method (UserAuthMethod): The auth method for a user.
         verified (bool):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
+        avatar_image_ref_id (None | str | Unset):
     """
 
     ref_id: str
@@ -47,13 +47,13 @@ class User:
     category: UserCategory
     email_address: str
     name: str
-    avatar: str
     timezone: str
     feature_flags: UserFeatureFlags
     auth_sign_up_method: UserAuthMethod
     verified: bool
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
+    avatar_image_ref_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -72,8 +72,6 @@ class User:
         email_address = self.email_address
 
         name = self.name
-
-        avatar = self.avatar
 
         timezone = self.timezone
 
@@ -95,6 +93,12 @@ class User:
         else:
             archived_time = self.archived_time
 
+        avatar_image_ref_id: None | str | Unset
+        if isinstance(self.avatar_image_ref_id, Unset):
+            avatar_image_ref_id = UNSET
+        else:
+            avatar_image_ref_id = self.avatar_image_ref_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -107,7 +111,6 @@ class User:
                 "category": category,
                 "email_address": email_address,
                 "name": name,
-                "avatar": avatar,
                 "timezone": timezone,
                 "feature_flags": feature_flags,
                 "auth_sign_up_method": auth_sign_up_method,
@@ -118,6 +121,8 @@ class User:
             field_dict["archival_reason"] = archival_reason
         if archived_time is not UNSET:
             field_dict["archived_time"] = archived_time
+        if avatar_image_ref_id is not UNSET:
+            field_dict["avatar_image_ref_id"] = avatar_image_ref_id
 
         return field_dict
 
@@ -141,8 +146,6 @@ class User:
         email_address = d.pop("email_address")
 
         name = d.pop("name")
-
-        avatar = d.pop("avatar")
 
         timezone = d.pop("timezone")
 
@@ -170,6 +173,15 @@ class User:
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
+        def _parse_avatar_image_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        avatar_image_ref_id = _parse_avatar_image_ref_id(d.pop("avatar_image_ref_id", UNSET))
+
         user = cls(
             ref_id=ref_id,
             version=version,
@@ -179,13 +191,13 @@ class User:
             category=category,
             email_address=email_address,
             name=name,
-            avatar=avatar,
             timezone=timezone,
             feature_flags=feature_flags,
             auth_sign_up_method=auth_sign_up_method,
             verified=verified,
             archival_reason=archival_reason,
             archived_time=archived_time,
+            avatar_image_ref_id=avatar_image_ref_id,
         )
 
         user.additional_properties = d

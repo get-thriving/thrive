@@ -1,5 +1,7 @@
 """A link an image can be fetched from."""
 
+from typing import Final
+
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.primitive import Primitive
 from jupiter.framework.realm.standard import (
@@ -8,15 +10,19 @@ from jupiter.framework.realm.standard import (
 )
 from jupiter.framework.value import AtomicValue, hashable_value
 
+_INLINE_SVG_PREFIX: Final[str] = "data:image/svg+xml;base64,"
+
 
 @hashable_value
 class ImageUrl(AtomicValue[str]):
     """A link an image can be fetched from.
 
-    Either absolute (a public bucket) or relative to the origin the page was
-    served from (``/images/...``, the WebUI serves those). The relative form
-    keeps the local store free of host and port settings: the browser resolves
-    it against whatever server the app is talking to.
+    Absolute (a public bucket), or relative to the origin the page was served
+    from (``/images/...``, the WebUI serves those). The relative form keeps the
+    local store free of host and port settings: the browser resolves it against
+    whatever server the app is talking to.
+
+    The picture generated from a user's name is a link too: an inline SVG.
     """
 
     the_url: str
@@ -31,7 +37,9 @@ class ImageUrl(AtomicValue[str]):
         absolute = self.the_url.startswith(("https://", "http://"))
         # '//host/path' is protocol-relative, which is neither of the two.
         relative = self.the_url.startswith("/") and not self.the_url.startswith("//")
-        if not absolute and not relative:
+        # Only this one kind of data URL: an image that can't run anything.
+        inline_svg = self.the_url.startswith(_INLINE_SVG_PREFIX)
+        if not absolute and not relative and not inline_svg:
             raise InputValidationError(f"Invalid image url '{self.the_url}'")
 
     def __str__(self) -> str:

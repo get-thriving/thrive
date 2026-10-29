@@ -17,7 +17,9 @@ from jupiter.core.gamification.user_score_history import (
 from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
+from jupiter.core.images.store.image_url import ImageUrl
 from jupiter.core.users.root import User
+from jupiter.core.users.service.load_user_avatar_url import LoadUserAvatarUrlService
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -40,6 +42,7 @@ class UserLoadResult(UseCaseResultBase):
     """User find result."""
 
     user: User
+    user_avatar_url: ImageUrl
     user_score_overview: UserScoreOverview | None
     user_score_history: UserScoreHistory | None
 
@@ -66,8 +69,12 @@ class UserLoadUseCase(
             score_history = await ScoreHistoryService().do_it(
                 uow, context.user, self._time_provider.get_current_time()
             )
+        user_avatar_url = await LoadUserAvatarUrlService(self._ports.image_store).do_it(
+            uow, context.user
+        )
         return UserLoadResult(
             user=context.user,
+            user_avatar_url=user_avatar_url,
             user_score_overview=score_overview,
             user_score_history=score_history,
         )
