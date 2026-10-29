@@ -344,7 +344,9 @@ export default function Account() {
               <Alert severity="warning">{query.linkError}</Alert>
             )}
             {nativeError && <Alert severity="error">{nativeError}</Alert>}
-            <Typography variant="body2">
+            {/* A div, since the tag is a chip and a paragraph cannot hold one: the
+                browser reshuffles the markup and hydration then fails. */}
+            <Typography variant="body2" component="div">
               You can sign in with any of the methods linked here. Your account
               was created with{" "}
               <UserAuthMethodTag
