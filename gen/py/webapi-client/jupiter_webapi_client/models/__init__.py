@@ -507,6 +507,7 @@ from .home_widget_move_and_resize_args import HomeWidgetMoveAndResizeArgs
 from .home_widget_remove_args import HomeWidgetRemoveArgs
 from .hosting import Hosting
 from .image_content_type import ImageContentType
+from .image_gc_do_all_args import ImageGcDoAllArgs
 from .image_link import ImageLink
 from .image_load_args import ImageLoadArgs
 from .image_load_result import ImageLoadResult
@@ -1920,6 +1921,7 @@ __all__ = (
     "HomeWidgetRemoveArgs",
     "Hosting",
     "ImageContentType",
+    "ImageGcDoAllArgs",
     "ImageLink",
     "ImageLoadArgs",
     "ImageLoadResult",

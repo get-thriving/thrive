@@ -760,6 +760,12 @@ resource "docker_hub_repository" "webapi_clear_abandoned_users_do_all" {
   description = "This is the repository for the WebAPI clear-abandoned-users-do-all cron"
 }
 
+resource "docker_hub_repository" "webapi_image_gc_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-image-gc-do-all"
+  description = "This is the repository for the WebAPI image-gc-do-all cron"
+}
+
 resource "docker_hub_repository" "webapi_sync_google_user_data_do_all" {
   namespace   = var.DOCKER_REGISTRY_NAME
   name        = "webapi-sync-google-user-data-do-all"
@@ -919,6 +925,14 @@ resource "sentry_project" "webapi_clear_abandoned_users_do_all" {
   teams        = [sentry_team.thrive.slug]
   name         = "webapi-clear-abandoned-users-do-all"
   slug         = "webapi-clear-abandoned-users-do-all"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_image_gc_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-image-gc-do-all"
+  slug         = "webapi-image-gc-do-all"
   platform     = "python-fastapi"
 }
 

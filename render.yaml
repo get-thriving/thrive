@@ -308,6 +308,33 @@ services:
         name: jupiter-webapi-db
         property: connectionString
 - type: cron
+  name: jupiter-webapi-image-gc-do-all
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
+  runtime: docker
+  dockerfilePath: ./src/webapi/image-gc-do-all/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  schedule: "30 4 * * *"
+  autoDeploy: true
+  rootDir: .
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+- type: cron
   name: jupiter-webapi-sync-google-user-data-do-all
   buildFilter:
     paths:

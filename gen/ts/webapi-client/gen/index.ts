@@ -430,6 +430,7 @@ export type { HomeWidgetRemoveArgs } from './models/HomeWidgetRemoveArgs';
 export { Hosting } from './models/Hosting';
 export type { ImageContentHash } from './models/ImageContentHash';
 export { ImageContentType } from './models/ImageContentType';
+export type { ImageGcDoAllArgs } from './models/ImageGcDoAllArgs';
 export type { ImageLink } from './models/ImageLink';
 export type { ImageLoadArgs } from './models/ImageLoadArgs';
 export type { ImageLoadResult } from './models/ImageLoadResult';
