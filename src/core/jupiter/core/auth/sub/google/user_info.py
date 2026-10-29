@@ -21,6 +21,7 @@ class GoogleUserInfo(CompositeValue):
     email_address: EmailAddress
     user_name: UserName
     verified: bool
+    picture_url: str | None
     encrypted_refresh_token: GoogleRefreshTokenEncrypted | None
 
     @staticmethod
@@ -43,6 +44,7 @@ class GoogleUserInfo(CompositeValue):
             email_address=claims.email,
             user_name=claims.to_user_name(),
             verified=claims.email_verified,
+            picture_url=claims.picture,
             encrypted_refresh_token=encrypted_refresh_token,
         )
 
@@ -58,5 +60,6 @@ class GoogleUserInfo(CompositeValue):
             email_address=claims.email,
             user_name=claims.to_user_name(),
             verified=claims.email_verified,
+            picture_url=claims.picture,
             encrypted_refresh_token=encrypted_refresh_token,
         )

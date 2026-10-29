@@ -155,6 +155,7 @@ class GoogleOauthClient:
             email_address=google_user_info.email_address,
             user_name=google_user_info.user_name,
             verified=google_user_info.verified,
+            picture_url=google_user_info.picture_url,
             encrypted_refresh_token=encrypted_rotated,
         )
 

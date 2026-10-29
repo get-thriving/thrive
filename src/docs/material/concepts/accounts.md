@@ -59,6 +59,11 @@ at least 128 pixels on its shortest side.
 "Remove picture" goes back to the one drawn from your name, and deletes the one
 you uploaded. Closing your account deletes it too.
 
+If you sign up with Google, or link a Google account, your Google picture is
+used until you choose one of your own. It follows changes you make at Google,
+but a picture you uploaded is never replaced, and once you remove it, it does
+not come back by itself.
+
 ## Sign-in methods
 
 An account can have more than one way to sign in: a password, Google and Apple.
