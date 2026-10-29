@@ -45,6 +45,7 @@ from jupiter.core.config import (
     JupiterPorts,
     load_config_project_env,
 )
+from jupiter.core.images.store.image_store_properties import ImageStoreProperties
 from jupiter.framework.appform.webapi.appform import WebApiAppForm
 from jupiter.framework.appform.webapi.commands import (
     GuestMutationCommand,
@@ -103,6 +104,7 @@ class JupiterWebApiProperties(ServiceProperties):
     storage_engine: JupiterWebApiStorageEngine
     telemetry: JupiterTelemetry
     search_backend: JupiterWebApiSearchBackend
+    image_store: ImageStoreProperties
     crm_backend: JupiterCrmBackend
     email_sender_backend: JupiterWebApiEmailSender
     sqlite_db_url: str
@@ -219,6 +221,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         storage_engine=storage_engine,
         telemetry=telemetry,
         search_backend=search_backend,
+        image_store=ImageStoreProperties.from_env(),
         crm_backend=crm_backend,
         email_sender_backend=email_sender_backend,
         sentry_dsn=sentry_dsn,

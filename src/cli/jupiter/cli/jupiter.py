@@ -26,6 +26,8 @@ from jupiter.core.config import (
     JupiterPorts,
     build_global_properties,
 )
+from jupiter.core.images.store.image_store_properties import ImageStoreProperties
+from jupiter.core.images.store.impl.local import LocalImageStore
 from jupiter.framework.appform.cli.session_storage import SessionStorage
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
@@ -117,6 +119,11 @@ async def main() -> None:
 
     email_sender = NoOpEmailSender(env=global_properties.env)
 
+    # The CLI is local only, like its storage: it always keeps images on disk.
+    image_store = LocalImageStore(
+        ImageStoreProperties.local_root_from_env(), global_properties.instance
+    )
+
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
@@ -124,6 +131,7 @@ async def main() -> None:
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
         email_sender=email_sender,
+        image_store=image_store,
         location_resolver=NoOpLocationResolver(),
     )
 

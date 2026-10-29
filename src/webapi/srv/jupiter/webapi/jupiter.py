@@ -55,6 +55,7 @@ from jupiter.core.common.sub.locations.resolver.impl.google_maps import (
 from jupiter.core.common.sub.locations.resolver.impl.noop import NoOpLocationResolver
 from jupiter.core.common.sub.locations.resolver.resolver import LocationResolver
 from jupiter.core.config import JupiterPorts, build_global_properties
+from jupiter.core.images.store.build_image_store import build_image_store
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
 from jupiter.framework.mutation_inovcation.recorders.impl.postgres import (
@@ -256,6 +257,10 @@ async def main() -> None:
     else:
         location_resolver = NoOpLocationResolver()
 
+    image_store = build_image_store(
+        service_properties.image_store, global_properties.instance
+    )
+
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
@@ -263,6 +268,7 @@ async def main() -> None:
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
         email_sender=email_sender,
+        image_store=image_store,
         location_resolver=location_resolver,
         google_oauth_client=google_oauth_client,
         apple_oauth_client=apple_oauth_client,
@@ -316,6 +322,7 @@ async def main() -> None:
     )
     rich_print(f"  Domain Storage Engine: {domain_storage_engine.__class__.__name__}")
     rich_print(f"  Search Storage Engine: {search_storage_engine.__class__.__name__}")
+    rich_print(f"  Image Store: {image_store.__class__.__name__}")
     rich_print(f"  CRM: {crm.__class__.__name__}")
     rich_print(f"  Email Sender: {email_sender.__class__.__name__}")
     rich_print(f"  Location Resolver: {location_resolver.__class__.__name__}")

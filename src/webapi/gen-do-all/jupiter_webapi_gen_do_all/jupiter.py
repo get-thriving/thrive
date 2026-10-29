@@ -44,6 +44,7 @@ from jupiter.core.common.search.storage_engine import SearchStorageEngine
 from jupiter.core.common.sub.locations.resolver.impl.noop import NoOpLocationResolver
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.gen.use_case.do_all import GenDoAllUseCase
+from jupiter.core.images.store.build_image_store import build_image_store
 from jupiter.framework.concepts.standard import ModuleExplorerConceptRegistry
 from jupiter.framework.mutation_inovcation.recorders.impl.postgres import (
     PostgresMutationInvocationStorageEngine,
@@ -201,6 +202,10 @@ async def main() -> None:
 
     email_sender = NoOpEmailSender(env=global_properties.env)
 
+    image_store = build_image_store(
+        service_properties.image_store, global_properties.instance
+    )
+
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
@@ -208,6 +213,7 @@ async def main() -> None:
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
         email_sender=email_sender,
+        image_store=image_store,
         location_resolver=NoOpLocationResolver(),
     )
 

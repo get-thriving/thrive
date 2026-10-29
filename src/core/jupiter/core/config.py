@@ -37,6 +37,7 @@ from jupiter.core.common.sub.locations.resolver.resolver import LocationResolver
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.hosting import Hosting
+from jupiter.core.images.store.image_store import ImageStore
 from jupiter.core.instance import Instance
 from jupiter.core.universe import Universe
 from jupiter.core.user_workspace_link.user_workspace_link import (
@@ -94,6 +95,7 @@ class JupiterPorts(DomainPorts):
     crm_indexing_storage_engine: CRMIndexingStorageEngine
     crm: CRM
     email_sender: EmailSender
+    image_store: ImageStore
     location_resolver: LocationResolver
     google_oauth_client: GoogleOauthClient | None = None
     apple_oauth_client: AppleOauthClient | None = None

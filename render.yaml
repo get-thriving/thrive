@@ -41,6 +41,13 @@ envVarGroups:
         value: postgres
       - key: WEBAPI_SEARCH
         value: algolia
+      # Previews are the staging environment: they share its bucket, each under
+      # a prefix of its own instance (ADR 0018).
+      - key: WEBAPI_IMAGE_STORE
+        value: gcs
+      - key: IMAGE_STORE_GCS_AVATARS_BUCKET
+        value: thrive-production-avatars
+        previewValue: thrive-staging-avatars
       - key: WEBAPI_EMAIL_SENDER
         value: resend
         previewValue: noop
@@ -65,6 +72,8 @@ envVarGroups:
       - key: WIX_SITE_ID
         sync: false
       - key: GOOGLE_MAPS_API_KEY
+        sync: false
+      - key: IMAGE_STORE_GCS_CREDENTIALS
         sync: false
       - key: GOOGLE_CLIENT_ID
         sync: false

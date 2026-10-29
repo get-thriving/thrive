@@ -78,6 +78,12 @@ jupiter_sqlite_sqlalchemy_url_webapi_relative() {
     echo "sqlite+aiosqlite:///../../../${RUN_ROOT}/${instance}/jupiter.sqlite"
 }
 
+# IMAGE_STORE_LOCAL_ROOT for an instance. Kept next to its database, so clearing the instance clears both.
+jupiter_image_store_local_root_abs() {
+    local instance=$1
+    echo "$(pwd)/${RUN_ROOT}/${instance}/images"
+}
+
 # WebAPI cron packages (folder under src/webapi/). Image tags: jupiter/webapi-<folder> (see tasks/build/docker.sh).
 WEBAPI_CRON_FOLDERS=(
     gc-do-all
@@ -549,6 +555,11 @@ run_jupiter_webapp() {
         log error "Invalid webapi search: $webapi_search (expected sql or algolia)"
         exit 1
     fi
+    local webapi_image_store=${WEBAPI_IMAGE_STORE:-local}
+    if [[ "$webapi_image_store" != "local" && "$webapi_image_store" != "gcs" ]]; then
+        log error "Invalid webapi image store: $webapi_image_store (expected local or gcs)"
+        exit 1
+    fi
     if [[ "$location_resolver" != "noop" && "$location_resolver" != "google-maps" ]]; then
         log error "Invalid location resolver: $location_resolver (expected noop or google-maps)"
         exit 1
@@ -569,7 +580,7 @@ run_jupiter_webapp() {
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
-    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, published port: $PUBLISHED_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, webapi blend (ADR 0008) storage=$webapi_storage_engine telemetry=$webapi_telemetry search=$webapi_search location_resolver=$location_resolver crm=$webapi_crm auth_provider=$webapi_auth_provider email_verification_strategy=$email_verification_strategy email_sender=$webapi_email_sender, source: $source, version: $version, mode: $mode"
+    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, published port: $PUBLISHED_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, webapi blend (ADR 0008) storage=$webapi_storage_engine telemetry=$webapi_telemetry search=$webapi_search image_store=$webapi_image_store location_resolver=$location_resolver crm=$webapi_crm auth_provider=$webapi_auth_provider email_verification_strategy=$email_verification_strategy email_sender=$webapi_email_sender, source: $source, version: $version, mode: $mode"
 
     if [[ "$UNIVERSE" == "dev" ]]; then
         if [[ "$mode" == "pm2" ]]; then
@@ -643,8 +654,12 @@ _run_dev_jupiter_webapp_with_pm2() {
     webapi_email_sender=${webapi_email_sender:-${WEBAPI_EMAIL_SENDER:-noop}}
     location_resolver=${location_resolver:-${LOCATION_RESOLVER:-noop}}
     local email_verification_strategy=${webapi_email_verification_strategy:-${EMAIL_VERIFICATION_STRATEGY:-none}}
+    local webapi_image_store=${WEBAPI_IMAGE_STORE:-local}
+    local webapiImageStoreLocalRoot
+    webapiImageStoreLocalRoot=$(jupiter_image_store_local_root_abs "$instance")
     export TELEMETRY="$webapi_telemetry"
     export WEBAPI_SEARCH="$webapi_search"
+    export WEBAPI_IMAGE_STORE="$webapi_image_store"
     export LOCATION_RESOLVER="$location_resolver"
     export CRM="$webapi_crm"
     export AUTH_PROVIDER="$webapi_auth_provider"
@@ -702,7 +717,7 @@ _run_dev_jupiter_webapp_with_pm2() {
         log info "Starting only must-run WebAPI crons locally (pass --run-all-crons to start can-skip crons too)"
     fi
 
-    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" jupiterTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" jupiterCrm="$webapi_crm" jupiterAuthProvider="$webapi_auth_provider" jupiterLocationResolver="$location_resolver" jupiterEmailVerificationStrategy="$email_verification_strategy" jupiterEmailSender="$webapi_email_sender" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiStartLocalPostgresSidecar=$webapiStartLocalPostgresSidecar webapiCronExecutionMode="$WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" publishedLogFile="$publishedLogFile" publishedPort="$publishedPort" publishedServerUrl="$publishedServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" jupiterTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiImageStore="$webapi_image_store" webapiImageStoreLocalRoot="$webapiImageStoreLocalRoot" jupiterCrm="$webapi_crm" jupiterAuthProvider="$webapi_auth_provider" jupiterLocationResolver="$location_resolver" jupiterEmailVerificationStrategy="$email_verification_strategy" jupiterEmailSender="$webapi_email_sender" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiStartLocalPostgresSidecar=$webapiStartLocalPostgresSidecar webapiCronExecutionMode="$WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" publishedLogFile="$publishedLogFile" publishedPort="$publishedPort" publishedServerUrl="$publishedServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
     data=$(jupiter_pm2_render_data_with_cron_apps "$pm2_base_data" "$instance" "$RUN_ROOT" "$run_all_crons")
     if [[ "$in_ci" == "dev" ]]; then
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
@@ -832,6 +847,7 @@ _run_dev_jupiter_webapp_with_docker() {
     local email_verification_strategy=${webapi_email_verification_strategy:-${EMAIL_VERIFICATION_STRATEGY:-none}}
     export TELEMETRY="$webapi_telemetry"
     export WEBAPI_SEARCH="$webapi_search"
+    export WEBAPI_IMAGE_STORE="${WEBAPI_IMAGE_STORE:-local}"
     export LOCATION_RESOLVER="$location_resolver"
     export CRM="$webapi_crm"
     export AUTH_PROVIDER="$webapi_auth_provider"
@@ -1148,6 +1164,7 @@ _run_thrive_sh_test_webapp() {
     webapi_auth_provider=${webapi_auth_provider:-${AUTH_PROVIDER:-local}}
     webapi_email_sender=${webapi_email_sender:-${WEBAPI_EMAIL_SENDER:-noop}}
     location_resolver=${location_resolver:-${LOCATION_RESOLVER:-noop}}
+    local webapi_image_store=${WEBAPI_IMAGE_STORE:-local}
     local email_verification_strategy=${webapi_email_verification_strategy:-${EMAIL_VERIFICATION_STRATEGY:-none}}
     export AUTH_PROVIDER="$webapi_auth_provider"
     export EMAIL_VERIFICATION_STRATEGY="$email_verification_strategy"
@@ -1303,6 +1320,7 @@ _run_thrive_sh_test_webapp() {
                 echo \"EMAIL_VERIFICATION_STRATEGY=${EMAIL_VERIFICATION_STRATEGY:-none}\" >> .env &&
                 echo \"TELEMETRY=${webapi_telemetry}\" >> .env &&
                 echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
+                echo \"WEBAPI_IMAGE_STORE=${webapi_image_store}\" >> .env &&
                 echo \"LOCATION_RESOLVER=${location_resolver}\" >> .env &&
                 echo \"CRM=${webapi_crm}\" >> .env &&
                 echo \"WEBAPI_EMAIL_SENDER=${webapi_email_sender}\" >> .env &&
@@ -1337,6 +1355,7 @@ _run_thrive_sh_test_webapp() {
                 echo \"WEBAPI_STORAGE_ENGINE=${webapi_storage_engine}\" >> .env &&
                 echo \"WEBAPI_TELEMETRY=${webapi_telemetry}\" >> .env &&
                 echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
+                echo \"WEBAPI_IMAGE_STORE=${webapi_image_store}\" >> .env &&
                 echo \"LOCATION_RESOLVER=${location_resolver}\" >> .env &&
                 echo \"WEBAPI_CRM=${webapi_crm}\" >> .env &&
                 echo \"WEBAPI_EMAIL_SENDER=${webapi_email_sender}\" >> .env &&
@@ -1425,6 +1444,7 @@ $(_thrive_sh_test_default_docker_image_env_append_ssh "$version" arm64 | sed 's/
                 echo \"EMAIL_VERIFICATION_STRATEGY=${EMAIL_VERIFICATION_STRATEGY:-none}\" >> .env &&
                 echo \"TELEMETRY=${webapi_telemetry}\" >> .env &&
                 echo \"WEBAPI_SEARCH=${webapi_search}\" >> .env &&
+                echo \"WEBAPI_IMAGE_STORE=${webapi_image_store}\" >> .env &&
                 echo \"LOCATION_RESOLVER=${location_resolver}\" >> .env &&
                 echo \"CRM=${webapi_crm}\" >> .env &&
                 echo \"WEBAPI_EMAIL_SENDER=${webapi_email_sender}\" >> .env &&
@@ -1586,6 +1606,8 @@ write_jupiter_run_webapi_env() {
         printf '%s=%q\n' EMAIL_VERIFICATION_STRATEGY "${EMAIL_VERIFICATION_STRATEGY:-none}"
         printf '%s=%q\n' TELEMETRY "${TELEMETRY:-local}"
         printf '%s=%q\n' WEBAPI_SEARCH "${WEBAPI_SEARCH:-sql}"
+        printf '%s=%q\n' WEBAPI_IMAGE_STORE "${WEBAPI_IMAGE_STORE:-local}"
+        printf '%s=%q\n' IMAGE_STORE_LOCAL_ROOT "$(jupiter_image_store_local_root_abs "$instance")"
         printf '%s=%q\n' LOCATION_RESOLVER "${LOCATION_RESOLVER:-noop}"
         printf '%s=%q\n' CRM "${CRM:-noop}"
         printf '%s=%q\n' WEBAPI_EMAIL_SENDER "${WEBAPI_EMAIL_SENDER:-noop}"

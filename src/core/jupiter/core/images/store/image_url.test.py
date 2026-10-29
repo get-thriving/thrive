@@ -1,0 +1,31 @@
+"""Tests for the image url."""
+
+import pytest
+from jupiter.core.images.store.image_url import ImageUrl
+from jupiter.framework.errors import InputValidationError
+
+
+def test_relative_url() -> None:
+    url = ImageUrl("/images/avatars/abc.webp")
+    assert url.is_relative
+    assert str(url) == "/images/avatars/abc.webp"
+
+
+@pytest.mark.parametrize(
+    "good_url",
+    [
+        "https://storage.googleapis.com/bucket/Main/abc.webp",
+        "http://localhost:3000/images/avatars/abc.webp",
+    ],
+)
+def test_absolute_url(good_url: str) -> None:
+    assert not ImageUrl(good_url).is_relative
+
+
+@pytest.mark.parametrize(
+    "bad_url",
+    ["", "images/abc.webp", "//evil.example/abc.webp", "javascript:alert(1)", "data:x"],
+)
+def test_bad_urls_are_rejected(bad_url: str) -> None:
+    with pytest.raises(InputValidationError):
+        ImageUrl(bad_url)
