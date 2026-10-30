@@ -12,6 +12,9 @@ from jupiter.core.backend_blend import (
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
 )
+from jupiter.core.common.sub.images.sub.image.image_store_properties import (
+    ImageStoreProperties,
+)
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
@@ -34,6 +37,7 @@ class JupiterWebApiProperties(ServiceProperties):
     storage_engine: JupiterWebApiStorageEngine
     telemetry: JupiterTelemetry
     search_backend: JupiterWebApiSearchBackend
+    image_store: ImageStoreProperties
     crm_backend: JupiterCrmBackend
     execution_mode: CronExecutionMode
     sqlite_db_url: str
@@ -129,6 +133,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         storage_engine=storage_engine,
         telemetry=telemetry,
         search_backend=search_backend,
+        image_store=ImageStoreProperties.from_env(),
         crm_backend=crm_backend,
         execution_mode=execution_mode,
         sentry_dsn=sentry_dsn,

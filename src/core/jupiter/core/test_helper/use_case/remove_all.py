@@ -8,6 +8,12 @@ from jupiter.core.common.search.domain import SearchDomain
 from jupiter.core.common.sub.access.sub.grant.service.remove_access_for_workspace_and_user import (
     RemoveAccessForWorkspaceAndUserService,
 )
+from jupiter.core.common.sub.images.service.remove_owner_image_objects import (
+    RemoveOwnerImageObjectsService,
+)
+from jupiter.core.common.sub.images.service.remove_owner_image_rows import (
+    RemoveOwnerImageRowsService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
@@ -20,6 +26,7 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 )
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.use_case import (
     mutation_use_case,
@@ -47,6 +54,17 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
         """Execute the command's action."""
         user = context.user
         workspace = context.workspace
+
+        # The rows are removed below, but the images are objects in a store that
+        # knows nothing of that.
+        owners = [
+            EntityLink.std(User.__name__, user.ref_id),
+            EntityLink.std(Workspace.__name__, workspace.ref_id),
+        ]
+        for owner in owners:
+            await RemoveOwnerImageObjectsService(
+                self._ports.domain_storage_engine, self._ports.image_store
+            ).do_it(owner)
 
         # Search tables FK workspace — drop derived search state before deleting the workspace row.
         async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
@@ -96,6 +114,10 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
                     user.ref_id,
                 )
 
+            for owner in owners:
+                await RemoveOwnerImageRowsService().do_it(
+                    context.domain_context, uow, owner
+                )
             await generic_destroyer(
                 context.domain_context, uow, Workspace, workspace.ref_id
             )

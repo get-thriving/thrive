@@ -14,6 +14,8 @@ x-webapi-cron-env: &webapi-cron-env
   WEBAPI_STORAGE_ENGINE: ${WEBAPI_STORAGE_ENGINE:-sqlite}
   TELEMETRY: ${TELEMETRY:-local}
   WEBAPI_SEARCH: ${WEBAPI_SEARCH:-sql}
+  WEBAPI_IMAGE_STORE: ${WEBAPI_IMAGE_STORE:-local}
+  IMAGE_STORE_LOCAL_ROOT: ${IMAGE_STORE_LOCAL_ROOT:-/data/images}
   LOCATION_RESOLVER: ${LOCATION_RESOLVER:-noop}
   CRM: ${CRM:-noop}
   WEBAPI_EMAIL_SENDER: ${WEBAPI_EMAIL_SENDER:-noop}
@@ -72,6 +74,8 @@ services:
       - WEBAPI_STORAGE_ENGINE=${WEBAPI_STORAGE_ENGINE:-sqlite}
       - TELEMETRY=${TELEMETRY:-local}
       - WEBAPI_SEARCH=${WEBAPI_SEARCH:-sql}
+      - WEBAPI_IMAGE_STORE=${WEBAPI_IMAGE_STORE:-local}
+      - IMAGE_STORE_LOCAL_ROOT=${IMAGE_STORE_LOCAL_ROOT:-/data/images}
       - LOCATION_RESOLVER=${LOCATION_RESOLVER:-noop}
       - CRM=${CRM:-noop}
       - WEBAPI_EMAIL_SENDER=${WEBAPI_EMAIL_SENDER:-noop}
@@ -101,6 +105,11 @@ services:
   webapi-clear-abandoned-users-do-all:
     <<: *webapi-cron-service
     image: ${DOCKER_IMAGE_WEBAPI_CLEAR_ABANDONED_USERS_DO_ALL:-getthriving/webapi-clear-abandoned-users-do-all:${VERSION:-latest}}
+    environment:
+      <<: *webapi-cron-env
+  webapi-image-gc-do-all:
+    <<: *webapi-cron-service
+    image: ${DOCKER_IMAGE_WEBAPI_IMAGE_GC_DO_ALL:-getthriving/webapi-image-gc-do-all:${VERSION:-latest}}
     environment:
       <<: *webapi-cron-env
   webapi-sync-google-user-data-do-all:

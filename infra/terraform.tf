@@ -253,6 +253,101 @@ resource "google_service_account" "play_store_bundle_uploader" {
   display_name = "Play Store Bundle Uploader"
 }
 
+## Image Storage
+
+# The avatars of users, one bucket per environment of the thrive universe (ADR
+# 0018). The instances of an environment share its bucket, each under a prefix of
+# its own, so the staging instances (one per PR) need nothing declared here.
+#
+# The objects are public and are linked to directly: an image is only as private
+# as its path is unguessable.
+
+locals {
+  avatars_buckets = {
+    production = {
+      name              = "thrive-production-avatars"
+      force_destroy     = false
+      expire_after_days = null
+    }
+    # Nothing in staging is worth keeping. Previews last about a day, so a week
+    # is plenty.
+    staging = {
+      name              = "thrive-staging-avatars"
+      force_destroy     = true
+      expire_after_days = 7
+    }
+  }
+}
+
+resource "google_storage_bucket" "avatars" {
+  for_each = local.avatars_buckets
+
+  project       = google_project.get_thriving_main.project_id
+  name          = each.value.name
+  location      = "EUROPE-WEST1"
+  force_destroy = each.value.force_destroy
+
+  uniform_bucket_level_access = true
+  public_access_prevention    = "inherited"
+
+  # A removed avatar has to actually be gone, not kept around for a week.
+  soft_delete_policy {
+    retention_duration_seconds = 0
+  }
+
+  dynamic "lifecycle_rule" {
+    for_each = each.value.expire_after_days == null ? [] : [each.value.expire_after_days]
+    content {
+      condition {
+        age = lifecycle_rule.value
+      }
+      action {
+        type = "Delete"
+      }
+    }
+  }
+}
+
+# Anyone can fetch an object they know the name of, but nobody can list a bucket.
+# objectViewer would allow listing too, so this is the legacy reader role, which
+# only has get.
+resource "google_storage_bucket_iam_member" "avatars_public_read" {
+  for_each = google_storage_bucket.avatars
+
+  bucket = each.value.name
+  role   = "roles/storage.legacyObjectReader"
+  member = "allUsers"
+}
+
+# One account for both environments, since Render hands previews the same secrets
+# as production. Which bucket a service writes to is down to its configuration.
+resource "google_service_account" "image_store" {
+  project      = google_project.get_thriving_main.project_id
+  account_id   = "image-store"
+  description  = "Account the WebAPI uses to write, read and clean up images in the image buckets"
+  display_name = "Image Store"
+}
+
+resource "google_storage_bucket_iam_member" "avatars_image_store" {
+  for_each = google_storage_bucket.avatars
+
+  bucket = each.value.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.image_store.email}"
+}
+
+resource "google_service_account_key" "image_store" {
+  service_account_id = google_service_account.image_store.name
+}
+
+# Set it as IMAGE_STORE_GCS_CREDENTIALS in the jupiter-webapi-secrets group on
+# Render: `terraform output -raw image_store_gcs_credentials`.
+output "image_store_gcs_credentials" {
+  description = "The key of the image store service account, as JSON"
+  value       = base64decode(google_service_account_key.image_store.private_key)
+  sensitive   = true
+}
+
 ## Networking
 
 resource "google_dns_managed_zone" "thrive_sh_test" {
@@ -668,6 +763,12 @@ resource "docker_hub_repository" "webapi_clear_abandoned_users_do_all" {
   description = "This is the repository for the WebAPI clear-abandoned-users-do-all cron"
 }
 
+resource "docker_hub_repository" "webapi_image_gc_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-image-gc-do-all"
+  description = "This is the repository for the WebAPI image-gc-do-all cron"
+}
+
 resource "docker_hub_repository" "webapi_sync_google_user_data_do_all" {
   namespace   = var.DOCKER_REGISTRY_NAME
   name        = "webapi-sync-google-user-data-do-all"
@@ -827,6 +928,14 @@ resource "sentry_project" "webapi_clear_abandoned_users_do_all" {
   teams        = [sentry_team.thrive.slug]
   name         = "webapi-clear-abandoned-users-do-all"
   slug         = "webapi-clear-abandoned-users-do-all"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_image_gc_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-image-gc-do-all"
+  slug         = "webapi-image-gc-do-all"
   platform     = "python-fastapi"
 }
 

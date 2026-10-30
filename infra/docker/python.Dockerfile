@@ -38,6 +38,7 @@ COPY --parents \
     src/alib/py/framework/pyproject.toml \
     src/webapi/gc-do-all/pyproject.toml \
     src/webapi/clear-abandoned-users-do-all/pyproject.toml \
+    src/webapi/image-gc-do-all/pyproject.toml \
     src/webapi/sync-google-user-data-do-all/pyproject.toml \
     src/webapi/sync-apple-user-data-do-all/pyproject.toml \
     src/webapi/gen-do-all/pyproject.toml \
@@ -115,6 +116,20 @@ COPY src/webapi/clear-abandoned-users-do-all/jupiter_webapi_clear_abandoned_user
 WORKDIR /jupiter/src/webapi/clear-abandoned-users-do-all
 
 ENTRYPOINT ["dumb-init", "python", "-m", "jupiter_webapi_clear_abandoned_users_do_all.jupiter"]
+
+
+FROM webapi-installed AS webapi-image-gc-do-all
+
+RUN --mount=type=cache,id=uv,target=/root/.cache/uv,sharing=locked \
+    uv sync --frozen --no-dev --no-editable --package jupiter-webapi-image-gc-do-all
+
+COPY src/webapi/image-gc-do-all/README.md src/webapi/image-gc-do-all/README.md
+COPY src/webapi/image-gc-do-all/Config.project src/webapi/image-gc-do-all/Config.project
+COPY src/webapi/image-gc-do-all/jupiter_webapi_image_gc_do_all src/webapi/image-gc-do-all/jupiter_webapi_image_gc_do_all
+
+WORKDIR /jupiter/src/webapi/image-gc-do-all
+
+ENTRYPOINT ["dumb-init", "python", "-m", "jupiter_webapi_image_gc_do_all.jupiter"]
 
 FROM webapi-installed AS webapi-sync-google-user-data-do-all
 

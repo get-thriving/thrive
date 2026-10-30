@@ -12,5 +12,6 @@ export type GoogleIdTokenClaims = {
     email: EmailAddress;
     email_verified: boolean;
     name?: (string | null);
+    picture?: (string | null);
 };
 

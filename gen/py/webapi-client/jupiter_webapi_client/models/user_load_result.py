@@ -23,11 +23,20 @@ class UserLoadResult:
 
     Attributes:
         user (User): A user of jupiter.
+        user_avatar_url (str): A link an image can be fetched from.
+
+            Absolute (a public bucket), or relative to the origin the page was served
+            from (``/images/...``, the WebUI serves those). The relative form keeps the
+            local store free of host and port settings: the browser resolves it against
+            whatever server the app is talking to.
+
+            The picture generated from a user's name is a link too: an inline SVG.
         user_score_overview (None | Unset | UserScoreOverview):
         user_score_history (None | Unset | UserScoreHistory):
     """
 
     user: User
+    user_avatar_url: str
     user_score_overview: None | Unset | UserScoreOverview = UNSET
     user_score_history: None | Unset | UserScoreHistory = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -37,6 +46,8 @@ class UserLoadResult:
         from ..models.user_score_overview import UserScoreOverview  # noqa: PLC0415
 
         user = self.user.to_dict()
+
+        user_avatar_url = self.user_avatar_url
 
         user_score_overview: dict[str, Any] | None | Unset
         if isinstance(self.user_score_overview, Unset):
@@ -59,6 +70,7 @@ class UserLoadResult:
         field_dict.update(
             {
                 "user": user,
+                "user_avatar_url": user_avatar_url,
             }
         )
         if user_score_overview is not UNSET:
@@ -76,6 +88,8 @@ class UserLoadResult:
 
         d = dict(src_dict)
         user = User.from_dict(d.pop("user"))
+
+        user_avatar_url = d.pop("user_avatar_url")
 
         def _parse_user_score_overview(data: object) -> None | Unset | UserScoreOverview:
             if data is None:
@@ -113,6 +127,7 @@ class UserLoadResult:
 
         user_load_result = cls(
             user=user,
+            user_avatar_url=user_avatar_url,
             user_score_overview=user_score_overview,
             user_score_history=user_score_history,
         )

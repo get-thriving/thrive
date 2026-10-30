@@ -99,6 +99,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     userFeatureFlagControls: response.user_feature_flag_controls,
     workspaceFeatureFlagControls: response.workspace_feature_flag_controls,
     user: response.user,
+    userAvatarUrl: response.user_avatar_url ?? undefined,
     userLinkedAuthMethods: response.user_linked_auth_methods,
     userScoreOverview: response.user_score_overview,
     workspace: response.workspace,
@@ -236,7 +237,7 @@ export default function Workspace() {
                 <Avatar
                   sx={{ width: "1.75rem", height: "1.75rem" }}
                   alt={loaderData.user.name}
-                  src={loaderData.user.avatar}
+                  src={loaderData.userAvatarUrl}
                 />
               </Badge>
             </IconButton>

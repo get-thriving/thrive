@@ -2,7 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Avatar } from './Avatar';
 import type { EmailAddress } from './EmailAddress';
 import type { EntityId } from './EntityId';
 import type { Timestamp } from './Timestamp';
@@ -24,7 +23,7 @@ export type User = {
     category: UserCategory;
     email_address: EmailAddress;
     name: UserName;
-    avatar: Avatar;
+    avatar_image_ref_id?: (EntityId | null);
     timezone: Timezone;
     feature_flags: Record<string, boolean>;
     auth_sign_up_method: UserAuthMethod;

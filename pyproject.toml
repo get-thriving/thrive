@@ -18,6 +18,7 @@ members = [
     "src/alib/py/framework",
     "src/webapi/gc-do-all",
     "src/webapi/clear-abandoned-users-do-all",
+    "src/webapi/image-gc-do-all",
     "src/webapi/sync-google-user-data-do-all",
     "src/webapi/sync-apple-user-data-do-all",
     "src/webapi/gen-do-all",

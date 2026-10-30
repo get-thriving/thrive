@@ -3,12 +3,19 @@
 import logging
 from datetime import timedelta
 
+from jupiter.core.common.sub.images.service.remove_owner_image_objects import (
+    RemoveOwnerImageObjectsService,
+)
+from jupiter.core.common.sub.images.service.remove_owner_image_rows import (
+    RemoveOwnerImageRowsService,
+)
 from jupiter.core.config import (
     JupiterBackgroundMutationContext,
     JupiterBackgroundMutationUseCase,
 )
 from jupiter.core.user_workspace_link.user_workspace_link import UserWorkspaceLink
 from jupiter.core.users.root import User
+from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.use_case import background_mutation_use_case
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.framework.utils.generic_destroyer import generic_destroyer
@@ -55,7 +62,25 @@ class ClearAbandonedUsersUseCase(
                 continue
             if now.the_ts - user.created_time.the_ts < _ABANDONED_USER_MIN_AGE:
                 continue
+            # The objects go first. The image rows are removed with the user, and
+            # the store knows nothing of that, so a row has to outlive its object:
+            # if the store is down, the user stays and is tried again tomorrow,
+            # rather than leaving a picture nobody can find to remove.
+            owner = EntityLink.std(User.__name__, user.ref_id)
+            try:
+                await RemoveOwnerImageObjectsService(
+                    self._ports.domain_storage_engine, self._ports.image_store
+                ).do_it(owner)
+            except Exception:
+                LOGGER.exception(
+                    "clear_abandoned_users could not remove the images of user ref_id=%s",
+                    user.ref_id,
+                )
+                continue
             async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                await RemoveOwnerImageRowsService().do_it(
+                    context.domain_context, uow, owner
+                )
                 await generic_destroyer(context.domain_context, uow, User, user.ref_id)
                 LOGGER.info(
                     "clear_abandoned_users removed user ref_id=%s email=%s",

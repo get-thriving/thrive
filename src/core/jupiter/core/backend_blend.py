@@ -66,3 +66,11 @@ class JupiterWebApiSearchBackend(EnumValue):
 
     SQL = "sql"
     ALGOLIA = "algolia"
+
+
+@enum_value
+class JupiterWebApiImageStore(EnumValue):
+    """Where uploaded images are kept."""
+
+    LOCAL = "local"
+    GCS = "gcs"

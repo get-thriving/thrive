@@ -52,6 +52,7 @@ class LoadTopLevelInfoResult:
         workspace_feature_hack (WorkspaceFeature): A particular feature of a jupiter workspace.
         user_linked_auth_methods (list[UserAuthMethod]):
         user (None | Unset | User):
+        user_avatar_url (None | str | Unset):
         user_score_overview (None | Unset | UserScoreOverview):
         workspace (None | Unset | Workspace):
         user_feature_hack (None | Unset | UserFeature):
@@ -74,6 +75,7 @@ class LoadTopLevelInfoResult:
     workspace_feature_hack: WorkspaceFeature
     user_linked_auth_methods: list[UserAuthMethod]
     user: None | Unset | User = UNSET
+    user_avatar_url: None | str | Unset = UNSET
     user_score_overview: None | Unset | UserScoreOverview = UNSET
     workspace: None | Unset | Workspace = UNSET
     user_feature_hack: None | Unset | UserFeature = UNSET
@@ -121,6 +123,12 @@ class LoadTopLevelInfoResult:
             user = self.user.to_dict()
         else:
             user = self.user
+
+        user_avatar_url: None | str | Unset
+        if isinstance(self.user_avatar_url, Unset):
+            user_avatar_url = UNSET
+        else:
+            user_avatar_url = self.user_avatar_url
 
         user_score_overview: dict[str, Any] | None | Unset
         if isinstance(self.user_score_overview, Unset):
@@ -205,6 +213,8 @@ class LoadTopLevelInfoResult:
         )
         if user is not UNSET:
             field_dict["user"] = user
+        if user_avatar_url is not UNSET:
+            field_dict["user_avatar_url"] = user_avatar_url
         if user_score_overview is not UNSET:
             field_dict["user_score_overview"] = user_score_overview
         if workspace is not UNSET:
@@ -288,6 +298,15 @@ class LoadTopLevelInfoResult:
             return cast(None | Unset | User, data)
 
         user = _parse_user(d.pop("user", UNSET))
+
+        def _parse_user_avatar_url(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        user_avatar_url = _parse_user_avatar_url(d.pop("user_avatar_url", UNSET))
 
         def _parse_user_score_overview(data: object) -> None | Unset | UserScoreOverview:
             if data is None:
@@ -438,6 +457,7 @@ class LoadTopLevelInfoResult:
             workspace_feature_hack=workspace_feature_hack,
             user_linked_auth_methods=user_linked_auth_methods,
             user=user,
+            user_avatar_url=user_avatar_url,
             user_score_overview=user_score_overview,
             workspace=workspace,
             user_feature_hack=user_feature_hack,

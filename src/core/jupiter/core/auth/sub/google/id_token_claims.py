@@ -19,6 +19,7 @@ class GoogleIdTokenClaims(CompositeValue):
     email: EmailAddress
     email_verified: bool
     name: str | None
+    picture: str | None
 
     def to_user_name(self) -> UserName:
         """Resolve a display name from claims, with email local-part as fallback."""

@@ -2,6 +2,9 @@
 
 from typing import Final, cast
 
+from jupiter.core.auth.service.apply_google_profile_picture import (
+    ApplyGoogleProfilePictureService,
+)
 from jupiter.core.auth.service.check_email_not_taken_by_other_method import (
     CheckEmailNotTakenByOtherMethodService,
 )
@@ -118,6 +121,16 @@ class GoogleLoginService:
                 ctx=context.domain_context,
                 right_now=self._time_provider.get_current_time(),
                 user_id=user.ref_id,
+            )
+
+        if is_new_user:
+            await ApplyGoogleProfilePictureService(
+                self._ports.domain_storage_engine, self._ports.image_store
+            ).do_it(
+                context.domain_context,
+                user.ref_id,
+                google_user_info.picture_url,
+                fill_empty=True,
             )
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(user.ref_id)
