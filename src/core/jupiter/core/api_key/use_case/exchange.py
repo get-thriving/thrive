@@ -1,5 +1,7 @@
 """Use case for exchanging an API key for an authentication token."""
 
+import asyncio
+
 from jupiter.core.api_key.api_key_external import APIKeyExternal
 from jupiter.core.api_key.root import APIKey, InvalidAPIKeyError
 from jupiter.core.config import (
@@ -54,7 +56,9 @@ class APIKeyExchangeUseCase(
             except EntityNotFoundError as err:
                 raise InvalidAPIKeyError("Invalid API key - not found") from err
 
-            if not api_key.key_hash.check_against(args.api_key_external.secret):
+            if not await asyncio.to_thread(
+                api_key.key_hash.check_against, args.api_key_external.secret
+            ):
                 raise InvalidAPIKeyError("Invalid API key")
 
             auth_token = self._auth_token_stamper.stamp_for_general_short(

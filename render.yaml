@@ -233,7 +233,7 @@ services:
   dockerfilePath: ./src/webapi/srv/Dockerfile
   dockerContext: .
   region: frankfurt
-  plan: starter
+  plan: standard
   autoDeploy: true
   rootDir: .
   numInstances: 1

@@ -1,5 +1,7 @@
 """Use case for logging in as a particular user with local auth."""
 
+import asyncio
+
 from jupiter.core.auth.sub.local.password_plain import PasswordPlain
 from jupiter.core.auth.sub.local.root import AuthLocal
 from jupiter.core.common.email_address import EmailAddress
@@ -69,7 +71,9 @@ class LoginLocalUseCase(JupiterGuestReadonlyUseCase[LoginLocalArgs, LoginLocalRe
                         "and add a password on your Account page."
                     ) from err
 
-                if not auth.check_password_against(args.password):
+                if not await asyncio.to_thread(
+                    auth.check_password_against, args.password
+                ):
                     raise InvalidLoginCredentialsError("User email or password invalid")
             except UserNotFoundError as err:
                 raise InvalidLoginCredentialsError(

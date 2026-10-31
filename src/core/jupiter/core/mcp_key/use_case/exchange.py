@@ -1,5 +1,7 @@
 """Use case for exchanging an MCP key for an authentication token."""
 
+import asyncio
+
 from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
@@ -54,7 +56,9 @@ class MCPKeyExchangeUseCase(
             except EntityNotFoundError as err:
                 raise InvalidMCPKeyError("Invalid MCP key") from err
 
-            if not mcp_key.key_hash.check_against(args.mcp_key_external.secret):
+            if not await asyncio.to_thread(
+                mcp_key.key_hash.check_against, args.mcp_key_external.secret
+            ):
                 raise InvalidMCPKeyError("Invalid MCP key")
 
             auth_token = self._auth_token_stamper.stamp_for_mcp(mcp_key.user.ref_id)
