@@ -6,16 +6,32 @@ from jupiter.core.auth.sub.apple.root import (
     AuthAppleRepository,
 )
 from jupiter.core.auth.sub.apple.subject_id import AppleSubjectId
+from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.repository import (
     SqliteStubEntityRepository,
 )
-from sqlalchemy import select
+from sqlalchemy import MetaData, select
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 
 class SqliteAuthAppleRepository(
     SqliteStubEntityRepository[AuthApple], AuthAppleRepository
 ):
     """SQLite implementation of the Apple auth repository."""
+
+    def __init__(
+        self,
+        realm_codec_registry: RealmCodecRegistry,
+        connection: AsyncConnection,
+        metadata: MetaData,
+    ) -> None:
+        """Constructor."""
+        super().__init__(
+            realm_codec_registry,
+            connection,
+            metadata,
+            not_found_err_cls=AuthAppleNotFoundError,
+        )
 
     async def load_by_apple_subject_id(
         self, apple_subject_id: AppleSubjectId

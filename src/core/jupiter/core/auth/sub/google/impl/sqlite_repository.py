@@ -6,16 +6,32 @@ from jupiter.core.auth.sub.google.root import (
     AuthGoogleRepository,
 )
 from jupiter.core.auth.sub.google.subject_id import GoogleSubjectId
+from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.repository import (
     SqliteStubEntityRepository,
 )
-from sqlalchemy import select
+from sqlalchemy import MetaData, select
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 
 class SqliteAuthGoogleRepository(
     SqliteStubEntityRepository[AuthGoogle], AuthGoogleRepository
 ):
     """SQLite implementation of the Google auth repository."""
+
+    def __init__(
+        self,
+        realm_codec_registry: RealmCodecRegistry,
+        connection: AsyncConnection,
+        metadata: MetaData,
+    ) -> None:
+        """Constructor."""
+        super().__init__(
+            realm_codec_registry,
+            connection,
+            metadata,
+            not_found_err_cls=AuthGoogleNotFoundError,
+        )
 
     async def load_by_google_subject_id(
         self, google_subject_id: GoogleSubjectId
