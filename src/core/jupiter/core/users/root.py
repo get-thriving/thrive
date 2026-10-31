@@ -51,7 +51,8 @@ class User(RootEntity):
     category: UserCategory
     email_address: EmailAddress
     name: UserName
-    avatar: Avatar
+    # The picture the user chose, or None for the one generated from their name.
+    avatar_image_ref_id: EntityId | None
     timezone: Timezone
     feature_flags: UserFeatureFlags
     auth_sign_up_method: UserAuthMethod
@@ -85,7 +86,7 @@ class User(RootEntity):
             category=UserCategory.STANDARD,
             email_address=email_address,
             name=name,
-            avatar=Avatar.from_user_name(name),
+            avatar_image_ref_id=None,
             timezone=UTC,
             feature_flags=feature_flag_controls.validate_and_complete(
                 feature_flags_delta=feature_flags, current_feature_flags={}
@@ -108,7 +109,7 @@ class User(RootEntity):
             category=UserCategory.APP_STORE_REVIEW,
             email_address=email_address,
             name=name,
-            avatar=Avatar.from_user_name(name),
+            avatar_image_ref_id=None,
             timezone=UTC,
             feature_flags=feature_flag_controls.validate_and_complete(
                 feature_flags_delta={}, current_feature_flags={}
@@ -133,7 +134,7 @@ class User(RootEntity):
             category=UserCategory.STANDARD,
             email_address=email_address,
             name=name,
-            avatar=Avatar.from_user_name(name),
+            avatar_image_ref_id=None,
             timezone=UTC,
             feature_flags=feature_flag_controls.validate_and_complete(
                 feature_flags_delta=feature_flags, current_feature_flags={}
@@ -158,7 +159,7 @@ class User(RootEntity):
             category=UserCategory.STANDARD,
             email_address=email_address,
             name=name,
-            avatar=Avatar.from_user_name(name),
+            avatar_image_ref_id=None,
             timezone=UTC,
             feature_flags=feature_flag_controls.validate_and_complete(
                 feature_flags_delta=feature_flags, current_feature_flags={}
@@ -184,7 +185,6 @@ class User(RootEntity):
             ctx,
             name=name,
             email_address=email_address,
-            avatar=Avatar.from_user_name(name),
         )
 
     @update_entity_action
@@ -198,11 +198,15 @@ class User(RootEntity):
         return self._new_version(
             ctx,
             name=name.or_else(self.name),
-            avatar=name.transform(lambda n: Avatar.from_user_name(n)).or_else(
-                self.avatar
-            ),
             timezone=timezone.or_else(self.timezone),
         )
+
+    @update_entity_action
+    def change_avatar(
+        self, ctx: DomainContext, avatar_image_ref_id: EntityId | None
+    ) -> "User":
+        """Show another picture, or go back to the one generated from the name."""
+        return self._new_version(ctx, avatar_image_ref_id=avatar_image_ref_id)
 
     @update_entity_action
     def change_feature_flags(
@@ -219,6 +223,11 @@ class User(RootEntity):
                 current_feature_flags=self.feature_flags,
             ),
         )
+
+    @property
+    def generated_avatar(self) -> Avatar:
+        """The picture drawn from the user's name, for when they have not chosen one."""
+        return Avatar.from_user_name(self.name)
 
     def is_feature_available(self, feature: UserFeature) -> bool:
         """Check if a feature is available for this user."""

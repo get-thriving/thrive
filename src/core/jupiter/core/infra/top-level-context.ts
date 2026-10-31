@@ -38,7 +38,7 @@ export const EMPTY_CONTEXT = {
     category: UserCategory.STANDARD,
     email_address: "foo",
     name: "food",
-    avatar: "this-is-not-a-data-url",
+    avatar_image_ref_id: null,
     timezone: "UTC",
     feature_flags: {},
     auth_sign_up_method: UserAuthMethod.LOCAL,

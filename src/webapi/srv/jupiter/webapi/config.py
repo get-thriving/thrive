@@ -29,6 +29,9 @@ from jupiter.core.backend_blend import (
     JupiterWebApiStorageEngine,
 )
 from jupiter.core.common.email_address import EmailAddress, EmailAddressDatabaseDecoder
+from jupiter.core.common.sub.images.sub.image.image_store_properties import (
+    ImageStoreProperties,
+)
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
@@ -103,6 +106,7 @@ class JupiterWebApiProperties(ServiceProperties):
     storage_engine: JupiterWebApiStorageEngine
     telemetry: JupiterTelemetry
     search_backend: JupiterWebApiSearchBackend
+    image_store: ImageStoreProperties
     crm_backend: JupiterCrmBackend
     email_sender_backend: JupiterWebApiEmailSender
     sqlite_db_url: str
@@ -219,6 +223,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         storage_engine=storage_engine,
         telemetry=telemetry,
         search_backend=search_backend,
+        image_store=ImageStoreProperties.from_env(),
         crm_backend=crm_backend,
         email_sender_backend=email_sender_backend,
         sentry_dsn=sentry_dsn,

@@ -41,6 +41,13 @@ envVarGroups:
         value: postgres
       - key: WEBAPI_SEARCH
         value: algolia
+      # Previews are the staging environment: they share its bucket, each under
+      # a prefix of its own instance (ADR 0018).
+      - key: WEBAPI_IMAGE_STORE
+        value: gcs
+      - key: IMAGE_STORE_GCS_AVATARS_BUCKET
+        value: jupiter-thrive-production-avatars
+        previewValue: jupiter-thrive-staging-avatars
       - key: WEBAPI_EMAIL_SENDER
         value: resend
         previewValue: noop
@@ -65,6 +72,8 @@ envVarGroups:
       - key: WIX_SITE_ID
         sync: false
       - key: GOOGLE_MAPS_API_KEY
+        sync: false
+      - key: IMAGE_STORE_GCS_CREDENTIALS
         sync: false
       - key: GOOGLE_CLIENT_ID
         sync: false
@@ -287,6 +296,33 @@ services:
   region: frankfurt
   plan: starter
   schedule: "0 4 * * *"
+  autoDeploy: true
+  rootDir: .
+  envVars:
+    - fromGroup: jupiter-webapi-config
+    - fromGroup: jupiter-webapi-secrets
+    - key: WEBAPI_CRON_EXECUTION_MODE
+      value: start-run-stop
+    - key: POSTGRES_DB_URL
+      fromDatabase:
+        name: jupiter-webapi-db
+        property: connectionString
+- type: cron
+  name: jupiter-webapi-image-gc-do-all
+  buildFilter:
+    paths:
+      - src/webapi/**
+      - src/core/**
+      - src/alib/py/framework/**
+      - pyproject.toml
+      - uv.lock
+      - src/Config.global
+  runtime: docker
+  dockerfilePath: ./src/webapi/image-gc-do-all/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  schedule: "30 4 * * *"
   autoDeploy: true
   rootDir: .
   envVars:

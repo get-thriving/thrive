@@ -29,6 +29,7 @@ COPY --parents \
     src/alib/py/framework/pyproject.toml \
     src/webapi/gc-do-all/pyproject.toml \
     src/webapi/clear-abandoned-users-do-all/pyproject.toml \
+    src/webapi/image-gc-do-all/pyproject.toml \
     src/webapi/sync-google-user-data-do-all/pyproject.toml \
     src/webapi/sync-apple-user-data-do-all/pyproject.toml \
     src/webapi/gen-do-all/pyproject.toml \

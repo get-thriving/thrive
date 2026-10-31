@@ -21,6 +21,7 @@ from jupiter.core.common.search.impl.sqlite.indexing_storage_engine import (
 from jupiter.core.common.search.impl.sqlite.storage_engine import (
     SqliteSearchStorageEngine,
 )
+from jupiter.core.common.sub.images.impl.noop import NoOpImageStore
 from jupiter.core.common.sub.locations.resolver.impl.noop import NoOpLocationResolver
 from jupiter.core.config import (
     JupiterPorts,
@@ -117,6 +118,8 @@ async def main() -> None:
 
     email_sender = NoOpEmailSender(env=global_properties.env)
 
+    image_store = NoOpImageStore()
+
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
@@ -124,6 +127,7 @@ async def main() -> None:
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
         email_sender=email_sender,
+        image_store=image_store,
         location_resolver=NoOpLocationResolver(),
     )
 

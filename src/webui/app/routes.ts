@@ -23,6 +23,7 @@ export default [
   route("pwa-manifest", "routes/pwa-manifest.tsx"),
   route("frontdoor", "routes/frontdoor.tsx"),
   route("healthz", "routes/healthz.tsx"),
+  route("images/*", "routes/images.tsx"),
   index("routes/index.tsx"),
   route("app", "routes/app.tsx", [
     route(

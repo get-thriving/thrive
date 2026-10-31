@@ -2,6 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { UserAvatarClearArgs } from '../models/UserAvatarClearArgs';
+import type { UserAvatarClearResult } from '../models/UserAvatarClearResult';
+import type { UserAvatarUploadArgs } from '../models/UserAvatarUploadArgs';
+import type { UserAvatarUploadResult } from '../models/UserAvatarUploadResult';
 import type { UserChangeFeatureFlagsArgs } from '../models/UserChangeFeatureFlagsArgs';
 import type { UserLoadArgs } from '../models/UserLoadArgs';
 import type { UserLoadResult } from '../models/UserLoadResult';
@@ -55,6 +59,67 @@ export class UsersService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/web-ui-settings-update',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError, InvalidOAuthRequestError, InvalidOAuthGrantError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, AuthLinkError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for a user going back to the picture generated from their name.
+     * @param requestBody The input data
+     * @returns UserAvatarClearResult Successful response
+     * @throws ApiError
+     */
+    public userAvatarClear(
+        requestBody?: UserAvatarClearArgs,
+    ): CancelablePromise<UserAvatarClearResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/user-avatar-clear',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError, InvalidOAuthRequestError, InvalidOAuthGrantError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, AuthLinkError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * Use case for a user uploading their picture.
+     *
+     * The picture is cleaned up, stored, and only then pointed at, so the database
+     * never names an object that isn't there. The one it replaces is removed from
+     * the store once the database no longer names it.
+     *
+     * @param requestBody The input data
+     * @returns UserAvatarUploadResult Successful response
+     * @throws ApiError
+     */
+    public userAvatarUpload(
+        requestBody?: UserAvatarUploadArgs,
+    ): CancelablePromise<UserAvatarUploadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/user-avatar-upload',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

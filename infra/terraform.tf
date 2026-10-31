@@ -54,6 +54,19 @@ provider "google" {
   credentials = file(var.GCP_LOGIN_FILE)
 }
 
+# The Organization Policy API refuses user credentials that do not name a quota
+# project, which the login file does not. This bills its calls to the project,
+# and is kept to the policies below: it would make every other API this file uses
+# have to be enabled in the project too.
+provider "google" {
+  alias = "org_policy"
+
+  project               = "get-thriving-main"
+  credentials           = file(var.GCP_LOGIN_FILE)
+  user_project_override = true
+  billing_project       = "get-thriving-main"
+}
+
 resource "google_project" "get_thriving_main" {
   name       = "Main"
   project_id = "get-thriving-main"
@@ -184,6 +197,12 @@ resource "google_project_service" "monitoring_googleapis_com" {
   disable_on_destroy = true
 }
 
+resource "google_project_service" "orgpolicy_googleapis_com" {
+  project            = google_project.get_thriving_main.project_id
+  service            = "orgpolicy.googleapis.com"
+  disable_on_destroy = true
+}
+
 resource "google_project_service" "osconfig_googleapis_com" {
   project            = google_project.get_thriving_main.project_id
   service            = "osconfig.googleapis.com"
@@ -244,6 +263,48 @@ resource "google_project_service" "storage_googleapis_com" {
   disable_on_destroy = true
 }
 
+## Organization Policies
+
+# The organization turns these on for every project, and the image store needs
+# both off for this one (ADR 0018). They are overridden for this project only.
+# Setting them takes the Organization Policy Administrator role on the
+# organization, for whoever GCP_LOGIN_FILE belongs to.
+
+# The image store's key is how Render, which has no way to federate with Google,
+# reaches the buckets.
+resource "google_org_policy_policy" "allow_service_account_key_creation" {
+  provider = google.org_policy
+
+  name   = "projects/${google_project.get_thriving_main.project_id}/policies/iam.disableServiceAccountKeyCreation"
+  parent = "projects/${google_project.get_thriving_main.project_id}"
+
+  spec {
+    rules {
+      enforce = "FALSE"
+    }
+  }
+
+  depends_on = [google_project_service.orgpolicy_googleapis_com]
+}
+
+# Domain restricted sharing keeps allUsers out of every IAM policy, and the
+# avatar buckets are public. There is no way to allow just allUsers, so this
+# allows any member in this project.
+resource "google_org_policy_policy" "allow_public_iam_members" {
+  provider = google.org_policy
+
+  name   = "projects/${google_project.get_thriving_main.project_id}/policies/iam.allowedPolicyMemberDomains"
+  parent = "projects/${google_project.get_thriving_main.project_id}"
+
+  spec {
+    rules {
+      allow_all = "TRUE"
+    }
+  }
+
+  depends_on = [google_project_service.orgpolicy_googleapis_com]
+}
+
 ## Service Accounts
 
 resource "google_service_account" "play_store_bundle_uploader" {
@@ -251,6 +312,107 @@ resource "google_service_account" "play_store_bundle_uploader" {
   account_id   = "play-store-bundle-uploader"
   description  = "Account that will be used to upload bundles to the Play Store"
   display_name = "Play Store Bundle Uploader"
+}
+
+## Image Storage
+
+# The avatars of users, one bucket per environment of the thrive universe (ADR
+# 0018). The instances of an environment share its bucket, each under a prefix of
+# its own, so the staging instances (one per PR) need nothing declared here.
+#
+# Buckets are named jupiter-$universe-$environment-$useCase.
+#
+# The objects are public and are linked to directly: an image is only as private
+# as its path is unguessable.
+
+locals {
+  avatars_buckets = {
+    production = {
+      name              = "jupiter-thrive-production-avatars"
+      force_destroy     = false
+      expire_after_days = null
+    }
+    # Nothing in staging is worth keeping. Previews last about a day, so a week
+    # is plenty.
+    staging = {
+      name              = "jupiter-thrive-staging-avatars"
+      force_destroy     = true
+      expire_after_days = 7
+    }
+  }
+}
+
+resource "google_storage_bucket" "avatars" {
+  for_each = local.avatars_buckets
+
+  project       = google_project.get_thriving_main.project_id
+  name          = each.value.name
+  location      = "EUROPE-WEST1"
+  force_destroy = each.value.force_destroy
+
+  uniform_bucket_level_access = true
+  public_access_prevention    = "inherited"
+
+  # A removed avatar has to actually be gone, not kept around for a week.
+  soft_delete_policy {
+    retention_duration_seconds = 0
+  }
+
+  dynamic "lifecycle_rule" {
+    for_each = each.value.expire_after_days == null ? [] : [each.value.expire_after_days]
+    content {
+      condition {
+        age = lifecycle_rule.value
+      }
+      action {
+        type = "Delete"
+      }
+    }
+  }
+}
+
+# Anyone can fetch an object they know the name of, but nobody can list a bucket.
+# objectViewer would allow listing too, so this is the legacy reader role, which
+# only has get.
+resource "google_storage_bucket_iam_member" "avatars_public_read" {
+  for_each = google_storage_bucket.avatars
+
+  bucket = each.value.name
+  role   = "roles/storage.legacyObjectReader"
+  member = "allUsers"
+
+  depends_on = [google_org_policy_policy.allow_public_iam_members]
+}
+
+# One account for both environments, since Render hands previews the same secrets
+# as production. Which bucket a service writes to is down to its configuration.
+resource "google_service_account" "image_store" {
+  project      = google_project.get_thriving_main.project_id
+  account_id   = "image-store"
+  description  = "Account the WebAPI uses to write, read and clean up images in the image buckets"
+  display_name = "Image Store"
+}
+
+resource "google_storage_bucket_iam_member" "avatars_image_store" {
+  for_each = google_storage_bucket.avatars
+
+  bucket = each.value.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.image_store.email}"
+}
+
+resource "google_service_account_key" "image_store" {
+  service_account_id = google_service_account.image_store.name
+
+  depends_on = [google_org_policy_policy.allow_service_account_key_creation]
+}
+
+# Set it as IMAGE_STORE_GCS_CREDENTIALS in the jupiter-webapi-secrets group on
+# Render: `terraform output -raw image_store_gcs_credentials`.
+output "image_store_gcs_credentials" {
+  description = "The key of the image store service account, as JSON"
+  value       = base64decode(google_service_account_key.image_store.private_key)
+  sensitive   = true
 }
 
 ## Networking
@@ -668,6 +830,12 @@ resource "docker_hub_repository" "webapi_clear_abandoned_users_do_all" {
   description = "This is the repository for the WebAPI clear-abandoned-users-do-all cron"
 }
 
+resource "docker_hub_repository" "webapi_image_gc_do_all" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "webapi-image-gc-do-all"
+  description = "This is the repository for the WebAPI image-gc-do-all cron"
+}
+
 resource "docker_hub_repository" "webapi_sync_google_user_data_do_all" {
   namespace   = var.DOCKER_REGISTRY_NAME
   name        = "webapi-sync-google-user-data-do-all"
@@ -827,6 +995,14 @@ resource "sentry_project" "webapi_clear_abandoned_users_do_all" {
   teams        = [sentry_team.thrive.slug]
   name         = "webapi-clear-abandoned-users-do-all"
   slug         = "webapi-clear-abandoned-users-do-all"
+  platform     = "python-fastapi"
+}
+
+resource "sentry_project" "webapi_image_gc_do_all" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi-image-gc-do-all"
+  slug         = "webapi-image-gc-do-all"
   platform     = "python-fastapi"
 }
 

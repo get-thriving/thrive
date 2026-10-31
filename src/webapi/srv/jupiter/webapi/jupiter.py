@@ -1,11 +1,13 @@
 """The jupiter Web RPC API."""
 
 import asyncio
+import json
 import sys
 
 import jupiter.core
 import jupiter.webapi.config
 import jupiter.webapi.exceptions
+from google.cloud import storage
 from jupiter.core.apps.crm.crm import CRM, CrmDeploymentContext
 from jupiter.core.apps.crm.impl.noop import NoOpCRM
 from jupiter.core.apps.crm.impl.postgres.indexing_storage_engine import (
@@ -26,6 +28,7 @@ from jupiter.core.backend_blend import (
     JupiterLocationResolver,
     JupiterTelemetry,
     JupiterWebApiEmailSender,
+    JupiterWebApiImageStore,
     JupiterWebApiSearchBackend,
     JupiterWebApiStorageEngine,
 )
@@ -49,6 +52,9 @@ from jupiter.core.common.search.indexing_storage_engine import (
     SearchIndexingStorageEngine,
 )
 from jupiter.core.common.search.storage_engine import SearchStorageEngine
+from jupiter.core.common.sub.images.image_store import ImageStore
+from jupiter.core.common.sub.images.impl.gcs import GcsImageStore
+from jupiter.core.common.sub.images.impl.local import LocalImageStore
 from jupiter.core.common.sub.locations.resolver.impl.google_maps import (
     GoogleMapsLocationResolver,
 )
@@ -256,6 +262,26 @@ async def main() -> None:
     else:
         location_resolver = NoOpLocationResolver()
 
+    image_store: ImageStore
+    if service_properties.image_store.backend == JupiterWebApiImageStore.GCS:
+        try:
+            credentials_info = json.loads(
+                service_properties.image_store.gcs_credentials
+            )
+        except json.JSONDecodeError:
+            raise Exception(
+                "IMAGE_STORE_GCS_CREDENTIALS is not valid service account JSON"
+            ) from None
+        image_store = GcsImageStore(
+            storage.Client.from_service_account_info(credentials_info),
+            service_properties.image_store.gcs_buckets,
+            global_properties.instance,
+        )
+    else:
+        image_store = LocalImageStore(
+            service_properties.image_store.local_root, global_properties.instance
+        )
+
     ports = JupiterPorts(
         domain_storage_engine=domain_storage_engine,
         search_storage_engine=search_storage_engine,
@@ -263,6 +289,7 @@ async def main() -> None:
         crm_indexing_storage_engine=crm_indexing_storage_engine,
         crm=crm,
         email_sender=email_sender,
+        image_store=image_store,
         location_resolver=location_resolver,
         google_oauth_client=google_oauth_client,
         apple_oauth_client=apple_oauth_client,
@@ -316,9 +343,18 @@ async def main() -> None:
     )
     rich_print(f"  Domain Storage Engine: {domain_storage_engine.__class__.__name__}")
     rich_print(f"  Search Storage Engine: {search_storage_engine.__class__.__name__}")
+    rich_print(
+        f"  Search Indexing Storage Engine: {search_indexing_storage_engine.__class__.__name__}"
+    )
+    rich_print(
+        f"  CRM Indexing Storage Engine: {crm_indexing_storage_engine.__class__.__name__}"
+    )
     rich_print(f"  CRM: {crm.__class__.__name__}")
     rich_print(f"  Email Sender: {email_sender.__class__.__name__}")
+    rich_print(f"  Image Store: {image_store.__class__.__name__}")
     rich_print(f"  Location Resolver: {location_resolver.__class__.__name__}")
+    rich_print(f"  Google OAuth Client: {google_oauth_client.__class__.__name__}")
+    rich_print(f"  Apple OAuth Client: {apple_oauth_client.__class__.__name__}")
     rich_print("=" * 80)
 
     # Run the app form

@@ -157,3 +157,7 @@ src/mobile/ios/App/App/config.xml
 # React Router generated route types
 src/webui/.react-router/
 src/published/.react-router/
+
+# Default home of uploaded images when a service is run by hand (ADR 0018)
+/src/webapi/*/images/
+/src/cli/images/

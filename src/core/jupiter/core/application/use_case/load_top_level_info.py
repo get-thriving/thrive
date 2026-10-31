@@ -13,6 +13,7 @@ from jupiter.core.auth.auth_method import UserAuthMethod
 from jupiter.core.auth.service.load_linked_auth_methods import (
     LoadLinkedAuthMethodsService,
 )
+from jupiter.core.common.sub.images.sub.image.image_url import ImageUrl
 from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
@@ -40,6 +41,7 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
 )
 from jupiter.core.users.root import User, UserNotFoundError
+from jupiter.core.users.service.load_user_avatar_url import LoadUserAvatarUrlService
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.core.workspaces.root import (
@@ -74,6 +76,7 @@ class LoadTopLevelInfoResult(UseCaseResultBase):
     default_workspace_feature_flags: WorkspaceFeatureFlags
     workspace_feature_hack: WorkspaceFeature
     user: User | None
+    user_avatar_url: ImageUrl | None
     user_linked_auth_methods: list[UserAuthMethod]
     user_score_overview: UserScoreOverview | None
     workspace: Workspace | None
@@ -103,6 +106,7 @@ class LoadTopLevelInfoUseCase(
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             linked_auth_methods: list[UserAuthMethod] = []
+            user_avatar_url: ImageUrl | None = None
             if context.auth_token is None:
                 user = None
                 workspace = None
@@ -120,6 +124,9 @@ class LoadTopLevelInfoUseCase(
                     linked_auth_methods = await LoadLinkedAuthMethodsService().do_it(
                         uow, user.ref_id
                     )
+                    user_avatar_url = await LoadUserAvatarUrlService(
+                        self._ports.image_store
+                    ).do_it(uow, user)
                     workspace = None
                     user_score_overview = None
                     try:
@@ -153,6 +160,7 @@ class LoadTopLevelInfoUseCase(
             default_workspace_feature_flags=BASIC_WORKSPACE_FEATURE_FLAGS,
             workspace_feature_hack=WorkspaceFeature.TODO_TASK,
             user=user,
+            user_avatar_url=user_avatar_url,
             user_linked_auth_methods=linked_auth_methods,
             user_score_overview=user_score_overview,
             workspace=workspace,

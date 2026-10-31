@@ -20,12 +20,14 @@ class GoogleIdTokenClaims:
         email (str): An email address.
         email_verified (bool):
         name (None | str | Unset):
+        picture (None | str | Unset):
     """
 
     sub: str
     email: str
     email_verified: bool
     name: None | str | Unset = UNSET
+    picture: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,6 +43,12 @@ class GoogleIdTokenClaims:
         else:
             name = self.name
 
+        picture: None | str | Unset
+        if isinstance(self.picture, Unset):
+            picture = UNSET
+        else:
+            picture = self.picture
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -52,6 +60,8 @@ class GoogleIdTokenClaims:
         )
         if name is not UNSET:
             field_dict["name"] = name
+        if picture is not UNSET:
+            field_dict["picture"] = picture
 
         return field_dict
 
@@ -73,11 +83,21 @@ class GoogleIdTokenClaims:
 
         name = _parse_name(d.pop("name", UNSET))
 
+        def _parse_picture(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        picture = _parse_picture(d.pop("picture", UNSET))
+
         google_id_token_claims = cls(
             sub=sub,
             email=email,
             email_verified=email_verified,
             name=name,
+            picture=picture,
         )
 
         google_id_token_claims.additional_properties = d

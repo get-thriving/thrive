@@ -29,6 +29,7 @@ ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER: Final[frozenset[str]] = frozenset(
         "SlackTask",
         "EmailVerificationAttempt",
         "OAuthGrant",
+        "Image",
         "GCLogEntry",
         "ScoreLogEntry",
         "ScheduleExternalSyncLogEntry",
