@@ -1,5 +1,7 @@
 """Use case for linking a Google account to the signed in user."""
 
+import logging
+
 from jupiter.core.application.service.google_login import GoogleLoginService
 from jupiter.core.auth.service.apply_google_profile_picture import (
     ApplyGoogleProfilePictureService,
@@ -15,6 +17,8 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.secure import secure_class
 from jupiter.framework.use_case import mutation_use_case
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+
+LOGGER = logging.getLogger(__name__)
 
 
 @use_case_args
@@ -49,6 +53,12 @@ class LinkGoogleUseCase(JupiterLoggedInMutationUseCase[LinkGoogleArgs, None]):
         google_user_info = await self._ports.google_oauth_client.get_user_info(
             args.google_auth_code.code_raw,
             args.callback_uri,
+        )
+
+        LOGGER.info(
+            "Google code exchanged for subject=%s, linking to user ref_id=%s",
+            google_user_info.google_subject_id,
+            context.user.ref_id,
         )
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:

@@ -1,5 +1,7 @@
 """Exceptions handling for the webapi module."""
 
+import logging
+
 from jupiter.core.api_key.root import InvalidAPIKeyError
 from jupiter.core.application.use_case.login_local import (
     InvalidLoginCredentialsError,
@@ -52,6 +54,8 @@ from jupiter.core.workspaces.root import (
 from jupiter.framework.appform.webapi.exception import WebApiError
 from jupiter.webapi.config import JupiterExceptionHandler
 from starlette import status
+
+LOGGER = logging.getLogger(__name__)
 
 
 class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
@@ -157,6 +161,10 @@ class AuthLinkErrorHandler(JupiterExceptionHandler[AuthLinkError]):
     def get_status_code() -> int:
         """Get the status code for the exception."""
         return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def on_exception(self, exc: AuthLinkError) -> None:
+        """Log which link error it was."""
+        LOGGER.warning("Auth link error (%s): %s", type(exc).__name__, exc)
 
     def get_detail(self, exception: AuthLinkError) -> WebApiError:
         """Get the detail for the exception."""

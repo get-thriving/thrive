@@ -1,5 +1,7 @@
 """Attach a Google account to an existing user."""
 
+import logging
+
 from jupiter.core.auth.service.auth_link_errors import (
     AuthMethodAlreadyLinkedError,
     ProviderAccountLinkedElsewhereError,
@@ -15,6 +17,8 @@ from jupiter.framework.context import DomainContext
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
+LOGGER = logging.getLogger(__name__)
+
 
 class LinkGoogleAuthService:
     """Links a Google account the user has just proven they control."""
@@ -27,6 +31,11 @@ class LinkGoogleAuthService:
         google_user_info: GoogleUserInfo,
     ) -> None:
         """Create the Google auth record, unless it would be ambiguous."""
+        LOGGER.info(
+            "Linking Google subject=%s to user ref_id=%s",
+            google_user_info.google_subject_id,
+            user.ref_id,
+        )
         try:
             existing_by_subject = await uow.get(
                 AuthGoogleRepository
@@ -34,6 +43,11 @@ class LinkGoogleAuthService:
         except AuthGoogleNotFoundError:
             pass
         else:
+            LOGGER.info(
+                "Google subject=%s already belongs to user ref_id=%s",
+                google_user_info.google_subject_id,
+                existing_by_subject.user.ref_id,
+            )
             if existing_by_subject.user.ref_id != user.ref_id:
                 raise ProviderAccountLinkedElsewhereError(
                     "This Google account is already used by another user"
@@ -45,6 +59,7 @@ class LinkGoogleAuthService:
         except AuthGoogleNotFoundError:
             pass
         else:
+            LOGGER.info("User ref_id=%s already has a Google account", user.ref_id)
             raise AuthMethodAlreadyLinkedError(
                 "A Google account is already linked. Unlink it first to use another."
             )

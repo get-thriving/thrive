@@ -97,6 +97,15 @@ class EntityNotFoundHandler(
         """Get the status code for the exception."""
         return status.HTTP_404_NOT_FOUND
 
+    def on_exception(self, exc: EntityNotFoundError) -> None:
+        """Log where the not found came from, as the 404 alone does not say."""
+        LOGGER.warning(
+            "Entity not found (%s): %s",
+            type(exc).__name__,
+            exc,
+            exc_info=(type(exc), exc, exc.__traceback__),
+        )
+
     def get_detail(self, exception: EntityNotFoundError) -> WebApiError:
         """Get the detail for the exception."""
         return WebApiError.simple("Entity does not exist", str(exception))
