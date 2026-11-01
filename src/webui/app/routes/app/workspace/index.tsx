@@ -48,6 +48,7 @@ import {
   sortInboxTasksNaturally,
 } from "#/core/common/sub/inbox_tasks/root";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { keyHabitsStreaksHabitRefIds } from "@jupiter/core/home/sub/widget/properties";
 import { isUserFeatureAvailable } from "@jupiter/core/users/root";
 import { sortAndFilterTabsByTheirOrder } from "@jupiter/core/home/sub/tab/root";
 import {
@@ -150,6 +151,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const needsLifeVision = widgetTypes.has(WidgetType.LIFE_VISION);
   const needsCollaboration = widgetTypes.has(WidgetType.COLLABORATION);
 
+  // Each key habits widget shows the habits it was set up with. Load the
+  // streaks of all of them once, however many widgets there are, and each
+  // widget picks out its own.
+  const keyHabitRefIds = [
+    ...new Set(
+      homeConfigResponse.widgets
+        .filter((widget) => widget.the_type === WidgetType.KEY_HABITS_STREAKS)
+        .flatMap((widget) => keyHabitsStreaksHabitRefIds(widget.properties)),
+    ),
+  ];
+
   async function loadTimePlanForPeriod(period: RecurringTaskPeriod) {
     const timePlanForPeriodResponse =
       await apiClient.timePlans.timePlanLoadForTimeDateAndPeriod({
@@ -186,7 +198,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     (async () => {
       const summaryResponse = await apiClient.application.getSummaries({
         include_workspace: true,
-        include_habits: needsKeyHabitStreaks,
         include_big_plans: needsKeyBigPlans,
         include_life_plan: needsLifeWeeksOrChapters || needsLifeVision,
         include_chapters: needsLifeWeeksOrChapters,
@@ -206,9 +217,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           ) {
             return undefined;
           }
-          const keyHabits =
-            summaryResponse.habits?.filter((habit) => habit.is_key) || [];
-          if (keyHabits.length === 0) {
+          if (keyHabitRefIds.length === 0) {
             return {
               streak_mark_earliest_date: earliestDate,
               streak_mark_latest_date: latestDate,
@@ -216,7 +225,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
             };
           }
           return apiClient.habits.habitFindStreaks({
-            filter_ref_ids: keyHabits.map((habit) => habit.ref_id),
+            filter_ref_ids: keyHabitRefIds,
             include_streak_marks_earliest_date: earliestDate,
             include_streak_marks_latest_date: latestDate,
           });
@@ -1113,6 +1122,8 @@ function ActualWidgetItself({ widget, widgetProps }: ActualWidgetItselfProps) {
   const widgetPropsWithGeometry = {
     ...widgetProps,
     geometry: widget.geometry,
+    properties: widget.properties,
+    settingsLocation: `/app/workspace/home/settings/tabs/${widget.home_tab_ref_id}/widgets/${widget.ref_id}`,
   };
 
   switch (widget.the_type) {

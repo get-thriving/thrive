@@ -1,5 +1,11 @@
-import { NamedEntityTag, WidgetDimension } from "@jupiter/webapi-client";
-import { FormControl, InputLabel } from "@mui/material";
+import type { Habit } from "@jupiter/webapi-client";
+import {
+  KeyHabitsStreaksHomeWidgetProperties,
+  NamedEntityTag,
+  WidgetDimension,
+  WorkspaceFeature,
+} from "@jupiter/webapi-client";
+import { FormControl, InputLabel, Typography } from "@mui/material";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -27,7 +33,14 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { WidgetTypeSelector } from "@jupiter/core/home/component/widget-type-selector";
 import { WidgetDimensionSelector } from "@jupiter/core/home/component/widget-dimension-selector";
+import { WidgetPropertiesEditor } from "@jupiter/core/home/component/widget-properties-editor";
 import { RowAndColSelector } from "@jupiter/core/home/component/row-and-col-selector";
+import {
+  buildKeyHabitsStreaksProperties,
+  parseRefIdList,
+  widgetTypeHasProperties,
+} from "@jupiter/core/home/sub/widget/properties";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -52,6 +65,13 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     widgetRow: z.coerce.number(),
     widgetCol: z.coerce.number(),
     widgetDimension: z.nativeEnum(WidgetDimension),
+  }),
+  z.object({
+    intent: z.literal("update-properties"),
+    propertiesKind: z.literal(
+      KeyHabitsStreaksHomeWidgetProperties.kind.KEY_HABITS_STREAKS,
+    ),
+    habitRefIds: z.string().optional(),
   }),
   z.object({
     intent: z.literal("archive"),
@@ -82,11 +102,39 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }),
     ]);
 
+    // Only the widgets that have properties to configure need the habits, and
+    // those can only be listed when the workspace has habits turned on.
+    let allHabits: Habit[] = [];
+    let propertiesAvailable = true;
+    if (widgetTypeHasProperties(widget.widget.the_type)) {
+      const summaries = await apiClient.application.getSummaries({
+        include_workspace: true,
+      });
+      propertiesAvailable = isWorkspaceFeatureAvailable(
+        summaries.workspace!,
+        WorkspaceFeature.HABITS,
+      );
+      if (propertiesAvailable) {
+        const habitsResponse = await apiClient.habits.habitFind({
+          allow_archived: false,
+          include_tags: false,
+          include_notes: false,
+          include_life_plan: false,
+          include_inbox_tasks: false,
+        });
+        allHabits = habitsResponse.entries.map(
+          (entry) => entry.habit,
+        ) as Habit[];
+      }
+    }
+
     return {
       widget: widget.widget,
       widgetConstraints: homeConfig.widget_constraints,
       tab: tab.tab,
       widgets: tab.widgets,
+      allHabits,
+      propertiesAvailable,
     };
   } catch (error) {
     handleLoaderApiError(error);
@@ -106,6 +154,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
           row: form.widgetRow,
           col: form.widgetCol,
           dimension: form.widgetDimension,
+        });
+
+        return redirect(`/app/workspace/home/settings/tabs/${id}`);
+      }
+
+      case "update-properties": {
+        await apiClient.home.homeWidgetUpdateProperties({
+          ref_id: widgetId,
+          properties: buildKeyHabitsStreaksProperties(
+            parseRefIdList(form.habitRefIds),
+          ),
         });
 
         return redirect(`/app/workspace/home/settings/tabs/${id}`);
@@ -219,6 +278,43 @@ export default function Widget() {
           <FieldError actionResult={actionData} fieldName={"/dimension"} />
         </FormControl>
       </SectionCard>
+
+      {widgetTypeHasProperties(loaderData.widget.the_type) && (
+        <SectionCard
+          title="Widget Properties"
+          actions={
+            <SectionActions
+              id="widget-properties-actions"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  id: "widget-update-properties",
+                  text: "Update",
+                  value: "update-properties",
+                  disabled: !inputsEnabled || !loaderData.propertiesAvailable,
+                  highlight: false,
+                }),
+              ]}
+            />
+          }
+        >
+          {loaderData.propertiesAvailable ? (
+            <WidgetPropertiesEditor
+              widgetType={loaderData.widget.the_type}
+              properties={loaderData.widget.properties}
+              allHabits={loaderData.allHabits}
+              inputsEnabled={inputsEnabled}
+            />
+          ) : (
+            <Typography color="text.secondary">
+              The habits feature is not enabled in this workspace, so the habits
+              this widget shows cannot be changed.
+            </Typography>
+          )}
+          <FieldError actionResult={actionData} fieldName="/properties" />
+        </SectionCard>
+      )}
     </LeafPanel>
   );
 }

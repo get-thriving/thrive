@@ -12,7 +12,11 @@ from jupiter.core.features import (
     WorkspaceFeature,
 )
 from jupiter.core.home.sub.tab.root import HomeTab
+from jupiter.core.home.sub.widget.properties.one_of import OneOfHomeWidgetProperties
 from jupiter.core.home.sub.widget.root import HomeWidget
+from jupiter.core.home.sub.widget.service.check_properties_references import (
+    CheckHomeWidgetPropertiesReferencesService,
+)
 from jupiter.core.home.widget import (
     WIDGET_CONSTRAINTS,
     WidgetDimension,
@@ -42,6 +46,7 @@ class HomeWidgetCreateArgs(JupiterCreateCrownEntityArgs):
     row: int
     col: int
     dimension: WidgetDimension
+    properties: OneOfHomeWidgetProperties | None
 
 
 @use_case_result
@@ -87,6 +92,11 @@ class HomeWidgetCreateUseCase(
             uow, context.user.ref_id, HomeTab, args.home_tab_ref_id
         )
 
+        if args.properties is not None:
+            await CheckHomeWidgetPropertiesReferencesService().do_it(
+                uow, context.user.ref_id, args.properties
+            )
+
         home_widget = HomeWidget.new_home_widget(
             context.domain_context,
             home_tab_ref_id=home_tab.ref_id,
@@ -95,6 +105,7 @@ class HomeWidgetCreateUseCase(
             geometry=WidgetGeometry(
                 row=args.row, col=args.col, dimension=args.dimension
             ),
+            properties=args.properties,
         )
         home_widget = await self.create_entity(
             context.domain_context,

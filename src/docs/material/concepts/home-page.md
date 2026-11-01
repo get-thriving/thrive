@@ -40,6 +40,35 @@ Placed widgets can also have some configuration attached to them, suchas what
 and how to show. This allows for extra customisation, makingeach placement of a
 widget unique.
 
+## Widget properties
+
+Some widgets have _properties_: settings that belong to that one placement of the
+widget, and that depend on what the widget shows. You edit them in the
+"Widget Properties" section of the widget's settings, right under where you set
+its size and position. The properties and the placement are saved separately,
+each with its own _Update_ button.
+
+For example, the _Key Habits Streaks_ widget shows the streaks of the habits you
+pick, in the order you pick them:
+
+* Add habits with the _Habits to show_ field. You can pick any habit you can
+  see, including ones other people shared with you.
+* Change the order, or remove a habit, with the arrows and the cross next to
+  it in the list below the field.
+* A widget with no habits shows nothing, and offers you a link to its settings.
+
+Because the habits belong to the widget and not to your workspace, you can place
+the widget more than once, each time with its own habits. A morning tab might
+show your morning habits, while the weekly review one shows the long-running
+ones.
+
+If a habit you picked is archived, or stops being shared with you, the widget
+quietly leaves it out. Opening the widget's settings lists how many were left
+out, and updating the widget removes them for good.
+
+A new widget starts with no properties set, and takes you straight to its
+settings so you can fill them in.
+
 Some sizes are marked as `kx1` or similar. These will spread to occupyas much
 room as there is in the column/s that the widget takes. You cannotplace any
 other widgets underneath them.
