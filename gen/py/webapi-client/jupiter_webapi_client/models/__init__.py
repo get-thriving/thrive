@@ -634,6 +634,8 @@ from .jupiter_web_api_email_sender import JupiterWebApiEmailSender
 from .jupiter_web_api_image_store import JupiterWebApiImageStore
 from .jupiter_web_api_search_backend import JupiterWebApiSearchBackend
 from .jupiter_web_api_storage_engine import JupiterWebApiStorageEngine
+from .key_big_plans_progress_home_widget_properties import KeyBigPlansProgressHomeWidgetProperties
+from .key_big_plans_progress_home_widget_properties_kind import KeyBigPlansProgressHomeWidgetPropertiesKind
 from .key_habits_streaks_home_widget_properties import KeyHabitsStreaksHomeWidgetProperties
 from .key_habits_streaks_home_widget_properties_kind import KeyHabitsStreaksHomeWidgetPropertiesKind
 from .life_plan import LifePlan
@@ -2050,6 +2052,8 @@ __all__ = (
     "JupiterWebApiImageStore",
     "JupiterWebApiSearchBackend",
     "JupiterWebApiStorageEngine",
+    "KeyBigPlansProgressHomeWidgetProperties",
+    "KeyBigPlansProgressHomeWidgetPropertiesKind",
     "KeyHabitsStreaksHomeWidgetProperties",
     "KeyHabitsStreaksHomeWidgetPropertiesKind",
     "LifePlan",

@@ -8,6 +8,7 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.empty_home_widget_properties import EmptyHomeWidgetProperties
+    from ..models.key_big_plans_progress_home_widget_properties import KeyBigPlansProgressHomeWidgetProperties
     from ..models.key_habits_streaks_home_widget_properties import KeyHabitsStreaksHomeWidgetProperties
 
 
@@ -20,20 +21,26 @@ class HomeWidgetUpdatePropertiesArgs:
 
     Attributes:
         ref_id (str): A generic entity id.
-        properties (EmptyHomeWidgetProperties | KeyHabitsStreaksHomeWidgetProperties):
+        properties (EmptyHomeWidgetProperties | KeyBigPlansProgressHomeWidgetProperties |
+            KeyHabitsStreaksHomeWidgetProperties):
     """
 
     ref_id: str
-    properties: EmptyHomeWidgetProperties | KeyHabitsStreaksHomeWidgetProperties
+    properties: (
+        EmptyHomeWidgetProperties | KeyBigPlansProgressHomeWidgetProperties | KeyHabitsStreaksHomeWidgetProperties
+    )
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.key_big_plans_progress_home_widget_properties import KeyBigPlansProgressHomeWidgetProperties  # noqa: PLC0415
         from ..models.key_habits_streaks_home_widget_properties import KeyHabitsStreaksHomeWidgetProperties  # noqa: PLC0415
 
         ref_id = self.ref_id
 
         properties: dict[str, Any]
         if isinstance(self.properties, KeyHabitsStreaksHomeWidgetProperties):
+            properties = self.properties.to_dict()
+        elif isinstance(self.properties, KeyBigPlansProgressHomeWidgetProperties):
             properties = self.properties.to_dict()
         else:
             properties = self.properties.to_dict()
@@ -52,12 +59,15 @@ class HomeWidgetUpdatePropertiesArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.empty_home_widget_properties import EmptyHomeWidgetProperties  # noqa: PLC0415
+        from ..models.key_big_plans_progress_home_widget_properties import KeyBigPlansProgressHomeWidgetProperties  # noqa: PLC0415
         from ..models.key_habits_streaks_home_widget_properties import KeyHabitsStreaksHomeWidgetProperties  # noqa: PLC0415
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
-        def _parse_properties(data: object) -> EmptyHomeWidgetProperties | KeyHabitsStreaksHomeWidgetProperties:
+        def _parse_properties(
+            data: object,
+        ) -> EmptyHomeWidgetProperties | KeyBigPlansProgressHomeWidgetProperties | KeyHabitsStreaksHomeWidgetProperties:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
@@ -66,11 +76,19 @@ class HomeWidgetUpdatePropertiesArgs:
                 return properties_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                properties_type_1 = KeyBigPlansProgressHomeWidgetProperties.from_dict(data)
+
+                return properties_type_1
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
             if not isinstance(data, dict):
                 raise TypeError()
-            properties_type_1 = EmptyHomeWidgetProperties.from_dict(data)
+            properties_type_2 = EmptyHomeWidgetProperties.from_dict(data)
 
-            return properties_type_1
+            return properties_type_2
 
         properties = _parse_properties(d.pop("properties"))
 

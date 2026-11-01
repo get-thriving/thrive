@@ -1,11 +1,9 @@
 import type { EntityId, Habit } from "@jupiter/webapi-client";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import CloseIcon from "@mui/icons-material/Close";
-import { Alert, Box, IconButton, Stack, Typography } from "@mui/material";
+import { Alert, Stack } from "@mui/material";
 import { useMemo, useState } from "react";
 
 import { HabitSelectMultiple } from "#/core/apps/habits/component/select-multiple";
+import { ChosenEntitiesList } from "#/core/common/component/chosen-entities-list";
 import { PeriodTag } from "#/core/common/component/period-tag";
 import { moveItem } from "#/core/common/move-item";
 
@@ -58,72 +56,24 @@ export function KeyHabitsStreaksPropertiesEditor(
         </Alert>
       )}
 
-      {habitRefIds.length === 0 ? (
-        <Typography color="text.secondary">
-          No habits chosen yet. The widget will stay empty until you add some.
-        </Typography>
-      ) : (
-        <Stack spacing={0.5} component="ol" sx={{ margin: 0, padding: 0 }}>
-          {habitRefIds.map((refId, index) => {
-            const habit = habitsByRefId.get(refId)!;
-            return (
-              <Box
-                key={refId}
-                component="li"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  listStyle: "none",
-                }}
-              >
-                <Typography
-                  color="text.secondary"
-                  sx={{ minWidth: "1.5rem", textAlign: "right" }}
-                >
-                  {index + 1}.
-                </Typography>
-                <Typography noWrap sx={{ flex: 1, minWidth: 0 }}>
-                  {habit.name}
-                </Typography>
-                <PeriodTag period={habit.gen_params.period} />
-                <IconButton
-                  size="small"
-                  aria-label={`Move ${habit.name} up`}
-                  disabled={!props.inputsEnabled || index === 0}
-                  onClick={() =>
-                    setHabitRefIds(moveItem(habitRefIds, index, -1))
-                  }
-                >
-                  <ArrowUpwardIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  aria-label={`Move ${habit.name} down`}
-                  disabled={
-                    !props.inputsEnabled || index === habitRefIds.length - 1
-                  }
-                  onClick={() =>
-                    setHabitRefIds(moveItem(habitRefIds, index, 1))
-                  }
-                >
-                  <ArrowDownwardIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  aria-label={`Remove ${habit.name}`}
-                  disabled={!props.inputsEnabled}
-                  onClick={() =>
-                    setHabitRefIds(habitRefIds.filter((id) => id !== refId))
-                  }
-                >
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              </Box>
-            );
-          })}
-        </Stack>
-      )}
+      <ChosenEntitiesList
+        entities={habitRefIds.map((refId) => {
+          const habit = habitsByRefId.get(refId)!;
+          return {
+            refId,
+            name: habit.name,
+            tag: <PeriodTag period={habit.gen_params.period} />,
+          };
+        })}
+        onMove={(index, delta) =>
+          setHabitRefIds(moveItem(habitRefIds, index, delta))
+        }
+        onRemove={(refId) =>
+          setHabitRefIds(habitRefIds.filter((id) => id !== refId))
+        }
+        inputsEnabled={props.inputsEnabled}
+        emptyMessage="No habits chosen yet. The widget will stay empty until you add some."
+      />
     </Stack>
   );
 }

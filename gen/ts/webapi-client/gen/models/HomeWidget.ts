@@ -5,6 +5,7 @@
 import type { EmptyHomeWidgetProperties } from './EmptyHomeWidgetProperties';
 import type { EntityId } from './EntityId';
 import type { EntityName } from './EntityName';
+import type { KeyBigPlansProgressHomeWidgetProperties } from './KeyBigPlansProgressHomeWidgetProperties';
 import type { KeyHabitsStreaksHomeWidgetProperties } from './KeyHabitsStreaksHomeWidgetProperties';
 import type { Timestamp } from './Timestamp';
 import type { WidgetGeometry } from './WidgetGeometry';
@@ -24,6 +25,6 @@ export type HomeWidget = {
     home_tab_ref_id: string;
     the_type: WidgetType;
     geometry: WidgetGeometry;
-    properties: (KeyHabitsStreaksHomeWidgetProperties | EmptyHomeWidgetProperties);
+    properties: (KeyHabitsStreaksHomeWidgetProperties | KeyBigPlansProgressHomeWidgetProperties | EmptyHomeWidgetProperties);
 };
 

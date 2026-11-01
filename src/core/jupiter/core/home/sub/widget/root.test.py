@@ -3,6 +3,9 @@
 import pytest
 from jupiter.core.home.sub.tab.target import HomeTabTarget
 from jupiter.core.home.sub.widget.properties.empty import EmptyHomeWidgetProperties
+from jupiter.core.home.sub.widget.properties.key_big_plans_progress import (
+    KeyBigPlansProgressHomeWidgetProperties,
+)
 from jupiter.core.home.sub.widget.properties.key_habits_streaks import (
     KeyHabitsStreaksHomeWidgetProperties,
 )
@@ -15,7 +18,12 @@ from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.errors import InputValidationError
 
-_GEOMETRY = WidgetGeometry(row=0, col=0, dimension=WidgetDimension.DIM_1x1)
+# A size each widget type under test accepts on a big screen: the big plans
+# widget does not come in 1x1.
+_DIMENSION_BY_TYPE = {
+    WidgetType.KEY_BIG_PLANS_PROGRESS: WidgetDimension.DIM_3x1,
+}
+_DEFAULT_DIMENSION = WidgetDimension.DIM_1x1
 
 
 def _ctx() -> DomainContext:
@@ -32,16 +40,29 @@ def _habits(*ref_ids: str) -> KeyHabitsStreaksHomeWidgetProperties:
     return KeyHabitsStreaksHomeWidgetProperties.new([EntityId(r) for r in ref_ids])
 
 
+def _big_plans(*ref_ids: str) -> KeyBigPlansProgressHomeWidgetProperties:
+    return KeyBigPlansProgressHomeWidgetProperties.new([EntityId(r) for r in ref_ids])
+
+
 def _widget(
     the_type: WidgetType,
-    properties: KeyHabitsStreaksHomeWidgetProperties | EmptyHomeWidgetProperties | None,
+    properties: (
+        KeyHabitsStreaksHomeWidgetProperties
+        | KeyBigPlansProgressHomeWidgetProperties
+        | EmptyHomeWidgetProperties
+        | None
+    ),
 ) -> HomeWidget:
     return HomeWidget.new_home_widget(
         _ctx(),
         home_tab_ref_id=EntityId("1"),
         home_tab_target=HomeTabTarget.BIG_SCREEN,
         the_type=the_type,
-        geometry=_GEOMETRY,
+        geometry=WidgetGeometry(
+            row=0,
+            col=0,
+            dimension=_DIMENSION_BY_TYPE.get(the_type, _DEFAULT_DIMENSION),
+        ),
         properties=properties,
     ).assign_ref_id(EntityId("5"))
 
@@ -57,6 +78,35 @@ def test_a_new_widget_keeps_the_properties_it_was_created_with() -> None:
     widget = _widget(WidgetType.KEY_HABITS_STREAKS, _habits("4", "2", "9"))
 
     assert widget.properties == _habits("4", "2", "9")
+
+
+def test_a_new_big_plans_widget_starts_empty_and_keeps_what_it_is_given() -> None:
+    """Big plans widgets get their own properties, defaulted or chosen."""
+    assert _widget(WidgetType.KEY_BIG_PLANS_PROGRESS, None).properties == _big_plans()
+    assert _widget(
+        WidgetType.KEY_BIG_PLANS_PROGRESS, _big_plans("4", "2")
+    ).properties == _big_plans("4", "2")
+
+
+def test_updating_big_plans_changes_which_plans_the_widget_includes() -> None:
+    """Adding and removing big plans produces a new version."""
+    widget = _widget(WidgetType.KEY_BIG_PLANS_PROGRESS, _big_plans("1", "2"))
+
+    updated = widget.update_properties(_ctx(), _big_plans("2", "3"))
+
+    assert updated.properties == _big_plans("2", "3")
+    assert updated.version == widget.version + 1
+
+
+def test_a_big_plans_widget_refuses_habit_properties() -> None:
+    """Habits cannot go on a big plans widget, nor big plans on a habits one."""
+    big_plans_widget = _widget(WidgetType.KEY_BIG_PLANS_PROGRESS, None)
+    habits_widget = _widget(WidgetType.KEY_HABITS_STREAKS, None)
+
+    with pytest.raises(InputValidationError):
+        big_plans_widget.update_properties(_ctx(), _habits("1"))
+    with pytest.raises(InputValidationError):
+        habits_widget.update_properties(_ctx(), _big_plans("1"))
 
 
 def test_a_new_widget_refuses_properties_of_another_type() -> None:

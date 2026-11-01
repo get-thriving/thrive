@@ -11,6 +11,7 @@ from ..models.widget_type import WidgetType
 
 if TYPE_CHECKING:
     from ..models.empty_home_widget_properties import EmptyHomeWidgetProperties
+    from ..models.key_big_plans_progress_home_widget_properties import KeyBigPlansProgressHomeWidgetProperties
     from ..models.key_habits_streaks_home_widget_properties import KeyHabitsStreaksHomeWidgetProperties
 
 
@@ -27,7 +28,8 @@ class HomeWidgetCreateArgs:
         row (int):
         col (int):
         dimension (WidgetDimension): A dimension of a widget.
-        properties (EmptyHomeWidgetProperties | KeyHabitsStreaksHomeWidgetProperties | None):
+        properties (EmptyHomeWidgetProperties | KeyBigPlansProgressHomeWidgetProperties |
+            KeyHabitsStreaksHomeWidgetProperties | None):
     """
 
     home_tab_ref_id: str
@@ -35,11 +37,17 @@ class HomeWidgetCreateArgs:
     row: int
     col: int
     dimension: WidgetDimension
-    properties: EmptyHomeWidgetProperties | KeyHabitsStreaksHomeWidgetProperties | None
+    properties: (
+        EmptyHomeWidgetProperties
+        | KeyBigPlansProgressHomeWidgetProperties
+        | KeyHabitsStreaksHomeWidgetProperties
+        | None
+    )
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.empty_home_widget_properties import EmptyHomeWidgetProperties  # noqa: PLC0415
+        from ..models.key_big_plans_progress_home_widget_properties import KeyBigPlansProgressHomeWidgetProperties  # noqa: PLC0415
         from ..models.key_habits_streaks_home_widget_properties import KeyHabitsStreaksHomeWidgetProperties  # noqa: PLC0415
 
         home_tab_ref_id = self.home_tab_ref_id
@@ -54,6 +62,8 @@ class HomeWidgetCreateArgs:
 
         properties: dict[str, Any] | None
         if isinstance(self.properties, KeyHabitsStreaksHomeWidgetProperties):
+            properties = self.properties.to_dict()
+        elif isinstance(self.properties, KeyBigPlansProgressHomeWidgetProperties):
             properties = self.properties.to_dict()
         elif isinstance(self.properties, EmptyHomeWidgetProperties):
             properties = self.properties.to_dict()
@@ -78,6 +88,7 @@ class HomeWidgetCreateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.empty_home_widget_properties import EmptyHomeWidgetProperties  # noqa: PLC0415
+        from ..models.key_big_plans_progress_home_widget_properties import KeyBigPlansProgressHomeWidgetProperties  # noqa: PLC0415
         from ..models.key_habits_streaks_home_widget_properties import KeyHabitsStreaksHomeWidgetProperties  # noqa: PLC0415
 
         d = dict(src_dict)
@@ -91,7 +102,14 @@ class HomeWidgetCreateArgs:
 
         dimension = WidgetDimension(d.pop("dimension"))
 
-        def _parse_properties(data: object) -> EmptyHomeWidgetProperties | KeyHabitsStreaksHomeWidgetProperties | None:
+        def _parse_properties(
+            data: object,
+        ) -> (
+            EmptyHomeWidgetProperties
+            | KeyBigPlansProgressHomeWidgetProperties
+            | KeyHabitsStreaksHomeWidgetProperties
+            | None
+        ):
             if data is None:
                 return data
             try:
@@ -105,12 +123,26 @@ class HomeWidgetCreateArgs:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                properties_type_1 = EmptyHomeWidgetProperties.from_dict(data)
+                properties_type_1 = KeyBigPlansProgressHomeWidgetProperties.from_dict(data)
 
                 return properties_type_1
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(EmptyHomeWidgetProperties | KeyHabitsStreaksHomeWidgetProperties | None, data)
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                properties_type_2 = EmptyHomeWidgetProperties.from_dict(data)
+
+                return properties_type_2
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(
+                EmptyHomeWidgetProperties
+                | KeyBigPlansProgressHomeWidgetProperties
+                | KeyHabitsStreaksHomeWidgetProperties
+                | None,
+                data,
+            )
 
         properties = _parse_properties(d.pop("properties"))
 

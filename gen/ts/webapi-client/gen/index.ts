@@ -532,6 +532,7 @@ export { JupiterWebApiEmailSender } from './models/JupiterWebApiEmailSender';
 export { JupiterWebApiImageStore } from './models/JupiterWebApiImageStore';
 export { JupiterWebApiSearchBackend } from './models/JupiterWebApiSearchBackend';
 export { JupiterWebApiStorageEngine } from './models/JupiterWebApiStorageEngine';
+export { KeyBigPlansProgressHomeWidgetProperties } from './models/KeyBigPlansProgressHomeWidgetProperties';
 export { KeyHabitsStreaksHomeWidgetProperties } from './models/KeyHabitsStreaksHomeWidgetProperties';
 export type { KeySecretPlain } from './models/KeySecretPlain';
 export type { LifePlan } from './models/LifePlan';

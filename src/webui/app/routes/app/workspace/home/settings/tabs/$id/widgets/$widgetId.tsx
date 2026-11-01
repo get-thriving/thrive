@@ -1,8 +1,10 @@
-import type { Habit } from "@jupiter/webapi-client";
+import type { BigPlan, Habit } from "@jupiter/webapi-client";
 import {
+  KeyBigPlansProgressHomeWidgetProperties,
   KeyHabitsStreaksHomeWidgetProperties,
   NamedEntityTag,
   WidgetDimension,
+  WidgetType,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, Typography } from "@mui/material";
@@ -36,8 +38,7 @@ import { WidgetDimensionSelector } from "@jupiter/core/home/component/widget-dim
 import { WidgetPropertiesEditor } from "@jupiter/core/home/component/widget-properties-editor";
 import { RowAndColSelector } from "@jupiter/core/home/component/row-and-col-selector";
 import {
-  buildKeyHabitsStreaksProperties,
-  parseRefIdList,
+  widgetPropertiesFromForm,
   widgetTypeHasProperties,
 } from "@jupiter/core/home/sub/widget/properties";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
@@ -68,10 +69,15 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("update-properties"),
-    propertiesKind: z.literal(
-      KeyHabitsStreaksHomeWidgetProperties.kind.KEY_HABITS_STREAKS,
-    ),
+    propertiesKind: z.union([
+      z.literal(KeyHabitsStreaksHomeWidgetProperties.kind.KEY_HABITS_STREAKS),
+      z.literal(
+        KeyBigPlansProgressHomeWidgetProperties.kind.KEY_BIG_PLANS_PROGRESS,
+      ),
+    ]),
+    // Each editor submits its own field, so only one of these is ever there.
     habitRefIds: z.string().optional(),
+    bigPlanRefIds: z.string().optional(),
   }),
   z.object({
     intent: z.literal("archive"),
@@ -102,29 +108,54 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }),
     ]);
 
-    // Only the widgets that have properties to configure need the habits, and
-    // those can only be listed when the workspace has habits turned on.
+    // Only the widgets that have properties to configure need the habits or big
+    // plans to pick from, and those can only be listed when the workspace has
+    // the feature turned on.
     let allHabits: Habit[] = [];
-    let propertiesAvailable = true;
+    let allBigPlans: BigPlan[] = [];
+    let propertiesUnavailableMessage: string | null = null;
     if (widgetTypeHasProperties(widget.widget.the_type)) {
       const summaries = await apiClient.application.getSummaries({
         include_workspace: true,
       });
-      propertiesAvailable = isWorkspaceFeatureAvailable(
-        summaries.workspace!,
-        WorkspaceFeature.HABITS,
-      );
-      if (propertiesAvailable) {
-        const habitsResponse = await apiClient.habits.habitFind({
-          allow_archived: false,
-          include_tags: false,
-          include_notes: false,
-          include_life_plan: false,
-          include_inbox_tasks: false,
-        });
-        allHabits = habitsResponse.entries.map(
-          (entry) => entry.habit,
-        ) as Habit[];
+      const workspace = summaries.workspace!;
+      switch (widget.widget.the_type) {
+        case WidgetType.KEY_HABITS_STREAKS: {
+          if (
+            !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.HABITS)
+          ) {
+            propertiesUnavailableMessage =
+              "The habits feature is not enabled in this workspace, so the habits this widget shows cannot be changed.";
+            break;
+          }
+          const habitsResponse = await apiClient.habits.habitFind({
+            allow_archived: false,
+            include_tags: false,
+            include_notes: false,
+            include_life_plan: false,
+            include_inbox_tasks: false,
+          });
+          allHabits = habitsResponse.entries.map(
+            (entry) => entry.habit,
+          ) as Habit[];
+          break;
+        }
+        case WidgetType.KEY_BIG_PLANS_PROGRESS: {
+          if (
+            !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
+          ) {
+            propertiesUnavailableMessage =
+              "The big plans feature is not enabled in this workspace, so the big plans this widget shows cannot be changed.";
+            break;
+          }
+          const bigPlansResponse = await apiClient.bigPlans.bigPlanFind({
+            allow_archived: false,
+          });
+          allBigPlans = bigPlansResponse.entries.map(
+            (entry) => entry.big_plan,
+          ) as BigPlan[];
+          break;
+        }
       }
     }
 
@@ -134,7 +165,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tab: tab.tab,
       widgets: tab.widgets,
       allHabits,
-      propertiesAvailable,
+      allBigPlans,
+      propertiesUnavailableMessage,
     };
   } catch (error) {
     handleLoaderApiError(error);
@@ -162,9 +194,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "update-properties": {
         await apiClient.home.homeWidgetUpdateProperties({
           ref_id: widgetId,
-          properties: buildKeyHabitsStreaksProperties(
-            parseRefIdList(form.habitRefIds),
-          ),
+          properties: widgetPropertiesFromForm(form),
         });
 
         return redirect(`/app/workspace/home/settings/tabs/${id}`);
@@ -292,24 +322,26 @@ export default function Widget() {
                   id: "widget-update-properties",
                   text: "Update",
                   value: "update-properties",
-                  disabled: !inputsEnabled || !loaderData.propertiesAvailable,
+                  disabled:
+                    !inputsEnabled ||
+                    loaderData.propertiesUnavailableMessage !== null,
                   highlight: false,
                 }),
               ]}
             />
           }
         >
-          {loaderData.propertiesAvailable ? (
+          {loaderData.propertiesUnavailableMessage === null ? (
             <WidgetPropertiesEditor
               widgetType={loaderData.widget.the_type}
               properties={loaderData.widget.properties}
               allHabits={loaderData.allHabits}
+              allBigPlans={loaderData.allBigPlans}
               inputsEnabled={inputsEnabled}
             />
           ) : (
             <Typography color="text.secondary">
-              The habits feature is not enabled in this workspace, so the habits
-              this widget shows cannot be changed.
+              {loaderData.propertiesUnavailableMessage}
             </Typography>
           )}
           <FieldError actionResult={actionData} fieldName="/properties" />

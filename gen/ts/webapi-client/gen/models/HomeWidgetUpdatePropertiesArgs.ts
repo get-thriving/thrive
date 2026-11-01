@@ -4,12 +4,13 @@
 /* eslint-disable */
 import type { EmptyHomeWidgetProperties } from './EmptyHomeWidgetProperties';
 import type { EntityId } from './EntityId';
+import type { KeyBigPlansProgressHomeWidgetProperties } from './KeyBigPlansProgressHomeWidgetProperties';
 import type { KeyHabitsStreaksHomeWidgetProperties } from './KeyHabitsStreaksHomeWidgetProperties';
 /**
  * The arguments for changing the properties of a home widget.
  */
 export type HomeWidgetUpdatePropertiesArgs = {
     ref_id: EntityId;
-    properties: (KeyHabitsStreaksHomeWidgetProperties | EmptyHomeWidgetProperties);
+    properties: (KeyHabitsStreaksHomeWidgetProperties | KeyBigPlansProgressHomeWidgetProperties | EmptyHomeWidgetProperties);
 };
 

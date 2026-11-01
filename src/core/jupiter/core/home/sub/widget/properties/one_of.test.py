@@ -3,6 +3,9 @@
 import jupiter.core
 import pytest
 from jupiter.core.home.sub.widget.properties.empty import EmptyHomeWidgetProperties
+from jupiter.core.home.sub.widget.properties.key_big_plans_progress import (
+    KeyBigPlansProgressHomeWidgetProperties,
+)
 from jupiter.core.home.sub.widget.properties.key_habits_streaks import (
     KeyHabitsStreaksHomeWidgetProperties,
 )
@@ -28,12 +31,18 @@ def _habits(*ref_ids: str) -> KeyHabitsStreaksHomeWidgetProperties:
     return KeyHabitsStreaksHomeWidgetProperties.new([EntityId(r) for r in ref_ids])
 
 
+def _big_plans(*ref_ids: str) -> KeyBigPlansProgressHomeWidgetProperties:
+    return KeyBigPlansProgressHomeWidgetProperties.new([EntityId(r) for r in ref_ids])
+
+
 @pytest.mark.parametrize("realm", [DatabaseRealm, WebRealm])
 @pytest.mark.parametrize(
     "properties",
     [
         _habits("3", "1", "2"),
         _habits(),
+        _big_plans("3", "1", "2"),
+        _big_plans(),
         EmptyHomeWidgetProperties.new(),
     ],
 )
@@ -65,6 +74,17 @@ def test_properties_are_stored_with_integer_ids(
     assert encoded == {"kind": "key-habits-streaks", "habit_ref_ids": [3, 1]}
 
 
+def test_big_plan_properties_are_stored_with_integer_ids(
+    realm_codec_registry: ModuleExplorerRealmCodecRegistry,
+) -> None:
+    """The database holds ids as integers, which the migration relies on."""
+    encoded = realm_codec_registry.get_encoder(
+        OneOfHomeWidgetProperties, DatabaseRealm
+    ).encode(_big_plans("3", "1"))
+
+    assert encoded == {"kind": "key-big-plans-progress", "big_plan_ref_ids": [3, 1]}
+
+
 def test_properties_with_an_unknown_kind_do_not_decode(
     realm_codec_registry: ModuleExplorerRealmCodecRegistry,
 ) -> None:
@@ -79,6 +99,12 @@ def test_the_same_habit_cannot_appear_twice() -> None:
     """Showing a habit twice in one widget makes no sense."""
     with pytest.raises(InputValidationError, match="only appear once"):
         _habits("1", "2", "1")
+
+
+def test_the_same_big_plan_cannot_appear_twice() -> None:
+    """Showing a big plan twice in one widget makes no sense."""
+    with pytest.raises(InputValidationError, match="only appear once"):
+        _big_plans("1", "2", "1")
 
 
 @pytest.mark.parametrize("the_type", list(WidgetType))
@@ -98,11 +124,23 @@ def test_key_habits_streaks_start_with_no_habits() -> None:
     )
 
 
+def test_key_big_plans_progress_start_with_no_big_plans() -> None:
+    """A fresh key big plans progress widget has nothing selected yet."""
+    assert (
+        build_default_home_widget_properties(WidgetType.KEY_BIG_PLANS_PROGRESS)
+        == _big_plans()
+    )
+
+
 @pytest.mark.parametrize(
     ("the_type", "properties"),
     [
         (WidgetType.MOTD, _habits("1")),
+        (WidgetType.MOTD, _big_plans("1")),
         (WidgetType.KEY_HABITS_STREAKS, EmptyHomeWidgetProperties.new()),
+        (WidgetType.KEY_HABITS_STREAKS, _big_plans("1")),
+        (WidgetType.KEY_BIG_PLANS_PROGRESS, EmptyHomeWidgetProperties.new()),
+        (WidgetType.KEY_BIG_PLANS_PROGRESS, _habits("1")),
     ],
 )
 def test_properties_of_another_type_are_refused(

@@ -1,9 +1,16 @@
 """Tests for the home WebAPI use cases."""
 
+from collections.abc import Iterator
 from http import HTTPStatus
 from typing import Protocol
 
 import pytest
+from jupiter_webapi_client.api.big_plans.big_plan_archive import (
+    sync_detailed as big_plan_archive_sync,
+)
+from jupiter_webapi_client.api.big_plans.big_plan_create import (
+    sync_detailed as big_plan_create_sync,
+)
 from jupiter_webapi_client.api.habits.habit_archive import (
     sync_detailed as habit_archive_sync,
 )
@@ -47,6 +54,10 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.big_plan import BigPlan
+from jupiter_webapi_client.models.big_plan_archive_args import BigPlanArchiveArgs
+from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
+from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.empty_home_widget_properties import (
@@ -83,6 +94,12 @@ from jupiter_webapi_client.models.home_widget_move_and_resize_args import (
 from jupiter_webapi_client.models.home_widget_remove_args import HomeWidgetRemoveArgs
 from jupiter_webapi_client.models.home_widget_update_properties_args import (
     HomeWidgetUpdatePropertiesArgs,
+)
+from jupiter_webapi_client.models.key_big_plans_progress_home_widget_properties import (
+    KeyBigPlansProgressHomeWidgetProperties,
+)
+from jupiter_webapi_client.models.key_big_plans_progress_home_widget_properties_kind import (
+    KeyBigPlansProgressHomeWidgetPropertiesKind,
 )
 from jupiter_webapi_client.models.key_habits_streaks_home_widget_properties import (
     KeyHabitsStreaksHomeWidgetProperties,
@@ -124,8 +141,12 @@ def create_home_widget(logged_in_client: AuthenticatedClient):
         the_type: WidgetType = WidgetType.MOTD,
         row: int = 0,
         properties: (
-            KeyHabitsStreaksHomeWidgetProperties | EmptyHomeWidgetProperties | None
+            KeyHabitsStreaksHomeWidgetProperties
+            | KeyBigPlansProgressHomeWidgetProperties
+            | EmptyHomeWidgetProperties
+            | None
         ) = None,
+        dimension: WidgetDimension = WidgetDimension.DIM_1X1,
     ) -> HomeWidget:
         result = home_widget_create_sync(
             client=logged_in_client,
@@ -134,11 +155,47 @@ def create_home_widget(logged_in_client: AuthenticatedClient):
                 the_type=the_type,
                 row=row,
                 col=0,
-                dimension=WidgetDimension.DIM_1X1,
+                dimension=dimension,
                 properties=properties,
             ),
         )
         return get_parsed_from_response(HomeWidgetCreateResult, result).new_widget
+
+    return _create
+
+
+@pytest.fixture(autouse=True, scope="module")
+def _enable_big_plans_feature(logged_in_client: AuthenticatedClient) -> Iterator[None]:
+    try:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=True
+            ),
+        )
+        yield
+    finally:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=False
+            ),
+        )
+
+
+@pytest.fixture()
+def create_big_plan(logged_in_client: AuthenticatedClient):
+    def _create(name: str) -> BigPlan:
+        result = big_plan_create_sync(
+            client=logged_in_client,
+            body=BigPlanCreateArgs(
+                name=name,
+                is_key=False,
+                eisen=Eisen.REGULAR,
+                difficulty=Difficulty.EASY,
+            ),
+        )
+        return get_parsed_from_response(BigPlanCreateResult, result).new_big_plan
 
     return _create
 
@@ -273,6 +330,15 @@ def _habits_properties(*habit_ref_ids: str) -> KeyHabitsStreaksHomeWidgetPropert
     )
 
 
+def _big_plans_properties(
+    *big_plan_ref_ids: str,
+) -> KeyBigPlansProgressHomeWidgetProperties:
+    return KeyBigPlansProgressHomeWidgetProperties(
+        kind=KeyBigPlansProgressHomeWidgetPropertiesKind.KEY_BIG_PLANS_PROGRESS,
+        big_plan_ref_ids=list(big_plan_ref_ids),
+    )
+
+
 def _load_widget(client: AuthenticatedClient, ref_id: str) -> HomeWidget:
     result = home_widget_load_sync(
         client=client,
@@ -284,7 +350,11 @@ def _load_widget(client: AuthenticatedClient, ref_id: str) -> HomeWidget:
 def _update_properties(
     client: AuthenticatedClient,
     ref_id: str,
-    properties: KeyHabitsStreaksHomeWidgetProperties | EmptyHomeWidgetProperties,
+    properties: (
+        KeyHabitsStreaksHomeWidgetProperties
+        | KeyBigPlansProgressHomeWidgetProperties
+        | EmptyHomeWidgetProperties
+    ),
 ):
     return home_widget_update_properties_sync(
         client=client,
@@ -476,6 +546,182 @@ def test_api_home_widget_properties_cannot_point_at_a_habit_the_user_cannot_read
             col=0,
             dimension=WidgetDimension.DIM_1X1,
             properties=_habits_properties(other_habit.ref_id),
+        ),
+    )
+
+    _assert_acl_denied(updated)
+    _assert_acl_denied(created)
+
+
+def test_api_home_big_plans_widget_starts_with_no_big_plans(
+    create_home_tab,
+    create_home_widget,
+) -> None:
+    tab = create_home_tab("Big Plans Default Tab")
+
+    widget = create_home_widget(
+        tab.ref_id,
+        WidgetType.KEY_BIG_PLANS_PROGRESS,
+        dimension=WidgetDimension.DIM_3X1,
+    )
+
+    assert isinstance(widget.properties, KeyBigPlansProgressHomeWidgetProperties)
+    assert widget.properties.big_plan_ref_ids == []
+
+
+def test_api_home_big_plans_widget_keeps_the_big_plans_it_is_given(
+    create_home_tab,
+    create_home_widget,
+    create_big_plan,
+    logged_in_client: AuthenticatedClient,
+) -> None:
+    plan_a = create_big_plan("Plan A")
+    plan_b = create_big_plan("Plan B")
+    plan_c = create_big_plan("Plan C")
+    tab = create_home_tab("Big Plans Update Tab")
+
+    widget = create_home_widget(
+        tab.ref_id,
+        WidgetType.KEY_BIG_PLANS_PROGRESS,
+        properties=_big_plans_properties(plan_a.ref_id, plan_b.ref_id),
+        dimension=WidgetDimension.DIM_3X1,
+    )
+    created = _load_widget(logged_in_client, widget.ref_id)
+    assert isinstance(created.properties, KeyBigPlansProgressHomeWidgetProperties)
+    assert created.properties.big_plan_ref_ids == [plan_a.ref_id, plan_b.ref_id]
+
+    for chosen in ([plan_c, plan_a], []):
+        response = _update_properties(
+            logged_in_client,
+            widget.ref_id,
+            _big_plans_properties(*[p.ref_id for p in chosen]),
+        )
+        assert int(response.status_code) == 200
+
+        loaded = _load_widget(logged_in_client, widget.ref_id)
+        assert isinstance(loaded.properties, KeyBigPlansProgressHomeWidgetProperties)
+        assert loaded.properties.big_plan_ref_ids == [p.ref_id for p in chosen]
+
+
+def test_api_home_widgets_refuse_properties_meant_for_another_type(
+    create_home_tab,
+    create_home_widget,
+    create_big_plan,
+    create_habit,
+    logged_in_client: AuthenticatedClient,
+) -> None:
+    plan = create_big_plan("Plan A")
+    habit = create_habit("Habit A")
+    tab = create_home_tab("Mixed Kinds Tab")
+    big_plans_widget = create_home_widget(
+        tab.ref_id,
+        WidgetType.KEY_BIG_PLANS_PROGRESS,
+        dimension=WidgetDimension.DIM_3X1,
+    )
+    habits_widget = create_home_widget(tab.ref_id, WidgetType.KEY_HABITS_STREAKS, 3)
+    motd_widget = create_home_widget(tab.ref_id, WidgetType.MOTD, 4)
+
+    habits_on_big_plans = _update_properties(
+        logged_in_client, big_plans_widget.ref_id, _habits_properties(habit.ref_id)
+    )
+    big_plans_on_habits = _update_properties(
+        logged_in_client, habits_widget.ref_id, _big_plans_properties(plan.ref_id)
+    )
+    big_plans_on_motd = _update_properties(
+        logged_in_client, motd_widget.ref_id, _big_plans_properties(plan.ref_id)
+    )
+    empty_on_big_plans = _update_properties(
+        logged_in_client,
+        big_plans_widget.ref_id,
+        EmptyHomeWidgetProperties(kind=EmptyHomeWidgetPropertiesKind.EMPTY),
+    )
+
+    assert int(habits_on_big_plans.status_code) == 422
+    assert int(big_plans_on_habits.status_code) == 422
+    assert int(big_plans_on_motd.status_code) == 422
+    assert int(empty_on_big_plans.status_code) == 422
+
+
+def test_api_home_big_plans_widget_refuses_big_plans_that_cannot_be_shown(
+    create_home_tab,
+    create_home_widget,
+    create_big_plan,
+    logged_in_client: AuthenticatedClient,
+) -> None:
+    plan = create_big_plan("Plan A")
+    archived_plan = create_big_plan("Archived Plan")
+    big_plan_archive_sync(
+        client=logged_in_client,
+        body=BigPlanArchiveArgs(ref_id=archived_plan.ref_id),
+    )
+    tab = create_home_tab("Bad Big Plans Tab")
+    widget = create_home_widget(
+        tab.ref_id,
+        WidgetType.KEY_BIG_PLANS_PROGRESS,
+        dimension=WidgetDimension.DIM_3X1,
+    )
+
+    duplicate = _update_properties(
+        logged_in_client, widget.ref_id, _big_plans_properties(plan.ref_id, plan.ref_id)
+    )
+    archived = _update_properties(
+        logged_in_client, widget.ref_id, _big_plans_properties(archived_plan.ref_id)
+    )
+    missing = _update_properties(
+        logged_in_client, widget.ref_id, _big_plans_properties("999999999")
+    )
+
+    assert int(duplicate.status_code) == 422
+    assert int(archived.status_code) == 422
+    assert int(missing.status_code) == 404
+    loaded = _load_widget(logged_in_client, widget.ref_id)
+    assert isinstance(loaded.properties, KeyBigPlansProgressHomeWidgetProperties)
+    assert loaded.properties.big_plan_ref_ids == []
+
+
+def test_api_home_big_plans_widget_cannot_include_a_big_plan_the_user_cannot_read(
+    create_home_tab,
+    create_home_widget,
+    logged_in_client: AuthenticatedClient,
+    another_user_and_workspace: AnotherUserAndWorkspace,
+    webapi_url: str,
+) -> None:
+    other_client = _other_client(webapi_url, another_user_and_workspace)
+    workspace_set_feature_sync(
+        client=other_client,
+        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.BIG_PLANS, value=True),
+    )
+    other_plan = get_parsed_from_response(
+        BigPlanCreateResult,
+        big_plan_create_sync(
+            client=other_client,
+            body=BigPlanCreateArgs(
+                name="Someone Else's Plan",
+                is_key=False,
+                eisen=Eisen.REGULAR,
+                difficulty=Difficulty.EASY,
+            ),
+        ),
+    ).new_big_plan
+    tab = create_home_tab("Unreadable Big Plan Tab")
+    widget = create_home_widget(
+        tab.ref_id,
+        WidgetType.KEY_BIG_PLANS_PROGRESS,
+        dimension=WidgetDimension.DIM_3X1,
+    )
+
+    updated = _update_properties(
+        logged_in_client, widget.ref_id, _big_plans_properties(other_plan.ref_id)
+    )
+    created = home_widget_create_sync(
+        client=logged_in_client,
+        body=HomeWidgetCreateArgs(
+            home_tab_ref_id=tab.ref_id,
+            the_type=WidgetType.KEY_BIG_PLANS_PROGRESS,
+            row=5,
+            col=0,
+            dimension=WidgetDimension.DIM_3X1,
+            properties=_big_plans_properties(other_plan.ref_id),
         ),
     )
 

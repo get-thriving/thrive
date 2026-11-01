@@ -1,18 +1,5 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardHeader,
-  Stack,
-  Tab,
-  Tabs,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, Stack, Tab, Tabs, Typography, useTheme } from "@mui/material";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router";
 
 import {
   KeyHabitStreak,
@@ -30,6 +17,7 @@ import {
   HabitStreakCalendar,
 } from "#/core/apps/habits/component/streak-calendar";
 import { WidgetProps } from "#/core/home/component/common";
+import { WidgetNotConfiguredCard } from "#/core/home/component/widget-not-configured-card";
 
 const ANIMATION_DURATION_MS = 10_000;
 
@@ -93,7 +81,13 @@ export function HabitKeyHabitStreakWidget(props: WidgetProps) {
   ]);
 
   if (entries.length === 0) {
-    return <NoHabitsToShowCard settingsLocation={props.settingsLocation} />;
+    return (
+      <WidgetNotConfiguredCard
+        title="No Habits To Show"
+        message="This widget has no habits to show. Pick the habits it should track, and the order to show them in, in the widget's settings."
+        settingsLocation={props.settingsLocation}
+      />
+    );
   }
 
   return (
@@ -114,36 +108,6 @@ export function HabitKeyHabitStreakWidget(props: WidgetProps) {
         />
       )}
     </Box>
-  );
-}
-
-interface NoHabitsToShowCardProps {
-  settingsLocation?: string;
-}
-
-function NoHabitsToShowCard({ settingsLocation }: NoHabitsToShowCardProps) {
-  return (
-    <Card>
-      <CardHeader title="No Habits To Show" />
-      <CardContent>
-        <Typography variant="body1">
-          This widget has no habits to show. Pick the habits it should track,
-          and the order to show them in, in the widget&apos;s settings.
-        </Typography>
-      </CardContent>
-      {settingsLocation && (
-        <CardActions>
-          <Button
-            variant="contained"
-            size="small"
-            component={Link}
-            to={settingsLocation}
-          >
-            Configure Widget
-          </Button>
-        </CardActions>
-      )}
-    </Card>
   );
 }
 

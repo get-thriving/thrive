@@ -1,6 +1,7 @@
 import {
   EntityId,
   HomeWidget,
+  KeyBigPlansProgressHomeWidgetProperties,
   KeyHabitsStreaksHomeWidgetProperties,
   WidgetType,
 } from "@jupiter/webapi-client";
@@ -9,7 +10,10 @@ export type HomeWidgetProperties = HomeWidget["properties"];
 
 /** Whether widgets of this type have properties a user can configure. */
 export function widgetTypeHasProperties(type: WidgetType): boolean {
-  return type === WidgetType.KEY_HABITS_STREAKS;
+  return (
+    type === WidgetType.KEY_HABITS_STREAKS ||
+    type === WidgetType.KEY_BIG_PLANS_PROGRESS
+  );
 }
 
 /**
@@ -35,6 +39,56 @@ export function buildKeyHabitsStreaksProperties(
     kind: KeyHabitsStreaksHomeWidgetProperties.kind.KEY_HABITS_STREAKS,
     habit_ref_ids: habitRefIds,
   };
+}
+
+/**
+ * The big plans a key big plans progress widget is set up to include. Any other
+ * kind of properties has none.
+ */
+export function keyBigPlansProgressBigPlanRefIds(
+  properties: HomeWidgetProperties,
+): EntityId[] {
+  if (
+    properties.kind ===
+    KeyBigPlansProgressHomeWidgetProperties.kind.KEY_BIG_PLANS_PROGRESS
+  ) {
+    return properties.big_plan_ref_ids;
+  }
+  return [];
+}
+
+export function buildKeyBigPlansProgressProperties(
+  bigPlanRefIds: EntityId[],
+): KeyBigPlansProgressHomeWidgetProperties {
+  return {
+    kind: KeyBigPlansProgressHomeWidgetProperties.kind.KEY_BIG_PLANS_PROGRESS,
+    big_plan_ref_ids: bigPlanRefIds,
+  };
+}
+
+/** What the properties editors submit, whichever widget they are editing. */
+export interface WidgetPropertiesForm {
+  propertiesKind: HomeWidgetProperties["kind"];
+  habitRefIds?: string;
+  bigPlanRefIds?: string;
+}
+
+/** Turns what the properties editors submitted into properties to save. */
+export function widgetPropertiesFromForm(
+  form: WidgetPropertiesForm,
+): HomeWidgetProperties {
+  switch (form.propertiesKind) {
+    case KeyHabitsStreaksHomeWidgetProperties.kind.KEY_HABITS_STREAKS:
+      return buildKeyHabitsStreaksProperties(parseRefIdList(form.habitRefIds));
+    case KeyBigPlansProgressHomeWidgetProperties.kind.KEY_BIG_PLANS_PROGRESS:
+      return buildKeyBigPlansProgressProperties(
+        parseRefIdList(form.bigPlanRefIds),
+      );
+    default:
+      throw new Error(
+        `Widgets with ${form.propertiesKind} properties cannot be edited`,
+      );
+  }
 }
 
 /**
