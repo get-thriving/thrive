@@ -22,7 +22,7 @@ import {
   SmallScreenHomeTabWidgetPlacement,
   Vision,
   WidgetType,
-  BigPlanLoadResult,
+  BigPlanFindResult,
   WorkspaceFeature,
   WidgetTypeConstraints,
   User,
@@ -40,6 +40,8 @@ import {
   widgetDimensionRows,
   widgetDimensionCols,
   isAllowedForWidgetConstraints,
+  keyBigPlansProgressBigPlanRefIds,
+  keyHabitsStreaksHabitRefIds,
 } from "@jupiter/core/home/sub/widget/root";
 import {
   inboxTaskFindEntryToParent,
@@ -150,6 +152,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const needsLifeVision = widgetTypes.has(WidgetType.LIFE_VISION);
   const needsCollaboration = widgetTypes.has(WidgetType.COLLABORATION);
 
+  // Each key habits or key big plans widget shows what it was set up with. Load
+  // all of it once, however many widgets there are, and each widget picks out
+  // its own.
+  const keyHabitRefIds = [
+    ...new Set(
+      homeConfigResponse.widgets
+        .filter((widget) => widget.the_type === WidgetType.KEY_HABITS_STREAKS)
+        .flatMap((widget) => keyHabitsStreaksHabitRefIds(widget.properties)),
+    ),
+  ];
+  const keyBigPlanRefIds = [
+    ...new Set(
+      homeConfigResponse.widgets
+        .filter(
+          (widget) => widget.the_type === WidgetType.KEY_BIG_PLANS_PROGRESS,
+        )
+        .flatMap((widget) =>
+          keyBigPlansProgressBigPlanRefIds(widget.properties),
+        ),
+    ),
+  ];
+
   async function loadTimePlanForPeriod(period: RecurringTaskPeriod) {
     const timePlanForPeriodResponse =
       await apiClient.timePlans.timePlanLoadForTimeDateAndPeriod({
@@ -186,8 +210,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     (async () => {
       const summaryResponse = await apiClient.application.getSummaries({
         include_workspace: true,
-        include_habits: needsKeyHabitStreaks,
-        include_big_plans: needsKeyBigPlans,
         include_life_plan: needsLifeWeeksOrChapters || needsLifeVision,
         include_chapters: needsLifeWeeksOrChapters,
         include_milestones: needsLifeWeeksOrChapters,
@@ -206,9 +228,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           ) {
             return undefined;
           }
-          const keyHabits =
-            summaryResponse.habits?.filter((habit) => habit.is_key) || [];
-          if (keyHabits.length === 0) {
+          if (keyHabitRefIds.length === 0) {
             return {
               streak_mark_earliest_date: earliestDate,
               streak_mark_latest_date: latestDate,
@@ -216,31 +236,30 @@ export async function loader({ request }: LoaderFunctionArgs) {
             };
           }
           return apiClient.habits.habitFindStreaks({
-            filter_ref_ids: keyHabits.map((habit) => habit.ref_id),
+            filter_ref_ids: keyHabitRefIds,
             include_streak_marks_earliest_date: earliestDate,
             include_streak_marks_latest_date: latestDate,
           });
         })(),
-        (async (): Promise<BigPlanLoadResult[] | undefined> => {
+        (async (): Promise<BigPlanFindResult | undefined> => {
           if (
             !needsKeyBigPlans ||
             !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
           ) {
             return undefined;
           }
-          const keyBigPlans =
-            summaryResponse.big_plans?.filter((bp) => bp.is_key) || [];
-          if (keyBigPlans.length === 0) {
-            return [];
+          if (keyBigPlanRefIds.length === 0) {
+            return { entries: [] };
           }
-          return Promise.all(
-            keyBigPlans.map((bp) =>
-              apiClient.bigPlans.bigPlanLoad({
-                ref_id: bp.ref_id,
-                allow_archived: false,
-              }),
-            ),
-          );
+          // One find rather than a load per big plan: it leaves out the ones
+          // that were archived or are no longer shared, where a load would fail
+          // the whole page.
+          return apiClient.bigPlans.bigPlanFind({
+            allow_archived: false,
+            include_milestones: true,
+            include_stats: true,
+            filter_ref_ids: keyBigPlanRefIds,
+          });
         })(),
       ]);
 
@@ -320,11 +339,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
       streakMarks: h.streak_marks,
       streakInactivePeriods: h.streak_inactive_periods,
     })),
-    keyBigPlansResults: keyBigPlansResults?.map((bp) => ({
-      bigPlan: bp.big_plan,
-      stats: bp.stats,
-      milestones: bp.milestones,
-    })),
+    keyBigPlansResults: keyBigPlansResults?.entries.flatMap((bp) =>
+      // The stats were asked for, so every entry has them.
+      bp.stats
+        ? [
+            {
+              bigPlan: bp.big_plan,
+              stats: bp.stats,
+              milestones: bp.milestones ?? [],
+            },
+          ]
+        : [],
+    ),
     calendarEntriesForToday: calendarForTodayResponse?.entries,
     timePlanForToday: fullTimePlanForToday
       ? {
@@ -1113,6 +1139,8 @@ function ActualWidgetItself({ widget, widgetProps }: ActualWidgetItselfProps) {
   const widgetPropsWithGeometry = {
     ...widgetProps,
     geometry: widget.geometry,
+    properties: widget.properties,
+    settingsLocation: `/app/workspace/home/settings/tabs/${widget.home_tab_ref_id}/widgets/${widget.ref_id}`,
   };
 
   switch (widget.the_type) {

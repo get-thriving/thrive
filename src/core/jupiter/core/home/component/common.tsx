@@ -49,6 +49,7 @@ import {
   InboxTaskOptimisticState,
 } from "#/core/common/sub/inbox_tasks/root";
 import type { StreakInactivePeriodRange } from "#/core/apps/habits/streak-calendar";
+import type { HomeWidgetProperties } from "#/core/home/sub/widget/root";
 import {
   isWidgetDimensionFlex,
   isWidgetDimensionKSized,
@@ -169,6 +170,11 @@ export interface WidgetProps {
     onRejectRequest: (accessRequestRefId: string) => void;
   };
   geometry: WidgetGeometry;
+  /** What the widget was configured with, for a widget placed on a home tab.
+   * A widget shown anywhere else has none, and shows everything. */
+  properties?: HomeWidgetProperties;
+  /** Where the placed widget gets configured. */
+  settingsLocation?: string;
 }
 
 export type WidgetPropsNoGeometry = Omit<WidgetProps, "geometry">;

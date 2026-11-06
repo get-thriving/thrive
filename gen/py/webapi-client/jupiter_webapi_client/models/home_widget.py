@@ -10,6 +10,9 @@ from ..models.widget_type import WidgetType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.empty_home_widget_properties import EmptyHomeWidgetProperties
+    from ..models.key_big_plans_progress_home_widget_properties import KeyBigPlansProgressHomeWidgetProperties
+    from ..models.key_habits_streaks_home_widget_properties import KeyHabitsStreaksHomeWidgetProperties
     from ..models.widget_geometry import WidgetGeometry
 
 
@@ -30,6 +33,8 @@ class HomeWidget:
         home_tab_ref_id (str):
         the_type (WidgetType): A type of widget.
         geometry (WidgetGeometry): A geometry of a widget.
+        properties (EmptyHomeWidgetProperties | KeyBigPlansProgressHomeWidgetProperties |
+            KeyHabitsStreaksHomeWidgetProperties):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -43,11 +48,17 @@ class HomeWidget:
     home_tab_ref_id: str
     the_type: WidgetType
     geometry: WidgetGeometry
+    properties: (
+        EmptyHomeWidgetProperties | KeyBigPlansProgressHomeWidgetProperties | KeyHabitsStreaksHomeWidgetProperties
+    )
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.key_big_plans_progress_home_widget_properties import KeyBigPlansProgressHomeWidgetProperties  # noqa: PLC0415
+        from ..models.key_habits_streaks_home_widget_properties import KeyHabitsStreaksHomeWidgetProperties  # noqa: PLC0415
+
         ref_id = self.ref_id
 
         version = self.version
@@ -65,6 +76,14 @@ class HomeWidget:
         the_type = self.the_type.value
 
         geometry = self.geometry.to_dict()
+
+        properties: dict[str, Any]
+        if isinstance(self.properties, KeyHabitsStreaksHomeWidgetProperties):
+            properties = self.properties.to_dict()
+        elif isinstance(self.properties, KeyBigPlansProgressHomeWidgetProperties):
+            properties = self.properties.to_dict()
+        else:
+            properties = self.properties.to_dict()
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -91,6 +110,7 @@ class HomeWidget:
                 "home_tab_ref_id": home_tab_ref_id,
                 "the_type": the_type,
                 "geometry": geometry,
+                "properties": properties,
             }
         )
         if archival_reason is not UNSET:
@@ -102,6 +122,9 @@ class HomeWidget:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.empty_home_widget_properties import EmptyHomeWidgetProperties  # noqa: PLC0415
+        from ..models.key_big_plans_progress_home_widget_properties import KeyBigPlansProgressHomeWidgetProperties  # noqa: PLC0415
+        from ..models.key_habits_streaks_home_widget_properties import KeyHabitsStreaksHomeWidgetProperties  # noqa: PLC0415
         from ..models.widget_geometry import WidgetGeometry  # noqa: PLC0415
 
         d = dict(src_dict)
@@ -122,6 +145,33 @@ class HomeWidget:
         the_type = WidgetType(d.pop("the_type"))
 
         geometry = WidgetGeometry.from_dict(d.pop("geometry"))
+
+        def _parse_properties(
+            data: object,
+        ) -> EmptyHomeWidgetProperties | KeyBigPlansProgressHomeWidgetProperties | KeyHabitsStreaksHomeWidgetProperties:
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                properties_type_0 = KeyHabitsStreaksHomeWidgetProperties.from_dict(data)
+
+                return properties_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                properties_type_1 = KeyBigPlansProgressHomeWidgetProperties.from_dict(data)
+
+                return properties_type_1
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            if not isinstance(data, dict):
+                raise TypeError()
+            properties_type_2 = EmptyHomeWidgetProperties.from_dict(data)
+
+            return properties_type_2
+
+        properties = _parse_properties(d.pop("properties"))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -151,6 +201,7 @@ class HomeWidget:
             home_tab_ref_id=home_tab_ref_id,
             the_type=the_type,
             geometry=geometry,
+            properties=properties,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

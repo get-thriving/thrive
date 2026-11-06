@@ -1,5 +1,13 @@
-import { NamedEntityTag, WidgetDimension } from "@jupiter/webapi-client";
-import { FormControl, InputLabel } from "@mui/material";
+import type { BigPlan, Habit } from "@jupiter/webapi-client";
+import {
+  KeyBigPlansProgressHomeWidgetProperties,
+  KeyHabitsStreaksHomeWidgetProperties,
+  NamedEntityTag,
+  WidgetDimension,
+  WidgetType,
+  WorkspaceFeature,
+} from "@jupiter/webapi-client";
+import { FormControl, InputLabel, Typography } from "@mui/material";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -27,7 +35,13 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { WidgetTypeSelector } from "@jupiter/core/home/component/widget-type-selector";
 import { WidgetDimensionSelector } from "@jupiter/core/home/component/widget-dimension-selector";
+import { WidgetPropertiesEditor } from "@jupiter/core/home/component/widget-properties-editor";
 import { RowAndColSelector } from "@jupiter/core/home/component/row-and-col-selector";
+import {
+  widgetPropertiesFromForm,
+  widgetTypeHasProperties,
+} from "@jupiter/core/home/sub/widget/root";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   handleActionApiError,
   handleLoaderApiError,
@@ -52,6 +66,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     widgetRow: z.coerce.number(),
     widgetCol: z.coerce.number(),
     widgetDimension: z.nativeEnum(WidgetDimension),
+  }),
+  z.object({
+    intent: z.literal("update-properties"),
+    propertiesKind: z.union([
+      z.literal(KeyHabitsStreaksHomeWidgetProperties.kind.KEY_HABITS_STREAKS),
+      z.literal(
+        KeyBigPlansProgressHomeWidgetProperties.kind.KEY_BIG_PLANS_PROGRESS,
+      ),
+    ]),
+    // Each editor submits its own field, so only one of these is ever there.
+    habitRefIds: z.string().optional(),
+    bigPlanRefIds: z.string().optional(),
   }),
   z.object({
     intent: z.literal("archive"),
@@ -82,11 +108,65 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }),
     ]);
 
+    // Only the widgets that have properties to configure need the habits or big
+    // plans to pick from, and those can only be listed when the workspace has
+    // the feature turned on.
+    let allHabits: Habit[] = [];
+    let allBigPlans: BigPlan[] = [];
+    let propertiesUnavailableMessage: string | null = null;
+    if (widgetTypeHasProperties(widget.widget.the_type)) {
+      const summaries = await apiClient.application.getSummaries({
+        include_workspace: true,
+      });
+      const workspace = summaries.workspace!;
+      switch (widget.widget.the_type) {
+        case WidgetType.KEY_HABITS_STREAKS: {
+          if (
+            !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.HABITS)
+          ) {
+            propertiesUnavailableMessage =
+              "The habits feature is not enabled in this workspace, so the habits this widget shows cannot be changed.";
+            break;
+          }
+          const habitsResponse = await apiClient.habits.habitFind({
+            allow_archived: false,
+            include_tags: false,
+            include_notes: false,
+            include_life_plan: false,
+            include_inbox_tasks: false,
+          });
+          allHabits = habitsResponse.entries.map(
+            (entry) => entry.habit,
+          ) as Habit[];
+          break;
+        }
+        case WidgetType.KEY_BIG_PLANS_PROGRESS: {
+          if (
+            !isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
+          ) {
+            propertiesUnavailableMessage =
+              "The big plans feature is not enabled in this workspace, so the big plans this widget shows cannot be changed.";
+            break;
+          }
+          const bigPlansResponse = await apiClient.bigPlans.bigPlanFind({
+            allow_archived: false,
+          });
+          allBigPlans = bigPlansResponse.entries.map(
+            (entry) => entry.big_plan,
+          ) as BigPlan[];
+          break;
+        }
+      }
+    }
+
     return {
       widget: widget.widget,
       widgetConstraints: homeConfig.widget_constraints,
       tab: tab.tab,
       widgets: tab.widgets,
+      allHabits,
+      allBigPlans,
+      propertiesUnavailableMessage,
     };
   } catch (error) {
     handleLoaderApiError(error);
@@ -106,6 +186,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
           row: form.widgetRow,
           col: form.widgetCol,
           dimension: form.widgetDimension,
+        });
+
+        return redirect(`/app/workspace/home/settings/tabs/${id}`);
+      }
+
+      case "update-properties": {
+        await apiClient.home.homeWidgetUpdateProperties({
+          ref_id: widgetId,
+          properties: widgetPropertiesFromForm(form),
         });
 
         return redirect(`/app/workspace/home/settings/tabs/${id}`);
@@ -219,6 +308,45 @@ export default function Widget() {
           <FieldError actionResult={actionData} fieldName={"/dimension"} />
         </FormControl>
       </SectionCard>
+
+      {widgetTypeHasProperties(loaderData.widget.the_type) && (
+        <SectionCard
+          title="Widget Properties"
+          actions={
+            <SectionActions
+              id="widget-properties-actions"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  id: "widget-update-properties",
+                  text: "Update",
+                  value: "update-properties",
+                  disabled:
+                    !inputsEnabled ||
+                    loaderData.propertiesUnavailableMessage !== null,
+                  highlight: false,
+                }),
+              ]}
+            />
+          }
+        >
+          {loaderData.propertiesUnavailableMessage === null ? (
+            <WidgetPropertiesEditor
+              widgetType={loaderData.widget.the_type}
+              properties={loaderData.widget.properties}
+              allHabits={loaderData.allHabits}
+              allBigPlans={loaderData.allBigPlans}
+              inputsEnabled={inputsEnabled}
+            />
+          ) : (
+            <Typography color="text.secondary">
+              {loaderData.propertiesUnavailableMessage}
+            </Typography>
+          )}
+          <FieldError actionResult={actionData} fieldName="/properties" />
+        </SectionCard>
+      )}
     </LeafPanel>
   );
 }

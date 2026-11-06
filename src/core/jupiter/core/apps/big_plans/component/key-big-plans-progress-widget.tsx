@@ -1,34 +1,40 @@
-import {
-  BigPlanMilestone,
-  BigPlanStats,
-  DocsHelpSubject,
-} from "@jupiter/webapi-client";
+import { BigPlanMilestone, BigPlanStats } from "@jupiter/webapi-client";
 
-import { sortBigPlansNaturally } from "#/core/apps/big_plans/root";
+import {
+  selectKeyBigPlanEntries,
+  sortBigPlansNaturally,
+} from "#/core/apps/big_plans/root";
 import { WidgetProps } from "#/core/home/component/common";
+import { WidgetNotConfiguredCard } from "#/core/home/component/widget-not-configured-card";
+import { keyBigPlansProgressBigPlanRefIds } from "#/core/home/sub/widget/root";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
-import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-card";
 import { BigPlanStack } from "#/core/apps/big_plans/component/stack";
 
 export function KeyBigPlansProgressWidget(props: WidgetProps) {
   const keyBigPlans = props.keyBigPlans!;
-  const sortedBigPlans = sortBigPlansNaturally(
-    keyBigPlans.bigPlans.map((bp) => bp.bigPlan),
-  );
+
+  // A widget placed on a home tab includes the big plans it was set up with.
+  // Anywhere else it includes everything it is given.
+  const entries = props.properties
+    ? selectKeyBigPlanEntries(
+        keyBigPlans.bigPlans,
+        keyBigPlansProgressBigPlanRefIds(props.properties),
+      )
+    : keyBigPlans.bigPlans;
+  const sortedBigPlans = sortBigPlansNaturally(entries.map((bp) => bp.bigPlan));
   const bigPlanMilestonesByRefId: Map<string, BigPlanMilestone[]> = new Map(
-    keyBigPlans.bigPlans.map((bp) => [bp.bigPlan.ref_id, bp.milestones]),
+    entries.map((bp) => [bp.bigPlan.ref_id, bp.milestones]),
   );
   const bigPlanStatsByRefId: Map<string, BigPlanStats> = new Map(
-    keyBigPlans.bigPlans.map((bp) => [bp.bigPlan.ref_id, bp.stats]),
+    entries.map((bp) => [bp.bigPlan.ref_id, bp.stats]),
   );
 
   if (sortedBigPlans.length === 0) {
     return (
-      <EntityNoNothingCard
-        title="No key big plans found"
-        message="Mark some big plans as key to see their progress here."
-        newEntityLocations="/app/workspace/apps/big-plans/new"
-        helpSubject={DocsHelpSubject.BIG_PLANS}
+      <WidgetNotConfiguredCard
+        title="No Big Plans To Show"
+        message="This widget has no big plans to show. Pick the big plans it should show the progress of in the widget's settings."
+        settingsLocation={props.settingsLocation}
       />
     );
   }

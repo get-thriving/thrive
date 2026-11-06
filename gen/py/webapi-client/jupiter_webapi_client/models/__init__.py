@@ -345,6 +345,8 @@ from .email_task_update_args_scheduling_event_duration_mins import EmailTaskUpda
 from .email_task_update_args_subject import EmailTaskUpdateArgsSubject
 from .email_task_update_args_to_address import EmailTaskUpdateArgsToAddress
 from .email_task_update_result import EmailTaskUpdateResult
+from .empty_home_widget_properties import EmptyHomeWidgetProperties
+from .empty_home_widget_properties_kind import EmptyHomeWidgetPropertiesKind
 from .entity_reference_block import EntityReferenceBlock
 from .entity_reference_block_kind import EntityReferenceBlockKind
 from .entity_summary import EntitySummary
@@ -505,6 +507,7 @@ from .home_widget_load_args import HomeWidgetLoadArgs
 from .home_widget_load_result import HomeWidgetLoadResult
 from .home_widget_move_and_resize_args import HomeWidgetMoveAndResizeArgs
 from .home_widget_remove_args import HomeWidgetRemoveArgs
+from .home_widget_update_properties_args import HomeWidgetUpdatePropertiesArgs
 from .hosting import Hosting
 from .image_content_type import ImageContentType
 from .image_domain import ImageDomain
@@ -631,6 +634,10 @@ from .jupiter_web_api_email_sender import JupiterWebApiEmailSender
 from .jupiter_web_api_image_store import JupiterWebApiImageStore
 from .jupiter_web_api_search_backend import JupiterWebApiSearchBackend
 from .jupiter_web_api_storage_engine import JupiterWebApiStorageEngine
+from .key_big_plans_progress_home_widget_properties import KeyBigPlansProgressHomeWidgetProperties
+from .key_big_plans_progress_home_widget_properties_kind import KeyBigPlansProgressHomeWidgetPropertiesKind
+from .key_habits_streaks_home_widget_properties import KeyHabitsStreaksHomeWidgetProperties
+from .key_habits_streaks_home_widget_properties_kind import KeyHabitsStreaksHomeWidgetPropertiesKind
 from .life_plan import LifePlan
 from .life_plan_eval_approach import LifePlanEvalApproach
 from .life_plan_eval_task_generation_in_advance_days import LifePlanEvalTaskGenerationInAdvanceDays
@@ -1760,6 +1767,8 @@ __all__ = (
     "EmailTaskUpdateArgsSubject",
     "EmailTaskUpdateArgsToAddress",
     "EmailTaskUpdateResult",
+    "EmptyHomeWidgetProperties",
+    "EmptyHomeWidgetPropertiesKind",
     "EntityReferenceBlock",
     "EntityReferenceBlockKind",
     "EntitySummary",
@@ -1920,6 +1929,7 @@ __all__ = (
     "HomeWidgetLoadResult",
     "HomeWidgetMoveAndResizeArgs",
     "HomeWidgetRemoveArgs",
+    "HomeWidgetUpdatePropertiesArgs",
     "Hosting",
     "ImageContentType",
     "ImageDomain",
@@ -2042,6 +2052,10 @@ __all__ = (
     "JupiterWebApiImageStore",
     "JupiterWebApiSearchBackend",
     "JupiterWebApiStorageEngine",
+    "KeyBigPlansProgressHomeWidgetProperties",
+    "KeyBigPlansProgressHomeWidgetPropertiesKind",
+    "KeyHabitsStreaksHomeWidgetProperties",
+    "KeyHabitsStreaksHomeWidgetPropertiesKind",
     "LifePlan",
     "LifePlanEvalApproach",
     "LifePlanEvalTaskGenerationInAdvanceDays",

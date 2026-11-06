@@ -11,6 +11,22 @@ export interface KeyHabitStreak {
   inactivePeriods: StreakInactivePeriodRange[];
 }
 
+/**
+ * Picks the entries for the habits a widget is set up to show, in the order it
+ * was set up to show them.
+ *
+ * A habit the widget points at but that has no entry - archived since, or no
+ * longer shared with the user - is left out rather than shown broken.
+ */
+export function selectKeyHabitStreakEntries<
+  T extends { habit: { ref_id: EntityId } },
+>(entries: T[], habitRefIds: EntityId[]): T[] {
+  const entriesByHabitRefId = new Map(entries.map((e) => [e.habit.ref_id, e]));
+  return habitRefIds
+    .map((refId) => entriesByHabitRefId.get(refId))
+    .filter((entry): entry is T => entry !== undefined);
+}
+
 export function limitKeyHabitResultsBasedOnScreenSize(
   keyHabitStreaks: KeyHabitStreak[],
   daysToRestrict: number,

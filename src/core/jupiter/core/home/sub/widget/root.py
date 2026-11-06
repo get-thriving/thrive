@@ -1,6 +1,11 @@
 """A widget on the home page."""
 
 from jupiter.core.home.sub.tab.target import HomeTabTarget
+from jupiter.core.home.sub.widget.properties.one_of import (
+    OneOfHomeWidgetProperties,
+    build_default_home_widget_properties,
+    check_home_widget_properties_fit_type,
+)
 from jupiter.core.home.widget import (
     WIDGET_CONSTRAINTS,
     WidgetDimension,
@@ -26,6 +31,7 @@ class HomeWidget(LeafEntity):
     home_tab: ParentLink
     the_type: WidgetType
     geometry: WidgetGeometry
+    properties: OneOfHomeWidgetProperties
 
     @staticmethod
     @create_entity_action
@@ -35,8 +41,13 @@ class HomeWidget(LeafEntity):
         home_tab_target: HomeTabTarget,
         the_type: WidgetType,
         geometry: WidgetGeometry,
+        properties: OneOfHomeWidgetProperties | None,
     ) -> "HomeWidget":
-        """Create a new home widget."""
+        """Create a new home widget.
+
+        Without explicit properties the widget starts with the default ones for
+        its type.
+        """
         constraints = WIDGET_CONSTRAINTS.get(the_type, None)
         if constraints is None:
             raise ValueError(f"Widget type {the_type} is not supported")
@@ -48,13 +59,28 @@ class HomeWidget(LeafEntity):
             raise ValueError(
                 f"Dimension {geometry.dimension} is not allowed for widget type {the_type}"
             )
+        if properties is None:
+            properties = build_default_home_widget_properties(the_type)
+        else:
+            check_home_widget_properties_fit_type(the_type, properties)
         return HomeWidget._create(
             ctx,
             home_tab=ParentLink(home_tab_ref_id),
             name=HomeWidget._build_name(home_tab_target, home_tab_ref_id),
             the_type=the_type,
             geometry=geometry,
+            properties=properties,
         )
+
+    @update_entity_action
+    def update_properties(
+        self,
+        ctx: DomainContext,
+        properties: OneOfHomeWidgetProperties,
+    ) -> "HomeWidget":
+        """Change the properties of a widget."""
+        check_home_widget_properties_fit_type(self.the_type, properties)
+        return self._new_version(ctx, properties=properties)
 
     @update_entity_action
     def move_and_resize(

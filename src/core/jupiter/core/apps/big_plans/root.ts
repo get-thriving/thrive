@@ -3,6 +3,7 @@ import {
   BigPlanStatus,
   type BigPlan,
   type BigPlanFindResultEntry,
+  type EntityId,
   type Contact,
   type Location,
   type Aspect,
@@ -41,6 +42,20 @@ export function bigPlanFindEntryToParent(
     location: entry.location || undefined,
     owner: entry.owner || undefined,
   };
+}
+
+/**
+ * Picks the entries for the big plans a widget is set up to include.
+ *
+ * A big plan the widget points at but that has no entry - archived since, or no
+ * longer shared with the user - is left out rather than shown broken. The
+ * entries keep the order they came in, as the widget sorts them its own way.
+ */
+export function selectKeyBigPlanEntries<
+  T extends { bigPlan: { ref_id: EntityId } },
+>(entries: T[], bigPlanRefIds: EntityId[]): T[] {
+  const included = new Set(bigPlanRefIds);
+  return entries.filter((entry) => included.has(entry.bigPlan.ref_id));
 }
 
 export function sortBigPlansNaturally(

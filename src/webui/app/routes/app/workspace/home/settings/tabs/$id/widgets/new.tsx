@@ -92,6 +92,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       row: form.widgetRow,
       col: form.widgetCol,
       dimension: form.dimension,
+      // A new widget starts with the defaults for its type. Whatever can be
+      // configured is done on the widget's own page, where we redirect to.
+      properties: null,
     });
 
     return redirect(
