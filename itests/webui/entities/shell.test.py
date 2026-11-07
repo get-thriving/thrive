@@ -14,6 +14,9 @@ from jupiter_webapi_client.models.web_ui_settings_update_args import (
 from jupiter_webapi_client.models.web_ui_settings_update_args_ui_style import (
     WebUiSettingsUpdateArgsUiStyle,
 )
+from jupiter_webapi_client.models.web_ui_settings_update_args_use_expanded_rail import (
+    WebUiSettingsUpdateArgsUseExpandedRail,
+)
 from jupiter_webapi_client.models.web_ui_settings_update_args_use_night_mode import (
     WebUiSettingsUpdateArgsUseNightMode,
 )
@@ -24,15 +27,28 @@ from itests.helpers import wait_for_hydration
 _RAIL = 'nav[aria-label="Main"]'
 # The rail needs room beside the centred panels, so it only shows from here up.
 _WIDE: ViewportSize = {"width": 1400, "height": 900}
+# Wide enough for the rail with labels, which needs more room again.
+_WIDER: ViewportSize = {"width": 1700, "height": 900}
 _NARROW: ViewportSize = {"width": 1024, "height": 800}
 
 
-def _set_ui_style(client: AuthenticatedClient, ui_style: UiStyle) -> None:
+def _set_ui_style(
+    client: AuthenticatedClient,
+    ui_style: UiStyle,
+    use_expanded_rail: bool | None = None,
+) -> None:
     response = web_ui_settings_update_sync(
         client=client,
         body=WebUiSettingsUpdateArgs(
             use_night_mode=WebUiSettingsUpdateArgsUseNightMode(should_change=False),
             ui_style=WebUiSettingsUpdateArgsUiStyle(should_change=True, value=ui_style),
+            use_expanded_rail=(
+                WebUiSettingsUpdateArgsUseExpandedRail(should_change=False)
+                if use_expanded_rail is None
+                else WebUiSettingsUpdateArgsUseExpandedRail(
+                    should_change=True, value=use_expanded_rail
+                )
+            ),
         ),
     )
     assert response.status_code == 200, response.content
@@ -41,11 +57,11 @@ def _set_ui_style(client: AuthenticatedClient, ui_style: UiStyle) -> None:
 @pytest.fixture()
 def _strata_on(logged_in_client: AuthenticatedClient) -> Iterator[None]:
     """Turn Strata on for the user, and back off afterwards."""
-    _set_ui_style(logged_in_client, UiStyle.STRATA)
+    _set_ui_style(logged_in_client, UiStyle.STRATA, use_expanded_rail=False)
     try:
         yield
     finally:
-        _set_ui_style(logged_in_client, UiStyle.CLASSIC)
+        _set_ui_style(logged_in_client, UiStyle.CLASSIC, use_expanded_rail=False)
 
 
 @pytest.mark.usefixtures("_strata_on")
@@ -121,3 +137,50 @@ def test_classic_has_no_rail(page: Page) -> None:
     wait_for_hydration(page)
 
     expect(page.locator(_RAIL)).to_have_count(0)
+
+
+@pytest.mark.usefixtures("_strata_on")
+def test_expanding_the_rail_shows_labels_and_is_remembered(page: Page) -> None:
+    page.set_viewport_size(_WIDER)
+    page.goto("/app/workspace")
+    wait_for_hydration(page)
+
+    rail = page.locator(_RAIL)
+    narrow_width = rail.bounding_box()["width"]  # type: ignore[index]
+    expect(rail.get_by_text("Inbox Tasks")).to_have_count(0)
+
+    # The save goes out in the background, so a reload right after the click
+    # could beat it.
+    with page.expect_response(
+        lambda r: "/app/workspace/account" in r.url and r.request.method == "POST"
+    ):
+        rail.get_by_label("Expand sidebar").click()
+
+    expect(rail.get_by_text("Inbox Tasks")).to_be_visible()
+    expect(rail.get_by_label("Collapse sidebar")).to_be_visible()
+    assert rail.bounding_box()["width"] > narrow_width  # type: ignore[index]
+
+    # The choice is a setting of the user, so a fresh load keeps it.
+    page.reload()
+    wait_for_hydration(page)
+    expect(page.locator(_RAIL).get_by_text("Inbox Tasks")).to_be_visible()
+
+    page.locator(_RAIL).get_by_label("Collapse sidebar").click()
+    expect(page.locator(_RAIL).get_by_text("Inbox Tasks")).to_have_count(0)
+
+
+def test_expanded_rail_gives_way_when_the_window_is_too_narrow(
+    page: Page, logged_in_client: AuthenticatedClient
+) -> None:
+    _set_ui_style(logged_in_client, UiStyle.STRATA, use_expanded_rail=True)
+    try:
+        page.set_viewport_size(_WIDE)
+        page.goto("/app/workspace")
+        wait_for_hydration(page)
+
+        rail = page.locator(_RAIL)
+        expect(rail).to_be_visible()
+        expect(rail.get_by_text("Inbox Tasks")).to_have_count(0)
+        expect(rail.get_by_label("Expand sidebar")).to_have_count(0)
+    finally:
+        _set_ui_style(logged_in_client, UiStyle.CLASSIC, use_expanded_rail=False)

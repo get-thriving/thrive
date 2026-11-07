@@ -8,6 +8,7 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.web_ui_settings_update_args_ui_style import WebUiSettingsUpdateArgsUiStyle
+    from ..models.web_ui_settings_update_args_use_expanded_rail import WebUiSettingsUpdateArgsUseExpandedRail
     from ..models.web_ui_settings_update_args_use_night_mode import WebUiSettingsUpdateArgsUseNightMode
 
 
@@ -21,10 +22,12 @@ class WebUiSettingsUpdateArgs:
     Attributes:
         use_night_mode (WebUiSettingsUpdateArgsUseNightMode):
         ui_style (WebUiSettingsUpdateArgsUiStyle):
+        use_expanded_rail (WebUiSettingsUpdateArgsUseExpandedRail):
     """
 
     use_night_mode: WebUiSettingsUpdateArgsUseNightMode
     ui_style: WebUiSettingsUpdateArgsUiStyle
+    use_expanded_rail: WebUiSettingsUpdateArgsUseExpandedRail
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,12 +35,15 @@ class WebUiSettingsUpdateArgs:
 
         ui_style = self.ui_style.to_dict()
 
+        use_expanded_rail = self.use_expanded_rail.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "use_night_mode": use_night_mode,
                 "ui_style": ui_style,
+                "use_expanded_rail": use_expanded_rail,
             }
         )
 
@@ -46,6 +52,7 @@ class WebUiSettingsUpdateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.web_ui_settings_update_args_ui_style import WebUiSettingsUpdateArgsUiStyle  # noqa: PLC0415
+        from ..models.web_ui_settings_update_args_use_expanded_rail import WebUiSettingsUpdateArgsUseExpandedRail  # noqa: PLC0415
         from ..models.web_ui_settings_update_args_use_night_mode import WebUiSettingsUpdateArgsUseNightMode  # noqa: PLC0415
 
         d = dict(src_dict)
@@ -53,9 +60,12 @@ class WebUiSettingsUpdateArgs:
 
         ui_style = WebUiSettingsUpdateArgsUiStyle.from_dict(d.pop("ui_style"))
 
+        use_expanded_rail = WebUiSettingsUpdateArgsUseExpandedRail.from_dict(d.pop("use_expanded_rail"))
+
         web_ui_settings_update_args = cls(
             use_night_mode=use_night_mode,
             ui_style=ui_style,
+            use_expanded_rail=use_expanded_rail,
         )
 
         web_ui_settings_update_args.additional_properties = d

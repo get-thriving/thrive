@@ -1397,6 +1397,7 @@ from .web_ui_settings_load_args import WebUiSettingsLoadArgs
 from .web_ui_settings_load_result import WebUiSettingsLoadResult
 from .web_ui_settings_update_args import WebUiSettingsUpdateArgs
 from .web_ui_settings_update_args_ui_style import WebUiSettingsUpdateArgsUiStyle
+from .web_ui_settings_update_args_use_expanded_rail import WebUiSettingsUpdateArgsUseExpandedRail
 from .web_ui_settings_update_args_use_night_mode import WebUiSettingsUpdateArgsUseNightMode
 from .web_ui_settings_update_result import WebUiSettingsUpdateResult
 from .widget_dimension import WidgetDimension
@@ -2791,6 +2792,7 @@ __all__ = (
     "WebUiSettingsLoadResult",
     "WebUiSettingsUpdateArgs",
     "WebUiSettingsUpdateArgsUiStyle",
+    "WebUiSettingsUpdateArgsUseExpandedRail",
     "WebUiSettingsUpdateArgsUseNightMode",
     "WebUiSettingsUpdateResult",
     "WidgetDimension",

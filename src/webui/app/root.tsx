@@ -58,6 +58,7 @@ export async function loader({ request, url }: LoaderFunctionArgs) {
 
   let userNightMode: boolean | null = null;
   let uiStyle: UiStyle = UiStyle.CLASSIC;
+  let useExpandedRail = false;
   const headers = new Headers();
 
   if (inWorkspace) {
@@ -66,6 +67,7 @@ export async function loader({ request, url }: LoaderFunctionArgs) {
       const result = await apiClient.users.webUiSettingsLoad({});
       userNightMode = result.web_ui_settings.use_night_mode;
       uiStyle = result.web_ui_settings.ui_style;
+      useExpandedRail = result.web_ui_settings.use_expanded_rail;
       headers.append(
         "Set-Cookie",
         await saveNightModePreference(
@@ -92,6 +94,7 @@ export async function loader({ request, url }: LoaderFunctionArgs) {
       globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
       userNightMode,
       uiStyle,
+      useExpandedRail,
       osNightModeHint: readBooleanCookie(
         cookieHeader,
         OS_NIGHT_MODE_COOKIE_NAME,

@@ -19,5 +19,6 @@ export type WebUiSettings = {
     user_ref_id: string;
     use_night_mode: boolean;
     ui_style: UiStyle;
+    use_expanded_rail: boolean;
 };
 

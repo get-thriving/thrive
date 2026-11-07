@@ -1,15 +1,14 @@
 import { useContext, useState } from "react";
+import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
+import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {
   Box,
-  IconButton,
   ListItemIcon,
   ListItemText,
   ListSubheader,
   Menu,
   MenuItem,
-  Tooltip,
-  alpha,
   useTheme,
 } from "@mui/material";
 import { Link, useLocation } from "react-router";
@@ -21,6 +20,7 @@ import {
   RAIL_ENTRIES,
   RAIL_MORE_GROUPS,
 } from "#/core/infra/component/shell/rail-entries";
+import { RailItem } from "#/core/infra/component/shell/rail-item";
 import type { RailEntry } from "#/core/infra/component/shell/rail-entry";
 
 function isActive(pathname: string, entry: RailEntry): boolean {
@@ -32,13 +32,21 @@ function isActive(pathname: string, entry: RailEntry): boolean {
   return pathname === base || pathname.startsWith(`${base}/`);
 }
 
+interface StrataRailProps {
+  /** Show labels beside the icons, in a wider rail. */
+  expanded: boolean;
+  /** Whether the window has room for the wider rail, so the toggle is offered. */
+  canExpand: boolean;
+  onToggleExpanded: () => void;
+}
+
 /**
  * The Strata icon rail (ADR 0019): the sidebar's destinations as a 52px column
  * of icons that is always visible on big screens. Entries follow the same
  * workspace feature gating as the classic sidebar; everything that does not fit
  * lives behind the More button.
  */
-export function StrataRail() {
+export function StrataRail(props: StrataRailProps) {
   const theme = useTheme();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const location = useLocation();
@@ -52,14 +60,6 @@ export function StrataRail() {
       ),
   );
 
-  const buttonSx = {
-    width: strataSize.railButton,
-    height: strataSize.railButton,
-    borderRadius: `${theme.shape.borderRadius}px`,
-    color: theme.palette.text.secondary,
-    "&:hover": { color: theme.palette.text.primary },
-  };
-
   return (
     <Box
       component="nav"
@@ -71,14 +71,15 @@ export function StrataRail() {
         top: "calc(env(safe-area-inset-top) + 4rem)",
         bottom: 0,
         left: 0,
-        width: strataSize.rail,
+        width: props.expanded ? strataSize.railExpanded : strataSize.rail,
         zIndex: theme.zIndex.appBar - 1,
         boxSizing: "border-box",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
+        alignItems: props.expanded ? "stretch" : "center",
         gap: "4px",
         paddingBlock: "8px",
+        paddingInline: props.expanded ? "8px" : 0,
         overflowY: "auto",
         scrollbarWidth: "none",
         "&::-webkit-scrollbar": { display: "none" },
@@ -86,45 +87,40 @@ export function StrataRail() {
         borderRight: `1px solid ${theme.palette.divider}`,
       }}
     >
-      {entries.map((entry) => {
-        const active = isActive(location.pathname, entry);
-        const Icon = entry.icon;
-        return (
-          <Tooltip key={entry.to} title={entry.label} placement="right">
-            <IconButton
-              component={Link}
-              to={entry.to}
-              aria-label={entry.label}
-              aria-current={active ? "page" : undefined}
-              sx={{
-                ...buttonSx,
-                ...(active && {
-                  color: theme.palette.primary.main,
-                  backgroundColor: alpha(theme.palette.primary.main, 0.14),
-                  "&:hover": {
-                    color: theme.palette.primary.main,
-                    backgroundColor: alpha(theme.palette.primary.main, 0.2),
-                  },
-                }),
-              }}
-            >
-              <Icon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        );
-      })}
+      {entries.map((entry) => (
+        <RailItem
+          key={entry.to}
+          label={entry.label}
+          icon={entry.icon}
+          to={entry.to}
+          expanded={props.expanded}
+          active={isActive(location.pathname, entry)}
+        />
+      ))}
 
-      <Tooltip title="More" placement="right">
-        <IconButton
-          aria-label="More"
-          aria-haspopup="menu"
-          aria-expanded={moreAnchor !== null}
-          onClick={(e) => setMoreAnchor(e.currentTarget)}
-          sx={buttonSx}
-        >
-          <MoreHorizIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
+      <RailItem
+        label="More"
+        icon={MoreHorizIcon}
+        expanded={props.expanded}
+        onClick={(e) => setMoreAnchor(e.currentTarget)}
+        ariaProps={{
+          "aria-haspopup": "menu",
+          "aria-expanded": moreAnchor !== null,
+        }}
+      />
+
+      {props.canExpand && (
+        <RailItem
+          label={props.expanded ? "Collapse sidebar" : "Expand sidebar"}
+          icon={
+            props.expanded
+              ? KeyboardDoubleArrowLeftIcon
+              : KeyboardDoubleArrowRightIcon
+          }
+          expanded={props.expanded}
+          onClick={props.onToggleExpanded}
+        />
+      )}
 
       <Menu
         anchorEl={moreAnchor}

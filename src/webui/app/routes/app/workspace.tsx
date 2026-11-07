@@ -51,6 +51,7 @@ import { StrataRail } from "@jupiter/core/infra/component/shell/strata-rail";
 import { StrataCommandBar } from "@jupiter/core/infra/component/shell/strata-command-bar";
 import { StrataBreadcrumb } from "@jupiter/core/infra/component/shell/strata-breadcrumb";
 import { strataSize } from "@jupiter/core/infra/component/strata-tokens";
+import { useExpandedRail } from "@jupiter/core/infra/component/use-expanded-rail";
 import { useUiStyle } from "@jupiter/core/infra/component/use-ui-style";
 import { Title } from "@jupiter/core/infra/component/title";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
@@ -149,8 +150,15 @@ export default function Workspace() {
   const roomForRail = useMediaQuery(
     `(min-width: ${theme.breakpoints.values.lg + 2 * strataSize.rail}px)`,
   );
+  const roomForExpandedRail = useMediaQuery(
+    `(min-width: ${theme.breakpoints.values.lg + 2 * strataSize.railExpanded}px)`,
+  );
   const showRail =
     useUiStyle() === UiStyle.STRATA && isBigScreen && roomForRail;
+  const [railExpandedPreference, toggleRailExpanded] = useExpandedRail();
+  // The wider rail is the user's choice, but only where it leaves the centred
+  // panels their room; elsewhere the icon rail stays.
+  const railExpanded = railExpandedPreference && roomForExpandedRail;
   const [searchOpen, setSearchOpen] = useState(false);
   const scoreAction = useScoreActionSingleton();
   const globalProperties = useContext(GlobalPropertiesContext);
@@ -389,7 +397,13 @@ export default function Workspace() {
           </Menu>
         </SmartAppBar>
 
-        {showRail && <StrataRail />}
+        {showRail && (
+          <StrataRail
+            expanded={railExpanded}
+            canExpand={roomForExpandedRail}
+            onToggleExpanded={toggleRailExpanded}
+          />
+        )}
 
         <Sidebar
           showSidebar={showSidebar && !showRail}

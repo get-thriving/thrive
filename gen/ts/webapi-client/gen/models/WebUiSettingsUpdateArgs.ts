@@ -15,5 +15,9 @@ export type WebUiSettingsUpdateArgs = {
         should_change: boolean;
         value?: UiStyle;
     };
+    use_expanded_rail: {
+        should_change: boolean;
+        value?: boolean;
+    };
 };
 

@@ -25,6 +25,7 @@ class WebUiSettings:
         user_ref_id (str):
         use_night_mode (bool):
         ui_style (UiStyle): The UI style of the web app: the original look, or Strata.
+        use_expanded_rail (bool):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -37,6 +38,7 @@ class WebUiSettings:
     user_ref_id: str
     use_night_mode: bool
     ui_style: UiStyle
+    use_expanded_rail: bool
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -57,6 +59,8 @@ class WebUiSettings:
         use_night_mode = self.use_night_mode
 
         ui_style = self.ui_style.value
+
+        use_expanded_rail = self.use_expanded_rail
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -82,6 +86,7 @@ class WebUiSettings:
                 "user_ref_id": user_ref_id,
                 "use_night_mode": use_night_mode,
                 "ui_style": ui_style,
+                "use_expanded_rail": use_expanded_rail,
             }
         )
         if archival_reason is not UNSET:
@@ -110,6 +115,8 @@ class WebUiSettings:
 
         ui_style = UiStyle(d.pop("ui_style"))
 
+        use_expanded_rail = d.pop("use_expanded_rail")
+
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -137,6 +144,7 @@ class WebUiSettings:
             user_ref_id=user_ref_id,
             use_night_mode=use_night_mode,
             ui_style=ui_style,
+            use_expanded_rail=use_expanded_rail,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

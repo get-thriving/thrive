@@ -26,6 +26,7 @@ class WebUiSettingsUpdateArgs(UseCaseArgsBase):
 
     use_night_mode: UpdateAction[bool]
     ui_style: UpdateAction[UiStyle]
+    use_expanded_rail: UpdateAction[bool]
 
 
 @use_case_result
@@ -58,6 +59,7 @@ class WebUiSettingsUpdateUseCase(
             context.domain_context,
             use_night_mode=args.use_night_mode,
             ui_style=args.ui_style,
+            use_expanded_rail=args.use_expanded_rail,
         )
         web_ui_settings = await uow.get_for(WebUiSettings).save(web_ui_settings)
 

@@ -98,6 +98,7 @@ export const strataSize = {
   formRow: 38, // label | control rows in editors
   footer: 28, // key hints
   rail: 52, // icon rail width
+  railExpanded: 176, // rail with labels, when the user expands it
   railButton: 36,
   commandBar: { width: 340, height: 30 },
   checkbox: 12,

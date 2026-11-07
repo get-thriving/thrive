@@ -94,6 +94,15 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
       .string()
       .optional()
       .transform((v) => v === "on"),
+    useExpandedRail: z
+      .string()
+      .optional()
+      .transform((v) => v === "on"),
+  }),
+  // The rail's own toggle, sent from any page by a fetcher.
+  z.object({
+    intent: z.literal("set-expanded-rail"),
+    useExpandedRail: z.enum(["true", "false"]),
   }),
   // The picture itself is not in here: `parseForm` turns anything that is not a
   // string into JSON, which a file does not survive. The action reads it.
@@ -217,9 +226,27 @@ export async function action({ request }: ActionFunctionArgs) {
             should_change: true,
             value: form.useStrata ? UiStyle.STRATA : UiStyle.CLASSIC,
           },
+          use_expanded_rail: {
+            should_change: true,
+            value: form.useExpandedRail,
+          },
         });
 
         return redirectDocument(`/app/workspace/account`);
+      }
+
+      case "set-expanded-rail": {
+        await apiClient.users.webUiSettingsUpdate({
+          use_night_mode: { should_change: false },
+          ui_style: { should_change: false },
+          use_expanded_rail: {
+            should_change: true,
+            value: form.useExpandedRail === "true",
+          },
+        });
+
+        // No redirect: the rail already shows the new state.
+        return new Response(null, { status: 204 });
       }
 
       case "close-account": {
@@ -553,6 +580,22 @@ export default function Account() {
               <FormHelperText>
                 A dark, dense look with IBM Plex type. Strata is always dark, so
                 Night Mode is off the table while it is on.
+              </FormHelperText>
+            </FormControl>
+            <FormControl fullWidth>
+              <FormControlLabel
+                control={
+                  <Switch
+                    name="useExpandedRail"
+                    disabled={!inputsEnabled}
+                    defaultChecked={loaderData.webUiSettings.use_expanded_rail}
+                  />
+                }
+                label="Expanded sidebar"
+              />
+              <FormHelperText>
+                Strata only: shows labels beside the icons on the sidebar, on
+                wide windows.
               </FormHelperText>
             </FormControl>
             <FormControl fullWidth>
