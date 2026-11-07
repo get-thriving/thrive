@@ -9,7 +9,7 @@ import type {
 import LuggageIcon from "@mui/icons-material/Luggage";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import { Box, IconButton, Typography, styled } from "@mui/material";
+import { Box, IconButton, Typography, styled, useTheme } from "@mui/material";
 import type { CalendarTooltipProps, TimeRangeDayData } from "@nivo/calendar";
 import { ResponsiveTimeRange } from "@nivo/calendar";
 import type {
@@ -267,6 +267,7 @@ interface VacationCalendarProps {
 }
 
 function VacationCalendar({ today, sortedVacations }: VacationCalendarProps) {
+  const theme = useTheme();
   const earliestDate =
     sortedVacations.length > 0
       ? aDateToDate(sortedVacations[sortedVacations.length - 1].start_date)
@@ -394,8 +395,8 @@ function VacationCalendar({ today, sortedVacations }: VacationCalendarProps) {
           tooltip={handleTooltip}
           minValue={0}
           maxValue={100}
-          emptyColor="#eeeeee"
-          colors={["#eeeeee", "#61cdbb"]}
+          emptyColor={theme.palette.divider}
+          colors={[theme.palette.divider, theme.palette.success.main]}
           align="center"
           margin={{
             top: 40,

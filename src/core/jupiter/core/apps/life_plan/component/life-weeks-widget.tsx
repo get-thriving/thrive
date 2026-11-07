@@ -1,4 +1,4 @@
-import { Box, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Stack, Tooltip, Typography, useTheme } from "@mui/material";
 
 import { lifePlanBirthdayDate } from "#/core/apps/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
@@ -9,6 +9,7 @@ const ROWS = 10;
 const TOTAL_YEARS = COLS * ROWS;
 
 export function LifeWeeksWidget(props: WidgetProps) {
+  const theme = useTheme();
   const lifePlan = props.lifePlan!;
   const birthday = lifePlanBirthdayDate(lifePlan);
   const today = aDateToDate(props.topLevelInfo.today);
@@ -53,10 +54,10 @@ export function LifeWeeksWidget(props: WidgetProps) {
           const isPast = yearEndMillis <= todayMillis;
 
           const backgroundColor = isCurrent
-            ? "#ffd700"
+            ? theme.palette.primary.main
             : isPast
-              ? "#cccccc"
-              : "#f0f0f0";
+              ? theme.palette.grey[400]
+              : theme.palette.divider;
 
           return (
             <Tooltip

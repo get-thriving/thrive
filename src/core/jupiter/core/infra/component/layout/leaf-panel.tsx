@@ -617,7 +617,7 @@ const LeafPanelFrame = styled(motion.div, {
       bottom: 0px;
       z-index: ${theme.zIndex.appBar + (isLeaflet ? 3 : 2)};
       background-color: ${theme.palette.background.paper};
-      border-left: 1px solid rgba(0, 0, 0, 0.12);
+      border-left: 1px solid ${theme.palette.divider};
     `,
 );
 

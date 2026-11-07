@@ -232,7 +232,9 @@ function buildStrataComponents(): ThemeOptions["components"] {
           fontWeight: 400,
           letterSpacing: strataType.label.letterSpacing,
           textTransform: "uppercase",
-          color: strataColors.textFaintest,
+          // faintest is 3.4-4.0:1 on the surfaces; faint clears 4.5:1 on all
+          // but `raised`.
+          color: strataColors.textFaint,
         },
       },
     },
@@ -243,7 +245,13 @@ export function buildStrataTheme() {
   return createTheme({
     palette: {
       ...strataMuiPaletteDark,
-      info: { main: strataColors.text },
+      // Entity links use `info.dark`; MUI would derive a dim one from `main`.
+      info: {
+        main: strataColors.textMuted,
+        light: strataColors.textStrong,
+        dark: strataColors.text,
+        contrastText: strataColors.ground,
+      },
       grey: {
         50: strataColors.text,
         100: strataColors.textSecondary,

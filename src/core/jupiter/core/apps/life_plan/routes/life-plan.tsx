@@ -1180,6 +1180,7 @@ interface LifeMonthsGridProps {
 }
 
 function LifeMonthsGrid({ birthday, today, isBigScreen }: LifeMonthsGridProps) {
+  const theme = useTheme();
   const todayMillis = today.toMillis();
 
   const ageMs = todayMillis - birthday.toMillis();
@@ -1231,10 +1232,10 @@ function LifeMonthsGrid({ birthday, today, isBigScreen }: LifeMonthsGridProps) {
               const isPast = monthEndMillis <= todayMillis;
 
               const backgroundColor = isCurrent
-                ? "#ffd700"
+                ? theme.palette.primary.main
                 : isPast
-                  ? "#cccccc"
-                  : "#f0f0f0";
+                  ? theme.palette.grey[400]
+                  : theme.palette.divider;
 
               return (
                 <Tooltip

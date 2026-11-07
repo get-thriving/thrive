@@ -530,7 +530,7 @@ const StyledMotionDrawer = styled(motion.div, {
     overflow-x: auto;
     overflow-y: scroll;
     background-color: ${theme.palette.background.paper};
-    border-right: 1px solid rgba(0, 0, 0, 0.12);
+    border-right: 1px solid ${theme.palette.divider};
 
     &::-webkit-scrollbar {
       display: none;
