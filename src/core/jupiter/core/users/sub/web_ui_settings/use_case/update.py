@@ -5,6 +5,7 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
+from jupiter.core.users.sub.web_ui_settings.ui_style import UiStyle
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
@@ -24,6 +25,7 @@ class WebUiSettingsUpdateArgs(UseCaseArgsBase):
     """Web UI settings update args."""
 
     use_night_mode: UpdateAction[bool]
+    ui_style: UpdateAction[UiStyle]
 
 
 @use_case_result
@@ -55,6 +57,7 @@ class WebUiSettingsUpdateUseCase(
         web_ui_settings = web_ui_settings.update(
             context.domain_context,
             use_night_mode=args.use_night_mode,
+            ui_style=args.ui_style,
         )
         web_ui_settings = await uow.get_for(WebUiSettings).save(web_ui_settings)
 

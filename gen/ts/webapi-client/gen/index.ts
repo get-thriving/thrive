@@ -1095,6 +1095,7 @@ export type { TravelWishName } from './models/TravelWishName';
 export type { TravelWishRemoveArgs } from './models/TravelWishRemoveArgs';
 export type { TravelWishUpdateArgs } from './models/TravelWishUpdateArgs';
 export type { TravelWishUpdateResult } from './models/TravelWishUpdateResult';
+export { UiStyle } from './models/UiStyle';
 export type { Universe } from './models/Universe';
 export type { UnlinkAuthMethodArgs } from './models/UnlinkAuthMethodArgs';
 export type { UpdateGrantForEntityArgs } from './models/UpdateGrantForEntityArgs';

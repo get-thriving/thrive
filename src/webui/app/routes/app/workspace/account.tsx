@@ -1,6 +1,7 @@
 import {
   JupiterAuthProvider,
   UserAuthMethod,
+  UiStyle,
   UserFeature,
 } from "@jupiter/webapi-client";
 import {
@@ -13,6 +14,7 @@ import {
   DialogTitle,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   InputAdornment,
   InputLabel,
   OutlinedInput,
@@ -85,6 +87,10 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update-appearance"),
     useNightMode: z
+      .string()
+      .optional()
+      .transform((v) => v === "on"),
+    useStrata: z
       .string()
       .optional()
       .transform((v) => v === "on"),
@@ -207,6 +213,10 @@ export async function action({ request }: ActionFunctionArgs) {
             should_change: true,
             value: form.useNightMode,
           },
+          ui_style: {
+            should_change: true,
+            value: form.useStrata ? UiStyle.STRATA : UiStyle.CLASSIC,
+          },
         });
 
         return redirectDocument(`/app/workspace/account`);
@@ -254,6 +264,9 @@ export default function Account() {
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const [showCloseAccountDialog, setShowCloseAccountDialog] = useState(false);
+  const [useStrata, setUseStrata] = useState(
+    loaderData.webUiSettings.ui_style === UiStyle.STRATA,
+  );
 
   const [queryRaw] = useSearchParams();
   const query = parseQuery(queryRaw, QuerySchema);
@@ -529,8 +542,30 @@ export default function Account() {
               <FormControlLabel
                 control={
                   <Switch
-                    name="useNightMode"
+                    name="useStrata"
                     disabled={!inputsEnabled}
+                    checked={useStrata}
+                    onChange={(e) => setUseStrata(e.target.checked)}
+                  />
+                }
+                label="Strata style"
+              />
+              <FormHelperText>
+                A dark, dense look with IBM Plex type. Strata is always dark, so
+                Night Mode is off the table while it is on.
+              </FormHelperText>
+            </FormControl>
+            <FormControl fullWidth>
+              {/* A disabled switch is not submitted, so the saved night mode
+                  preference rides along in a hidden field. */}
+              {useStrata && loaderData.webUiSettings.use_night_mode && (
+                <input type="hidden" name="useNightMode" value="on" />
+              )}
+              <FormControlLabel
+                control={
+                  <Switch
+                    name="useNightMode"
+                    disabled={!inputsEnabled || useStrata}
                     defaultChecked={loaderData.webUiSettings.use_night_mode}
                   />
                 }

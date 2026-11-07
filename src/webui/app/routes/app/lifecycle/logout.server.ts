@@ -7,8 +7,10 @@ import {
   GOOGLE_OAUTH_STATE_COOKIE_NAME,
   NIGHT_MODE_COOKIE_NAME,
   SESSION_COOKIE_NAME,
+  UI_STYLE_COOKIE_NAME,
 } from "@jupiter/core/infra/names";
 import { clearNightModePreference } from "@jupiter/core/infra/night-mode.server";
+import { clearUiStylePreference } from "@jupiter/core/infra/ui-style.server";
 
 import { SERVICE_PROPERTIES } from "~/logic/config.server";
 import { destroySession, getSession } from "~/sessions";
@@ -54,12 +56,17 @@ export async function logoutAndRedirectToLogin(request: Request) {
     "Set-Cookie",
     await clearNightModePreference(SERVICE_PROPERTIES.sessionCookieSecure),
   );
+  headers.append(
+    "Set-Cookie",
+    await clearUiStylePreference(SERVICE_PROPERTIES.sessionCookieSecure),
+  );
 
   for (const name of [
     SESSION_COOKIE_NAME,
     GOOGLE_OAUTH_STATE_COOKIE_NAME,
     APPLE_OAUTH_STATE_COOKIE_NAME,
     NIGHT_MODE_COOKIE_NAME,
+    UI_STYLE_COOKIE_NAME,
   ]) {
     headers.append("Set-Cookie", clearLegacyDomainScopedCookie(request, name));
   }

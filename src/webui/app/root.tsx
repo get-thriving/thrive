@@ -23,6 +23,12 @@ import {
   useSystemNightMode,
 } from "@jupiter/core/infra/component/color-scheme";
 import { buildTheme } from "@jupiter/core/infra/component/theme";
+import { buildStrataTheme } from "@jupiter/core/infra/component/strata-theme";
+import { UiStyle } from "@jupiter/webapi-client";
+import {
+  loadUiStylePreference,
+  saveUiStylePreference,
+} from "@jupiter/core/infra/ui-style.server";
 import { OS_NIGHT_MODE_COOKIE_NAME } from "@jupiter/core/infra/names";
 import { readBooleanCookie } from "@jupiter/core/infra/night-mode";
 import {
@@ -33,6 +39,14 @@ import { isWorkspacePath } from "@jupiter/core/infra/routes";
 import interFontCss from "@fontsource-variable/inter/wght.css?url";
 import interItalicFontCss from "@fontsource-variable/inter/wght-italic.css?url";
 import frauncesFontCss from "@fontsource-variable/fraunces/wght.css?url";
+import plexSans400Css from "@fontsource/ibm-plex-sans/400.css?url";
+import plexSans400ItalicCss from "@fontsource/ibm-plex-sans/400-italic.css?url";
+import plexSans500Css from "@fontsource/ibm-plex-sans/500.css?url";
+import plexSans600Css from "@fontsource/ibm-plex-sans/600.css?url";
+import plexMono400Css from "@fontsource/ibm-plex-mono/400.css?url";
+import plexMono500Css from "@fontsource/ibm-plex-mono/500.css?url";
+import plexSerif400Css from "@fontsource/ibm-plex-serif/400.css?url";
+import plexSerif500Css from "@fontsource/ibm-plex-serif/500.css?url";
 import type { LoaderDataOf } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
 
@@ -43,6 +57,7 @@ export async function loader({ request, url }: LoaderFunctionArgs) {
   const inWorkspace = isWorkspacePath(url.pathname);
 
   let userNightMode: boolean | null = null;
+  let uiStyle: UiStyle = UiStyle.CLASSIC;
   const headers = new Headers();
 
   if (inWorkspace) {
@@ -50,6 +65,7 @@ export async function loader({ request, url }: LoaderFunctionArgs) {
       const apiClient = await getGuestApiClient(request);
       const result = await apiClient.users.webUiSettingsLoad({});
       userNightMode = result.web_ui_settings.use_night_mode;
+      uiStyle = result.web_ui_settings.ui_style;
       headers.append(
         "Set-Cookie",
         await saveNightModePreference(
@@ -57,9 +73,17 @@ export async function loader({ request, url }: LoaderFunctionArgs) {
           SERVICE_PROPERTIES.sessionCookieSecure,
         ),
       );
+      headers.append(
+        "Set-Cookie",
+        await saveUiStylePreference(
+          uiStyle,
+          SERVICE_PROPERTIES.sessionCookieSecure,
+        ),
+      );
     } catch {
       // Not authenticated or settings missing — last stored preference, then OS.
       userNightMode = loadNightModePreference(cookieHeader);
+      uiStyle = (await loadUiStylePreference(cookieHeader)) ?? UiStyle.CLASSIC;
     }
   }
 
@@ -67,6 +91,7 @@ export async function loader({ request, url }: LoaderFunctionArgs) {
     {
       globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
       userNightMode,
+      uiStyle,
       osNightModeHint: readBooleanCookie(
         cookieHeader,
         OS_NIGHT_MODE_COOKIE_NAME,
@@ -89,6 +114,14 @@ export function links() {
     { rel: "stylesheet", href: interFontCss },
     { rel: "stylesheet", href: interItalicFontCss },
     { rel: "stylesheet", href: frauncesFontCss },
+    { rel: "stylesheet", href: plexSans400Css },
+    { rel: "stylesheet", href: plexSans400ItalicCss },
+    { rel: "stylesheet", href: plexSans500Css },
+    { rel: "stylesheet", href: plexSans600Css },
+    { rel: "stylesheet", href: plexMono400Css },
+    { rel: "stylesheet", href: plexMono500Css },
+    { rel: "stylesheet", href: plexSerif400Css },
+    { rel: "stylesheet", href: plexSerif500Css },
     { rel: "manifest", href: "/pwa-manifest" },
   ];
 }
@@ -110,10 +143,13 @@ export default function Root() {
   const loaderData = useLoaderData<typeof loader>();
 
   const systemNightMode = useSystemNightMode(loaderData.osNightModeHint);
-  const effectiveNightMode = loaderData.userNightMode ?? systemNightMode;
+  const isStrata = loaderData.uiStyle === UiStyle.STRATA;
+  // Strata is dark-only, so it overrides the night mode preference (ADR 0019).
+  const effectiveNightMode =
+    isStrata || (loaderData.userNightMode ?? systemNightMode);
   const theme = useMemo(
-    () => buildTheme(effectiveNightMode),
-    [effectiveNightMode],
+    () => (isStrata ? buildStrataTheme() : buildTheme(effectiveNightMode)),
+    [isStrata, effectiveNightMode],
   );
 
   // Effects only run once hydration has committed, so this tells the itests
@@ -126,7 +162,7 @@ export default function Root() {
     <html
       lang="en"
       suppressHydrationWarning
-      style={htmlColorSchemeStyle(effectiveNightMode)}
+      style={htmlColorSchemeStyle(effectiveNightMode, isStrata)}
     >
       <head>
         {/* In the document rather than in `meta`: a route's `meta` replaces

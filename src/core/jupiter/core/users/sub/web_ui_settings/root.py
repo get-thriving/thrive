@@ -1,5 +1,6 @@
 """Web UI settings for a user."""
 
+from jupiter.core.users.sub.web_ui_settings.ui_style import UiStyle
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
@@ -18,6 +19,7 @@ class WebUiSettings(StubEntity):
 
     user: ParentLink
     use_night_mode: bool
+    ui_style: UiStyle
 
     @staticmethod
     @create_entity_action
@@ -30,6 +32,7 @@ class WebUiSettings(StubEntity):
             ctx,
             user=ParentLink(user_ref_id),
             use_night_mode=False,
+            ui_style=UiStyle.CLASSIC,
         )
 
     @update_entity_action
@@ -37,9 +40,11 @@ class WebUiSettings(StubEntity):
         self,
         ctx: DomainContext,
         use_night_mode: UpdateAction[bool],
+        ui_style: UpdateAction[UiStyle],
     ) -> "WebUiSettings":
         """Update the web UI settings."""
         return self._new_version(
             ctx,
             use_night_mode=use_night_mode.or_else(self.use_night_mode),
+            ui_style=ui_style.or_else(self.ui_style),
         )
