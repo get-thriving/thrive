@@ -68,9 +68,20 @@ const SEARCH_INPUT_DEBOUNCE_MS = 300;
 interface SearchWidgetProps {
   allTags: Array<Tag>;
   allContacts: Array<Contact>;
+  /** Control the dialog from outside, e.g. a command bar. Uncontrolled if unset. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Hide the search icon, when something else opens the dialog. */
+  hideTrigger?: boolean;
 }
 
-export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
+export function SearchWidget({
+  allTags,
+  allContacts,
+  open: controlledOpen,
+  onOpenChange,
+  hideTrigger,
+}: SearchWidgetProps) {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const frontDoorInfo = useContext(FrontDoorInfoContext);
   const isMobileAppShell = frontDoorInfo.appShell === AppShell.MOBILE_CAPACITOR;
@@ -78,7 +89,15 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
   const searchFetcher = useFetcher<WorkspaceSearchInstantResponse>();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = (value: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(value);
+    } else {
+      setInternalOpen(value);
+    }
+  };
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -197,15 +216,17 @@ export function SearchWidget({ allTags, allContacts }: SearchWidgetProps) {
 
   return (
     <>
-      <IconButton
-        id="open-instant-search"
-        size="large"
-        color="inherit"
-        onClick={() => setOpen(true)}
-        aria-label="Open search"
-      >
-        <SearchIcon />
-      </IconButton>
+      {!hideTrigger && (
+        <IconButton
+          id="open-instant-search"
+          size="large"
+          color="inherit"
+          onClick={() => setOpen(true)}
+          aria-label="Open search"
+        >
+          <SearchIcon />
+        </IconButton>
+      )}
 
       <Dialog
         open={open}

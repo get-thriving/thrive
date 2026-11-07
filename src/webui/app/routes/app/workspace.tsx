@@ -2,6 +2,7 @@ import {
   type Contact,
   DocsHelpSubject,
   type Tag,
+  UiStyle,
   UserFeature,
 } from "@jupiter/webapi-client";
 import { Settings } from "@mui/icons-material";
@@ -21,8 +22,9 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  useMediaQuery,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import type {
   LinksFunction,
   LoaderFunctionArgs,
@@ -45,6 +47,11 @@ import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { ReleaseUpdateWidget } from "@jupiter/core/infra/component/release-update-widget";
 import { SearchWidget } from "@jupiter/core/common/search/components/search-widget";
 import Sidebar from "@jupiter/core/infra/component/sidebar";
+import { StrataRail } from "@jupiter/core/infra/component/shell/strata-rail";
+import { StrataCommandBar } from "@jupiter/core/infra/component/shell/strata-command-bar";
+import { StrataBreadcrumb } from "@jupiter/core/infra/component/shell/strata-breadcrumb";
+import { strataSize } from "@jupiter/core/infra/component/strata-tokens";
+import { useUiStyle } from "@jupiter/core/infra/component/use-ui-style";
 import { Title } from "@jupiter/core/infra/component/title";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -134,6 +141,17 @@ export default function Workspace() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const isBigScreen = useBigScreen();
   const [showSidebar, setShowSidebar] = useState(isBigScreen);
+  // Strata replaces the drawer with an icon rail on big screens (ADR 0019).
+  // The panels are laid out for the full window width and centre their content
+  // from `lg` up, so until the column layout lands the rail only fits where
+  // that centring leaves room for it; narrower windows keep the drawer.
+  const theme = useTheme();
+  const roomForRail = useMediaQuery(
+    `(min-width: ${theme.breakpoints.values.lg + 2 * strataSize.rail}px)`,
+  );
+  const showRail =
+    useUiStyle() === UiStyle.STRATA && isBigScreen && roomForRail;
+  const [searchOpen, setSearchOpen] = useState(false);
   const scoreAction = useScoreActionSingleton();
   const globalProperties = useContext(GlobalPropertiesContext);
 
@@ -189,22 +207,43 @@ export default function Workspace() {
     >
       <WorkspaceContainer>
         <SmartAppBar>
-          <IconButton
-            id="show-sidebar"
-            size="large"
-            edge="start"
-            color="inherit"
-            onClick={() => setShowSidebar((s) => !s)}
-          >
-            <MenuIcon />
-          </IconButton>
+          {!showRail && (
+            <IconButton
+              id="show-sidebar"
+              size="large"
+              edge="start"
+              color="inherit"
+              onClick={() => setShowSidebar((s) => !s)}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
 
-          <Title hideOnSmallScreen />
+          {showRail ? (
+            <>
+              <Box sx={{ width: "9rem", flexShrink: 0, display: "flex" }}>
+                <Title hideOnSmallScreen />
+              </Box>
+              <StrataCommandBar onOpen={() => setSearchOpen(true)} />
+              <Box sx={{ flex: 1, minWidth: 0, display: "flex", ml: 2 }}>
+                <StrataBreadcrumb />
+              </Box>
+            </>
+          ) : (
+            <Title hideOnSmallScreen />
+          )}
 
           <WorkspaceAppBarTrailing>
             <SearchWidget
               allTags={loaderData.allTags}
               allContacts={loaderData.allContacts}
+              {...(showRail
+                ? {
+                    open: searchOpen,
+                    onOpenChange: setSearchOpen,
+                    hideTrigger: true,
+                  }
+                : {})}
             />
 
             {/* <ProgressReporter token={loaderData.progressReporterToken} /> */}
@@ -350,8 +389,10 @@ export default function Workspace() {
           </Menu>
         </SmartAppBar>
 
+        {showRail && <StrataRail />}
+
         <Sidebar
-          showSidebar={showSidebar}
+          showSidebar={showSidebar && !showRail}
           onClickForNavigation={() => {
             if (isBigScreen) return;
             setShowSidebar(false);
