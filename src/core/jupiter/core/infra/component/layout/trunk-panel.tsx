@@ -34,6 +34,10 @@ import {
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import { ColumnKind } from "#/core/infra/component/layout/column-kind";
+import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
+import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
+import { strataColumns } from "#/core/infra/component/strata-tokens";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useHydrated } from "#/core/infra/component/use-hidrated";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
@@ -74,6 +78,12 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
   const [showPublish, setShowPublish] = useState(false);
   const [showAccess, setShowAccess] = useState(false);
   const preserveFilters = useSectionFiltersPreserver();
+  const column = useStrataColumn(
+    "trunk",
+    ColumnKind.TRUNK,
+    strataColumns.trunk.default,
+    strataColumns.trunk.min,
+  );
 
   const showingAlternateView = showPublish || showAccess;
   const hasPublish =
@@ -176,23 +186,9 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
     });
   }
 
-  return (
-    <TrunkPanelFrame
-      id="trunk-panel"
-      key={extractTrunkFromPath(location.pathname)}
-      transformTemplate={template}
-      initial={{
-        opacity: 0,
-        x: isBigScreen ? undefined : SMALL_SCREEN_ANIMATION_START,
-      }}
-      animate={{ opacity: 1, x: isBigScreen ? undefined : 0 }}
-      exit={{
-        opacity: 0,
-        x: isBigScreen ? undefined : SMALL_SCREEN_ANIMATION_END,
-      }}
-      transition={{ duration: 0.5 }}
-    >
-      {!shouldShowABranch &&
+  const body = (
+    <>
+      {(!shouldShowABranch || column.active) &&
         (isBigScreen || !(shouldShowALeaf || shouldShowALeaflet)) && (
           <TrunkPanelControls id="trunk-panel-controls">
             <TrunkPanelControlsInner
@@ -308,6 +304,41 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
           <Stack spacing={2}>{props.children}</Stack>
         </Box>
       </TrunkPanelContent>
+    </>
+  );
+
+  if (column.active) {
+    return (
+      <StrataColumnFrame
+        id="trunk-panel"
+        key={extractTrunkFromPath(location.pathname)}
+        placement={column.placement}
+        label="list"
+        onUnfold={column.unfold}
+        fallbackLeft={column.offsetLeft}
+      >
+        {body}
+      </StrataColumnFrame>
+    );
+  }
+
+  return (
+    <TrunkPanelFrame
+      id="trunk-panel"
+      key={extractTrunkFromPath(location.pathname)}
+      transformTemplate={template}
+      initial={{
+        opacity: 0,
+        x: isBigScreen ? undefined : SMALL_SCREEN_ANIMATION_START,
+      }}
+      animate={{ opacity: 1, x: isBigScreen ? undefined : 0 }}
+      exit={{
+        opacity: 0,
+        x: isBigScreen ? undefined : SMALL_SCREEN_ANIMATION_END,
+      }}
+      transition={{ duration: 0.5 }}
+    >
+      {body}
     </TrunkPanelFrame>
   );
 }

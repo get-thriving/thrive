@@ -47,6 +47,7 @@ import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { ReleaseUpdateWidget } from "@jupiter/core/infra/component/release-update-widget";
 import { SearchWidget } from "@jupiter/core/common/search/components/search-widget";
 import Sidebar from "@jupiter/core/infra/component/sidebar";
+import { StrataColumnsProvider } from "@jupiter/core/infra/component/layout/strata-columns-provider";
 import { StrataRail } from "@jupiter/core/infra/component/shell/strata-rail";
 import { StrataCommandBar } from "@jupiter/core/infra/component/shell/strata-command-bar";
 import { StrataBreadcrumb } from "@jupiter/core/infra/component/shell/strata-breadcrumb";
@@ -142,23 +143,18 @@ export default function Workspace() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const isBigScreen = useBigScreen();
   const [showSidebar, setShowSidebar] = useState(isBigScreen);
-  // Strata replaces the drawer with an icon rail on big screens (ADR 0019).
-  // The panels are laid out for the full window width and centre their content
-  // from `lg` up, so until the column layout lands the rail only fits where
-  // that centring leaves room for it; narrower windows keep the drawer.
+  // Strata replaces the drawer with an icon rail on big screens (ADR 0019),
+  // and the panels lay themselves out as columns beside it.
   const theme = useTheme();
-  const roomForRail = useMediaQuery(
-    `(min-width: ${theme.breakpoints.values.lg + 2 * strataSize.rail}px)`,
-  );
+  // The wider rail is the user's choice, but it takes room the columns would
+  // otherwise have, so it is only offered from the `lg` breakpoint up.
   const roomForExpandedRail = useMediaQuery(
-    `(min-width: ${theme.breakpoints.values.lg + 2 * strataSize.railExpanded}px)`,
+    `(min-width: ${theme.breakpoints.values.lg}px)`,
   );
-  const showRail =
-    useUiStyle() === UiStyle.STRATA && isBigScreen && roomForRail;
+  const showRail = useUiStyle() === UiStyle.STRATA && isBigScreen;
   const [railExpandedPreference, toggleRailExpanded] = useExpandedRail();
-  // The wider rail is the user's choice, but only where it leaves the centred
-  // panels their room; elsewhere the icon rail stays.
   const railExpanded = railExpandedPreference && roomForExpandedRail;
+  const railWidth = railExpanded ? strataSize.railExpanded : strataSize.rail;
   const [searchOpen, setSearchOpen] = useState(false);
   const scoreAction = useScoreActionSingleton();
   const globalProperties = useContext(GlobalPropertiesContext);
@@ -413,9 +409,17 @@ export default function Workspace() {
           }}
         />
 
-        <AnimatePresence mode="wait" initial={false}>
-          {outlet}
-        </AnimatePresence>
+        {showRail ? (
+          <StrataColumnsProvider offsetLeft={railWidth}>
+            <AnimatePresence mode="wait" initial={false}>
+              {outlet}
+            </AnimatePresence>
+          </StrataColumnsProvider>
+        ) : (
+          <AnimatePresence mode="wait" initial={false}>
+            {outlet}
+          </AnimatePresence>
+        )}
 
         <ScoreSnackbarManager scoreAction={scoreAction} />
         <ReleaseUpdateWidget />

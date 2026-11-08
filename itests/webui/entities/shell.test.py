@@ -1,67 +1,20 @@
 """Tests about the shell around the pages: the Strata icon rail and command bar."""
 
-from collections.abc import Iterator
-
 import pytest
-from jupiter_webapi_client.api.users.web_ui_settings_update import (
-    sync_detailed as web_ui_settings_update_sync,
-)
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.ui_style import UiStyle
-from jupiter_webapi_client.models.web_ui_settings_update_args import (
-    WebUiSettingsUpdateArgs,
-)
-from jupiter_webapi_client.models.web_ui_settings_update_args_ui_style import (
-    WebUiSettingsUpdateArgsUiStyle,
-)
-from jupiter_webapi_client.models.web_ui_settings_update_args_use_expanded_rail import (
-    WebUiSettingsUpdateArgsUseExpandedRail,
-)
-from jupiter_webapi_client.models.web_ui_settings_update_args_use_night_mode import (
-    WebUiSettingsUpdateArgsUseNightMode,
-)
 from playwright.sync_api import Page, ViewportSize, expect
 
-from itests.helpers import wait_for_hydration
+from itests.helpers import set_ui_style, wait_for_hydration
 
 _RAIL = 'nav[aria-label="Main"]'
 # The rail needs room beside the centred panels, so it only shows from here up.
 _WIDE: ViewportSize = {"width": 1400, "height": 900}
 # Wide enough for the rail with labels, which needs more room again.
 _WIDER: ViewportSize = {"width": 1700, "height": 900}
-_NARROW: ViewportSize = {"width": 1024, "height": 800}
-
-
-def _set_ui_style(
-    client: AuthenticatedClient,
-    ui_style: UiStyle,
-    use_expanded_rail: bool | None = None,
-) -> None:
-    response = web_ui_settings_update_sync(
-        client=client,
-        body=WebUiSettingsUpdateArgs(
-            use_night_mode=WebUiSettingsUpdateArgsUseNightMode(should_change=False),
-            ui_style=WebUiSettingsUpdateArgsUiStyle(should_change=True, value=ui_style),
-            use_expanded_rail=(
-                WebUiSettingsUpdateArgsUseExpandedRail(should_change=False)
-                if use_expanded_rail is None
-                else WebUiSettingsUpdateArgsUseExpandedRail(
-                    should_change=True, value=use_expanded_rail
-                )
-            ),
-        ),
-    )
-    assert response.status_code == 200, response.content
-
-
-@pytest.fixture()
-def _strata_on(logged_in_client: AuthenticatedClient) -> Iterator[None]:
-    """Turn Strata on for the user, and back off afterwards."""
-    _set_ui_style(logged_in_client, UiStyle.STRATA, use_expanded_rail=False)
-    try:
-        yield
-    finally:
-        _set_ui_style(logged_in_client, UiStyle.CLASSIC, use_expanded_rail=False)
+_NARROW: ViewportSize = {"width": 800, "height": 800}
+# Wide enough for the icon rail and columns, but too narrow for the labelled one.
+_MID: ViewportSize = {"width": 1100, "height": 900}
 
 
 @pytest.mark.usefixtures("_strata_on")
@@ -75,7 +28,7 @@ def test_rail_shows_only_the_enabled_features(page: Page) -> None:
 
     # The workspace has todos, habits and docs on, and nothing else optional.
     labels = [link.get_attribute("aria-label") for link in rail.locator("a").all()]
-    assert labels == ["Home", "Inbox Tasks", "Todos", "Habits", "Docs"]
+    assert labels == ["Home", "Todos", "Habits", "Docs", "Inbox Tasks"]
 
     expect(rail.get_by_label("Home")).to_have_attribute("aria-current", "page")
     expect(rail.get_by_label("Big Plans")).to_have_count(0)
@@ -172,9 +125,9 @@ def test_expanding_the_rail_shows_labels_and_is_remembered(page: Page) -> None:
 def test_expanded_rail_gives_way_when_the_window_is_too_narrow(
     page: Page, logged_in_client: AuthenticatedClient
 ) -> None:
-    _set_ui_style(logged_in_client, UiStyle.STRATA, use_expanded_rail=True)
+    set_ui_style(logged_in_client, UiStyle.STRATA, use_expanded_rail=True)
     try:
-        page.set_viewport_size(_WIDE)
+        page.set_viewport_size(_MID)
         page.goto("/app/workspace")
         wait_for_hydration(page)
 
@@ -183,4 +136,4 @@ def test_expanded_rail_gives_way_when_the_window_is_too_narrow(
         expect(rail.get_by_text("Inbox Tasks")).to_have_count(0)
         expect(rail.get_by_label("Expand sidebar")).to_have_count(0)
     finally:
-        _set_ui_style(logged_in_client, UiStyle.CLASSIC, use_expanded_rail=False)
+        set_ui_style(logged_in_client, UiStyle.CLASSIC, use_expanded_rail=False)

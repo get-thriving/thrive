@@ -36,16 +36,12 @@ import type { RailMoreGroup } from "#/core/infra/component/shell/rail-more-group
 const W = "/app/workspace";
 
 /**
- * The entries on the rail itself, top to bottom. Same destinations and feature
- * gating as the classic sidebar; Inbox Tasks is promoted from its Core group.
+ * The entries on the rail itself, top to bottom. Same destinations, order and
+ * feature gating as the classic sidebar; Inbox Tasks is the one entry promoted
+ * from its Core group, and it stays at the bottom, where Core is.
  */
 export const RAIL_ENTRIES: Array<RailEntry> = [
   { label: "Home", to: W, icon: GpsFixedIcon, exact: true },
-  {
-    label: "Inbox Tasks",
-    to: `${W}/core/inbox-tasks`,
-    icon: InboxOutlinedIcon,
-  },
   {
     label: "Todos",
     to: `${W}/apps/todos`,
@@ -141,6 +137,13 @@ export const RAIL_ENTRIES: Array<RailEntry> = [
     to: `${W}/push-integrations/email-tasks`,
     icon: MailOutlinedIcon,
     features: [WorkspaceFeature.EMAIL_TASKS],
+  },
+  // A technical entry, so it sits last, as its Core group does in the classic
+  // sidebar.
+  {
+    label: "Inbox Tasks",
+    to: `${W}/core/inbox-tasks`,
+    icon: InboxOutlinedIcon,
   },
 ];
 

@@ -48,6 +48,10 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
+import { ColumnKind } from "#/core/infra/component/layout/column-kind";
+import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
+import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
+import { strataColumns } from "#/core/infra/component/strata-tokens";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useHydrated } from "#/core/infra/component/use-hidrated";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
@@ -76,6 +80,12 @@ interface BranchPanelProps {
 export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const location = useLocation();
   const isBigScreen = useBigScreen();
+  const column = useStrataColumn(
+    "branch",
+    ColumnKind.BRANCH,
+    strataColumns.branch.default,
+    strataColumns.branch.min,
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const isPresent = useIsPresent();
   const isHydrated = useHydrated();
@@ -187,22 +197,8 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
     });
   }
 
-  return (
-    <BranchPanelFrame
-      id="branch-panel"
-      key={extractBranchFromPath(location.pathname)}
-      transformTemplate={template}
-      initial={{
-        opacity: 0,
-        x: isBigScreen ? undefined : SMALL_SCREEN_ANIMATION_START,
-      }}
-      animate={{ opacity: 1, x: isBigScreen ? undefined : 0 }}
-      exit={{
-        opacity: 0,
-        x: isBigScreen ? undefined : SMALL_SCREEN_ANIMATION_END,
-      }}
-      transition={{ duration: 0.5 }}
-    >
+  const body = (
+    <>
       <Form method="post">
         {(isBigScreen || !shouldShowALeaf) && (
           <BranchPanelControls id="branch-panel-controls">
@@ -402,6 +398,41 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
           <Stack spacing={2}>{props.children}</Stack>
         </Box>
       </BranchPanelContent>
+    </>
+  );
+
+  if (column.active) {
+    return (
+      <StrataColumnFrame
+        id="branch-panel"
+        key={extractBranchFromPath(location.pathname)}
+        placement={column.placement}
+        label="detail"
+        onUnfold={column.unfold}
+        fallbackLeft={column.offsetLeft}
+      >
+        {body}
+      </StrataColumnFrame>
+    );
+  }
+
+  return (
+    <BranchPanelFrame
+      id="branch-panel"
+      key={extractBranchFromPath(location.pathname)}
+      transformTemplate={template}
+      initial={{
+        opacity: 0,
+        x: isBigScreen ? undefined : SMALL_SCREEN_ANIMATION_START,
+      }}
+      animate={{ opacity: 1, x: isBigScreen ? undefined : 0 }}
+      exit={{
+        opacity: 0,
+        x: isBigScreen ? undefined : SMALL_SCREEN_ANIMATION_END,
+      }}
+      transition={{ duration: 0.5 }}
+    >
+      {body}
     </BranchPanelFrame>
   );
 }

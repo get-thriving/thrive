@@ -52,6 +52,11 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
+import { ColumnKind } from "#/core/infra/component/layout/column-kind";
+import { leafColumnWidth } from "#/core/infra/component/layout/leaf-column-width";
+import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
+import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
+import { strataColumns } from "#/core/infra/component/strata-tokens";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
 import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
@@ -130,6 +135,23 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     useState<LeafPanelExpansionState | null>(null);
   const [previousLeafletExpansionState, setPreviousLeafletExpansionState] =
     useState<LeafPanelExpansionState | "shrunk" | null>(null);
+  const leafletColumn = props.isLeaflet ?? false;
+  const leafColumnPx = leafletColumn
+    ? strataColumns.leaflet.min
+    : leafColumnWidth(
+        expansionState === "shrunk" || expansionState === "exit"
+          ? LeafPanelExpansionState.SMALL
+          : expansionState,
+      );
+  const column = useStrataColumn(
+    leafletColumn ? "leaflet" : "leaf",
+    leafletColumn ? ColumnKind.LEAFLET : ColumnKind.LEAF,
+    leafColumnPx,
+    leafColumnPx,
+  );
+  // The panel slides out for half a second before it navigates, but a column
+  // has nothing to slide.
+  const exitDelayMs = column.active ? 0 : 500;
   const [expansionFullRight, setExpansionFullRight] = useState(0);
   const [expansionFullWidth, setExpansionFullWidth] = useState(
     BIG_SCREEN_WIDTH_FULL_INT,
@@ -254,7 +276,8 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
   }
 
   useEffect(() => {
-    if (!isBigScreen) {
+    // Columns keep the leaf at its own width, with the leaflet beside it.
+    if (!isBigScreen || column.active) {
       return;
     }
 
@@ -279,6 +302,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     }
   }, [
     isBigScreen,
+    column.active,
     props.shouldShowALeaflet,
     expansionState,
     previousLeafletExpansionState,
@@ -361,18 +385,8 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     !props.disabled && (isBigScreen || !props.shouldShowALeaflet);
   const showingAlternateView = showHistory || showPublish || showAccess;
 
-  return (
-    <LeafPanelFrame
-      id={props.isLeaflet ? "leaflet-panel" : "leaf-panel"}
-      key={props.fakeKey}
-      initial="initial"
-      animate={isBigScreen ? expansionState : "smallScreen"}
-      exit="exit"
-      isLeaflet={props.isLeaflet ?? false}
-      variants={formVariants}
-      transition={{ duration: 0.5 }}
-      isBigScreen={isBigScreen}
-    >
+  const body = (
+    <>
       {showControls && (
         <Form
           method="post"
@@ -397,12 +411,14 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                   >
                     <SwitchLeftIcon />
                   </IconButton>
-                  <IconButton
-                    disabled={props.shouldShowALeaflet || props.isLeaflet}
-                    onClick={handleShrunk}
-                  >
-                    <PictureInPictureAltIcon />
-                  </IconButton>
+                  {!column.active && (
+                    <IconButton
+                      disabled={props.shouldShowALeaflet || props.isLeaflet}
+                      onClick={handleShrunk}
+                    >
+                      <PictureInPictureAltIcon />
+                    </IconButton>
+                  )}
                 </>
               )}
               <IconButton onClick={handleScrollTop}>
@@ -418,7 +434,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                     const returnLocation = preserveFilters(
                       props.returnLocation as string,
                     );
-                    setTimeout(() => navigation(returnLocation), 500);
+                    setTimeout(() => navigation(returnLocation), exitDelayMs);
                   }}
                 >
                   <KeyboardDoubleArrowRightIcon />
@@ -427,7 +443,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               <IconButton
                 onClick={() => {
                   setExpansionState("exit");
-                  setTimeout(() => navigation(-1), 500);
+                  setTimeout(() => navigation(-1), exitDelayMs);
                 }}
               >
                 <ArrowBackIcon />
@@ -598,6 +614,37 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
 
         {!isBigScreen && props.shouldShowALeaflet && <>{children}</>}
       </LeafPanelExpansionStateContext.Provider>
+    </>
+  );
+
+  if (column.active) {
+    return (
+      <StrataColumnFrame
+        id={props.isLeaflet ? "leaflet-panel" : "leaf-panel"}
+        key={props.fakeKey}
+        placement={column.placement}
+        label={props.isLeaflet ? "side detail" : "detail"}
+        onUnfold={column.unfold}
+        fallbackLeft={column.offsetLeft}
+      >
+        {body}
+      </StrataColumnFrame>
+    );
+  }
+
+  return (
+    <LeafPanelFrame
+      id={props.isLeaflet ? "leaflet-panel" : "leaf-panel"}
+      key={props.fakeKey}
+      initial="initial"
+      animate={isBigScreen ? expansionState : "smallScreen"}
+      exit="exit"
+      isLeaflet={props.isLeaflet ?? false}
+      variants={formVariants}
+      transition={{ duration: 0.5 }}
+      isBigScreen={isBigScreen}
+    >
+      {body}
     </LeafPanelFrame>
   );
 }
