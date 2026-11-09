@@ -100,6 +100,7 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 enum InboxTasksView {
   KANBAN_BY_EISEN = "kanban-by-eisen",
@@ -194,6 +195,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "S" } satisfies StrataHandle,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

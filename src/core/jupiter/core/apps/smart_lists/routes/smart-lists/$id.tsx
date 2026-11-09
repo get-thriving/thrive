@@ -44,6 +44,7 @@ import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 import { sectionFilterBoolean } from "#/core/infra/section-filters";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -72,6 +73,7 @@ const UpdateSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "S", grow: true } satisfies StrataHandle,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

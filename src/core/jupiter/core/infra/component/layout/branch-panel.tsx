@@ -48,14 +48,15 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
-import { ColumnKind } from "#/core/infra/component/layout/column-kind";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
-import { strataColumns } from "#/core/infra/component/strata-tokens";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useHydrated } from "#/core/infra/component/use-hidrated";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
-import { useTrunkNeedsToShowLeaf } from "#/core/infra/component/use-nested-entities";
+import {
+  DisplayType,
+  useTrunkNeedsToShowLeaf,
+} from "#/core/infra/component/use-nested-entities";
 import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
 
 const SMALL_SCREEN_ANIMATION_START = "100vw";
@@ -80,12 +81,7 @@ interface BranchPanelProps {
 export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const location = useLocation();
   const isBigScreen = useBigScreen();
-  const column = useStrataColumn(
-    "branch",
-    ColumnKind.BRANCH,
-    strataColumns.branch.default,
-    strataColumns.branch.min,
-  );
+  const column = useStrataColumn(DisplayType.BRANCH);
   const containerRef = useRef<HTMLDivElement>(null);
   const isPresent = useIsPresent();
   const isHydrated = useHydrated();
@@ -406,10 +402,11 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
       <StrataColumnFrame
         id="branch-panel"
         key={extractBranchFromPath(location.pathname)}
-        placement={column.placement}
+        column={column.column}
         label="detail"
-        onUnfold={column.unfold}
+        onFocus={column.focus}
         fallbackLeft={column.offsetLeft}
+        animate={column.animate}
       >
         {body}
       </StrataColumnFrame>

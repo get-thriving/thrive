@@ -1,50 +1,84 @@
-import type { PropsWithChildren } from "react";
+import type { FocusEvent, PropsWithChildren } from "react";
 import { ButtonBase, Box, alpha, styled } from "@mui/material";
 
-import type { ColumnPlacement } from "#/core/infra/component/layout/column-placement";
+import { STRATA_COLUMNS_TOP } from "#/core/infra/component/layout/strata-columns-top";
 import { strataColors } from "#/core/infra/component/strata-tokens";
+import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
 
-/** Where the columns start from the top: below the app bar. */
-const COLUMNS_TOP = "calc(env(safe-area-inset-top) + 4rem)";
 const CONTROLS_HEIGHT = 44;
+// How long a panel takes to move to its new place, unless the user prefers
+// no motion.
+const MOVE_MS = 180;
 
 interface StrataColumnFrameProps {
   id: string;
   /** Null until the layout has placed it, e.g. on the server render. */
-  placement: ColumnPlacement | null;
-  /** The column's name, for the spine's label. */
+  column: StrataPlacedSlot | null;
+  /** The column's name, for the spine's and the peek's label. */
   label: string;
-  onUnfold: () => void;
+  /** Make this the focused panel, which brings it in whole. */
+  onFocus: () => void;
   /** Where the leftover room starts when there is no placement yet. */
   fallbackLeft: number;
+  /** Whether the panel slides to a new place, rather than jumping. */
+  animate: boolean;
 }
 
 /**
- * One Strata column (ADR 0019): a panel's controls and content, fixed to the
- * window at the place the layout chose, with no animation. The panels keep
- * their own markup, which was made for a full-width page, so the overrides
- * below squeeze it to the column rather than every panel growing a variant.
+ * One Strata column (ADR 0020): a panel's controls and content, fixed to the
+ * window at the place the layout chose. The panels keep their own markup,
+ * which was made for a full-width page, so the overrides below squeeze it to
+ * the column rather than every panel growing a variant.
+ *
+ * A spine is the panel folded to 10px; a peek is a panel that only partly
+ * fits, laid out at its full size, clipped and striped over.
  */
 export function StrataColumnFrame(
   props: PropsWithChildren<StrataColumnFrameProps>,
 ) {
-  const placement = props.placement;
-  const folded = placement?.folded ?? false;
+  const column = props.column;
+  const spine = column?.state === "spine";
+  const peek = column?.state === "partial";
+
+  function handleFocusCapture(event: FocusEvent<HTMLElement>) {
+    // Tabbing into a peek brings it in whole. Focus inside a column nested in
+    // this one, which also reaches here, is that column's business.
+    if (
+      peek &&
+      event.target instanceof Element &&
+      event.target.closest("[data-strata-column]") === event.currentTarget
+    ) {
+      props.onFocus();
+    }
+  }
 
   return (
     <Frame
       id={props.id}
-      data-folded={folded ? "true" : undefined}
+      data-strata-column={props.id}
+      data-folded={spine ? "true" : undefined}
+      data-peek={peek ? "true" : undefined}
+      data-focused={column?.focused ? "true" : undefined}
+      data-animate={props.animate ? "true" : undefined}
+      tabIndex={-1}
+      onFocusCapture={handleFocusCapture}
       style={{
-        left: placement?.left ?? props.fallbackLeft,
-        width: placement?.width ?? `calc(100vw - ${props.fallbackLeft}px)`,
+        left: column?.left ?? props.fallbackLeft,
+        width: column?.width ?? `calc(100vw - ${props.fallbackLeft}px)`,
       }}
     >
-      {folded && (
+      {spine && (
         <Spine
           aria-label={`Show ${props.label}`}
           title={`Show ${props.label}`}
-          onClick={props.onUnfold}
+          onClick={props.onFocus}
+        />
+      )}
+      {peek && (
+        <Peek
+          aria-label={`Show ${props.label}`}
+          title={`Show ${props.label}`}
+          onClick={props.onFocus}
         />
       )}
       {/* Kept mounted while folded so its state and scroll position survive.
@@ -52,12 +86,20 @@ export function StrataColumnFrame(
           rendered inside it, in the route tree, though they sit apart on
           screen; each column puts its own visibility back. */}
       <Box
+        data-strata-content
         sx={{
-          visibility: folded ? "hidden" : "visible",
+          visibility: spine ? "hidden" : "visible",
           display: "flex",
           flexDirection: "column",
-          height: "100%",
           minWidth: 0,
+          // Pinned to the right edge at the size the panel has when whole, so a
+          // peek shows its right part, shifted left, and a panel that comes
+          // back slides in from the left rather than growing.
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          right: 0,
+          width: column?.contentWidth ?? "100%",
         }}
       >
         {props.children}
@@ -68,7 +110,7 @@ export function StrataColumnFrame(
 
 const Frame = styled("div")(({ theme }) => ({
   position: "fixed",
-  top: COLUMNS_TOP,
+  top: STRATA_COLUMNS_TOP,
   bottom: 0,
   boxSizing: "border-box",
   overflow: "hidden",
@@ -76,9 +118,35 @@ const Frame = styled("div")(({ theme }) => ({
   borderRight: `1px solid ${theme.palette.divider}`,
   zIndex: theme.zIndex.appBar - 1,
   visibility: "visible",
+  "&[data-animate='true']": {
+    transition: `left ${MOVE_MS}ms ease, width ${MOVE_MS}ms ease`,
+    // The content follows the frame's width, so the two move as one.
+    "& > [data-strata-content]": {
+      transition: `width ${MOVE_MS}ms ease`,
+    },
+    "@media (prefers-reduced-motion: reduce)": {
+      transition: "none",
+      "& > [data-strata-content]": { transition: "none" },
+    },
+  },
   // The columns to the right sit in the route tree inside the trunk's content,
   // whose Stack would otherwise push each of them down a spacing step.
   "&&": { margin: 0 },
+  // The panel itself takes the keyboard focus when it is focused with `h` or
+  // `l`; the marker below says so, not the browser's outline.
+  "&:focus": { outline: "none" },
+  // The focused panel, when there is more than one, has an amber top edge.
+  "&[data-focused='true']::before": {
+    content: '""',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: strataColors.amber,
+    zIndex: 2,
+    pointerEvents: "none",
+  },
 
   // The panels' control bars: a flat 44px strip, not a raised full-width one.
   "& [id$='-panel-controls']": {
@@ -113,5 +181,20 @@ const Spine = styled(ButtonBase)(({ theme }) => ({
   backgroundColor: strataColors.column,
   "&:hover": {
     backgroundColor: alpha(theme.palette.primary.main, 0.2),
+  },
+}));
+
+// Covers only this frame, not the columns nested in it, which sit elsewhere on
+// screen. Dims what is underneath rather than the content itself, as dimming
+// the content would dim the nested columns too.
+const Peek = styled(ButtonBase)(({ theme }) => ({
+  position: "absolute",
+  inset: 0,
+  width: "100%",
+  zIndex: 1,
+  backgroundColor: alpha(theme.palette.background.default, 0.7),
+  backgroundImage: `repeating-linear-gradient(135deg, transparent 0 6px, ${strataColors.line} 6px 7px)`,
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.background.default, 0.5),
   },
 }));

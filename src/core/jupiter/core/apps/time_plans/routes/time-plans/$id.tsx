@@ -185,6 +185,7 @@ import type { loader as timePlanActivityLoader } from "#/core/apps/time_plans/ro
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import type { LoaderDataOf } from "#/core/infra/component/use-loader-data-for-animation";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const EISENS = [
   Eisen.IMPORTANT_AND_URGENT,
@@ -260,6 +261,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "L", grow: true } satisfies StrataHandle,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

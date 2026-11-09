@@ -37,6 +37,7 @@ import {
 import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -78,6 +79,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "S" } satisfies StrataHandle,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

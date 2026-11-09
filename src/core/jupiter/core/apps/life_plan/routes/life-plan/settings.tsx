@@ -59,6 +59,7 @@ import { SchedulingParamsBlock } from "#/core/common/component/scheduling-params
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const ParamsSchema = z.object({});
 
@@ -94,6 +95,7 @@ const ALLOWED_EVAL_PERIODS: RecurringTaskPeriod[] = [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "S" } satisfies StrataHandle,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

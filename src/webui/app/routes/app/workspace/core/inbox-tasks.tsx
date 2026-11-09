@@ -90,6 +90,7 @@ import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 import { useSectionFilters } from "@jupiter/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 import { useServiceProperties } from "~/logic/config";
 
@@ -109,6 +110,7 @@ const EISENS = [
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "L", grow: true } satisfies StrataHandle,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

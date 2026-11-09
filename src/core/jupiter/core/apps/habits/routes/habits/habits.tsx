@@ -89,9 +89,11 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "L", grow: true } satisfies StrataHandle,
 };
 
 enum Grouping {

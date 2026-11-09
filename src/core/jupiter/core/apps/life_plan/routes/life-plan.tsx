@@ -85,6 +85,7 @@ import { getIntent, makeIntent } from "#/core/infra/intent";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const UpdateFormSchema = z.object({
   intent: z.string(),
@@ -92,6 +93,7 @@ const UpdateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "L", grow: true } satisfies StrataHandle,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

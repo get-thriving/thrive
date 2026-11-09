@@ -108,9 +108,11 @@ import { newURLParams } from "@jupiter/core/infra/navigation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "FULL" } satisfies StrataHandle,
 };
 
 const QuerySchema = z.object({

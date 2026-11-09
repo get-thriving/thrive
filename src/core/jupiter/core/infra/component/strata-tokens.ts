@@ -105,18 +105,6 @@ export const strataSize = {
   touchRowPhone: 48, // phone list rows
 } as const;
 
-/**
- * Column widths for the side-by-side layout (replaces the current leaf-panel
- * BIG_SCREEN_WIDTH_SMALL/MEDIUM/LARGE overlay widths when Strata is on).
- */
-export const strataColumns = {
-  trunk: { min: 210, default: 240, max: 260 },
-  branch: { min: 300, default: 340, max: 400 },
-  leaf: { min: 360, default: 380, max: 520 },
-  leaflet: { min: 280, flex: 1 }, // takes the rest
-  spine: 10, // a folded column (phone shows 10px left, 30px right)
-} as const;
-
 /** Patterns that repeat across screens. */
 export const strataPatterns = {
   selectedRow: {

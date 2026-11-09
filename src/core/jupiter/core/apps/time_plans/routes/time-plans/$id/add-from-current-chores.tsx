@@ -71,6 +71,7 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -103,6 +104,7 @@ enum ShowFilter {
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "M" } satisfies StrataHandle,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

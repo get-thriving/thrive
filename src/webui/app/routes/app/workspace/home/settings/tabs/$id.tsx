@@ -52,6 +52,7 @@ import { newURLParams } from "@jupiter/core/infra/navigation";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 enum Action {
   ADD_WIDGET = "add",
@@ -80,6 +81,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "M", grow: true } satisfies StrataHandle,
 };
 
 export async function loader({ request, url, params }: LoaderFunctionArgs) {

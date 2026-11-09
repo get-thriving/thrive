@@ -31,6 +31,7 @@ import { handleActionApiError } from "#/core/infra/errors.server";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
@@ -49,6 +50,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "FULL" } satisfies StrataHandle,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

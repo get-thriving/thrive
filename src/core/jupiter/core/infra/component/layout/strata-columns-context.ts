@@ -1,23 +1,26 @@
 import { createContext } from "react";
 
-import type { ColumnPlacement } from "#/core/infra/component/layout/column-placement";
-import type { ColumnSpec } from "#/core/infra/component/layout/column-spec";
+import type { StrataLevel } from "#/core/infra/strata/strata-level";
+import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
 
 /** What the workspace offers the panels that want to be columns. */
 export interface StrataColumnsApi {
-  register: (id: string, spec: ColumnSpec) => void;
-  unregister: (id: string) => void;
-  /** Null until the column has registered, e.g. on the server render. */
-  placementFor: (id: string) => ColumnPlacement | null;
-  /** Bring a folded column back, which may push the row past the window. */
-  unfold: (id: string) => void;
+  /** Null until the layout has placed the panel, e.g. on the server render. */
+  columnFor: (level: StrataLevel) => StrataPlacedSlot | null;
+  /** Make a panel the focused one, which shows it whole. */
+  focus: (level: StrataLevel) => void;
   /** Where the columns start, which is the right edge of the rail. */
   offsetLeft: number;
+  /**
+   * Whether a panel that moves should slide. Off until the window has been
+   * measured, so the first layout does not slide in from the assumed width.
+   */
+  animate: boolean;
 }
 
 /**
- * Present while the Strata column layout is on, so the shared panels know to
- * lay themselves out as columns; absent otherwise, and they stay as they were.
+ * Present while the Strata unit layout is on, so the shared panels know to lay
+ * themselves out as columns; absent otherwise, and they stay as they were.
  */
 export const StrataColumnsContext = createContext<StrataColumnsApi | null>(
   null,

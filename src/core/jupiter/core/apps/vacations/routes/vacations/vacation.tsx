@@ -54,9 +54,11 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "S", grow: true } satisfies StrataHandle,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

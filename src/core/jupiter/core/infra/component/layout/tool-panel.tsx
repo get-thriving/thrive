@@ -3,11 +3,10 @@ import { useLocation } from "react-router";
 import { motion } from "framer-motion";
 import type { PropsWithChildren } from "react";
 
-import { ColumnKind } from "#/core/infra/component/layout/column-kind";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
-import { strataColumns } from "#/core/infra/component/strata-tokens";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 
 const SMALL_SCREEN_ANIMATION_START = "100vw";
 const SMALL_SCREEN_ANIMATION_END = "100vw";
@@ -15,13 +14,8 @@ const SMALL_SCREEN_ANIMATION_END = "100vw";
 export function ToolPanel(props: PropsWithChildren) {
   const isBigScreen = useBigScreen();
   const location = useLocation();
-  // A tool page is the only thing on screen, so it is the first column.
-  const column = useStrataColumn(
-    "trunk",
-    ColumnKind.TRUNK,
-    strataColumns.trunk.default,
-    strataColumns.trunk.min,
-  );
+  // A tool page stands where a trunk would, as the first column.
+  const column = useStrataColumn(DisplayType.TOOL);
 
   const body = (
     <ToolCardContent
@@ -37,10 +31,11 @@ export function ToolPanel(props: PropsWithChildren) {
       <StrataColumnFrame
         id="tool-panel"
         key={location.pathname}
-        placement={column.placement}
+        column={column.column}
         label="page"
-        onUnfold={column.unfold}
+        onFocus={column.focus}
         fallbackLeft={column.offsetLeft}
+        animate={column.animate}
       >
         {body}
       </StrataColumnFrame>

@@ -34,14 +34,13 @@ import {
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
-import { ColumnKind } from "#/core/infra/component/layout/column-kind";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
-import { strataColumns } from "#/core/infra/component/strata-tokens";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useHydrated } from "#/core/infra/component/use-hidrated";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
 import {
+  DisplayType,
   useLeafNeedsToShowLeaflet,
   useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
@@ -78,12 +77,7 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
   const [showPublish, setShowPublish] = useState(false);
   const [showAccess, setShowAccess] = useState(false);
   const preserveFilters = useSectionFiltersPreserver();
-  const column = useStrataColumn(
-    "trunk",
-    ColumnKind.TRUNK,
-    strataColumns.trunk.default,
-    strataColumns.trunk.min,
-  );
+  const column = useStrataColumn(DisplayType.TRUNK);
 
   const showingAlternateView = showPublish || showAccess;
   const hasPublish =
@@ -312,10 +306,11 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
       <StrataColumnFrame
         id="trunk-panel"
         key={extractTrunkFromPath(location.pathname)}
-        placement={column.placement}
+        column={column.column}
         label="list"
-        onUnfold={column.unfold}
+        onFocus={column.focus}
         fallbackLeft={column.offsetLeft}
+        animate={column.animate}
       >
         {body}
       </StrataColumnFrame>

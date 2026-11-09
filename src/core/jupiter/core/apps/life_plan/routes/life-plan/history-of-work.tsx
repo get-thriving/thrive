@@ -42,6 +42,7 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { newURLParams } from "#/core/infra/navigation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const ParamsSchema = z.object({});
 
@@ -54,6 +55,7 @@ const QuerySchema = z.object({
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "S" } satisfies StrataHandle,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

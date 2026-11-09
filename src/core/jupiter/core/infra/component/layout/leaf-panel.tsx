@@ -52,11 +52,9 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
-import { ColumnKind } from "#/core/infra/component/layout/column-kind";
-import { leafColumnWidth } from "#/core/infra/component/layout/leaf-column-width";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
-import { strataColumns } from "#/core/infra/component/strata-tokens";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
 import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
@@ -135,19 +133,8 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     useState<LeafPanelExpansionState | null>(null);
   const [previousLeafletExpansionState, setPreviousLeafletExpansionState] =
     useState<LeafPanelExpansionState | "shrunk" | null>(null);
-  const leafletColumn = props.isLeaflet ?? false;
-  const leafColumnPx = leafletColumn
-    ? strataColumns.leaflet.min
-    : leafColumnWidth(
-        expansionState === "shrunk" || expansionState === "exit"
-          ? LeafPanelExpansionState.SMALL
-          : expansionState,
-      );
   const column = useStrataColumn(
-    leafletColumn ? "leaflet" : "leaf",
-    leafletColumn ? ColumnKind.LEAFLET : ColumnKind.LEAF,
-    leafColumnPx,
-    leafColumnPx,
+    props.isLeaflet ? DisplayType.LEAFLET : DisplayType.LEAF,
   );
   // The panel slides out for half a second before it navigates, but a column
   // has nothing to slide.
@@ -399,7 +386,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
         >
           <LeafPanelControls id="leaf-panel-controls">
             <ButtonGroup size="small">
-              {isBigScreen && (
+              {isBigScreen && !column.active && (
                 <>
                   <IconButton
                     disabled={
@@ -411,14 +398,12 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                   >
                     <SwitchLeftIcon />
                   </IconButton>
-                  {!column.active && (
-                    <IconButton
-                      disabled={props.shouldShowALeaflet || props.isLeaflet}
-                      onClick={handleShrunk}
-                    >
-                      <PictureInPictureAltIcon />
-                    </IconButton>
-                  )}
+                  <IconButton
+                    disabled={props.shouldShowALeaflet || props.isLeaflet}
+                    onClick={handleShrunk}
+                  >
+                    <PictureInPictureAltIcon />
+                  </IconButton>
                 </>
               )}
               <IconButton onClick={handleScrollTop}>
@@ -622,10 +607,11 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
       <StrataColumnFrame
         id={props.isLeaflet ? "leaflet-panel" : "leaf-panel"}
         key={props.fakeKey}
-        placement={column.placement}
+        column={column.column}
         label={props.isLeaflet ? "side detail" : "detail"}
-        onUnfold={column.unfold}
+        onFocus={column.focus}
         fallbackLeft={column.offsetLeft}
+        animate={column.animate}
       >
         {body}
       </StrataColumnFrame>
