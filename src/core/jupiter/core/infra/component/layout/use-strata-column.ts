@@ -1,7 +1,6 @@
 import { useContext } from "react";
 
 import { StrataColumnsContext } from "#/core/infra/component/layout/strata-columns-context";
-import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
 import type { StrataLevel } from "#/core/infra/strata/strata-level";
 
@@ -22,8 +21,7 @@ interface UseStrataColumn {
  */
 export function useStrataColumn(level: StrataLevel): UseStrataColumn {
   const api = useContext(StrataColumnsContext);
-  const isBigScreen = useBigScreen();
-  const active = api !== null && isBigScreen;
+  const active = api !== null;
 
   return {
     active,

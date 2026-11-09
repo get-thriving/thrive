@@ -15,6 +15,11 @@ export interface StrataPlacedSlot extends PlacedSlot {
   units: number;
   /** Only meaningful with more than one panel open. */
   focused: boolean;
+  /**
+   * A spine that shows the panel's name, in a strip wide enough to read it.
+   * Only on a phone, for the panel that follows the focused one.
+   */
+  sliver?: boolean;
 }
 
 /** Room no panel took, on one side of the row. */

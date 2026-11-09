@@ -1,9 +1,15 @@
 import type { PropsWithChildren } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { GlobalStyles } from "@mui/material";
 import { useMatches, useSearchParams } from "react-router";
 
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
 import { StrataDebugOverlay } from "#/core/infra/component/layout/strata-debug-overlay";
+import { StrataColumnStrip } from "#/core/infra/component/layout/strata-column-strip";
+import {
+  STRATA_PHONE_BAR_HEIGHT_PX,
+  STRATA_PHONE_STRIP_HEIGHT_PX,
+} from "#/core/infra/component/layout/strata-columns-top";
 import { StrataEmptySlot } from "#/core/infra/component/layout/strata-empty-slot";
 import {
   StrataColumnsContext,
@@ -13,15 +19,19 @@ import { strataCloseFocusedColumn } from "#/core/infra/component/layout/strata-c
 import { isStrataCloseKey } from "#/core/infra/strata/strata-close-key";
 import { strataFocusStep } from "#/core/infra/strata/strata-focus-key";
 import { strataLayoutFor } from "#/core/infra/strata/strata-layout-for";
+import { strataPhoneLayoutFor } from "#/core/infra/strata/strata-phone-layout-for";
 import type { StrataLevel } from "#/core/infra/strata/strata-level";
 import { strataLevelOf } from "#/core/infra/strata/strata-level-of";
 import { useStrataPath } from "#/core/infra/strata/use-strata-path";
 
 // What the server render and the first client render assume, so they agree.
 const DEFAULT_WINDOW_WIDTH = 1440;
+const DEFAULT_PHONE_WIDTH = 390;
 
 interface StrataColumnsProviderProps {
   offsetLeft: number;
+  /** A small screen, known before the window is measured. */
+  phone: boolean;
 }
 
 /**
@@ -36,7 +46,9 @@ export function StrataColumnsProvider(
   const matches = useMatches();
   const path = useStrataPath();
   const [searchParams] = useSearchParams();
-  const [windowWidth, setWindowWidth] = useState(DEFAULT_WINDOW_WIDTH);
+  const [windowWidth, setWindowWidth] = useState(
+    props.phone ? DEFAULT_PHONE_WIDTH : DEFAULT_WINDOW_WIDTH,
+  );
   // Which panel has the focus, for the path it was chosen on.
   const [chosen, setChosen] = useState<{ pathKey: string; index: number }>();
   // Counts the times the user moved the focus, so the focused panel can take
@@ -84,8 +96,10 @@ export function StrataColumnsProvider(
     () =>
       path.length === 0
         ? null
-        : strataLayoutFor(path, focusIndex, windowWidth, props.offsetLeft),
-    [path, focusIndex, windowWidth, props.offsetLeft],
+        : props.phone
+          ? strataPhoneLayoutFor(path, focusIndex, windowWidth)
+          : strataLayoutFor(path, focusIndex, windowWidth, props.offsetLeft),
+    [path, focusIndex, windowWidth, props.offsetLeft, props.phone],
   );
 
   const columnFor = useCallback(
@@ -108,6 +122,15 @@ export function StrataColumnsProvider(
     },
     [path, pathKey, keyByLevel],
   );
+
+  const focusOut = useCallback(() => {
+    if (focusIndex <= 0) {
+      return false;
+    }
+    setChosen({ pathKey, index: focusIndex - 1 });
+    setMoves((current) => current + 1);
+    return true;
+  }, [focusIndex, pathKey]);
 
   // `h` and `l` move the focus along the open panels, which brings the new one
   // in whole.
@@ -155,8 +178,25 @@ export function StrataColumnsProvider(
   }, [moves]);
 
   const api = useMemo<StrataColumnsApi>(
-    () => ({ columnFor, focus, offsetLeft: props.offsetLeft, animate }),
-    [columnFor, focus, props.offsetLeft, animate],
+    () => ({
+      columnFor,
+      focus,
+      offsetLeft: props.offsetLeft,
+      animate,
+      phone: props.phone,
+      position: { index: focusIndex, count: path.length },
+      focusOut,
+    }),
+    [
+      columnFor,
+      focus,
+      props.offsetLeft,
+      animate,
+      props.phone,
+      focusIndex,
+      path.length,
+      focusOut,
+    ],
   );
 
   return (
@@ -170,9 +210,28 @@ export function StrataColumnsProvider(
           width={gutter.width}
         />
       ))}
-      {layout !== null && searchParams.get("strata-debug") === "1" && (
-        <StrataDebugOverlay layout={layout} />
+      {props.phone && (
+        <>
+          <GlobalStyles
+            styles={{
+              ":root": {
+                "--strata-columns-top": `calc(env(safe-area-inset-top) + ${
+                  STRATA_PHONE_BAR_HEIGHT_PX +
+                  (path.length > 1 ? STRATA_PHONE_STRIP_HEIGHT_PX : 0)
+                }px)`,
+              },
+            }}
+          />
+          {path.length > 1 && (
+            <StrataColumnStrip index={focusIndex} count={path.length} />
+          )}
+        </>
       )}
+      {layout !== null &&
+        !props.phone &&
+        searchParams.get("strata-debug") === "1" && (
+          <StrataDebugOverlay layout={layout} />
+        )}
     </StrataColumnsContext.Provider>
   );
 }

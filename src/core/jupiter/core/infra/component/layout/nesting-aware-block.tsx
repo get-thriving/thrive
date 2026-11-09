@@ -13,10 +13,11 @@ export function NestingAwareBlock(
   props: PropsWithChildren<NestingAwarePanelProps>,
 ) {
   const isBigScreen = useBigScreen();
-  // With columns the list stays visible beside what opens from it.
-  const inColumns = useContext(StrataColumnsContext) !== null && isBigScreen;
+  // With columns the list stays visible beside what opens from it, on a phone
+  // too, where what opens from it is a sliver at the edge.
+  const inColumns = useContext(StrataColumnsContext) !== null;
 
-  if (!isBigScreen && props.shouldHide) {
+  if (!isBigScreen && !inColumns && props.shouldHide) {
     return null;
   }
 

@@ -12,10 +12,13 @@ const SMALL_SCREEN_ANIMATION_START = "100vw";
 const SMALL_SCREEN_ANIMATION_END = "100vw";
 
 export function ToolPanel(props: PropsWithChildren) {
-  const isBigScreen = useBigScreen();
+  const bigScreen = useBigScreen();
   const location = useLocation();
   // A tool page stands where a trunk would, as the first column.
   const column = useStrataColumn(DisplayType.TOOL);
+  // A phone laid out as Strata columns is laid out like a big screen: the
+  // panels sit inline, and what was one panel at a time is the layout's doing.
+  const isBigScreen = bigScreen || column.active;
 
   const body = (
     <ToolCardContent

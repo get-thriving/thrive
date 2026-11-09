@@ -80,8 +80,11 @@ interface BranchPanelProps {
 
 export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const location = useLocation();
-  const isBigScreen = useBigScreen();
+  const bigScreen = useBigScreen();
   const column = useStrataColumn(DisplayType.BRANCH);
+  // A phone laid out as Strata columns is laid out like a big screen: the
+  // panels sit inline, and what was one panel at a time is the layout's doing.
+  const isBigScreen = bigScreen || column.active;
   const containerRef = useRef<HTMLDivElement>(null);
   const isPresent = useIsPresent();
   const isHydrated = useHydrated();

@@ -16,6 +16,15 @@ export interface StrataColumnsApi {
    * measured, so the first layout does not slide in from the assumed width.
    */
   animate: boolean;
+  /** On a phone: one panel at a time, whole, with strips for its neighbours. */
+  phone: boolean;
+  /** Which open panel is shown, from 0, and how many are open. */
+  position: { index: number; count: number };
+  /**
+   * Show the panel before the focused one, as going back does. False, and
+   * nothing happens, when the focused panel is the first.
+   */
+  focusOut: () => boolean;
 }
 
 /**

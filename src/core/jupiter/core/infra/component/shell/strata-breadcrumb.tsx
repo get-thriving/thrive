@@ -2,10 +2,7 @@ import { Box, useTheme } from "@mui/material";
 import { Fragment } from "react";
 import { useLocation } from "react-router";
 
-const WORKSPACE_PREFIX = "/app/workspace";
-
-// Path segments that only group routes and are not worth showing.
-const HIDDEN_SEGMENTS = new Set(["apps", "root-redirect"]);
+import { strataPathSegments } from "#/core/infra/component/shell/strata-path-segments";
 
 /**
  * The mono path in the top bar, built from the URL, e.g. `big-plans / 1`. It
@@ -15,12 +12,7 @@ export function StrataBreadcrumb() {
   const theme = useTheme();
   const { pathname } = useLocation();
 
-  const segments = pathname.startsWith(WORKSPACE_PREFIX)
-    ? pathname
-        .slice(WORKSPACE_PREFIX.length)
-        .split("/")
-        .filter((s) => s !== "" && !HIDDEN_SEGMENTS.has(s))
-    : [];
+  const segments = strataPathSegments(pathname);
 
   if (segments.length === 0) {
     return null;

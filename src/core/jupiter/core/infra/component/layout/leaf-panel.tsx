@@ -108,7 +108,7 @@ interface LeafPanelProps {
 const NO_INTENT_HANDLERS: IntentHandlers = {};
 
 export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
-  const isBigScreen = useBigScreen();
+  const bigScreen = useBigScreen();
   const children = (
     <IntentInterceptorProvider
       handlers={props.intentHandlers ?? NO_INTENT_HANDLERS}
@@ -136,6 +136,9 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
   const column = useStrataColumn(
     props.isLeaflet ? DisplayType.LEAFLET : DisplayType.LEAF,
   );
+  // A phone laid out as Strata columns is laid out like a big screen: the
+  // panels sit inline, and what was one panel at a time is the layout's doing.
+  const isBigScreen = bigScreen || column.active;
   // The panel slides out for half a second before it navigates, but a column
   // has nothing to slide.
   const exitDelayMs = column.active ? 0 : 500;

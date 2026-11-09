@@ -2,7 +2,11 @@ import type { FocusEvent, PropsWithChildren } from "react";
 import { ButtonBase, Box, alpha, styled } from "@mui/material";
 
 import { STRATA_COLUMNS_TOP } from "#/core/infra/component/layout/strata-columns-top";
-import { strataColors } from "#/core/infra/component/strata-tokens";
+import {
+  strataColors,
+  strataFonts,
+  strataType,
+} from "#/core/infra/component/strata-tokens";
 import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
 
 const CONTROLS_HEIGHT = 44;
@@ -72,7 +76,11 @@ export function StrataColumnFrame(
           aria-label={`Show ${props.label}`}
           title={`Show ${props.label}`}
           onClick={props.onFocus}
-        />
+        >
+          {column?.sliver === true && (
+            <SliverLabel aria-hidden="true">{props.label} ›</SliverLabel>
+          )}
+        </Spine>
       )}
       {peek && (
         <Peek
@@ -172,6 +180,21 @@ const Frame = styled("div")(({ theme }) => ({
       overflowY: "auto",
       padding: "0.5rem",
     },
+}));
+
+// What a phone's sliver says: the panel it leads to, set upright along the edge.
+const SliverLabel = styled("span")(() => ({
+  position: "absolute",
+  top: 140,
+  left: 0,
+  right: 0,
+  display: "flex",
+  justifyContent: "center",
+  writingMode: "vertical-rl",
+  fontFamily: strataFonts.mono,
+  fontSize: strataType.meta.size,
+  letterSpacing: "0.04em",
+  color: strataColors.amber,
 }));
 
 const Spine = styled(ButtonBase)(({ theme }) => ({

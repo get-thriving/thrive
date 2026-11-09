@@ -65,7 +65,7 @@ interface TrunkPanelProps {
 }
 
 export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
-  const isBigScreen = useBigScreen();
+  const bigScreen = useBigScreen();
   const location = useLocation();
   const isHydrated = useHydrated();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -78,6 +78,9 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
   const [showAccess, setShowAccess] = useState(false);
   const preserveFilters = useSectionFiltersPreserver();
   const column = useStrataColumn(DisplayType.TRUNK);
+  // A phone laid out as Strata columns is laid out like a big screen: the
+  // panels sit inline, and what was one panel at a time is the layout's doing.
+  const isBigScreen = bigScreen || column.active;
 
   const showingAlternateView = showPublish || showAccess;
   const hasPublish =
