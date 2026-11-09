@@ -9,6 +9,8 @@ import {
   StrataColumnsContext,
   type StrataColumnsApi,
 } from "#/core/infra/component/layout/strata-columns-context";
+import { strataCloseFocusedColumn } from "#/core/infra/component/layout/strata-close-focused-column";
+import { isStrataCloseKey } from "#/core/infra/strata/strata-close-key";
 import { strataFocusStep } from "#/core/infra/strata/strata-focus-key";
 import { strataLayoutFor } from "#/core/infra/strata/strata-layout-for";
 import type { StrataLevel } from "#/core/infra/strata/strata-level";
@@ -126,6 +128,20 @@ export function StrataColumnsProvider(
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [path.length, pathKey, focusIndex]);
+
+  // `Escape` closes the focused panel, with the close control it has.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (!isStrataCloseKey(event, isTypingTarget(event.target))) {
+        return;
+      }
+      if (strataCloseFocusedColumn()) {
+        event.preventDefault();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // The panel that took the focus takes the keyboard focus, so Tab goes on
   // from there and a screen reader says where it is.

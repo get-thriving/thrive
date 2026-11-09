@@ -28,7 +28,7 @@ def test_rail_shows_only_the_enabled_features(page: Page) -> None:
 
     # The workspace has todos, habits and docs on, and nothing else optional.
     labels = [link.get_attribute("aria-label") for link in rail.locator("a").all()]
-    assert labels == ["Home", "Todos", "Habits", "Docs", "Inbox Tasks"]
+    assert labels == ["Home", "Todos", "Habits", "Docs"]
 
     expect(rail.get_by_label("Home")).to_have_attribute("aria-current", "page")
     expect(rail.get_by_label("Big Plans")).to_have_count(0)
@@ -59,6 +59,10 @@ def test_more_popover_reaches_the_rest(page: Page) -> None:
     menu = page.get_by_role("menu")
     expect(menu).to_be_visible()
     expect(menu.get_by_role("menuitem").first).to_be_visible()
+
+    # Inbox Tasks is not on the rail itself; it sits in Core, below Collaboration.
+    items = [item.inner_text().strip() for item in menu.get_by_role("menuitem").all()]
+    assert items.index("Inbox Tasks") == items.index("Collaboration") + 1
 
 
 @pytest.mark.usefixtures("_strata_on")
@@ -100,7 +104,7 @@ def test_expanding_the_rail_shows_labels_and_is_remembered(page: Page) -> None:
 
     rail = page.locator(_RAIL)
     narrow_width = rail.bounding_box()["width"]  # type: ignore[index]
-    expect(rail.get_by_text("Inbox Tasks")).to_have_count(0)
+    expect(rail.get_by_text("Docs")).to_have_count(0)
 
     # The save goes out in the background, so a reload right after the click
     # could beat it.
@@ -109,17 +113,17 @@ def test_expanding_the_rail_shows_labels_and_is_remembered(page: Page) -> None:
     ):
         rail.get_by_label("Expand sidebar").click()
 
-    expect(rail.get_by_text("Inbox Tasks")).to_be_visible()
+    expect(rail.get_by_text("Docs")).to_be_visible()
     expect(rail.get_by_label("Collapse sidebar")).to_be_visible()
     assert rail.bounding_box()["width"] > narrow_width  # type: ignore[index]
 
     # The choice is a setting of the user, so a fresh load keeps it.
     page.reload()
     wait_for_hydration(page)
-    expect(page.locator(_RAIL).get_by_text("Inbox Tasks")).to_be_visible()
+    expect(page.locator(_RAIL).get_by_text("Docs")).to_be_visible()
 
     page.locator(_RAIL).get_by_label("Collapse sidebar").click()
-    expect(page.locator(_RAIL).get_by_text("Inbox Tasks")).to_have_count(0)
+    expect(page.locator(_RAIL).get_by_text("Docs")).to_have_count(0)
 
 
 def test_expanded_rail_gives_way_when_the_window_is_too_narrow(
@@ -133,7 +137,7 @@ def test_expanded_rail_gives_way_when_the_window_is_too_narrow(
 
         rail = page.locator(_RAIL)
         expect(rail).to_be_visible()
-        expect(rail.get_by_text("Inbox Tasks")).to_have_count(0)
+        expect(rail.get_by_text("Docs")).to_have_count(0)
         expect(rail.get_by_label("Expand sidebar")).to_have_count(0)
     finally:
         set_ui_style(logged_in_client, UiStyle.CLASSIC, use_expanded_rail=False)

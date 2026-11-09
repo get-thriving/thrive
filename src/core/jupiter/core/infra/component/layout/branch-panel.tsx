@@ -330,6 +330,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
                 }}
               >
                 <Link
+                  data-strata-close
                   style={{ display: "flex" }}
                   to={preserveFilters(props.returnLocation)}
                 >

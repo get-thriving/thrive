@@ -414,6 +414,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               </IconButton>
               {props.returnLocation !== undefined && (
                 <IconButton
+                  data-strata-close
                   onClick={() => {
                     setExpansionState("exit");
                     const returnLocation = preserveFilters(

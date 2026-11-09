@@ -242,7 +242,7 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
                   marginLeft: hasPublish || hasAccess ? undefined : "auto",
                 }}
               >
-                <Link to={props.returnLocation}>
+                <Link data-strata-close to={props.returnLocation}>
                   <CloseIcon />
                 </Link>
               </IconButton>

@@ -1,5 +1,7 @@
 """Tests about the Strata unit layout: panels side by side, not over each other."""
 
+import re
+
 import pytest
 from playwright.sync_api import FloatRect, Page, ViewportSize, expect
 
@@ -148,6 +150,49 @@ def test_h_and_l_are_just_letters_in_a_field(page: Page) -> None:
 
     expect(name).to_have_value("hall")
     expect(page.locator("#leaflet-panel")).to_have_attribute("data-focused", "true")
+
+
+@pytest.mark.usefixtures("_strata_on")
+def test_escape_closes_the_focused_panel(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+    expect(page.locator("#leaf-panel")).to_be_visible()
+
+    page.keyboard.press("Escape")
+
+    expect(page).to_have_url(re.compile(r"/app/workspace/apps/habits/habits(\?.*)?$"))
+    expect(page.locator("#leaf-panel")).to_have_count(0)
+    expect(page.locator("#trunk-panel")).to_be_visible()
+
+
+@pytest.mark.usefixtures("_strata_on")
+def test_escape_closes_the_panel_that_has_the_focus(page: Page) -> None:
+    page.set_viewport_size(_NARROW)
+    page.goto(_NEW_ASPECT)
+    wait_for_hydration(page)
+
+    # The list is focused, so Escape closes the list and what is open from it.
+    page.keyboard.press("h")
+    page.keyboard.press("h")
+    expect(page.locator("#trunk-panel")).to_have_attribute("data-focused", "true")
+    page.keyboard.press("Escape")
+
+    expect(page).not_to_have_url(re.compile(r"/aspects/new"))
+    expect(page.locator("#leaflet-panel")).to_have_count(0)
+
+
+@pytest.mark.usefixtures("_strata_on")
+def test_escape_in_a_field_does_not_close_the_panel(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+
+    page.get_by_label("Name").click()
+    page.keyboard.press("Escape")
+
+    expect(page).to_have_url(re.compile(r"/habits/new"))
+    expect(page.locator("#leaf-panel")).to_be_visible()
 
 
 @pytest.mark.usefixtures("_strata_on")

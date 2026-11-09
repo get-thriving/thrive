@@ -74,7 +74,15 @@ export const strataType = {
     weight: 400,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
-  }, // column + section labels
+  }, // column labels
+  sectionLabel: {
+    family: "mono",
+    size: 13,
+    lineHeight: 18,
+    weight: 400,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+  }, // section labels inside a panel, a step above the column labels
   kbd: { family: "mono", size: 11, lineHeight: 16, weight: 400 },
 } as const;
 
