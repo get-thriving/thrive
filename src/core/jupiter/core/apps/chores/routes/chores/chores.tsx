@@ -66,10 +66,7 @@ import {
   computeAspectHierarchicalNameFromRoot,
   sortAspectsByTreeOrder,
 } from "#/core/apps/life_plan/sub/aspects/root";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { IsSuspendedTag } from "#/core/common/component/is-suspended-tag";
@@ -171,8 +168,6 @@ export default function Chores() {
 
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
-
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
   const entriesByRefId = new Map<string, ChoreFindResultEntry>();
   for (const entry of loaderData.chores) {
@@ -425,7 +420,7 @@ export default function Chores() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {isBigScreen ? (
           <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
             <Box sx={{ flex: 1, minWidth: 0 }}>

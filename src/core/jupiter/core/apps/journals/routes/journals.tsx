@@ -30,11 +30,7 @@ import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
 import { JournalCard } from "#/core/apps/journals/component/card";
 import { JournalStack } from "#/core/apps/journals/component/stack";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import {
@@ -90,9 +86,6 @@ export default function Journals() {
 
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
-
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
   const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
     PANEL_ID,
@@ -184,10 +177,7 @@ export default function Journals() {
         />
       }
     >
-      <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeaf}
-      >
+      <NestingAwareBlock>
         {sortedJournals.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"

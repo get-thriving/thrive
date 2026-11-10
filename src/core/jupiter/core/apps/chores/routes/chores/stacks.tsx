@@ -18,10 +18,7 @@ import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   NavSingle,
@@ -61,7 +58,6 @@ export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 export default function ChoreStacks() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
   const sortedStacks = sortChoreStacksNaturally(
     loaderData.entries.map((entry) => entry.chore_stack),
@@ -90,7 +86,7 @@ export default function ChoreStacks() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {sortedStacks.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"

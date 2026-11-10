@@ -29,10 +29,7 @@ import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boun
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
@@ -58,7 +55,6 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function Locations() {
   const { locations } = useLoaderDataSafeForAnimation<typeof loader>();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
   const navigate = useNavigate();
   const handleMapSelect = useCallback(
     (href: string) => {
@@ -90,7 +86,7 @@ export default function Locations() {
       createLocation="/app/workspace/core/locations/new"
       returnLocation="/app/workspace"
     >
-      <NestingAwareBlock shouldHide={shouldShowALeafToo}>
+      <NestingAwareBlock>
         <LocationsMap
           title="Locations"
           markers={mapMarkers}

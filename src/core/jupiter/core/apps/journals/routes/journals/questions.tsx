@@ -22,10 +22,7 @@ import {
   sortQuestionsByOrder,
 } from "#/core/apps/journals/sub/question/root";
 import { periodName } from "#/core/common/recurring-task-period";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { GlobalError } from "#/core/infra/component/errors";
 import { makeBranchErrorBoundary } from "#/core/infra/component/error-boundary";
 import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-card";
@@ -104,7 +101,6 @@ export default function JournalQuestions() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
 
   const periods = JOURNAL_QUESTION_PERIOD_DISPLAY_ORDER.filter((period) =>
     loaderData.questions.some((question) => question.period === period),
@@ -117,7 +113,7 @@ export default function JournalQuestions() {
       returnLocation="/app/workspace/apps/journals"
       inputsEnabled={inputsEnabled}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <Form method="post">
           <Stack spacing={2} useFlexGap>

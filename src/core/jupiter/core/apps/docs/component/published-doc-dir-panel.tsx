@@ -31,8 +31,6 @@ import {
   SectionActions,
 } from "#/core/infra/component/section-actions";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import { useLeafNeedsToShowLeaflet } from "#/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
@@ -62,7 +60,6 @@ const FILTERS = z.object({
 });
 
 export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
   const compactDocCardLayout = !isBigScreen;
@@ -118,11 +115,8 @@ export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
       entityNotEditable={true}
       disabled={true}
       returnLocation={props.returnLocation}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
-      shouldShowALeaflet={shouldShowALeaflet}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+      <NestingAwareBlock>
         <SectionCard
           title={dirLoad.dir.name}
           actions={

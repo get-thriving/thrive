@@ -27,7 +27,6 @@ import { SectionCard } from "#/core/infra/component/section-card";
 import { TimeEventBuffersEditor } from "#/core/common/sub/time_events/component/buffers-editor";
 import { TimeEventParamsSource } from "#/core/common/sub/time_events/component/params-source";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { timePlanActivityTargetNameForEvent } from "#/core/apps/time_plans/sub/activity/root";
 import { habitActivitiesForStackMembers } from "#/core/apps/time_plans/sub/activity/habit-chore-group";
@@ -171,7 +170,6 @@ export default function TimePlanActivityTimeEventNew() {
         timePlanView,
       )}
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.SMALL}
       intentHandlers={intentHandlers}
     >
       <TimeEventParamsSource

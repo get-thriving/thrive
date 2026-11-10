@@ -28,10 +28,7 @@ import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { TimeDiffTag } from "#/core/common/component/time-diff-tag";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   NavSingle,
@@ -186,7 +183,6 @@ const FILTERS = z.object({
 
 export default function Metric() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
   const inputsEnabled =
@@ -308,7 +304,7 @@ export default function Metric() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <MetricGraph sortedMetricEntries={sortedEntries} />
 
         {sortedEntries.length === 0 && (

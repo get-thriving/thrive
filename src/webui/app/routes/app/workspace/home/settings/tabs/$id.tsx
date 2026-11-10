@@ -33,10 +33,7 @@ import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-bou
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { EntityLink } from "@jupiter/core/infra/component/entity-card";
 import {
@@ -147,7 +144,6 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function HomeTab() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
   const [queryRaw] = useSearchParams();
@@ -179,7 +175,7 @@ export default function HomeTab() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <Stack sx={{ alignItems: "center" }}>
           {loaderData.tab.target === HomeTabTarget.BIG_SCREEN && (
             <BigScreenWidgetPlacement

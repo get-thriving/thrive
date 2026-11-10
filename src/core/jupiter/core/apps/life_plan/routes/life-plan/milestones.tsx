@@ -17,11 +17,7 @@ import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { SectionCard } from "#/core/infra/component/section-card";
 import {
   FilterManyOptions,
@@ -78,8 +74,6 @@ const FILTERS = z.object({
 export default function Milestones() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
@@ -113,10 +107,9 @@ export default function Milestones() {
       key="life-plan-milestones"
       fakeKey="life-plan-milestones"
       returnLocation="/app/workspace/apps/life-plan"
-      shouldShowALeaflet={shouldShowALeaflet}
       inputsEnabled={inputsEnabled}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+      <NestingAwareBlock>
         <SectionCard
           title="Milestones"
           actions={

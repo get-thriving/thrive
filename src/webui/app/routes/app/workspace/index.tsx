@@ -52,10 +52,7 @@ import {
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { isUserFeatureAvailable } from "@jupiter/core/users/root";
 import { sortAndFilterTabsByTheirOrder } from "@jupiter/core/home/sub/tab/root";
-import {
-  useTrunkNeedsToShowLeaf,
-  DisplayType,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -430,7 +427,6 @@ export default function WorkspaceHome() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "loading" ? false : true;
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const isBigScreen = useBigScreen();
 
   const sortedHabitInboxTasks = loaderData.habitInboxTasks
@@ -779,7 +775,7 @@ export default function WorkspaceHome() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {isBigScreen && (
           <>
             {bigScreenTabs.length === 0 && (

@@ -46,11 +46,7 @@ import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
-import {
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-  DisplayType,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TimezoneSelect } from "@jupiter/core/common/component/timezone-select";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -268,9 +264,6 @@ export default function Account() {
 
   const inputsEnabled = navigation.state === "idle";
 
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
-
   const [showCloseAccountDialog, setShowCloseAccountDialog] = useState(false);
 
   const [queryRaw] = useSearchParams();
@@ -323,7 +316,7 @@ export default function Account() {
       key={`account/${loaderData.user.version}`}
       returnLocation="/app/workspace"
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+      <NestingAwareBlock>
         <ToolPanel>
           <GlobalError actionResult={actionData} />
 

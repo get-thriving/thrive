@@ -13,7 +13,6 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { HabitPropertiesEditor } from "@jupiter/core/apps/habits/component/properties-editor";
 import { HabitStreakCalendar } from "@jupiter/core/apps/habits/component/streak-calendar";
@@ -120,8 +119,6 @@ export default function PublishedHabit() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <HabitPropertiesEditor
         title="Properties"

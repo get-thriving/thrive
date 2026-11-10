@@ -16,11 +16,7 @@ import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import {
@@ -79,9 +75,6 @@ export default function Metrics() {
     FILTERS,
   );
 
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
-
   const entriesFilteredByTag = loaderData.entries.filter(
     (entry: MetricFindResponseEntry) => {
       if (selectedTagsRefId.length === 0) {
@@ -117,10 +110,7 @@ export default function Metrics() {
       }
       returnLocation="/app/workspace"
     >
-      <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeafToo}
-      >
+      <NestingAwareBlock>
         {loaderData.entries.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"

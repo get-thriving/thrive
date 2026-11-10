@@ -5,8 +5,6 @@ import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
 import type { StrataLevel } from "#/core/infra/strata/strata-level";
 
 interface UseStrataColumn {
-  /** Whether this panel is laid out as a column, rather than as it always was. */
-  active: boolean;
   column: StrataPlacedSlot | null;
   /** Where the columns start, for the frame to use before it is placed. */
   offsetLeft: number;
@@ -21,11 +19,8 @@ interface UseStrataColumn {
  */
 export function useStrataColumn(level: StrataLevel): UseStrataColumn {
   const api = useContext(StrataColumnsContext);
-  const active = api !== null;
-
   return {
-    active,
-    column: active && api !== null ? api.columnFor(level) : null,
+    column: api !== null ? api.columnFor(level) : null,
     offsetLeft: api?.offsetLeft ?? 0,
     animate: api?.animate ?? false,
     focus: () => api?.focus(level),

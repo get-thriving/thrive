@@ -61,7 +61,6 @@ import { TimePlanActivityFeasabilitySelect } from "#/core/apps/time_plans/sub/ac
 import { TimePlanActivitKindSelect } from "#/core/apps/time_plans/sub/activity/component/kind-select";
 import { TimePlanCard } from "#/core/apps/time_plans/component/card";
 import { TimePlanStack } from "#/core/apps/time_plans/component/stack";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
@@ -374,9 +373,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
         `/app/workspace/apps/time-plans/${id}`,
         timePlanView,
       )}
-      returnLocationDiscriminator="add-from-current-time-plans"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.LARGE}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard

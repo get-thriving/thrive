@@ -28,7 +28,6 @@ import {
 import { SectionCard } from "#/core/infra/component/section-card";
 import { TimePlanActivityFeasabilitySelect } from "#/core/apps/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "#/core/apps/time_plans/sub/activity/component/kind-select";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
@@ -149,9 +148,7 @@ export default function AddHabitStackToPlans() {
       key="add-habit-stack-to-plans"
       fakeKey={`add-habit-stack-to-plans/${searchParams.get("habitStackRefId")}`}
       returnLocation={`/app/workspace/apps/habits/stacks/${searchParams.get("habitStackRefId")}`}
-      returnLocationDiscriminator="add-habit-stack-to-plans"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.MEDIUM}
     >
       <GlobalError actionResult={actionData} />
 

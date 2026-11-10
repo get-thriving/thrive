@@ -16,10 +16,7 @@ import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { ScheduleStreamColorTag } from "@jupiter/core/apps/schedule/component/color-tag";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import {
   FilterManyOptions,
   NavSingle,
@@ -73,7 +70,6 @@ export default function ScheduleStreamViewAll() {
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
   const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
     PANEL_ID,
     FILTERS,
@@ -116,7 +112,7 @@ export default function ScheduleStreamViewAll() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <EntityStack>
           {filteredEntries.map((entry) => (
             <EntityCard

@@ -71,10 +71,7 @@ import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { SectionCard } from "#/core/infra/component/section-card";
 import { TimePlanActivityList } from "#/core/apps/time_plans/sub/activity/component/list";
 import { saveScoreAction } from "#/core/gamification/scores.server";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   SectionActions,
@@ -84,7 +81,6 @@ import {
 } from "#/core/infra/component/section-actions";
 import { BigPlanMilestoneStack } from "#/core/apps/big_plans/sub/milestones/component/stack";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 import {
   handleActionApiError,
@@ -475,7 +471,6 @@ export default function BigPlan() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
@@ -689,15 +684,13 @@ export default function BigPlan() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.bigPlan.archived}
       returnLocation={"/app/workspace/apps/big-plans"}
-      shouldShowALeaflet={shouldShowALeaflet}
-      initialExpansionState={LeafPanelExpansionState.MEDIUM}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
       accessable
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <BigPlanPropertiesEditor
           title="Properties"

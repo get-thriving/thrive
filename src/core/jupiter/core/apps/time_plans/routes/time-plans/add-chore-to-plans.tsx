@@ -28,7 +28,6 @@ import {
 import { SectionCard } from "#/core/infra/component/section-card";
 import { TimePlanActivityFeasabilitySelect } from "#/core/apps/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "#/core/apps/time_plans/sub/activity/component/kind-select";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
@@ -149,9 +148,7 @@ export default function AddChoreToPlans() {
       key="add-chore-to-plans"
       fakeKey={`add-chore-to-plans/${searchParams.get("choreRefId")}`}
       returnLocation={`/app/workspace/apps/chores/chores/${searchParams.get("choreRefId")}`}
-      returnLocationDiscriminator="add-chore-to-plans"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.MEDIUM}
     >
       <GlobalError actionResult={actionData} />
 

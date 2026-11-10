@@ -8,11 +8,7 @@ import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
-import {
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-  DisplayType,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   NavSingle,
@@ -64,9 +60,6 @@ export default function Access() {
   const serviceProperties = useServiceProperties();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
-
   const apiDocsUrl = `${serviceProperties.apiUrl}/redoc`;
   // The configured address is the bare server in some setups and ends in /mcp in
   // others. An assistant that signs in needs the endpoint, which always ends in
@@ -76,7 +69,7 @@ export default function Access() {
 
   return (
     <TrunkPanel key="access" returnLocation="/app/workspace">
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+      <NestingAwareBlock>
         <ToolPanel>
           <SectionCard title="Connected apps">
             <Typography variant="body1">

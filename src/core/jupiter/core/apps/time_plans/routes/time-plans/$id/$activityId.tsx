@@ -154,7 +154,6 @@ import {
   latestEntityOrNull,
   selectTimePlanView,
 } from "#/core/apps/time_plans/store/view";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
@@ -905,7 +904,6 @@ export default function TimePlanActivity() {
         `/app/workspace/apps/time-plans/${id}`,
         timePlanView,
       )}
-      initialExpansionState={LeafPanelExpansionState.SMALL}
       intentHandlers={intentHandlers}
     >
       <GlobalError actionResult={actionData} />

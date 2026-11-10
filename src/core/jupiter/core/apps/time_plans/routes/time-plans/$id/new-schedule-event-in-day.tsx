@@ -43,7 +43,6 @@ import { ScheduleStreamSelect } from "#/core/apps/schedule/component/select";
 import { TimeEventBuffersEditor } from "#/core/common/sub/time_events/component/buffers-editor";
 import { TimeEventParamsSource } from "#/core/common/sub/time_events/component/params-source";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { handleActionApiError } from "#/core/infra/errors.server";
 import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
@@ -169,7 +168,6 @@ export default function TimePlanScheduleEventInDayNew() {
         timePlanView,
       )}
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.SMALL}
     >
       <TimeEventParamsSource
         startDate={startDate}

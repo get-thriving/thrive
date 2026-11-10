@@ -11,7 +11,6 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { redirect, Outlet, useSearchParams } from "react-router";
-import { AnimatePresence } from "framer-motion";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
@@ -36,11 +35,7 @@ import {
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-} from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { inferPlatformAndDistribution } from "@jupiter/core/frontdoor.server";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
@@ -178,7 +173,6 @@ const REFRESH_RIGHT_NOW_MS = 1000 * 60 * 5;
 export default function PublishedScheduleStream() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const [query] = useSearchParams();
 
   const calendarLocation = "";
@@ -298,11 +292,8 @@ export default function PublishedScheduleStream() {
         inputsEnabled={false}
         entityNotEditable={true}
         disabled={true}
-        initialExpansionState={LeafPanelExpansionState.FULL}
-        allowedExpansionStates={[LeafPanelExpansionState.FULL]}
-        shouldShowALeaflet={shouldShowALeaflet}
       >
-        <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+        <NestingAwareBlock>
           <SectionCard
             title={loaderData.scheduleStream.name}
             actions={calendarActions}
@@ -323,9 +314,7 @@ export default function PublishedScheduleStream() {
           </SectionCard>
         </NestingAwareBlock>
 
-        <AnimatePresence mode="wait" initial={false}>
-          <Outlet />
-        </AnimatePresence>
+        <Outlet />
       </LeafPanel>
     </CalendarNavigationProvider>
   );

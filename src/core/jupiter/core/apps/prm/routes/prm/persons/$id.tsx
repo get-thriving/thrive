@@ -33,10 +33,7 @@ import { GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { TimeEventFullDaysBlockStack } from "#/core/common/sub/time_events/sub/full_days_block/component/stack";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   SectionActions,
@@ -341,7 +338,6 @@ export default function Person() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const person = loaderData.person;
   const allOccasionsByRefId = new Map(
@@ -418,14 +414,13 @@ export default function Person() {
       inputsEnabled={inputsEnabled}
       entityArchived={person.archived}
       returnLocation="/app/workspace/apps/prm/persons"
-      shouldShowALeaflet={shouldShowALeaflet}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
       accessable
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <SectionCard
           title="Properties"

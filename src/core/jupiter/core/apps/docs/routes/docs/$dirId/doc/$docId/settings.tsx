@@ -31,7 +31,6 @@ import {
   SectionActions,
 } from "#/core/infra/component/section-actions";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
@@ -204,7 +203,6 @@ export default function DocSettings() {
       accessable
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
-      initialExpansionState={LeafPanelExpansionState.FULL}
     >
       <GlobalError actionResult={actionData} />
 

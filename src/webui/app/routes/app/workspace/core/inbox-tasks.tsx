@@ -80,10 +80,7 @@ import {
   actionableTimeToDateTime,
 } from "@jupiter/core/infra/actionable-time";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import type { TopLevelInfo } from "@jupiter/core/infra/top-level-context";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
@@ -140,7 +137,6 @@ export default function InboxTasks() {
   const serviceProperties = useServiceProperties();
 
   const isBigScreen = useBigScreen();
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
   const sortedInboxTasks = sortInboxTasksNaturally(
     entries.map((e) => e.inbox_task),
@@ -384,7 +380,7 @@ export default function InboxTasks() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {shouldDoAGc && (
           <GCSection>
             There are quite a lot of finished inbox tasks. Consider doing a{" "}

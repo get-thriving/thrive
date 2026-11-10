@@ -22,11 +22,7 @@ import {
   shiftTabUpInListOfTabs,
   sortTabsByOrder,
 } from "@jupiter/core/home/sub/tab/root";
-import {
-  DisplayType,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
@@ -118,9 +114,6 @@ export default function HomeSettings() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
-
   const bigScreenTabs = sortTabsByOrder(
     loaderData.tabs.filter((tab) => tab.target === HomeTabTarget.BIG_SCREEN),
     loaderData.homeConfig.order_of_tabs[HomeTabTarget.BIG_SCREEN],
@@ -136,10 +129,7 @@ export default function HomeSettings() {
       returnLocation="/app/workspace"
       createLocation="/app/workspace/home/settings/tabs/new"
     >
-      <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeafToo}
-      >
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <Form method="post">
           <Stack spacing={2} useFlexGap>

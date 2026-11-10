@@ -6,7 +6,6 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { Outlet } from "react-router";
-import { AnimatePresence } from "framer-motion";
 import { useContext, useMemo } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -24,15 +23,11 @@ import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TagTag } from "@jupiter/core/common/sub/tags/component/tag-tag";
 import { ContactTag } from "@jupiter/core/common/sub/contacts/component/contact-tag";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import {
   FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
@@ -129,7 +124,6 @@ const FILTERS = z.object({
 export default function PublishedSmartList() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const [
     {
@@ -178,11 +172,8 @@ export default function PublishedSmartList() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
-      shouldShowALeaflet={shouldShowALeaflet}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+      <NestingAwareBlock>
         <SectionCard
           title={loaderData.smartList.name}
           actions={
@@ -258,9 +249,7 @@ export default function PublishedSmartList() {
         </SectionCard>
       </NestingAwareBlock>
 
-      <AnimatePresence mode="wait" initial={false}>
-        <Outlet />
-      </AnimatePresence>
+      <Outlet />
     </LeafPanel>
   );
 }

@@ -23,10 +23,7 @@ import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-b
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   NavMultipleSpread,
   NavSingle,
@@ -195,8 +192,6 @@ export default function SmartListViewItems() {
     !loaderData.smartList.archived &&
     accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
-
   const [
     {
       done: selectedDoneness,
@@ -292,7 +287,7 @@ export default function SmartListViewItems() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {filteredSmartListItems.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"

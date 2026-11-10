@@ -9,7 +9,6 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { ScheduleEventFullDaysEditor } from "@jupiter/core/apps/schedule/sub/event_full_days/component/editor";
 import { isCorePropertyEditable } from "@jupiter/core/apps/schedule/sub/event_full_days/root";
@@ -83,8 +82,6 @@ export default function PublishedScheduleEventFullDays() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <ScheduleEventFullDaysEditor
         scheduleEventFullDays={scheduleEventFullDays}

@@ -9,7 +9,6 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { MetricEntryEditor } from "@jupiter/core/apps/metrics/sub/entry/component/editor";
 import { metricEntryName } from "@jupiter/core/apps/metrics/sub/entry/root";
@@ -72,8 +71,6 @@ export default function PublishedMetricEntry() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <MetricEntryEditor
         metricEntry={metricEntry}

@@ -39,11 +39,7 @@ import {
 import { TimePlanCard } from "#/core/apps/time_plans/component/card";
 import { TimePlanStack } from "#/core/apps/time_plans/component/stack";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   TopLevelInfo,
   TopLevelInfoContext,
@@ -119,9 +115,6 @@ export default function TimePlans() {
 
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
-
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
   const activeTimePlans = findTimePlansThatAreActive(
     loaderData.entries.map((e) => e.time_plan),
@@ -235,10 +228,7 @@ export default function TimePlans() {
         />
       }
     >
-      <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeafToo}
-      >
+      <NestingAwareBlock>
         {filteredSortedTimePlans.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"

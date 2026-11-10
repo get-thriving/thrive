@@ -56,7 +56,6 @@ import {
   ActionableTime,
   actionableTimeToDateTime,
 } from "#/core/infra/actionable-time";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
@@ -272,13 +271,7 @@ export default function TimePlanAddFromIncludedHabitTasks() {
         `/app/workspace/apps/time-plans/${id}`,
         timePlanViewParam,
       )}
-      returnLocationDiscriminator="add-from-included-habit-tasks"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.LARGE}
-      allowedExpansionStates={[
-        LeafPanelExpansionState.LARGE,
-        LeafPanelExpansionState.FULL,
-      ]}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard

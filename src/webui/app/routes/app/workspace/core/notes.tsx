@@ -17,10 +17,7 @@ import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boun
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   FilterManyOptions,
@@ -72,7 +69,6 @@ export default function Notes() {
   const { notes, noteOwnerFilterTags } =
     useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
   const [{ ownerTypes: selectedOwnerTypes }, setFilters] = useSectionFilters(
     PANEL_ID,
@@ -131,7 +127,7 @@ export default function Notes() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeafToo}>
+      <NestingAwareBlock>
         {filteredNotes.length === 0 && (
           <EntityNoNothingCard
             title="No Notes"

@@ -146,10 +146,7 @@ import { SectionCard } from "#/core/infra/component/section-card";
 import { JournalStack } from "#/core/apps/journals/component/stack";
 import { TimePlanEditor } from "#/core/apps/time_plans/component/editor";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { TimePlanListMergedActivities } from "#/core/apps/time_plans/component/list-merged-activities";
 import { TimePlanListByAspectActivities } from "#/core/apps/time_plans/component/list-by-aspect-activities";
@@ -658,8 +655,6 @@ function TimePlanViewContent() {
   const [query] = useSearchParams();
   const location = useLocation();
 
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
-
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const corePropertyEditable = allowUserChanges(loaderData.timePlan.source);
@@ -1023,7 +1018,7 @@ function TimePlanViewContent() {
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <TimePlanEditor
           timePlan={loaderData.timePlan}

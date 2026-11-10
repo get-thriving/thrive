@@ -9,7 +9,6 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { JournalEditor } from "@jupiter/core/apps/journals/component/editor";
 import { allowUserChanges } from "@jupiter/core/apps/journals/source";
@@ -73,8 +72,6 @@ export default function PublishedJournal() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <JournalEditor
         journal={journal}

@@ -9,7 +9,6 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TodoTaskPropertiesEditor } from "@jupiter/core/apps/todo/components/properties-editor";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
@@ -75,8 +74,6 @@ export default function PublishedTodoTask() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <TodoTaskPropertiesEditor
         title="Properties"

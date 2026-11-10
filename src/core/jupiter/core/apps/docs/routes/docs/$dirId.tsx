@@ -42,10 +42,7 @@ import {
 } from "#/core/infra/component/section-actions";
 import { SectionCard } from "#/core/infra/component/section-card";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   DEFAULT_NOTE_CONTENT_PREVIEW_MAX_CHARS,
@@ -213,7 +210,6 @@ const FILTERS = z.object({
 export default function DocsInFolder() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const navigation = useNavigation();
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
   const compactDocCardLayout = !isBigScreen;
@@ -262,7 +258,7 @@ export default function DocsInFolder() {
         key={`docs-dir-${loaderData.dirId}-access-denied`}
         returnLocation="/app/workspace"
       >
-        <NestingAwareBlock shouldHide={shouldShowALeaf}>
+        <NestingAwareBlock>
           <Alert severity="warning">
             <AlertTitle>Access Denied</AlertTitle>
             {USER_NOT_ALLOWED_ACCESS_TO_ENTITY_LABEL}
@@ -387,7 +383,7 @@ export default function DocsInFolder() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {listIsEmpty && !showParentLink && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"

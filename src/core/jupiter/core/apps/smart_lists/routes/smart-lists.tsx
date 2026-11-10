@@ -17,11 +17,7 @@ import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-b
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
-import {
-  DisplayType,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   FilterManyOptions,
   SectionActions,
@@ -72,9 +68,6 @@ export default function SmartLists() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
-
   const smartListTagsBySmartListRefId = new Map<string, Array<Tag>>();
   for (const entry of loaderData.entries) {
     smartListTagsBySmartListRefId.set(
@@ -120,10 +113,7 @@ export default function SmartLists() {
         />
       }
     >
-      <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeafToo}
-      >
+      <NestingAwareBlock>
         <EntityStack>
           {filteredEntries.length === 0 && (
             <EntityNoNothingCard

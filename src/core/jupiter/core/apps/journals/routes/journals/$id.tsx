@@ -27,7 +27,6 @@ import { JournalStack } from "#/core/apps/journals/component/stack";
 import { JournalEditor } from "#/core/apps/journals/component/editor";
 import { ShowReport } from "#/core/report/component/show-report";
 import { TimePlanStack } from "#/core/apps/time_plans/component/stack";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
@@ -246,7 +245,6 @@ export default function Journal() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.journal.archived}
       returnLocation="/app/workspace/apps/journals"
-      initialExpansionState={LeafPanelExpansionState.FULL}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
       accessable

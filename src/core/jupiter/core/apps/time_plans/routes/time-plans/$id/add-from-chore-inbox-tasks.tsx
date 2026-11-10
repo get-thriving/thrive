@@ -59,7 +59,6 @@ import {
   ActionableTime,
   actionableTimeToDateTime,
 } from "#/core/infra/actionable-time";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
@@ -273,13 +272,7 @@ export default function TimePlanAddFromChoreInboxTasks() {
       key={`time-plan-${id}/add-from-chore-inbox-tasks`}
       fakeKey={`time-plan-${id}/add-from-chore-inbox-tasks`}
       returnLocation={returnLocation}
-      returnLocationDiscriminator="add-from-chore-inbox-tasks"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.LARGE}
-      allowedExpansionStates={[
-        LeafPanelExpansionState.LARGE,
-        LeafPanelExpansionState.FULL,
-      ]}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard

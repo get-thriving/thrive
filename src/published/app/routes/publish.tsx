@@ -9,10 +9,16 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { Outlet } from "react-router";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import { IconButton } from "@mui/material";
+import { useContext } from "react";
 import { CommunityLink } from "@jupiter/core/infra/component/community-link";
 import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
 import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { StandaloneContainer } from "@jupiter/core/infra/component/layout/standalone-container";
+import { StrataColumnsContext } from "@jupiter/core/infra/component/layout/strata-columns-context";
+import { StrataColumnsShell } from "@jupiter/core/infra/component/layout/strata-columns-shell";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { Logo } from "@jupiter/core/infra/component/logo";
 import { Title } from "@jupiter/core/infra/component/title";
@@ -92,23 +98,7 @@ export default function Published() {
                   userLinkedAuthMethods={[]}
                   userScoreOverview={loaderData.userScoreOverview}
                 >
-                  <StandaloneContainer>
-                    <SmartAppBar>
-                      <Logo />
-
-                      <Title />
-
-                      <CommunityLink />
-
-                      <DocsHelp
-                        size="medium"
-                        subject={DocsHelpSubject.ROOT}
-                        theId="docs-help"
-                      />
-                    </SmartAppBar>
-
-                    <Outlet />
-                  </StandaloneContainer>
+                  <PublishedShell />
                 </TopLevelInfoProvider>
               </GoogleMapsApiKeyContext.Provider>
             </OverdueThresholdsContext.Provider>
@@ -116,6 +106,61 @@ export default function Published() {
         </FrontDoorInfoContext.Provider>
       </ServicePropertiesContext.Provider>
     </GlobalPropertiesContext.Provider>
+  );
+}
+
+/**
+ * A published page is the whole content, reached from a shared link: the
+ * Strata columns with no rail, and on a phone one at a time with a way back
+ * (ADR 0020).
+ */
+function PublishedShell() {
+  const phone = !useBigScreen();
+
+  return (
+    <StandaloneContainer>
+      <StrataColumnsShell offsetLeft={0} phone={phone}>
+        <SmartAppBar compact={phone}>
+          {phone && <PublishedPhoneBack />}
+
+          <Logo />
+
+          <Title />
+
+          <CommunityLink />
+
+          <DocsHelp
+            size="medium"
+            subject={DocsHelpSubject.ROOT}
+            theId="docs-help"
+          />
+        </SmartAppBar>
+
+        <Outlet />
+      </StrataColumnsShell>
+    </StandaloneContainer>
+  );
+}
+
+/** Back to the panel before the focused one, when there is one. */
+function PublishedPhoneBack() {
+  const columns = useContext(StrataColumnsContext);
+
+  if (columns === null || columns.position.index === 0) {
+    return null;
+  }
+
+  return (
+    <IconButton
+      id="strata-phone-back"
+      size="large"
+      edge="start"
+      color="inherit"
+      aria-label="Back to the previous panel"
+      onClick={() => columns.focusOut()}
+    >
+      <ArrowBackIosNewIcon fontSize="small" />
+    </IconButton>
   );
 }
 

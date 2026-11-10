@@ -1,35 +1,31 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import type {
-  LoaderFunctionArgs,
-  ShouldRevalidateFunction,
-} from "react-router";
+import type { ShouldRevalidateFunction } from "react-router";
 import { Links, Meta, Outlet, Scripts, useLoaderData } from "react-router";
 import { SnackbarProvider } from "notistack";
-import { StrictMode, useMemo } from "react";
+import { StrictMode } from "react";
 import { EnvBanner } from "@jupiter/core/infra/component/env-banner";
 import { serverToClientGlobalProperties } from "@jupiter/core/config-client";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { getPublicName } from "#/core/utils";
 import {
-  ApplyColorSchemeScript,
-  htmlColorSchemeStyle,
-  useSystemNightMode,
-} from "@jupiter/core/infra/component/color-scheme";
-import { buildTheme } from "@jupiter/core/infra/component/theme";
-import interFontCss from "@fontsource-variable/inter/wght.css?url";
-import interItalicFontCss from "@fontsource-variable/inter/wght-italic.css?url";
-import frauncesFontCss from "@fontsource-variable/fraunces/wght.css?url";
-import { OS_NIGHT_MODE_COOKIE_NAME } from "@jupiter/core/infra/names";
-import { readBooleanCookie } from "@jupiter/core/infra/night-mode";
+  buildStrataTheme,
+  STRATA_APP_BACKGROUND,
+} from "@jupiter/core/infra/component/strata-theme";
+import plexSans400Css from "@fontsource/ibm-plex-sans/400.css?url";
+import plexSans400ItalicCss from "@fontsource/ibm-plex-sans/400-italic.css?url";
+import plexSans500Css from "@fontsource/ibm-plex-sans/500.css?url";
+import plexSans600Css from "@fontsource/ibm-plex-sans/600.css?url";
+import plexMono400Css from "@fontsource/ibm-plex-mono/400.css?url";
+import plexMono500Css from "@fontsource/ibm-plex-mono/500.css?url";
+import plexSerif400Css from "@fontsource/ibm-plex-serif/400.css?url";
+import plexSerif500Css from "@fontsource/ibm-plex-serif/500.css?url";
 import type { LoaderDataOf } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+const THEME = buildStrataTheme();
+
+export async function loader() {
   return {
     globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
-    osNightModeHint: readBooleanCookie(
-      request.headers.get("Cookie"),
-      OS_NIGHT_MODE_COOKIE_NAME,
-    ),
   };
 }
 
@@ -43,9 +39,14 @@ export function meta({
 
 export function links() {
   return [
-    { rel: "stylesheet", href: interFontCss },
-    { rel: "stylesheet", href: interItalicFontCss },
-    { rel: "stylesheet", href: frauncesFontCss },
+    { rel: "stylesheet", href: plexSans400Css },
+    { rel: "stylesheet", href: plexSans400ItalicCss },
+    { rel: "stylesheet", href: plexSans500Css },
+    { rel: "stylesheet", href: plexSans600Css },
+    { rel: "stylesheet", href: plexMono400Css },
+    { rel: "stylesheet", href: plexMono500Css },
+    { rel: "stylesheet", href: plexSerif400Css },
+    { rel: "stylesheet", href: plexSerif500Css },
   ];
 }
 
@@ -54,14 +55,11 @@ export const shouldRevalidate: ShouldRevalidateFunction = () => false;
 export default function Root() {
   const loaderData = useLoaderData<typeof loader>();
 
-  const systemNightMode = useSystemNightMode(loaderData.osNightModeHint);
-  const theme = useMemo(() => buildTheme(systemNightMode), [systemNightMode]);
-
   return (
     <html
       lang="en"
       suppressHydrationWarning
-      style={htmlColorSchemeStyle(systemNightMode)}
+      style={{ colorScheme: "dark", backgroundColor: STRATA_APP_BACKGROUND }}
     >
       <head>
         {/* In the document rather than in `meta`: a route's `meta` replaces
@@ -77,13 +75,12 @@ export default function Root() {
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
         />
-        <ApplyColorSchemeScript />
         <Meta />
         <Links />
       </head>
       <body>
         <StrictMode>
-          <ThemeProvider theme={theme}>
+          <ThemeProvider theme={THEME}>
             <SnackbarProvider>
               <CssBaseline enableColorScheme />
               <EnvBanner env={loaderData.globalProperties.env} />

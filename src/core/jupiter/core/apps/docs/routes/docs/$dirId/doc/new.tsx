@@ -14,7 +14,6 @@ import {
   ActionsPosition,
   SectionCard,
 } from "#/core/infra/component/section-card";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { handleLoaderApiError } from "#/core/infra/errors.server";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
@@ -60,7 +59,6 @@ export default function NewDoc() {
       fakeKey={`docs-${dirId}-doc-new`}
       returnLocation={`/app/workspace/apps/docs/${dirId}`}
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.FULL}
     >
       <SectionCard title="New Doc" actionsPosition={ActionsPosition.BELOW}>
         <FormControl fullWidth>

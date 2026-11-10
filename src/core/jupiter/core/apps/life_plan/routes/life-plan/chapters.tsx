@@ -22,11 +22,7 @@ import { EntityStack } from "#/core/infra/component/entity-stack";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { lifePlanBirthdayDate } from "#/core/apps/life_plan/root";
 import { sortChaptersNaturally } from "#/core/apps/life_plan/sub/chapters/root";
@@ -90,8 +86,6 @@ const FILTERS = z.object({
 export default function Chapters() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
@@ -133,10 +127,9 @@ export default function Chapters() {
       key="chapters"
       fakeKey="chapters"
       returnLocation="/app/workspace/apps/life-plan"
-      shouldShowALeaflet={shouldShowALeaflet}
       inputsEnabled={inputsEnabled}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+      <NestingAwareBlock>
         <SectionCard
           title="Chapters"
           actions={

@@ -62,10 +62,7 @@ import {
   sortAspectsByTreeOrder,
 } from "#/core/apps/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/apps/life_plan/sub/goals/root";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { IsSuspendedTag } from "#/core/common/component/is-suspended-tag";
 import { HabitKeyHabitStreakWidget } from "#/core/apps/habits/component/key-habit-streak-widget";
@@ -201,8 +198,6 @@ export default function Habits() {
 
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
-
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
   const [mobileTab, setMobileTab] = useState<"streaks" | "habits" | "tasks">(
     "streaks",
@@ -495,7 +490,7 @@ export default function Habits() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {isBigScreen ? (
           <>
             {loaderData.habits.length === 0 && (

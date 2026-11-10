@@ -28,7 +28,6 @@ import {
 import { SectionCard } from "#/core/infra/component/section-card";
 import { TimePlanActivityFeasabilitySelect } from "#/core/apps/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "#/core/apps/time_plans/sub/activity/component/kind-select";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
@@ -149,9 +148,7 @@ export default function AddInboxTaskToPlans() {
       key="add-inbox-task-to-plans"
       fakeKey={`add-inbox-task-to-plans/${searchParams.get("inboxTaskRefId")}`}
       returnLocation={`/app/workspace/core/inbox-tasks/${searchParams.get("inboxTaskRefId")}`}
-      returnLocationDiscriminator="add-inbox-task-to-plans"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.MEDIUM}
     >
       <GlobalError actionResult={actionData} />
 

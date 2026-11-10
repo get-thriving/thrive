@@ -15,10 +15,6 @@ import {
   partialDateEncode,
   partialDateExtract,
 } from "#/core/apps/life_plan/partial-date";
-import {
-  LeafPanelExpansionState,
-  useLeafPanelExpansionState,
-} from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { MilestoneSelect } from "#/core/apps/life_plan/sub/milestones/components/select";
 
@@ -79,12 +75,7 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
     props.initialDate ?? "",
   );
 
-  const leafPanelExpansionState = useLeafPanelExpansionState();
-  const bigScreen = useBigScreen();
-  const bigStuff =
-    bigScreen &&
-    leafPanelExpansionState !== LeafPanelExpansionState.SMALL &&
-    leafPanelExpansionState !== null;
+  const bigStuff = useBigScreen();
 
   useEffect(() => {
     setPartialDate(

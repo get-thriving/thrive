@@ -36,10 +36,7 @@ import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-b
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   FilterManyOptions,
@@ -129,7 +126,6 @@ export default function Vacations() {
       }),
   );
 
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const navigate = useNavigate();
   const handleMapSelect = useCallback(
     (href: string) => {
@@ -197,7 +193,7 @@ export default function Vacations() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <VacationCalendar
           today={topLevelInfo.today}
           sortedVacations={sortedVacations}

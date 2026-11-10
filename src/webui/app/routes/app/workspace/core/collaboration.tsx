@@ -43,10 +43,7 @@ import {
   SlimChip,
 } from "@jupiter/core/infra/component/chips";
 import { TabPanel } from "@jupiter/core/infra/component/tab-panel";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { entityTagName } from "@jupiter/core/named-entity-tag";
 import {
@@ -160,7 +157,6 @@ export default function Collaboration() {
     users,
   } = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
   const [selectedTab, setSelectedTab] = useState(0);
   const [{ subjects: selectedSubjectRefIds }, setFilters] = useSectionFilters(
     PANEL_ID,
@@ -258,7 +254,7 @@ export default function Collaboration() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeafToo}>
+      <NestingAwareBlock>
         <Tabs
           value={selectedTab}
           variant="fullWidth"

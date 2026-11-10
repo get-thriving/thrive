@@ -48,7 +48,6 @@ import {
   SectionActions,
 } from "#/core/infra/component/section-actions";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { handleLoaderApiError } from "#/core/infra/errors.server";
@@ -315,7 +314,6 @@ export default function TimePlanCalendarEventDetails() {
         `/app/workspace/apps/time-plans/${id}`,
         timePlanView,
       )}
-      initialExpansionState={LeafPanelExpansionState.SMALL}
     >
       {loaderData.kind === "schedule-event-in-day" && (
         <ScheduleEventInDayProperties

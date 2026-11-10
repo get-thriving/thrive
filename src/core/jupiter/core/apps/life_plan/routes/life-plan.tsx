@@ -53,12 +53,7 @@ import { GlobalError } from "#/core/infra/component/errors";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   NavMultipleCompact,
   NavMultipleSpread,
@@ -186,9 +181,6 @@ export default function LifePlanView() {
   const navigation = useNavigation();
   const isBigScreen = useBigScreen();
   const actionData = useActionData<typeof action>();
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const inputsEnabled = navigation.state === "idle";
   const [hoveredMilestoneRefId, setHoveredMilestoneRefId] = useState<
     string | null
@@ -321,10 +313,7 @@ export default function LifePlanView() {
         />
       }
     >
-      <NestingAwareBlock
-        shouldHide={shouldShowALeaf || shouldShowALeaflet}
-        branchForceHide={shouldShowABranch}
-      >
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <EntityStack>
           <Form method="post" style={{ position: "relative" }}>

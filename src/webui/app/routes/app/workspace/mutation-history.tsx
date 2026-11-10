@@ -20,10 +20,7 @@ import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boun
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
@@ -88,7 +85,6 @@ export default function MutationHistory() {
   const { entries, users, totalCnt, pageSize } =
     useLoaderDataSafeForAnimation<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
   const usersById = Object.fromEntries(
     (users as InvocationUser[]).map((u) => [u.ref_id, u]),
@@ -113,7 +109,7 @@ export default function MutationHistory() {
 
   return (
     <TrunkPanel key="mutation-history" returnLocation="/app/workspace">
-      <NestingAwareBlock shouldHide={shouldShowALeafToo}>
+      <NestingAwareBlock>
         <Stack spacing={2}>
           <PaginationControls
             currentPage={currentPage}

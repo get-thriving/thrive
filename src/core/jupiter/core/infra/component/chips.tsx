@@ -3,7 +3,11 @@ import { Box, Chip } from "@mui/material";
 import type { ChipProps } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { CARD_INNER_CORNER_RADIUS } from "#/core/infra/component/theme";
+/**
+ * The radius a corner tab needs so it sits flush inside a Card instead of
+ * spilling past its rounded corner: the card radius less its 1px border.
+ */
+const CARD_INNER_CORNER_RADIUS = "9px";
 
 type ChipComponent = React.ComponentType<ChipProps>;
 

@@ -37,11 +37,7 @@ import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
 import { PeriodTag } from "#/core/common/component/period-tag";
 import { CircleTag } from "#/core/apps/prm/sub/circle/components/tag";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import {
@@ -229,8 +225,6 @@ export default function Persons() {
 
   const [smallScreenTab, setSmallScreenTab] = useState(0);
 
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   return (
     <TrunkPanel
       key={"persons"}
@@ -273,7 +267,7 @@ export default function Persons() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+      <NestingAwareBlock>
         {/* Big screen: two-column layout with sidebar */}
         {isBigScreen && (
           <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>

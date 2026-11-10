@@ -49,7 +49,6 @@ import {
   ActionableTime,
   actionableTimeToDateTime,
 } from "#/core/infra/actionable-time";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -256,13 +255,7 @@ export default function TimePlanAddFromBigPlanInboxTasks() {
       key={`time-plan-${id}/add-from-big-plan-inbox-tasks`}
       fakeKey={`time-plan-${id}/add-from-big-plan-inbox-tasks`}
       returnLocation={returnLocation}
-      returnLocationDiscriminator="add-from-big-plan-inbox-tasks"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.LARGE}
-      allowedExpansionStates={[
-        LeafPanelExpansionState.LARGE,
-        LeafPanelExpansionState.FULL,
-      ]}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard

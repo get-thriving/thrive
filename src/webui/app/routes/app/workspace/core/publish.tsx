@@ -22,10 +22,7 @@ import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boun
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   FilterManyOptions,
@@ -81,7 +78,6 @@ export default function PublishEntities() {
     useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const serviceProperties = useContext(ServicePropertiesContext);
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
   const [{ ownerTypes: selectedOwnerTypes }, setFilters] = useSectionFilters(
     PANEL_ID,
@@ -140,7 +136,7 @@ export default function PublishEntities() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeafToo}>
+      <NestingAwareBlock>
         {filteredPublishEntities.length === 0 && (
           <EntityNoNothingCard
             title="No Shared Entities"

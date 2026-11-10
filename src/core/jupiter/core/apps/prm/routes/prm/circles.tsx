@@ -15,11 +15,7 @@ import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   NavMultipleSpread,
   NavSingle,
@@ -54,9 +50,6 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 export default function Circles() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
-
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   return (
@@ -88,7 +81,7 @@ export default function Circles() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+      <NestingAwareBlock>
         <EntityStack>
           {loaderData.circles.length === 0 && (
             <EntityNoNothingCard

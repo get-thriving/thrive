@@ -1,5 +1,5 @@
+import { Fragment } from "react";
 import { Outlet, useSearchParams } from "react-router";
-import { AnimatePresence } from "framer-motion";
 
 import { createAnotherNonce } from "#/core/infra/create-and-another";
 
@@ -14,12 +14,8 @@ export function NestedOutlet() {
   const [searchParams] = useSearchParams();
 
   return (
-    <AnimatePresence
-      key={createAnotherNonce(searchParams)}
-      mode="wait"
-      initial={false}
-    >
+    <Fragment key={createAnotherNonce(searchParams)}>
       <Outlet />
-    </AnimatePresence>
+    </Fragment>
   );
 }

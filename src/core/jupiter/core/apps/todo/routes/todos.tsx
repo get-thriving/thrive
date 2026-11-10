@@ -36,10 +36,7 @@ import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-b
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import {
@@ -311,8 +308,6 @@ export default function Todos() {
     }, 0);
   }
 
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-
   return (
     <TrunkPanel
       key={"todos"}
@@ -386,7 +381,7 @@ export default function Todos() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <GlobalError actionResult={kanbanBoardMoveFetcher.data} />
         <FieldError
           actionResult={kanbanBoardMoveFetcher.data}

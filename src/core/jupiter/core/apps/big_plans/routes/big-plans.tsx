@@ -45,11 +45,7 @@ import {
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
@@ -113,9 +109,6 @@ export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 export default function BigPlans() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const isBigScreen = useBigScreen();
-
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
 
@@ -279,7 +272,7 @@ export default function BigPlans() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+      <NestingAwareBlock>
         {sortedBigPlans.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"

@@ -30,11 +30,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { inferPlatformAndDistribution } from "@jupiter/core/frontdoor.server";
-import {
-  DisplayType,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { View } from "@jupiter/core/calendar/component/shared";
 import { CalendarEventDragProvider } from "@jupiter/core/calendar/component/event-drag";
@@ -134,9 +130,6 @@ export default function CalendarView() {
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const inputsEnabled = navigation.state === "idle";
-
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
   const [rightNow, setRightNow] = useState(
     DateTime.local({ zone: topLevelInfo.user.timezone }),
@@ -308,10 +301,7 @@ export default function CalendarView() {
       returnLocation="/app/workspace"
     >
       <CalendarEventDragProvider timezone={topLevelInfo.user.timezone}>
-        <NestingAwareBlock
-          branchForceHide={shouldShowABranch}
-          shouldHide={shouldShowABranch || shouldShowALeafToo}
-        >
+        <NestingAwareBlock>
           {loaderData.view === View.CALENDAR &&
             loaderData.period === RecurringTaskPeriod.DAILY && (
               <ViewAsCalendarDaily

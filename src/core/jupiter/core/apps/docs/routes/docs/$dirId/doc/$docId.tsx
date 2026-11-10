@@ -21,11 +21,7 @@ import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-b
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "#/core/infra/component/section-card";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
@@ -160,7 +156,6 @@ export default function DocInFolder() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const inputsEnabled =
     navigation.state === "idle" &&
@@ -183,10 +178,8 @@ export default function DocInFolder() {
       accessStatus={loaderData.accessStatus}
       returnLocation={`/app/workspace/apps/docs/${loaderData.dirId}`}
       forgetReturnLocation="/app/workspace/apps/docs/root-redirect"
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      shouldShowALeaflet={shouldShowALeaflet}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <SectionCard
           title="Doc"

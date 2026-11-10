@@ -14,10 +14,7 @@ import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-bou
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
@@ -47,15 +44,13 @@ export default function ScheduleExportViewAll() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const [query] = useSearchParams();
 
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
-
   return (
     <BranchPanel
       key="calendar-schedule-export"
       createLocation={`/app/workspace/calendar/schedule/export/new?${query}`}
       returnLocation={`/app/workspace/calendar?${query}`}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <EntityStack>
           {loaderData.entries.map((entry) => (
             <EntityCard

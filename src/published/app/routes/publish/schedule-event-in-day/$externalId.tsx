@@ -10,7 +10,6 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { ScheduleEventInDayEditor } from "@jupiter/core/apps/schedule/sub/event_in_day/component/editor";
 import { isCorePropertyEditable } from "@jupiter/core/apps/schedule/sub/event_in_day/root";
@@ -96,8 +95,6 @@ export default function PublishedScheduleEventInDay() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <ScheduleEventInDayEditor
         scheduleEventInDay={scheduleEventInDay}

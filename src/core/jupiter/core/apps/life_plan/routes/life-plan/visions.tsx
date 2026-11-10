@@ -15,11 +15,7 @@ import { EntityStack } from "#/core/infra/component/entity-stack";
 import { makeBranchErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { sortVisionsNaturally } from "#/core/apps/life_plan/sub/visions/root";
 import { VisionStatusTag } from "#/core/apps/life_plan/sub/visions/components/status-tag";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
@@ -57,8 +53,6 @@ export const shouldRevalidate: ShouldRevalidateFunction = () => {
 export default function Visions() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
@@ -71,10 +65,9 @@ export default function Visions() {
       key="visions"
       fakeKey="visions"
       returnLocation="/app/workspace/apps/life-plan"
-      shouldShowALeaflet={shouldShowALeaflet}
       inputsEnabled={inputsEnabled}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+      <NestingAwareBlock>
         <SectionCard
           title="Visions"
           actions={

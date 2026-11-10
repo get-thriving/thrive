@@ -53,11 +53,7 @@ import { GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   SectionActions,
@@ -458,7 +454,6 @@ export default function Habit() {
   const [query] = useSearchParams();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const streakSearch = query.toString();
   const habitRefId = loaderData.habit.ref_id;
 
@@ -540,15 +535,13 @@ export default function Habit() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.habit.archived}
       returnLocation="/app/workspace/apps/habits/habits"
-      initialExpansionState={LeafPanelExpansionState.MEDIUM}
-      shouldShowALeaflet={shouldShowALeaflet}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
       accessable
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <HabitPropertiesEditor
           title="Properties"

@@ -58,7 +58,6 @@ import { SectionCard } from "#/core/infra/component/section-card";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TimePlanActivityFeasabilitySelect } from "#/core/apps/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "#/core/apps/time_plans/sub/activity/component/kind-select";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
@@ -470,13 +469,7 @@ export default function TimePlanAddFromCurrentHabits() {
         `/app/workspace/apps/time-plans/${id}`,
         timePlanViewParam,
       )}
-      returnLocationDiscriminator="add-from-current-habits"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.LARGE}
-      allowedExpansionStates={[
-        LeafPanelExpansionState.LARGE,
-        LeafPanelExpansionState.FULL,
-      ]}
     >
       <GlobalError actionResult={actionData} />
 

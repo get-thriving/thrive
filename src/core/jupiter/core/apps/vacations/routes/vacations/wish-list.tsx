@@ -26,10 +26,7 @@ import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   FilterManyOptions,
@@ -115,7 +112,6 @@ export default function TravelWishWishlist() {
       }),
   );
 
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const navigate = useNavigate();
   const handleMapSelect = useCallback(
     (href: string) => {
@@ -183,7 +179,7 @@ export default function TravelWishWishlist() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <LocationsMap
           title="Wishlist locations"
           markers={mapMarkers}

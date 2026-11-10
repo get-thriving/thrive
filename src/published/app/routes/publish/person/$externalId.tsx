@@ -10,7 +10,6 @@ import { EntityLocationMapSection } from "@jupiter/core/common/sub/locations/com
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { PersonEditor } from "@jupiter/core/apps/prm/sub/person/component/editor";
 import { OccasionStack } from "@jupiter/core/apps/prm/sub/person/sub/occasion/components/stack";
@@ -88,8 +87,6 @@ export default function PublishedPerson() {
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <SectionCard title="Properties">
         <PersonEditor
