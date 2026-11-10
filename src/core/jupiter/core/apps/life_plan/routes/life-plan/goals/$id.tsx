@@ -20,7 +20,7 @@ import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -193,6 +193,7 @@ export default function GoalView() {
 
   return (
     <LeafPanel
+      sectionsPanelId="life-plan-goal"
       key={`goal-${loaderData.goal.ref_id}`}
       entityType={NamedEntityTag.GOAL}
       entityRefId={loaderData.goal.ref_id}
@@ -205,7 +206,9 @@ export default function GoalView() {
     >
       <GlobalError actionResult={actionData} />
 
-      <SectionCard
+      <StrataSection
+        id="goal-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -280,9 +283,11 @@ export default function GoalView() {
             fieldName="/parent_goal_ref_id"
           />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="goal-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
           <SectionActions
@@ -306,7 +311,7 @@ export default function GoalView() {
             inputsEnabled={inputsEnabled}
           />
         )}
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

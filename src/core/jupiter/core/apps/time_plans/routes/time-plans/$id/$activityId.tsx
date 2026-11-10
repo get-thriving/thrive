@@ -81,7 +81,7 @@ import {
   NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { TimeEventInDayBlockPropertiesEditor } from "#/core/common/sub/time_events/sub/in_day_block/component/properties-editor";
 import { TimeEventInDayBlockStack } from "#/core/common/sub/time_events/sub/in_day_block/component/stack";
 import { timePlanActivityTargetNameForEvent } from "#/core/apps/time_plans/sub/activity/root";
@@ -893,6 +893,7 @@ export default function TimePlanActivity() {
 
   return (
     <LeafPanel
+      sectionsPanelId="time-plan-activity"
       key={`time-plan-${id}/activity-${activityId}`}
       entityType={NamedEntityTag.TIME_PLAN_ACTIVITY}
       entityRefId={loaderData.timePlanActivity.ref_id}
@@ -907,7 +908,8 @@ export default function TimePlanActivity() {
       intentHandlers={intentHandlers}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        fixed
         id="time-plan-activity-properties"
         title="Properties"
         actions={
@@ -950,7 +952,7 @@ export default function TimePlanActivity() {
             <FieldError actionResult={actionData} fieldName="/feasability" />
           </FormControl>
         </Stack>
-      </SectionCard>
+      </StrataSection>
 
       {loaderData.targetInboxTask && loaderData.targetInboxTaskInfo && (
         <>
@@ -1003,7 +1005,9 @@ export default function TimePlanActivity() {
               actionData={actionData}
             />
 
-            <SectionCard
+            <StrataSection
+              id="target-big-plan-note-section"
+              items={targetBigPlanNote ? 1 : 0}
               title="Note"
               actions={
                 <SectionActions
@@ -1029,9 +1033,11 @@ export default function TimePlanActivity() {
                   inputsEnabled={inputsEnabled}
                 />
               )}
-            </SectionCard>
+            </StrataSection>
 
-            <SectionCard
+            <StrataSection
+              items={sortedBigPlanInboxTasks.length}
+              split={{ size: 2 }}
               id="target-big-plan-inbox-tasks"
               title="Inbox Tasks"
               actions={
@@ -1087,7 +1093,7 @@ export default function TimePlanActivity() {
                   onCardMarkNotDone={handleBigPlanCardMarkNotDone}
                 />
               )}
-            </SectionCard>
+            </StrataSection>
           </>
         )}
 
@@ -1126,7 +1132,9 @@ export default function TimePlanActivity() {
               actionData={actionData}
             />
 
-            <SectionCard
+            <StrataSection
+              id="target-todo-note-section"
+              items={targetTodoTaskNote ? 1 : 0}
               title="Note"
               actions={
                 <SectionActions
@@ -1152,7 +1160,7 @@ export default function TimePlanActivity() {
                   inputsEnabled={inputsEnabled}
                 />
               )}
-            </SectionCard>
+            </StrataSection>
           </>
         )}
 
@@ -1190,7 +1198,9 @@ export default function TimePlanActivity() {
               actionData={actionData}
             />
 
-            <SectionCard
+            <StrataSection
+              id="target-habit-note-section"
+              items={targetHabitNote ? 1 : 0}
               title="Note"
               actions={
                 <SectionActions
@@ -1216,9 +1226,11 @@ export default function TimePlanActivity() {
                   inputsEnabled={inputsEnabled}
                 />
               )}
-            </SectionCard>
+            </StrataSection>
 
-            <SectionCard
+            <StrataSection
+              items={sortedHabitInboxTasks.length}
+              split={{ size: 2 }}
               id="target-habit-inbox-tasks"
               title="Inbox Tasks"
               actions={
@@ -1262,7 +1274,7 @@ export default function TimePlanActivity() {
                   onCardMarkNotDone={handleHabitCardMarkNotDone}
                 />
               )}
-            </SectionCard>
+            </StrataSection>
           </>
         )}
 
@@ -1302,7 +1314,12 @@ export default function TimePlanActivity() {
               actionData={actionData}
             />
 
-            <SectionCard title="Habits">
+            <StrataSection
+              id="target-habit-stack-habits"
+              items={sortedStackHabits.length}
+              split={{ size: 2 }}
+              title="Habits"
+            >
               <EntityStack>
                 {sortedStackHabits.map((habit) => (
                   <EntityCard
@@ -1318,9 +1335,11 @@ export default function TimePlanActivity() {
                   </EntityCard>
                 ))}
               </EntityStack>
-            </SectionCard>
+            </StrataSection>
 
-            <SectionCard
+            <StrataSection
+              id="target-habit-stack-note-section"
+              items={targetHabitStackNote ? 1 : 0}
               title="Note"
               actions={
                 <SectionActions
@@ -1346,9 +1365,11 @@ export default function TimePlanActivity() {
                   inputsEnabled={inputsEnabled}
                 />
               )}
-            </SectionCard>
+            </StrataSection>
 
-            <SectionCard
+            <StrataSection
+              items={sortedStackInboxTasks.length}
+              split={{ size: 2 }}
               id="target-habit-stack-inbox-tasks"
               title="Inbox Tasks"
             >
@@ -1368,7 +1389,7 @@ export default function TimePlanActivity() {
                   onCardMarkNotDone={handleHabitCardMarkNotDone}
                 />
               )}
-            </SectionCard>
+            </StrataSection>
           </>
         )}
 
@@ -1408,7 +1429,12 @@ export default function TimePlanActivity() {
               actionData={actionData}
             />
 
-            <SectionCard title="Chores">
+            <StrataSection
+              id="target-chore-stack-chores"
+              items={sortedStackChores.length}
+              split={{ size: 2 }}
+              title="Chores"
+            >
               <EntityStack>
                 {sortedStackChores.map((chore) => (
                   <EntityCard
@@ -1424,9 +1450,11 @@ export default function TimePlanActivity() {
                   </EntityCard>
                 ))}
               </EntityStack>
-            </SectionCard>
+            </StrataSection>
 
-            <SectionCard
+            <StrataSection
+              id="target-chore-stack-note-section"
+              items={targetChoreStackNote ? 1 : 0}
               title="Note"
               actions={
                 <SectionActions
@@ -1452,9 +1480,11 @@ export default function TimePlanActivity() {
                   inputsEnabled={inputsEnabled}
                 />
               )}
-            </SectionCard>
+            </StrataSection>
 
-            <SectionCard
+            <StrataSection
+              items={sortedChoreStackInboxTasks.length}
+              split={{ size: 2 }}
               id="target-chore-stack-inbox-tasks"
               title="Inbox Tasks"
             >
@@ -1474,7 +1504,7 @@ export default function TimePlanActivity() {
                   onCardMarkNotDone={handleChoreCardMarkNotDone}
                 />
               )}
-            </SectionCard>
+            </StrataSection>
           </>
         )}
 
@@ -1512,7 +1542,9 @@ export default function TimePlanActivity() {
               actionData={actionData}
             />
 
-            <SectionCard
+            <StrataSection
+              id="target-chore-note-section"
+              items={targetChoreNote ? 1 : 0}
               title="Note"
               actions={
                 <SectionActions
@@ -1538,9 +1570,11 @@ export default function TimePlanActivity() {
                   inputsEnabled={inputsEnabled}
                 />
               )}
-            </SectionCard>
+            </StrataSection>
 
-            <SectionCard
+            <StrataSection
+              items={sortedChoreInboxTasks.length}
+              split={{ size: 2 }}
               id="target-chore-inbox-tasks"
               title="Inbox Tasks"
               actions={
@@ -1583,7 +1617,7 @@ export default function TimePlanActivity() {
                   onCardMarkNotDone={handleChoreCardMarkNotDone}
                 />
               )}
-            </SectionCard>
+            </StrataSection>
           </>
         )}
 

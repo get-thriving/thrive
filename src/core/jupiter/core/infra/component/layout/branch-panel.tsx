@@ -45,6 +45,7 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
+import { StrataSectionStack } from "#/core/infra/component/strata-section-stack";
 import { ColumnHeader } from "#/core/infra/component/layout/column-header";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
@@ -66,6 +67,11 @@ interface BranchPanelProps {
   accessable?: boolean;
   accessOwner?: UserLight;
   accessStatus?: AccessStatus | null;
+  /**
+   * The panel id (ADR 0014) for the sections in it, which makes them a stack:
+   * they can be collapsed, and split out into columns.
+   */
+  sectionsPanelId?: string;
 }
 
 export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
@@ -306,7 +312,15 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
           sx={{ display: showingAlternateView ? "none" : undefined }}
           aria-hidden={showingAlternateView}
         >
-          <Stack spacing={2}>{props.children}</Stack>
+          <Stack spacing={2}>
+            {props.sectionsPanelId === undefined ? (
+              props.children
+            ) : (
+              <StrataSectionStack panelId={props.sectionsPanelId}>
+                {props.children}
+              </StrataSectionStack>
+            )}
+          </Stack>
         </Box>
       </div>
     </>

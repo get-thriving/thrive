@@ -29,7 +29,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { ScheduleStreamSelect } from "#/core/apps/schedule/component/select";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -80,7 +80,8 @@ export function ScheduleEventFullDaysEditor(
 
   return (
     <>
-      <SectionCard
+      <StrataSection
+        fixed
         id="schedule-event-full-days-properties"
         title="Properties"
         actions={
@@ -272,7 +273,7 @@ export function ScheduleEventFullDaysEditor(
             />
           </FormControl>
         </Stack>
-      </SectionCard>
+      </StrataSection>
       <EntityLocationMapSection location={location} />
     </>
   );

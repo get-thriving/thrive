@@ -42,6 +42,7 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
+import { StrataSectionStack } from "#/core/infra/component/strata-section-stack";
 import { ColumnHeader } from "#/core/infra/component/layout/column-header";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
@@ -76,6 +77,12 @@ interface LeafPanelProps {
   disabled?: boolean;
   /** Form intents the panel's content handles itself, instead of submitting. */
   intentHandlers?: IntentHandlers;
+  /**
+   * The panel id (ADR 0014) for the sections in it, which makes them a stack:
+   * they can be collapsed, and split out into columns. Left out where the
+   * panel has no sections to stack, or does it itself.
+   */
+  sectionsPanelId?: string;
 }
 
 const NO_INTENT_HANDLERS: IntentHandlers = {};
@@ -85,7 +92,13 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     <IntentInterceptorProvider
       handlers={props.intentHandlers ?? NO_INTENT_HANDLERS}
     >
-      {props.children}
+      {props.sectionsPanelId === undefined ? (
+        props.children
+      ) : (
+        <StrataSectionStack panelId={props.sectionsPanelId}>
+          {props.children}
+        </StrataSectionStack>
+      )}
     </IntentInterceptorProvider>
   );
   const topLevelInfo = useContext(TopLevelInfoContext);

@@ -43,7 +43,7 @@ import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   SectionActions,
   ActionSingle,
@@ -332,6 +332,7 @@ export default function MetricDetails() {
 
   return (
     <LeafPanel
+      sectionsPanelId="metric"
       key={`metric-${id}/details`}
       entityType={NamedEntityTag.METRIC}
       entityRefId={loaderData.metric.ref_id}
@@ -345,7 +346,9 @@ export default function MetricDetails() {
       accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        id="metric-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -453,9 +456,11 @@ export default function MetricDetails() {
           schedulingParams={loaderData.metric.scheduling_params}
           actionData={actionData}
         />
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="metric-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
           <SectionActions
@@ -481,9 +486,14 @@ export default function MetricDetails() {
             />
           </>
         )}
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard title="Collection Tasks">
+      <StrataSection
+        id="metric-collection-tasks"
+        items={sortedCollectionTasks?.length ?? 0}
+        split={{ size: 2 }}
+        title="Collection Tasks"
+      >
         {sortedCollectionTasks && (
           <InboxTaskStack
             topLevelInfo={topLevelInfo}
@@ -503,7 +513,7 @@ export default function MetricDetails() {
             onCardMarkNotDone={handleCardMarkNotDone}
           />
         )}
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

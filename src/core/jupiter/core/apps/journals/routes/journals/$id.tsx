@@ -22,7 +22,7 @@ import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { JournalStack } from "#/core/apps/journals/component/stack";
 import { JournalEditor } from "#/core/apps/journals/component/editor";
 import { ShowReport } from "#/core/report/component/show-report";
@@ -237,6 +237,7 @@ export default function Journal() {
 
   return (
     <LeafPanel
+      sectionsPanelId="journal"
       key={`journal-${loaderData.journal.ref_id}`}
       entityType={NamedEntityTag.JOURNAL}
       entityRefId={loaderData.journal.ref_id}
@@ -263,28 +264,37 @@ export default function Journal() {
         actionResult={actionData}
       />
 
-      <SectionCard id="journal-note" title="Note">
+      <StrataSection
+        items={loaderData.note ? 1 : 0}
+        id="journal-note"
+        title="Note"
+      >
         <EntityNoteEditor
           initialNote={loaderData.note}
           inputsEnabled={inputsEnabled}
         />
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard id="journal-report" title="Report">
+      <StrataSection id="journal-report" title="Report">
         <ShowReport
           topLevelInfo={topLevelInfo}
           allAspects={loaderData.allAspects || []}
           allGoals={loaderData.allGoals || []}
           report={loaderData.journalStats.report}
         />
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard id="sub-journals" title="Other Journals in this Period">
+      <StrataSection
+        items={sortedSubJournals.length}
+        split={{ size: 1 }}
+        id="sub-journals"
+        title="Other Journals in this Period"
+      >
         <JournalStack
           topLevelInfo={topLevelInfo}
           journals={sortedSubJournals}
         />
-      </SectionCard>
+      </StrataSection>
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
@@ -292,7 +302,12 @@ export default function Journal() {
       ) &&
         loaderData.timePlan &&
         sortedTimePlans.length > 0 && (
-          <SectionCard id="sub-time-plans" title="Time Plans in this Period">
+          <StrataSection
+            items={1}
+            split={{ size: 1 }}
+            id="sub-time-plans"
+            title="Time Plans in this Period"
+          >
             {loaderData.timePlan && (
               <TimePlanStack
                 topLevelInfo={topLevelInfo}
@@ -305,7 +320,7 @@ export default function Journal() {
                 timePlans={sortedTimePlans}
               />
             )}
-          </SectionCard>
+          </StrataSection>
         )}
     </LeafPanel>
   );

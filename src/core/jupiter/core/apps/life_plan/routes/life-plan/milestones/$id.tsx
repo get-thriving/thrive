@@ -19,7 +19,7 @@ import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -172,6 +172,7 @@ export default function MilestoneView() {
 
   return (
     <LeafPanel
+      sectionsPanelId="life-plan-milestone"
       key={`milestone-${loaderData.milestone.ref_id}`}
       entityType={NamedEntityTag.MILESTONE}
       entityRefId={loaderData.milestone.ref_id}
@@ -183,7 +184,9 @@ export default function MilestoneView() {
       returnLocation="/app/workspace/apps/life-plan/milestones"
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        id="milestone-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -256,9 +259,11 @@ export default function MilestoneView() {
           />
           <FieldError actionResult={actionData} fieldName="/date" />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="milestone-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
           <SectionActions
@@ -282,7 +287,7 @@ export default function MilestoneView() {
             inputsEnabled={inputsEnabled}
           />
         )}
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

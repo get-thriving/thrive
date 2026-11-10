@@ -21,7 +21,7 @@ import { GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -217,6 +217,7 @@ export default function SmartListItem() {
 
   return (
     <LeafPanel
+      sectionsPanelId="smart-list-item"
       key={`smart-list-${id}/item-${loaderData.item.ref_id}`}
       entityType={NamedEntityTag.SMART_LIST_ITEM}
       entityRefId={loaderData.item.ref_id}
@@ -241,7 +242,9 @@ export default function SmartListItem() {
         actionResult={actionData}
       />
 
-      <SectionCard
+      <StrataSection
+        id="smart-list-item-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
           <SectionActions
@@ -267,7 +270,7 @@ export default function SmartListItem() {
             />
           </>
         )}
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

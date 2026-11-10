@@ -41,7 +41,7 @@ import {
   NavSingle,
 } from "#/core/infra/component/section-actions";
 import { EntityLocationMapSection } from "#/core/common/sub/locations/component/entity-location-map-section";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { PersonEditor } from "#/core/apps/prm/sub/person/component/editor";
 import { OccasionStack } from "#/core/apps/prm/sub/person/sub/occasion/components/stack";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
@@ -406,6 +406,7 @@ export default function Person() {
 
   return (
     <LeafPanel
+      sectionsPanelId="person"
       key={`person-${person.ref_id}`}
       entityType={NamedEntityTag.PERSON}
       entityRefId={person.ref_id}
@@ -422,7 +423,9 @@ export default function Person() {
     >
       <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
-        <SectionCard
+        <StrataSection
+          id="person-properties-section"
+          fixed
           title="Properties"
           actions={
             <SectionActions
@@ -460,11 +463,14 @@ export default function Person() {
             entityOwner={loaderData.owner}
             actionResult={actionData}
           />
-        </SectionCard>
+        </StrataSection>
 
         <EntityLocationMapSection location={loaderData.location} />
 
-        <SectionCard
+        <StrataSection
+          id="person-occasions-section"
+          items={loaderData.occasions.length}
+          split={{ size: 1 }}
           title="Occasions"
           actions={
             <SectionActions
@@ -484,9 +490,11 @@ export default function Person() {
             occasions={loaderData.occasions}
             occasionTagsByRefId={loaderData.occasionTagsByRefId}
           />
-        </SectionCard>
+        </StrataSection>
 
-        <SectionCard
+        <StrataSection
+          id="person-note-section"
+          items={loaderData.note ? 1 : 0}
           title="Note"
           actions={
             <SectionActions
@@ -512,9 +520,14 @@ export default function Person() {
               />
             </>
           )}
-        </SectionCard>
+        </StrataSection>
 
-        <SectionCard title="Birthday Tasks">
+        <StrataSection
+          id="person-birthday-tasks"
+          items={sortedOccasionTasks.length}
+          split={{ size: 2 }}
+          title="Birthday Tasks"
+        >
           {sortedOccasionTasks.length > 0 && (
             <InboxTaskStack
               topLevelInfo={topLevelInfo}
@@ -532,9 +545,14 @@ export default function Person() {
               }}
             />
           )}
-        </SectionCard>
+        </StrataSection>
 
-        <SectionCard title="Catch Up Tasks">
+        <StrataSection
+          id="person-catch-up-tasks"
+          items={sortedCatchUpTasks.length}
+          split={{ size: 2 }}
+          title="Catch Up Tasks"
+        >
           {sortedCatchUpTasks.length > 0 && (
             <InboxTaskStack
               topLevelInfo={topLevelInfo}
@@ -556,7 +574,7 @@ export default function Person() {
               }
             />
           )}
-        </SectionCard>
+        </StrataSection>
 
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,

@@ -68,7 +68,9 @@ import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSectionStack } from "#/core/infra/component/strata-section-stack";
+import { countSummary } from "#/core/infra/component/count-summary";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { TimePlanActivityList } from "#/core/apps/time_plans/sub/activity/component/list";
 import { saveScoreAction } from "#/core/gamification/scores.server";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
@@ -690,295 +692,316 @@ export default function BigPlan() {
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
     >
-      <NestingAwareBlock>
-        <GlobalError actionResult={actionData} />
-        <BigPlanPropertiesEditor
-          title="Properties"
-          showRefreshStats
-          topLevelInfo={topLevelInfo}
-          lifePlan={loaderData.lifePlan}
-          allAspects={loaderData.allAspects ?? []}
-          allChapters={loaderData.allChapters ?? []}
-          allGoals={loaderData.allGoals ?? []}
-          allMilestones={loaderData.allMilestones ?? []}
-          allBigPlans={loaderData.allBigPlans ?? []}
-          allTags={loaderData.allTags}
-          tags={loaderData.tags}
-          allContacts={loaderData.allContacts}
-          contacts={loaderData.contacts}
-          location={loaderData.location}
-          inputsEnabled={inputsEnabled}
-          entityOwner={loaderData.owner}
-          bigPlan={loaderData.bigPlan}
-          bigPlanInfo={bigPlanInfo}
-          actionData={actionData}
-        />
+      <StrataSectionStack panelId="big-plan">
+        <NestingAwareBlock>
+          <GlobalError actionResult={actionData} />
+          <BigPlanPropertiesEditor
+            title="Properties"
+            showRefreshStats
+            topLevelInfo={topLevelInfo}
+            lifePlan={loaderData.lifePlan}
+            allAspects={loaderData.allAspects ?? []}
+            allChapters={loaderData.allChapters ?? []}
+            allGoals={loaderData.allGoals ?? []}
+            allMilestones={loaderData.allMilestones ?? []}
+            allBigPlans={loaderData.allBigPlans ?? []}
+            allTags={loaderData.allTags}
+            tags={loaderData.tags}
+            allContacts={loaderData.allContacts}
+            contacts={loaderData.contacts}
+            location={loaderData.location}
+            inputsEnabled={inputsEnabled}
+            entityOwner={loaderData.owner}
+            bigPlan={loaderData.bigPlan}
+            bigPlanInfo={bigPlanInfo}
+            actionData={actionData}
+          />
 
-        <SectionCard
-          title="Note"
-          actions={
-            <SectionActions
-              id="person-note"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                ActionSingle({
-                  text: "Create Note",
-                  value: "create-note",
-                  highlight: false,
-                  disabled: loaderData.note !== null,
-                }),
-              ]}
-            />
-          }
-        >
-          {loaderData.note && (
-            <>
-              <EntityNoteEditor
-                initialNote={loaderData.note}
+          <StrataSection
+            id="big-plan-note-section"
+            items={loaderData.note ? 1 : 0}
+            title="Note"
+            summary={loaderData.note ? "written" : "none yet"}
+            actions={
+              <SectionActions
+                id="person-note"
+                topLevelInfo={topLevelInfo}
                 inputsEnabled={inputsEnabled}
+                actions={[
+                  ActionSingle({
+                    text: "Create Note",
+                    value: "create-note",
+                    highlight: false,
+                    disabled: loaderData.note !== null,
+                  }),
+                ]}
               />
-            </>
-          )}
-        </SectionCard>
-
-        <SectionCard
-          id="big-plan-milestones"
-          title="Milestones"
-          actions={
-            <SectionActions
-              id="big-plan-milestones"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                NavSingle({
-                  text: "New",
-                  link: `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/milestones/new`,
-                }),
-              ]}
-            />
-          }
-        >
-          <BigPlanMilestoneStack milestones={loaderData.milestones} />
-        </SectionCard>
-
-        <SectionCard
-          id="big-plan-inbox-tasks"
-          title="Inbox Tasks"
-          actions={
-            <SectionActions
-              id="big-plan-inbox-tasks"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                NavSingle({
-                  text: "New",
-                  link: `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/new`,
-                }),
-                FilterFewOptionsCompact(
-                  "View",
-                  selectedInboxTasksView,
-                  [
-                    {
-                      value: InboxTasksView.KANBAN_BY_EISEN,
-                      text: "Kanban by Eisen",
-                      icon: <ViewKanbanIcon />,
-                    },
-                    {
-                      value: InboxTasksView.KANBAN,
-                      text: "Kanban",
-                      icon: <ViewKanbanIcon />,
-                    },
-                    {
-                      value: InboxTasksView.LIST,
-                      text: "List",
-                      icon: <ViewListIcon />,
-                    },
-                  ],
-                  (selected) => setFilters({ inboxTasksView: selected }),
-                ),
-              ]}
-            />
-          }
-        >
-          {selectedInboxTasksView === InboxTasksView.KANBAN_BY_EISEN && (
-            <>
-              {isBigScreen && (
-                <DragDropContext
-                  onDragStart={onDragStart}
-                  onDragEnd={onDragEnd}
-                >
-                  <>
-                    {EISENS.map((e) => (
-                      <Fragment key={e}>
-                        <StandardDivider
-                          title={`${eisenIcon(e)} ${eisenName(e)}`}
-                          size="large"
-                        />
-                        <InboxTaskKanbanBoard
-                          topLevelInfo={topLevelInfo}
-                          inboxTasks={sortedInboxTasks}
-                          optimisticUpdates={optimisticUpdates}
-                          inboxTasksByRefId={inboxTasksByRefId}
-                          moreInfoByRefId={moreInfoByRefId}
-                          actionableTime={ActionableTime.NOW}
-                          allowEisen={e}
-                          draggedInboxTaskId={draggedInboxTaskId}
-                          allowMove={inputsEnabled}
-                          cardLinkResolver={(it) =>
-                            `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
-                          }
-                        />
-                      </Fragment>
-                    ))}
-                  </>
-                </DragDropContext>
-              )}
-              {!isBigScreen && (
-                <SmallScreenKanbanByEisen
-                  topLevelInfo={topLevelInfo}
-                  inboxTasks={sortedInboxTasks}
-                  optimisticUpdates={optimisticUpdates}
-                  moreInfoByRefId={moreInfoByRefId}
-                  actionableTime={ActionableTime.NOW}
-                  onCardMarkDone={
-                    inputsEnabled ? handleCardMarkDone : undefined
-                  }
-                  onCardMarkNotDone={
-                    inputsEnabled ? handleCardMarkNotDone : undefined
-                  }
-                  emptyParent="inbox task"
-                  cardLinkResolver={(it) =>
-                    `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
-                  }
+            }
+          >
+            {loaderData.note && (
+              <>
+                <EntityNoteEditor
+                  initialNote={loaderData.note}
+                  inputsEnabled={inputsEnabled}
                 />
-              )}
-            </>
-          )}
+              </>
+            )}
+          </StrataSection>
 
-          {selectedInboxTasksView === InboxTasksView.KANBAN && (
-            <>
-              {isBigScreen && (
-                <DragDropContext
-                  onDragStart={onDragStart}
-                  onDragEnd={onDragEnd}
-                >
-                  <InboxTaskKanbanBoard
+          <StrataSection
+            id="big-plan-milestones"
+            items={loaderData.milestones.length}
+            split={{ size: 1 }}
+            title="Milestones"
+            summary={countSummary(
+              loaderData.milestones.length,
+              "milestone",
+              "milestones",
+            )}
+            actions={
+              <SectionActions
+                id="big-plan-milestones"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  NavSingle({
+                    text: "New",
+                    link: `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/milestones/new`,
+                  }),
+                ]}
+              />
+            }
+          >
+            <BigPlanMilestoneStack milestones={loaderData.milestones} />
+          </StrataSection>
+
+          <StrataSection
+            id="big-plan-inbox-tasks"
+            items={sortedInboxTasks.length}
+            title="Inbox Tasks"
+            summary={countSummary(sortedInboxTasks.length, "task", "tasks")}
+            actions={
+              <SectionActions
+                id="big-plan-inbox-tasks"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  NavSingle({
+                    text: "New",
+                    link: `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/new`,
+                  }),
+                  FilterFewOptionsCompact(
+                    "View",
+                    selectedInboxTasksView,
+                    [
+                      {
+                        value: InboxTasksView.KANBAN_BY_EISEN,
+                        text: "Kanban by Eisen",
+                        icon: <ViewKanbanIcon />,
+                      },
+                      {
+                        value: InboxTasksView.KANBAN,
+                        text: "Kanban",
+                        icon: <ViewKanbanIcon />,
+                      },
+                      {
+                        value: InboxTasksView.LIST,
+                        text: "List",
+                        icon: <ViewListIcon />,
+                      },
+                    ],
+                    (selected) => setFilters({ inboxTasksView: selected }),
+                  ),
+                ]}
+              />
+            }
+          >
+            {selectedInboxTasksView === InboxTasksView.KANBAN_BY_EISEN && (
+              <>
+                {isBigScreen && (
+                  <DragDropContext
+                    onDragStart={onDragStart}
+                    onDragEnd={onDragEnd}
+                  >
+                    <>
+                      {EISENS.map((e) => (
+                        <Fragment key={e}>
+                          <StandardDivider
+                            title={`${eisenIcon(e)} ${eisenName(e)}`}
+                            size="large"
+                          />
+                          <InboxTaskKanbanBoard
+                            topLevelInfo={topLevelInfo}
+                            inboxTasks={sortedInboxTasks}
+                            optimisticUpdates={optimisticUpdates}
+                            inboxTasksByRefId={inboxTasksByRefId}
+                            moreInfoByRefId={moreInfoByRefId}
+                            actionableTime={ActionableTime.NOW}
+                            allowEisen={e}
+                            draggedInboxTaskId={draggedInboxTaskId}
+                            allowMove={inputsEnabled}
+                            cardLinkResolver={(it) =>
+                              `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
+                            }
+                          />
+                        </Fragment>
+                      ))}
+                    </>
+                  </DragDropContext>
+                )}
+                {!isBigScreen && (
+                  <SmallScreenKanbanByEisen
                     topLevelInfo={topLevelInfo}
                     inboxTasks={sortedInboxTasks}
                     optimisticUpdates={optimisticUpdates}
-                    inboxTasksByRefId={inboxTasksByRefId}
                     moreInfoByRefId={moreInfoByRefId}
                     actionableTime={ActionableTime.NOW}
-                    draggedInboxTaskId={draggedInboxTaskId}
-                    allowMove={inputsEnabled}
+                    onCardMarkDone={
+                      inputsEnabled ? handleCardMarkDone : undefined
+                    }
+                    onCardMarkNotDone={
+                      inputsEnabled ? handleCardMarkNotDone : undefined
+                    }
+                    emptyParent="inbox task"
                     cardLinkResolver={(it) =>
                       `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
                     }
                   />
-                </DragDropContext>
-              )}
-              {!isBigScreen && (
-                <SmallScreenKanban
-                  topLevelInfo={topLevelInfo}
-                  inboxTasks={sortedInboxTasks}
-                  optimisticUpdates={optimisticUpdates}
-                  moreInfoByRefId={moreInfoByRefId}
-                  actionableTime={ActionableTime.NOW}
-                  onCardMarkDone={
-                    inputsEnabled ? handleCardMarkDone : undefined
-                  }
-                  onCardMarkNotDone={
-                    inputsEnabled ? handleCardMarkNotDone : undefined
-                  }
-                  emptyParent="inbox task"
-                  cardLinkResolver={(it) =>
-                    `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
-                  }
-                />
-              )}
-            </>
-          )}
+                )}
+              </>
+            )}
 
-          {selectedInboxTasksView === InboxTasksView.LIST && (
-            <InboxTaskStack
+            {selectedInboxTasksView === InboxTasksView.KANBAN && (
+              <>
+                {isBigScreen && (
+                  <DragDropContext
+                    onDragStart={onDragStart}
+                    onDragEnd={onDragEnd}
+                  >
+                    <InboxTaskKanbanBoard
+                      topLevelInfo={topLevelInfo}
+                      inboxTasks={sortedInboxTasks}
+                      optimisticUpdates={optimisticUpdates}
+                      inboxTasksByRefId={inboxTasksByRefId}
+                      moreInfoByRefId={moreInfoByRefId}
+                      actionableTime={ActionableTime.NOW}
+                      draggedInboxTaskId={draggedInboxTaskId}
+                      allowMove={inputsEnabled}
+                      cardLinkResolver={(it) =>
+                        `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
+                      }
+                    />
+                  </DragDropContext>
+                )}
+                {!isBigScreen && (
+                  <SmallScreenKanban
+                    topLevelInfo={topLevelInfo}
+                    inboxTasks={sortedInboxTasks}
+                    optimisticUpdates={optimisticUpdates}
+                    moreInfoByRefId={moreInfoByRefId}
+                    actionableTime={ActionableTime.NOW}
+                    onCardMarkDone={
+                      inputsEnabled ? handleCardMarkDone : undefined
+                    }
+                    onCardMarkNotDone={
+                      inputsEnabled ? handleCardMarkNotDone : undefined
+                    }
+                    emptyParent="inbox task"
+                    cardLinkResolver={(it) =>
+                      `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
+                    }
+                  />
+                )}
+              </>
+            )}
+
+            {selectedInboxTasksView === InboxTasksView.LIST && (
+              <InboxTaskStack
+                topLevelInfo={topLevelInfo}
+                showOptions={{
+                  showStatus: true,
+                  showEisen: true,
+                  showDifficulty: true,
+                  showActionableDate: true,
+                  showDueDate: true,
+                  showHandleMarkDone: inputsEnabled,
+                  showHandleMarkNotDone: inputsEnabled,
+                }}
+                inboxTasks={sortedInboxTasks}
+                optimisticUpdates={optimisticUpdates}
+                moreInfoByRefId={moreInfoByRefId}
+                cardLinkResolver={(it) =>
+                  `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
+                }
+                onCardMarkDone={inputsEnabled ? handleCardMarkDone : undefined}
+                onCardMarkNotDone={
+                  inputsEnabled ? handleCardMarkNotDone : undefined
+                }
+              />
+            )}
+          </StrataSection>
+
+          {isWorkspaceFeatureAvailable(
+            topLevelInfo.workspace,
+            WorkspaceFeature.SCHEDULE,
+          ) && (
+            <TimeEventInDayBlockStack
               topLevelInfo={topLevelInfo}
-              showOptions={{
-                showStatus: true,
-                showEisen: true,
-                showDifficulty: true,
-                showActionableDate: true,
-                showDueDate: true,
-                showHandleMarkDone: inputsEnabled,
-                showHandleMarkNotDone: inputsEnabled,
-              }}
-              inboxTasks={sortedInboxTasks}
-              optimisticUpdates={optimisticUpdates}
-              moreInfoByRefId={moreInfoByRefId}
-              cardLinkResolver={(it) =>
-                `/app/workspace/apps/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
-              }
-              onCardMarkDone={inputsEnabled ? handleCardMarkDone : undefined}
-              onCardMarkNotDone={
-                inputsEnabled ? handleCardMarkNotDone : undefined
-              }
+              inputsEnabled={inputsEnabled}
+              title="Time Events"
+              createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-big-plan?bigPlanRefId=${loaderData.bigPlan.ref_id}`}
+              entries={sortedTimeEventEntries}
             />
           )}
-        </SectionCard>
 
-        {isWorkspaceFeatureAvailable(
-          topLevelInfo.workspace,
-          WorkspaceFeature.SCHEDULE,
-        ) && (
-          <TimeEventInDayBlockStack
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            title="Time Events"
-            createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-big-plan?bigPlanRefId=${loaderData.bigPlan.ref_id}`}
-            entries={sortedTimeEventEntries}
-          />
-        )}
-
-        {isWorkspaceFeatureAvailable(
-          topLevelInfo.workspace,
-          WorkspaceFeature.TIME_PLANS,
-        ) &&
-          timePlanActivities && (
-            <SectionCard
-              id="big-plan-time-plans"
-              title="Time Plans"
-              actions={
-                <SectionActions
-                  id="big-plan-time-plans-actions"
+          {isWorkspaceFeatureAvailable(
+            topLevelInfo.workspace,
+            WorkspaceFeature.TIME_PLANS,
+          ) &&
+            timePlanActivities && (
+              <StrataSection
+                id="big-plan-time-plans"
+                items={timePlanActivities.length}
+                split={{ size: 1 }}
+                title="Time Plans"
+                summary={countSummary(
+                  timePlanActivities.length,
+                  "activity",
+                  "activities",
+                )}
+                actions={
+                  <SectionActions
+                    id="big-plan-time-plans-actions"
+                    topLevelInfo={topLevelInfo}
+                    inputsEnabled={inputsEnabled}
+                    actions={[
+                      NavSingle({
+                        text: "Add",
+                        highlight: false,
+                        link: `/app/workspace/apps/time-plans/add-big-plan-to-plans?bigPlanRefId=${loaderData.bigPlan.ref_id}`,
+                      }),
+                    ]}
+                  />
+                }
+              >
+                <TimePlanActivityList
                   topLevelInfo={topLevelInfo}
-                  inputsEnabled={inputsEnabled}
-                  actions={[
-                    NavSingle({
-                      text: "Add",
-                      highlight: false,
-                      link: `/app/workspace/apps/time-plans/add-big-plan-to-plans?bigPlanRefId=${loaderData.bigPlan.ref_id}`,
-                    }),
-                  ]}
+                  activities={timePlanActivities}
+                  timePlansByRefId={timePlansByRefId}
+                  inboxTasksByRefId={new Map()}
+                  bigPlansByRefId={bigPlansByRefId}
+                  todoTasksByRefId={new Map()}
+                  habitsByRefId={new Map()}
+                  choresByRefId={new Map()}
+                  activityDoneness={{}}
+                  timeEventsByRefId={timeEventsByRefId}
+                  fullInfo={false}
+                  showTimePlanName={true}
                 />
-              }
-            >
-              <TimePlanActivityList
-                topLevelInfo={topLevelInfo}
-                activities={timePlanActivities}
-                timePlansByRefId={timePlansByRefId}
-                inboxTasksByRefId={new Map()}
-                bigPlansByRefId={bigPlansByRefId}
-                todoTasksByRefId={new Map()}
-                habitsByRefId={new Map()}
-                choresByRefId={new Map()}
-                activityDoneness={{}}
-                timeEventsByRefId={timeEventsByRefId}
-                fullInfo={false}
-                showTimePlanName={true}
-              />
-            </SectionCard>
-          )}
-      </NestingAwareBlock>
+              </StrataSection>
+            )}
+        </NestingAwareBlock>
+      </StrataSectionStack>
 
       <NestedOutlet />
     </LeafPanel>

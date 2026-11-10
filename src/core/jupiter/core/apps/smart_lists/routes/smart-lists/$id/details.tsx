@@ -22,7 +22,7 @@ import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -170,6 +170,7 @@ export default function SmartListDetails() {
 
   return (
     <LeafPanel
+      sectionsPanelId="smart-list"
       key={`smart-list-${id}/details`}
       entityType={NamedEntityTag.SMART_LIST}
       entityRefId={loaderData.smartList.ref_id}
@@ -183,7 +184,9 @@ export default function SmartListDetails() {
       accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        id="smart-list-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -242,9 +245,11 @@ export default function SmartListDetails() {
           />
           <FieldError actionResult={actionData} fieldName="/icon" />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="smart-list-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
           <SectionActions
@@ -270,7 +275,7 @@ export default function SmartListDetails() {
             />
           </>
         )}
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

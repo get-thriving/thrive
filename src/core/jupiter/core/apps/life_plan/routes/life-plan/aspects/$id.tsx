@@ -18,7 +18,7 @@ import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { AspectSelect } from "#/core/apps/life_plan/sub/aspects/component/select";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   SectionActions,
   ActionSingle,
@@ -190,6 +190,7 @@ export default function Aspect() {
 
   return (
     <LeafPanel
+      sectionsPanelId="life-plan-aspect"
       key={`aspect-${loaderData.aspect.ref_id}`}
       entityType={NamedEntityTag.ASPECT}
       entityRefId={loaderData.aspect.ref_id}
@@ -201,7 +202,9 @@ export default function Aspect() {
       returnLocation="/app/workspace/apps/life-plan/aspects"
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        id="aspect-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -266,9 +269,11 @@ export default function Aspect() {
             />
           </FormControl>
         )}
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="aspect-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
           <SectionActions
@@ -294,7 +299,7 @@ export default function Aspect() {
             />
           </>
         )}
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

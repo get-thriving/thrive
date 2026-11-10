@@ -100,6 +100,7 @@ export const strataSize = {
   topBar: 44,
   columnHeader: 36,
   filterRow: 36,
+  sectionHeader: 30, // a section's title row inside a column
   rowDense: 26, // nested items, generated tasks
   row: 28, // default list row
   rowComfortable: 30, // trunk lists

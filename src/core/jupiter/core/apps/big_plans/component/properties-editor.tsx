@@ -56,7 +56,7 @@ import {
   NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   constructFieldErrorName,
   constructFieldName,
@@ -188,7 +188,9 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
 
   return (
     <>
-      <SectionCard
+      <StrataSection
+        id="big-plan-properties-section"
+        fixed
         title={props.title}
         actions={
           <SectionActions
@@ -627,7 +629,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
             )}
           </Stack>
         </CardActions>
-      </SectionCard>
+      </StrataSection>
       <EntityLocationMapSection location={props.location} />
     </>
   );

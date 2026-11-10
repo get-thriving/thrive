@@ -13,7 +13,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
@@ -33,7 +33,9 @@ export function MetricEntryEditor(props: MetricEntryEditorProps) {
   const { metricEntry, tags, contacts, allTags, allContacts } = props;
 
   return (
-    <SectionCard
+    <StrataSection
+      id="metric-entry-properties-section"
+      fixed
       title="Properties"
       actions={
         props.inputsEnabled ? (
@@ -127,6 +129,6 @@ export function MetricEntryEditor(props: MetricEntryEditorProps) {
         />
         <FieldError actionResult={props.actionResult} fieldName="/value" />
       </FormControl>
-    </SectionCard>
+    </StrataSection>
   );
 }

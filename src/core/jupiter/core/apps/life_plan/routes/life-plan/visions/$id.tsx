@@ -14,7 +14,7 @@ import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   isVisionActivable,
   isVisionEditable,
@@ -130,7 +130,9 @@ export default function Vision() {
     >
       <GlobalError actionResult={actionData} />
 
-      <SectionCard
+      <StrataSection
+        id="vision-section"
+        fixed
         title="Vision"
         actions={
           <SectionActions
@@ -152,7 +154,7 @@ export default function Vision() {
           initialNote={loaderData.note}
           inputsEnabled={noteInputsEnabled}
         />
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

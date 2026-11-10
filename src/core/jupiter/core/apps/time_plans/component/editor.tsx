@@ -25,7 +25,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ChapterMultiSelect } from "#/core/apps/life_plan/sub/chapters/components/multi-select";
@@ -80,7 +80,9 @@ export function TimePlanEditor(props: TimePlanEditorProps) {
     props.inputsEnabled && lifePlanAssociationsInWorkspace;
 
   return (
-    <SectionCard
+    <StrataSection
+      id="time-plan-properties-section"
+      fixed
       title="Properties"
       actions={
         <SectionActions
@@ -210,7 +212,7 @@ export function TimePlanEditor(props: TimePlanEditorProps) {
             </>
           )}
       </Stack>
-    </SectionCard>
+    </StrataSection>
   );
 }
 

@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GlobalStyles } from "@mui/material";
 import { useMatches, useSearchParams } from "react-router";
 
@@ -14,15 +14,37 @@ import { StrataEmptySlot } from "#/core/infra/component/layout/strata-empty-slot
 import {
   StrataColumnsContext,
   type StrataColumnsApi,
+  type StrataSplitState,
 } from "#/core/infra/component/layout/strata-columns-context";
 import { strataCloseFocusedColumn } from "#/core/infra/component/layout/strata-close-focused-column";
 import { isStrataCloseKey } from "#/core/infra/strata/strata-close-key";
 import { strataFocusStep } from "#/core/infra/strata/strata-focus-key";
-import { strataLayoutFor } from "#/core/infra/strata/strata-layout-for";
+import { strataLayoutWithSplits } from "#/core/infra/strata/strata-layout-for";
+import {
+  strataSplitIdOf,
+  strataSplitKey,
+} from "#/core/infra/strata/strata-columns-with-splits";
+import type { StrataSplitSpec } from "#/core/infra/strata/strata-split-spec";
+import { StrataSplitColumn } from "#/core/infra/component/layout/strata-split-column";
 import { strataPhoneLayoutFor } from "#/core/infra/strata/strata-phone-layout-for";
 import type { StrataLevel } from "#/core/infra/strata/strata-level";
 import { strataLevelOf } from "#/core/infra/strata/strata-level-of";
 import { useStrataPath } from "#/core/infra/strata/use-strata-path";
+
+// A section split out into a column of its own is kept in the URL as
+// `panel-id[split]=section-id` (ADR 0014).
+const SPLIT_PARAM_RE = /^[a-z0-9]+(-[a-z0-9]+)*\[split\]$/;
+
+function sameSplitSpec(a: StrataSplitSpec, b: StrataSplitSpec): boolean {
+  return (
+    a.id === b.id &&
+    a.parentKey === b.parentKey &&
+    a.title === b.title &&
+    a.size === b.size &&
+    a.grow === b.grow &&
+    a.parentSize === b.parentSize
+  );
+}
 
 // What the server render and the first client render assume, so they agree.
 const DEFAULT_WINDOW_WIDTH = 1440;
@@ -49,8 +71,18 @@ export function StrataColumnsProvider(
   const [windowWidth, setWindowWidth] = useState(
     props.phone ? DEFAULT_PHONE_WIDTH : DEFAULT_WINDOW_WIDTH,
   );
-  // Which panel has the focus, for the path it was chosen on.
-  const [chosen, setChosen] = useState<{ pathKey: string; index: number }>();
+  // Which column has the focus (a route column's or a split's key), for the
+  // path it was chosen on.
+  const [chosen, setChosen] = useState<{ pathKey: string; key: string }>();
+  // The sections on screen which can be columns, and where each is drawn once
+  // it is one.
+  const [splitSpecs, setSplitSpecs] = useState<
+    ReadonlyMap<string, StrataSplitSpec>
+  >(() => new Map());
+  const [hosts, setHosts] = useState<ReadonlyMap<string, HTMLElement>>(
+    () => new Map(),
+  );
+  const folders = useRef(new Map<string, () => void>());
   // Counts the times the user moved the focus, so the focused panel can take
   // the keyboard focus too.
   const [moves, setMoves] = useState(0);
@@ -76,10 +108,21 @@ export function StrataColumnsProvider(
 
   const pathKey = path.map((panel) => panel.key).join("|");
   // A new path starts with the deepest panel focused again.
-  const focusIndex =
+  const focusKey =
     chosen !== undefined && chosen.pathKey === pathKey
-      ? chosen.index
-      : path.length - 1;
+      ? chosen.key
+      : (path[path.length - 1]?.key ?? "");
+
+  // Every `panel[split]=section` in the URL, in the order they were opened.
+  const wantedKey = Array.from(searchParams.entries())
+    .filter(([key]) => SPLIT_PARAM_RE.test(key))
+    .map(([, value]) => value)
+    .filter((value, index, all) => all.indexOf(value) === index)
+    .join("|");
+  const wanted = useMemo(
+    () => (wantedKey === "" ? [] : wantedKey.split("|")),
+    [wantedKey],
+  );
 
   const keyByLevel = useMemo(() => {
     const keys = new Map<StrataLevel, string>();
@@ -92,15 +135,51 @@ export function StrataColumnsProvider(
     return keys;
   }, [matches]);
 
-  const layout = useMemo(
-    () =>
-      path.length === 0
-        ? null
-        : props.phone
-          ? strataPhoneLayoutFor(path, focusIndex, windowWidth)
-          : strataLayoutFor(path, focusIndex, windowWidth, props.offsetLeft),
-    [path, focusIndex, windowWidth, props.offsetLeft, props.phone],
-  );
+  // What is laid out: the columns on screen, in order, which of them is
+  // focused, and which splits are shown or were folded back for lack of room.
+  // A small screen has no splits: sections stay inline.
+  const view = useMemo(() => {
+    if (path.length === 0) {
+      return null;
+    }
+    if (props.phone) {
+      const focus = Math.max(
+        0,
+        path.findIndex((panel) => panel.key === focusKey),
+      );
+      return {
+        layout: strataPhoneLayoutFor(path, focus, windowWidth),
+        columns: path,
+        focus,
+        active: [] as string[],
+      };
+    }
+    const result = strataLayoutWithSplits({
+      path,
+      splits: splitSpecs,
+      wanted,
+      focusKey,
+      width: windowWidth,
+      rail: props.offsetLeft,
+    });
+    return {
+      layout: result,
+      columns: result.columns,
+      focus: result.focus,
+      active: result.active,
+    };
+  }, [
+    path,
+    focusKey,
+    windowWidth,
+    props.offsetLeft,
+    props.phone,
+    splitSpecs,
+    wanted,
+  ]);
+  const layout = view?.layout ?? null;
+  const columns = view?.columns ?? path;
+  const focusIndex = view?.focus ?? 0;
 
   const columnFor = useCallback(
     (level: StrataLevel) => {
@@ -110,57 +189,135 @@ export function StrataColumnsProvider(
     [keyByLevel, layout],
   );
 
+  const focusColumn = useCallback(
+    (key: string) => {
+      setChosen({ pathKey, key });
+      setMoves((current) => current + 1);
+    },
+    [pathKey],
+  );
+
   const focus = useCallback(
     (level: StrataLevel) => {
-      const index = path.findIndex(
-        (panel) => panel.key === keyByLevel.get(level),
-      );
-      if (index >= 0) {
-        setChosen({ pathKey, index });
-        setMoves((current) => current + 1);
+      const key = keyByLevel.get(level);
+      if (key !== undefined && path.some((panel) => panel.key === key)) {
+        focusColumn(key);
       }
     },
-    [path, pathKey, keyByLevel],
+    [path, keyByLevel, focusColumn],
   );
 
   const focusAt = useCallback(
     (index: number) => {
-      if (index >= 0 && index < path.length) {
-        setChosen({ pathKey, index });
-        setMoves((current) => current + 1);
+      if (index >= 0 && index < columns.length) {
+        focusColumn(columns[index].key);
       }
     },
-    [path.length, pathKey],
+    [columns, focusColumn],
+  );
+
+  const focusRoute = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < path.length) {
+        focusColumn(path[index].key);
+      }
+    },
+    [path, focusColumn],
   );
 
   const focusOut = useCallback(() => {
     if (focusIndex <= 0) {
       return false;
     }
-    setChosen({ pathKey, index: focusIndex - 1 });
-    setMoves((current) => current + 1);
+    focusColumn(columns[focusIndex - 1].key);
     return true;
-  }, [focusIndex, pathKey]);
+  }, [focusIndex, columns, focusColumn]);
 
-  // `h` and `l` move the focus along the open panels, which brings the new one
-  // in whole.
+  const registerSplit = useCallback(
+    (spec: StrataSplitSpec, fold: () => void) => {
+      folders.current.set(spec.id, fold);
+      setSplitSpecs((current) => {
+        const known = current.get(spec.id);
+        if (known !== undefined && sameSplitSpec(known, spec)) {
+          return current;
+        }
+        return new Map(current).set(spec.id, spec);
+      });
+      return () => {
+        folders.current.delete(spec.id);
+        setSplitSpecs((current) => {
+          if (!current.has(spec.id)) {
+            return current;
+          }
+          const next = new Map(current);
+          next.delete(spec.id);
+          return next;
+        });
+      };
+    },
+    [],
+  );
+
+  const setHost = useCallback((id: string, element: HTMLElement | null) => {
+    setHosts((current) => {
+      if (element === null) {
+        if (!current.has(id)) {
+          return current;
+        }
+        const next = new Map(current);
+        next.delete(id);
+        return next;
+      }
+      return current.get(id) === element
+        ? current
+        : new Map(current).set(id, element);
+    });
+  }, []);
+
+  const splitHost = useCallback((id: string) => hosts.get(id) ?? null, [hosts]);
+
+  // The splits the user asked for whose section is on screen: shown as
+  // columns, or folded back for lack of room.
+  const splits = useMemo<StrataSplitState[]>(() => {
+    const active = view?.active ?? [];
+    return wanted.flatMap((id) => {
+      const spec = splitSpecs.get(id);
+      if (spec === undefined) {
+        return [];
+      }
+      const shown = active.includes(id);
+      return [
+        {
+          id,
+          title: spec.title,
+          key: strataSplitKey(id),
+          state: shown ? ("active" as const) : ("folded" as const),
+        },
+      ];
+    });
+  }, [wanted, splitSpecs, view]);
+
+  // `h` and `l` move the focus along the open columns, which brings the new
+  // one in whole.
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       const step = strataFocusStep(event, isTypingTarget(event.target));
       if (step === null) {
         return;
       }
-      const index = Math.max(0, Math.min(path.length - 1, focusIndex + step));
+      const index = Math.max(
+        0,
+        Math.min(columns.length - 1, focusIndex + step),
+      );
       if (index === focusIndex) {
         return;
       }
       event.preventDefault();
-      setChosen({ pathKey, index });
-      setMoves((current) => current + 1);
+      focusColumn(columns[index].key);
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [path.length, pathKey, focusIndex]);
+  }, [columns, focusIndex, focusColumn]);
 
   // `Escape` closes the focused panel, with the close control it has.
   useEffect(() => {
@@ -192,23 +349,33 @@ export function StrataColumnsProvider(
       columnFor,
       focus,
       focusAt,
+      focusRoute,
+      focusColumn,
+      splits,
+      registerSplit,
+      splitHost,
       slots: layout?.slots ?? [],
       offsetLeft: props.offsetLeft,
       animate,
       phone: props.phone,
-      position: { index: focusIndex, count: path.length },
+      position: { index: focusIndex, count: columns.length },
       focusOut,
     }),
     [
       columnFor,
       focus,
       focusAt,
+      focusRoute,
+      focusColumn,
+      splits,
+      registerSplit,
+      splitHost,
       layout,
       props.offsetLeft,
       animate,
       props.phone,
       focusIndex,
-      path.length,
+      columns.length,
       focusOut,
     ],
   );
@@ -216,6 +383,27 @@ export function StrataColumnsProvider(
   return (
     <StrataColumnsContext.Provider value={api}>
       {props.children}
+      {!props.phone &&
+        layout?.slots.map((slot) => {
+          const id = strataSplitIdOf(slot.key);
+          const spec = id === null ? undefined : splitSpecs.get(id);
+          if (id === null || spec === undefined) {
+            return null;
+          }
+          return (
+            <StrataSplitColumn
+              key={slot.key}
+              id={id}
+              title={spec.title}
+              column={slot}
+              offsetLeft={props.offsetLeft}
+              animate={animate}
+              onFocus={() => focusColumn(slot.key)}
+              onFold={() => folders.current.get(id)?.()}
+              setHost={setHost}
+            />
+          );
+        })}
       {layout?.gutters.map((gutter) => (
         <StrataEmptySlot
           key={gutter.side}

@@ -60,7 +60,9 @@ import {
   ActionSingle,
   NavSingle,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSectionStack } from "#/core/infra/component/strata-section-stack";
+import { countSummary } from "#/core/infra/component/count-summary";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { TimePlanActivityList } from "#/core/apps/time_plans/sub/activity/component/list";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 import {
@@ -541,194 +543,224 @@ export default function Habit() {
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
     >
-      <NestingAwareBlock>
-        <GlobalError actionResult={actionData} />
-        <HabitPropertiesEditor
-          title="Properties"
-          topLevelInfo={topLevelInfo}
-          lifePlan={loaderData.lifePlan}
-          allAspects={loaderData.allAspects ?? []}
-          allChapters={loaderData.allChapters ?? []}
-          allGoals={loaderData.allGoals ?? []}
-          allMilestones={loaderData.allMilestones ?? []}
-          allTags={loaderData.allTags}
-          tags={loaderData.tags}
-          allContacts={loaderData.allContacts}
-          contacts={loaderData.contacts}
-          location={loaderData.location}
-          inputsEnabled={inputsEnabled}
-          entityOwner={loaderData.owner}
-          habit={loaderData.habit}
-          allStacks={loaderData.allStacks}
-          aspect={loaderData.aspect}
-          chapter={loaderData.chapter}
-          goal={loaderData.goal}
-          actionData={actionData}
-        />
-
-        <SectionCard
-          id="habit-streak"
-          title="Streak"
-          actions={
-            <SectionActions
-              id="habit-streak"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                NavSingle({
-                  text: "Reset Streak",
-                  link: `/app/workspace/apps/habits/habits/${habitRefId}/streak-inactive-periods/reset${streakSearch === "" ? "" : `?${streakSearch}`}`,
-                }),
-                NavSingle({
-                  text: "Mark Range Inactive",
-                  link: `/app/workspace/apps/habits/habits/${habitRefId}/streak-inactive-periods/new${streakSearch === "" ? "" : `?${streakSearch}`}`,
-                }),
-              ]}
-            />
-          }
-        >
-          <HabitStreakCalendar
-            earliestDate={loaderData.streakMarkEarliestDate}
-            latestDate={loaderData.streakMarkLatestDate}
-            currentToday={topLevelInfo.today}
-            habit={loaderData.habit}
-            streakMarks={loaderData.streakMarks}
-            inactivePeriods={loaderData.streakInactivePeriods}
-            showNav
-            getNavUrl={(earliestDate, latestDate) =>
-              `/app/workspace/apps/habits/habits/${loaderData.habit.ref_id}?${newURLParams(
-                query,
-                "viewOneIncludeStreakMarksEarliestDate",
-                earliestDate,
-                "viewOneIncludeStreakMarksLatestDate",
-                latestDate,
-              )}`
-            }
-          />
-          <StreakInactivePeriodStack
-            habitRefId={habitRefId}
-            periods={loaderData.streakInactivePeriods}
-            search={streakSearch}
-          />
-        </SectionCard>
-
-        <SectionCard
-          title="Note"
-          actions={
-            <SectionActions
-              id="habit-note"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                ActionSingle({
-                  text: "Create Note",
-                  value: "create-note",
-                  highlight: false,
-                  disabled: loaderData.note !== null,
-                }),
-              ]}
-            />
-          }
-        >
-          {loaderData.note && (
-            <>
-              <EntityNoteEditor
-                initialNote={loaderData.note}
-                inputsEnabled={inputsEnabled}
-              />
-            </>
-          )}
-        </SectionCard>
-
-        {isWorkspaceFeatureAvailable(
-          topLevelInfo.workspace,
-          WorkspaceFeature.SCHEDULE,
-        ) && (
-          <TimeEventInDayBlockStack
+      <StrataSectionStack panelId="habit">
+        <NestingAwareBlock>
+          <GlobalError actionResult={actionData} />
+          <HabitPropertiesEditor
+            title="Properties"
             topLevelInfo={topLevelInfo}
+            lifePlan={loaderData.lifePlan}
+            allAspects={loaderData.allAspects ?? []}
+            allChapters={loaderData.allChapters ?? []}
+            allGoals={loaderData.allGoals ?? []}
+            allMilestones={loaderData.allMilestones ?? []}
+            allTags={loaderData.allTags}
+            tags={loaderData.tags}
+            allContacts={loaderData.allContacts}
+            contacts={loaderData.contacts}
+            location={loaderData.location}
             inputsEnabled={inputsEnabled}
-            title="Time Events"
-            createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-habit?habitRefId=${loaderData.habit.ref_id}`}
-            entries={sortedTimeEventEntries}
+            entityOwner={loaderData.owner}
+            habit={loaderData.habit}
+            allStacks={loaderData.allStacks}
+            aspect={loaderData.aspect}
+            chapter={loaderData.chapter}
+            goal={loaderData.goal}
+            actionData={actionData}
           />
-        )}
 
-        {isWorkspaceFeatureAvailable(
-          topLevelInfo.workspace,
-          WorkspaceFeature.TIME_PLANS,
-        ) &&
-          loaderData.timePlanActivities && (
-            <SectionCard
-              id="habit-time-plans"
-              title="Time Plans"
-              actions={
-                <SectionActions
-                  id="habit-time-plans-actions"
-                  topLevelInfo={topLevelInfo}
-                  inputsEnabled={inputsEnabled}
-                  actions={[
-                    NavSingle({
-                      text: "Add",
-                      highlight: false,
-                      link: `/app/workspace/apps/time-plans/add-habit-to-plans?habitRefId=${loaderData.habit.ref_id}`,
-                    }),
-                  ]}
-                />
-              }
-            >
-              <TimePlanActivityList
-                topLevelInfo={topLevelInfo}
-                activities={loaderData.timePlanActivities.map(
-                  (entry) => entry.time_plan_activity,
-                )}
-                timePlansByRefId={
-                  new Map(
-                    loaderData.timePlanActivities.map((entry) => [
-                      entry.time_plan.ref_id,
-                      entry.time_plan,
-                    ]),
+          <StrataSection
+            id="habit-streak"
+            title="Streak"
+            summary={
+              loaderData.streakInactivePeriods.length === 0
+                ? undefined
+                : countSummary(
+                    loaderData.streakInactivePeriods.length,
+                    "inactive range",
+                    "inactive ranges",
                   )
-                }
-                inboxTasksByRefId={new Map()}
-                bigPlansByRefId={new Map()}
-                todoTasksByRefId={new Map()}
-                habitsByRefId={
-                  new Map([[loaderData.habit.ref_id, loaderData.habit]])
-                }
-                choresByRefId={new Map()}
-                activityDoneness={{}}
-                timeEventsByRefId={new Map()}
-                fullInfo={false}
-                showTimePlanName={true}
+            }
+            actions={
+              <SectionActions
+                id="habit-streak"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  NavSingle({
+                    text: "Reset Streak",
+                    link: `/app/workspace/apps/habits/habits/${habitRefId}/streak-inactive-periods/reset${streakSearch === "" ? "" : `?${streakSearch}`}`,
+                  }),
+                  NavSingle({
+                    text: "Mark Range Inactive",
+                    link: `/app/workspace/apps/habits/habits/${habitRefId}/streak-inactive-periods/new${streakSearch === "" ? "" : `?${streakSearch}`}`,
+                  }),
+                ]}
               />
-            </SectionCard>
-          )}
-
-        <SectionCard title="Inbox Tasks">
-          {sortedInboxTasks.length > 0 && (
-            <InboxTaskStack
-              topLevelInfo={topLevelInfo}
-              showOptions={{
-                showStatus: true,
-                showDueDate: true,
-                showHandleMarkDone: inputsEnabled,
-                showHandleMarkNotDone: inputsEnabled,
-              }}
-              inboxTasks={sortedInboxTasks}
-              moreInfoByRefId={moreInfoByRefId}
-              withPages={{
-                retrieveOffsetParamName: "inboxTasksRetrieveOffset",
-                totalCnt: loaderData.inboxTasksTotalCnt,
-                pageSize: loaderData.inboxTasksPageSize,
-              }}
-              onCardMarkDone={inputsEnabled ? handleCardMarkDone : undefined}
-              onCardMarkNotDone={
-                inputsEnabled ? handleCardMarkNotDone : undefined
+            }
+          >
+            <HabitStreakCalendar
+              earliestDate={loaderData.streakMarkEarliestDate}
+              latestDate={loaderData.streakMarkLatestDate}
+              currentToday={topLevelInfo.today}
+              habit={loaderData.habit}
+              streakMarks={loaderData.streakMarks}
+              inactivePeriods={loaderData.streakInactivePeriods}
+              showNav
+              getNavUrl={(earliestDate, latestDate) =>
+                `/app/workspace/apps/habits/habits/${loaderData.habit.ref_id}?${newURLParams(
+                  query,
+                  "viewOneIncludeStreakMarksEarliestDate",
+                  earliestDate,
+                  "viewOneIncludeStreakMarksLatestDate",
+                  latestDate,
+                )}`
               }
             />
+            <StreakInactivePeriodStack
+              habitRefId={habitRefId}
+              periods={loaderData.streakInactivePeriods}
+              search={streakSearch}
+            />
+          </StrataSection>
+
+          <StrataSection
+            id="habit-note-section"
+            items={loaderData.note ? 1 : 0}
+            title="Note"
+            summary={loaderData.note ? "written" : "none yet"}
+            actions={
+              <SectionActions
+                id="habit-note"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  ActionSingle({
+                    text: "Create Note",
+                    value: "create-note",
+                    highlight: false,
+                    disabled: loaderData.note !== null,
+                  }),
+                ]}
+              />
+            }
+          >
+            {loaderData.note && (
+              <>
+                <EntityNoteEditor
+                  initialNote={loaderData.note}
+                  inputsEnabled={inputsEnabled}
+                />
+              </>
+            )}
+          </StrataSection>
+
+          {isWorkspaceFeatureAvailable(
+            topLevelInfo.workspace,
+            WorkspaceFeature.SCHEDULE,
+          ) && (
+            <TimeEventInDayBlockStack
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              title="Time Events"
+              createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-habit?habitRefId=${loaderData.habit.ref_id}`}
+              entries={sortedTimeEventEntries}
+            />
           )}
-        </SectionCard>
-      </NestingAwareBlock>
+
+          {isWorkspaceFeatureAvailable(
+            topLevelInfo.workspace,
+            WorkspaceFeature.TIME_PLANS,
+          ) &&
+            loaderData.timePlanActivities && (
+              <StrataSection
+                id="habit-time-plans"
+                items={loaderData.timePlanActivities.length}
+                split={{ size: 1 }}
+                title="Time Plans"
+                summary={countSummary(
+                  loaderData.timePlanActivities.length,
+                  "activity",
+                  "activities",
+                )}
+                actions={
+                  <SectionActions
+                    id="habit-time-plans-actions"
+                    topLevelInfo={topLevelInfo}
+                    inputsEnabled={inputsEnabled}
+                    actions={[
+                      NavSingle({
+                        text: "Add",
+                        highlight: false,
+                        link: `/app/workspace/apps/time-plans/add-habit-to-plans?habitRefId=${loaderData.habit.ref_id}`,
+                      }),
+                    ]}
+                  />
+                }
+              >
+                <TimePlanActivityList
+                  topLevelInfo={topLevelInfo}
+                  activities={loaderData.timePlanActivities.map(
+                    (entry) => entry.time_plan_activity,
+                  )}
+                  timePlansByRefId={
+                    new Map(
+                      loaderData.timePlanActivities.map((entry) => [
+                        entry.time_plan.ref_id,
+                        entry.time_plan,
+                      ]),
+                    )
+                  }
+                  inboxTasksByRefId={new Map()}
+                  bigPlansByRefId={new Map()}
+                  todoTasksByRefId={new Map()}
+                  habitsByRefId={
+                    new Map([[loaderData.habit.ref_id, loaderData.habit]])
+                  }
+                  choresByRefId={new Map()}
+                  activityDoneness={{}}
+                  timeEventsByRefId={new Map()}
+                  fullInfo={false}
+                  showTimePlanName={true}
+                />
+              </StrataSection>
+            )}
+
+          <StrataSection
+            id="habit-inbox-tasks"
+            items={loaderData.inboxTasksTotalCnt}
+            title="Inbox Tasks"
+            summary={countSummary(
+              loaderData.inboxTasksTotalCnt,
+              "task",
+              "tasks",
+            )}
+          >
+            {sortedInboxTasks.length > 0 && (
+              <InboxTaskStack
+                topLevelInfo={topLevelInfo}
+                showOptions={{
+                  showStatus: true,
+                  showDueDate: true,
+                  showHandleMarkDone: inputsEnabled,
+                  showHandleMarkNotDone: inputsEnabled,
+                }}
+                inboxTasks={sortedInboxTasks}
+                moreInfoByRefId={moreInfoByRefId}
+                withPages={{
+                  retrieveOffsetParamName: "inboxTasksRetrieveOffset",
+                  totalCnt: loaderData.inboxTasksTotalCnt,
+                  pageSize: loaderData.inboxTasksPageSize,
+                }}
+                onCardMarkDone={inputsEnabled ? handleCardMarkDone : undefined}
+                onCardMarkNotDone={
+                  inputsEnabled ? handleCardMarkNotDone : undefined
+                }
+              />
+            )}
+          </StrataSection>
+        </NestingAwareBlock>
+      </StrataSectionStack>
       <NestedOutlet />
     </LeafPanel>
   );

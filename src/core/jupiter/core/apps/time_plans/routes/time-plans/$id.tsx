@@ -142,7 +142,9 @@ import {
 } from "#/core/infra/component/section-actions";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 import { sectionFilterBoolean } from "#/core/infra/section-filters";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSectionStack } from "#/core/infra/component/strata-section-stack";
+import { countSummary } from "#/core/infra/component/count-summary";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { JournalStack } from "#/core/apps/journals/component/stack";
 import { TimePlanEditor } from "#/core/apps/time_plans/component/editor";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
@@ -1018,487 +1020,480 @@ function TimePlanViewContent() {
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
     >
-      <NestingAwareBlock>
-        <GlobalError actionResult={actionData} />
-        <TimePlanEditor
-          timePlan={loaderData.timePlan}
-          tags={loaderData.tags}
-          allTags={loaderData.allTags}
-          aspects={loaderData.aspects}
-          chapters={loaderData.chapters}
-          goals={loaderData.goals}
-          lifePlan={loaderData.lifePlan}
-          allAspects={loaderData.allAspects ?? undefined}
-          allChapters={loaderData.allChapters ?? undefined}
-          allGoals={loaderData.allGoals ?? undefined}
-          allMilestones={loaderData.allMilestones ?? undefined}
-          inputsEnabled={inputsEnabled}
-          corePropertyEditable={corePropertyEditable}
-          topLevelInfo={topLevelInfo}
-          actionResult={actionData}
-        />
-        <SectionCard title="Notes">
-          <EntityNoteEditor
-            initialNote={loaderData.note}
+      <StrataSectionStack panelId="time-plan">
+        <NestingAwareBlock>
+          <GlobalError actionResult={actionData} />
+          <TimePlanEditor
+            timePlan={loaderData.timePlan}
+            tags={loaderData.tags}
+            allTags={loaderData.allTags}
+            aspects={loaderData.aspects}
+            chapters={loaderData.chapters}
+            goals={loaderData.goals}
+            lifePlan={loaderData.lifePlan}
+            allAspects={loaderData.allAspects ?? undefined}
+            allChapters={loaderData.allChapters ?? undefined}
+            allGoals={loaderData.allGoals ?? undefined}
+            allMilestones={loaderData.allMilestones ?? undefined}
             inputsEnabled={inputsEnabled}
+            corePropertyEditable={corePropertyEditable}
+            topLevelInfo={topLevelInfo}
+            actionResult={actionData}
           />
-        </SectionCard>
-
-        {timePlanShowsTimeAndEffort(loaderData.timePlan) && (
-          <SectionCard id="time-plan-effort" title="Time & Effort">
-            <TimeAndEffortView
-              topLevelInfo={topLevelInfo}
-              timePlan={loaderData.timePlan}
-              timeAndEffortSummary={timeAndEffortSummary}
-            />
-
-            <FeasabilityView
-              timePlan={loaderData.timePlan}
-              timeAndEffortSummary={timeAndEffortSummary}
-            />
-          </SectionCard>
-        )}
-
-        {timePlanShowsBigPlanProgress(loaderData.timePlan) &&
-          isWorkspaceFeatureAvailable(
-            topLevelInfo.workspace,
-            WorkspaceFeature.BIG_PLANS,
-          ) && (
-            <SectionCard id="time-plan-progress" title="Progress">
-              <BigPlanProgressView summary={bigPlanProgressSummary} />
-            </SectionCard>
-          )}
-
-        <SectionCard
-          id="time-plan-activities"
-          title="Activities"
-          actions={
-            <SectionActions
-              id="activities"
-              topLevelInfo={topLevelInfo}
+          <StrataSection
+            id="time-plan-notes"
+            items={loaderData.note ? 1 : 0}
+            title="Notes"
+            summary={loaderData.note ? "written" : "none yet"}
+          >
+            <EntityNoteEditor
+              initialNote={loaderData.note}
               inputsEnabled={inputsEnabled}
-              actions={[
-                NavMultipleCompact({
-                  navs: [
-                    ...(timePlanAllowsInboxTasks(loaderData.timePlan)
-                      ? [
-                          NavSingle({
-                            text: "New Todo",
-                            link: withTimePlanDisplay(
-                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/new-todo-task`,
-                              query,
-                            ),
-                            gatedOn: WorkspaceFeature.TODO_TASK,
-                          }),
-                          NavSingle({
-                            text: "From Existing Todos",
-                            link: withTimePlanDisplay(
-                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-todo-tasks`,
-                              query,
-                            ),
-                            gatedOn: WorkspaceFeature.TODO_TASK,
-                          }),
-                          NavSeparator(),
-                          NavSingle({
-                            text: "New Habit",
-                            link: withTimePlanDisplay(
-                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/new-habit`,
-                              query,
-                            ),
-                            gatedOn: WorkspaceFeature.HABITS,
-                          }),
-                          NavSingle({
-                            text: "From Existing Habits",
-                            link: withTimePlanDisplay(
-                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-habits`,
-                              query,
-                            ),
-                            gatedOn: WorkspaceFeature.HABITS,
-                          }),
-                          NavSingle({
-                            text: "From Included Habit Tasks",
-                            link: withTimePlanDisplay(
-                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-included-habit-tasks`,
-                              query,
-                            ),
-                            gatedOn: WorkspaceFeature.HABITS,
-                          }),
-                          NavSeparator(),
-                          NavSingle({
-                            text: "New Chore",
-                            link: withTimePlanDisplay(
-                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/new-chore`,
-                              query,
-                            ),
-                            gatedOn: WorkspaceFeature.CHORES,
-                          }),
-                          NavSingle({
-                            text: "From Existing Chores",
-                            link: withTimePlanDisplay(
-                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-chores`,
-                              query,
-                            ),
-                            gatedOn: WorkspaceFeature.CHORES,
-                          }),
-                          NavSingle({
-                            text: "From Included Chore Tasks",
-                            link: withTimePlanDisplay(
-                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-included-chore-tasks`,
-                              query,
-                            ),
-                            gatedOn: WorkspaceFeature.CHORES,
-                          }),
-                          NavSeparator(),
-                        ]
-                      : []),
-                    NavSingle({
-                      text: "New Big Plan",
-                      link: withTimePlanDisplay(
-                        `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/new-big-plan`,
-                        query,
-                      ),
-                      gatedOn: WorkspaceFeature.BIG_PLANS,
-                    }),
-                    NavSingle({
-                      text: "From Existing Big Plans",
-                      link: withTimePlanDisplay(
-                        `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
-                        query,
-                      ),
-                      gatedOn: WorkspaceFeature.BIG_PLANS,
-                    }),
-                    ...(timePlanAllowsInboxTasks(loaderData.timePlan)
-                      ? [
-                          NavSingle({
-                            text: "From Included Big Plan Tasks",
-                            link: withTimePlanDisplay(
-                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-included-big-plan-tasks`,
-                              query,
-                            ),
-                            gatedOn: WorkspaceFeature.BIG_PLANS,
-                          }),
-                        ]
-                      : []),
-                    NavSeparator(),
-                    NavSingle({
-                      text: "From Time Plans",
-                      link: withTimePlanDisplay(
-                        `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-time-plans/${loaderData.timePlan.ref_id}`,
-                        query,
-                      ),
-                    }),
-                    ...(timePlanAllowsInboxTasks(loaderData.timePlan)
-                      ? [
-                          NavSingle({
-                            text: "From Generated Inbox Tasks",
-                            link: withTimePlanDisplay(
-                              `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
-                              query,
-                            ),
-                          }),
-                        ]
-                      : []),
-                  ],
-                }),
-                FilterFewOptionsCompact(
-                  "View",
-                  selectedView,
-                  [
-                    {
-                      value: TimePlanViewMode.KANBAN_BY_EISEN,
-                      text: "Kanban by Eisen",
-                      icon: <ViewKanbanIcon />,
-                      disabled: !timePlanAllowsKanbanViews(loaderData.timePlan),
-                    },
-                    {
-                      value: TimePlanViewMode.KANBAN,
-                      text: "Kanban",
-                      icon: <ViewKanbanIcon />,
-                      disabled: !timePlanAllowsKanbanViews(loaderData.timePlan),
-                    },
-                    {
-                      value: TimePlanViewMode.LIST,
-                      text: "List",
-                      icon: <ViewListIcon />,
-                    },
-                    {
-                      value: TimePlanViewMode.TIMELINE,
-                      text: "Timeline",
-                      icon: <ViewTimelineIcon />,
-                    },
-                    ...(loaderData.timePlan.period ===
-                    RecurringTaskPeriod.WEEKLY
-                      ? [
-                          {
-                            value: TimePlanViewMode.CALENDAR,
-                            text: "Calendar Week",
-                            icon: <CalendarMonthIcon />,
-                            gatedOn: WorkspaceFeature.SCHEDULE,
-                            disabled: !timePlanAllowsCalendarView(
-                              loaderData.timePlan,
-                            ),
-                          },
-                          {
-                            value: TimePlanViewMode.CALENDAR_3_DAYS,
-                            text: "Calendar 3 Days",
-                            icon: <DateRangeIcon />,
-                            gatedOn: WorkspaceFeature.SCHEDULE,
-                            disabled: !timePlanAllowsCalendarView(
-                              loaderData.timePlan,
-                            ),
-                          },
-                          {
-                            value: TimePlanViewMode.SCHEDULE_DAY,
-                            text: "Schedule Day",
-                            icon: <ViewAgendaIcon />,
-                            gatedOn: WorkspaceFeature.SCHEDULE,
-                            disabled: !timePlanAllowsCalendarView(
-                              loaderData.timePlan,
-                            ),
-                          },
-                          {
-                            value: TimePlanViewMode.SCHEDULE_3_DAYS,
-                            text: "Schedule 3 Days",
-                            icon: <ViewAgendaIcon />,
-                            gatedOn: WorkspaceFeature.SCHEDULE,
-                            disabled: !timePlanAllowsCalendarView(
-                              loaderData.timePlan,
-                            ),
-                          },
-                        ]
-                      : [
-                          {
-                            value: TimePlanViewMode.CALENDAR,
-                            text: "Calendar",
-                            icon: <CalendarMonthIcon />,
-                            gatedOn: WorkspaceFeature.SCHEDULE,
-                            disabled: !timePlanAllowsCalendarView(
-                              loaderData.timePlan,
-                            ),
-                          },
-                          {
-                            value: TimePlanViewMode.SCHEDULE_DAY,
-                            text: "Schedule",
-                            icon: <ViewAgendaIcon />,
-                            gatedOn: WorkspaceFeature.SCHEDULE,
-                            disabled: !timePlanAllowsCalendarView(
-                              loaderData.timePlan,
-                            ),
-                          },
-                        ]),
-                  ],
-                  (selected) => setFilters({ view: selected }),
-                ),
-                FilterFewOptionsCompact(
-                  "Grouping",
-                  selectedGrouping,
-                  [
-                    {
-                      value: TimePlanGrouping.MERGED,
-                      text: "Merged",
-                      icon: <ViewListIcon />,
-                    },
-                    {
-                      value: TimePlanGrouping.BY_ASPECT,
-                      text: "By Aspect",
-                      icon: <FlareIcon />,
-                      gatedOn: WorkspaceFeature.LIFE_PLAN,
-                    },
-                    {
-                      value: TimePlanGrouping.BY_ASPECT_AND_GOALS,
-                      text: "By Aspect & Goals",
-                      icon: <FlagIcon />,
-                      gatedOn: WorkspaceFeature.LIFE_PLAN,
-                    },
-                  ],
-                  (selected) => setFilters({ grouping: selected }),
-                ),
-                FilterManyOptions<TimePlanActivityFilterValue>(
-                  "Filter",
-                  [
-                    { value: TimePlanActivityKind.FINISH, text: "Finish" },
-                    {
-                      value: TimePlanActivityKind.MAKE_PROGRESS,
-                      text: "Make Progress",
-                    },
-                    FilterOptionSeparator(),
-                    {
-                      value: TimePlanActivityFeasability.MUST_DO,
-                      text: "Must Do",
-                    },
-                    {
-                      value: TimePlanActivityFeasability.NICE_TO_HAVE,
-                      text: "Nice to Have",
-                    },
-                    {
-                      value: TimePlanActivityFeasability.STRETCH,
-                      text: "Stretch",
-                    },
-                    FilterOptionSeparator(),
-                    { value: true, text: "Done" },
-                    { value: false, text: "Not Done" },
-                  ],
-                  [
-                    ...selectedKinds,
-                    ...selectedFeasabilities,
-                    ...selectedDoneness,
-                  ],
-                  (selected) => {
-                    const kind: TimePlanActivityKind[] = [];
-                    const feasability: TimePlanActivityFeasability[] = [];
-                    const done: boolean[] = [];
-                    for (const value of selected) {
-                      if (typeof value === "boolean") {
-                        done.push(value);
-                      } else if (TIME_PLAN_ACTIVITY_KIND_VALUES.has(value)) {
-                        kind.push(value as TimePlanActivityKind);
-                      } else {
-                        feasability.push(value as TimePlanActivityFeasability);
-                      }
-                    }
-                    setFilters({ kind, feasability, done });
-                  },
-                ),
-                ...(isWorkspaceFeatureAvailable(
-                  topLevelInfo.workspace,
-                  WorkspaceFeature.LIFE_PLAN,
-                )
-                  ? [
-                      FilterManyOptions(
-                        "Aspects",
-                        sortedAspects.map((aspect) => ({
-                          value: aspect.ref_id,
-                          text: computeAspectHierarchicalNameFromRoot(
-                            aspect,
-                            allAspectsByRefId,
-                          ),
-                        })),
-                        selectedAspects,
-                        (aspects) => setFilters({ aspects }),
-                      ),
-                    ]
-                  : []),
-              ]}
-              extraActions={[
-                ...(isWorkspaceFeatureAvailable(
-                  topLevelInfo.workspace,
-                  WorkspaceFeature.LIFE_PLAN,
-                )
-                  ? [
-                      FilterFewOptionsCompact(
-                        "Groups",
-                        selectedGroupVisibility,
-                        [
-                          {
-                            value: GroupVisibility.NON_EMPTY_ONLY,
-                            text: "Only non-empty",
-                            icon: <ViewListIcon />,
-                          },
-                          {
-                            value: GroupVisibility.SHOW_ALL,
-                            text: "Show all",
-                            icon: <ViewListIcon />,
-                            gatedOn: WorkspaceFeature.LIFE_PLAN,
-                          },
-                        ],
-                        (selected) => setFilters({ groupVisibility: selected }),
-                      ),
-                    ]
-                  : []),
-              ]}
             />
-          }
-        >
-          {loaderData.activities.length === 0 && (
-            <EntityNoNothingCard
-              title="You Have To Start Somewhere"
-              message="There are no activities to show. You can create a new activity."
-              newEntityLocations={
-                timePlanAllowsInboxTasks(loaderData.timePlan)
-                  ? withTimePlanDisplay(
-                      `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
-                      query,
-                    )
-                  : withTimePlanDisplay(
-                      `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
-                      query,
-                    )
-              }
-              helpSubject={DocsHelpSubject.TIME_PLANS}
-            />
+          </StrataSection>
+
+          {timePlanShowsTimeAndEffort(loaderData.timePlan) && (
+            <StrataSection id="time-plan-effort" title="Time & Effort">
+              <TimeAndEffortView
+                topLevelInfo={topLevelInfo}
+                timePlan={loaderData.timePlan}
+                timeAndEffortSummary={timeAndEffortSummary}
+              />
+
+              <FeasabilityView
+                timePlan={loaderData.timePlan}
+                timeAndEffortSummary={timeAndEffortSummary}
+              />
+            </StrataSection>
           )}
 
-          {selectedView === TimePlanViewMode.KANBAN_BY_EISEN &&
-            timePlanAllowsKanbanViews(loaderData.timePlan) && (
-              <>
-                {isBigScreen && (
-                  <DragDropContext
-                    onDragStart={onDragStart}
-                    onDragEnd={onDragEnd}
-                  >
-                    <>
-                      {EISENS.map((e) => (
-                        <Fragment key={e}>
-                          <StandardDivider
-                            title={`${eisenIcon(e)} ${eisenName(e)}`}
-                            size="large"
-                          />
-                          <InboxTaskKanbanBoard
-                            topLevelInfo={topLevelInfo}
-                            inboxTasks={loaderData.targetInboxTasks}
-                            optimisticUpdates={NO_OPTIMISTIC_UPDATES}
-                            inboxTasksByRefId={inboxTasksByRefId}
-                            moreInfoByRefId={{}}
-                            actionableTime={ActionableTime.NOW}
-                            allowEisen={e}
-                            draggedInboxTaskId={draggedInboxTaskId}
-                            cardLinkResolver={(it) =>
-                              withTimePlanDisplay(
-                                `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`,
-                                query,
-                              )
-                            }
-                          />
-                        </Fragment>
-                      ))}
-                    </>
-                  </DragDropContext>
-                )}
-                {!isBigScreen && (
-                  <SmallScreenKanbanByEisen
-                    topLevelInfo={topLevelInfo}
-                    inboxTasks={loaderData.targetInboxTasks}
-                    optimisticUpdates={NO_OPTIMISTIC_UPDATES}
-                    moreInfoByRefId={{}}
-                    actionableTime={ActionableTime.NOW}
-                    emptyParent="inbox task"
-                    cardLinkResolver={(it) =>
-                      withTimePlanDisplay(
-                        `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`,
-                        query,
-                      )
-                    }
-                  />
-                )}
-              </>
+          {timePlanShowsBigPlanProgress(loaderData.timePlan) &&
+            isWorkspaceFeatureAvailable(
+              topLevelInfo.workspace,
+              WorkspaceFeature.BIG_PLANS,
+            ) && (
+              <StrataSection id="time-plan-progress" title="Progress">
+                <BigPlanProgressView summary={bigPlanProgressSummary} />
+              </StrataSection>
             )}
 
-          {selectedView === TimePlanViewMode.KANBAN &&
-            timePlanAllowsKanbanViews(loaderData.timePlan) && (
-              <>
-                {isBigScreen && (
-                  <DragDropContext
-                    onDragStart={onDragStart}
-                    onDragEnd={onDragEnd}
-                  >
-                    <InboxTaskKanbanBoard
+          <StrataSection
+            id="time-plan-activities"
+            items={loaderData.activities.length}
+            split={{ size: 3, grow: true, parentSize: 2 }}
+            title="Activities"
+            summary={countSummary(
+              loaderData.activities.length,
+              "activity",
+              "activities",
+            )}
+            actions={
+              <SectionActions
+                id="activities"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  NavMultipleCompact({
+                    navs: [
+                      ...(timePlanAllowsInboxTasks(loaderData.timePlan)
+                        ? [
+                            NavSingle({
+                              text: "New Todo",
+                              link: withTimePlanDisplay(
+                                `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/new-todo-task`,
+                                query,
+                              ),
+                              gatedOn: WorkspaceFeature.TODO_TASK,
+                            }),
+                            NavSingle({
+                              text: "From Existing Todos",
+                              link: withTimePlanDisplay(
+                                `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-todo-tasks`,
+                                query,
+                              ),
+                              gatedOn: WorkspaceFeature.TODO_TASK,
+                            }),
+                            NavSeparator(),
+                            NavSingle({
+                              text: "New Habit",
+                              link: withTimePlanDisplay(
+                                `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/new-habit`,
+                                query,
+                              ),
+                              gatedOn: WorkspaceFeature.HABITS,
+                            }),
+                            NavSingle({
+                              text: "From Existing Habits",
+                              link: withTimePlanDisplay(
+                                `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-habits`,
+                                query,
+                              ),
+                              gatedOn: WorkspaceFeature.HABITS,
+                            }),
+                            NavSingle({
+                              text: "From Included Habit Tasks",
+                              link: withTimePlanDisplay(
+                                `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-included-habit-tasks`,
+                                query,
+                              ),
+                              gatedOn: WorkspaceFeature.HABITS,
+                            }),
+                            NavSeparator(),
+                            NavSingle({
+                              text: "New Chore",
+                              link: withTimePlanDisplay(
+                                `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/new-chore`,
+                                query,
+                              ),
+                              gatedOn: WorkspaceFeature.CHORES,
+                            }),
+                            NavSingle({
+                              text: "From Existing Chores",
+                              link: withTimePlanDisplay(
+                                `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-chores`,
+                                query,
+                              ),
+                              gatedOn: WorkspaceFeature.CHORES,
+                            }),
+                            NavSingle({
+                              text: "From Included Chore Tasks",
+                              link: withTimePlanDisplay(
+                                `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-included-chore-tasks`,
+                                query,
+                              ),
+                              gatedOn: WorkspaceFeature.CHORES,
+                            }),
+                            NavSeparator(),
+                          ]
+                        : []),
+                      NavSingle({
+                        text: "New Big Plan",
+                        link: withTimePlanDisplay(
+                          `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/new-big-plan`,
+                          query,
+                        ),
+                        gatedOn: WorkspaceFeature.BIG_PLANS,
+                      }),
+                      NavSingle({
+                        text: "From Existing Big Plans",
+                        link: withTimePlanDisplay(
+                          `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
+                          query,
+                        ),
+                        gatedOn: WorkspaceFeature.BIG_PLANS,
+                      }),
+                      ...(timePlanAllowsInboxTasks(loaderData.timePlan)
+                        ? [
+                            NavSingle({
+                              text: "From Included Big Plan Tasks",
+                              link: withTimePlanDisplay(
+                                `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-included-big-plan-tasks`,
+                                query,
+                              ),
+                              gatedOn: WorkspaceFeature.BIG_PLANS,
+                            }),
+                          ]
+                        : []),
+                      NavSeparator(),
+                      NavSingle({
+                        text: "From Time Plans",
+                        link: withTimePlanDisplay(
+                          `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-time-plans/${loaderData.timePlan.ref_id}`,
+                          query,
+                        ),
+                      }),
+                      ...(timePlanAllowsInboxTasks(loaderData.timePlan)
+                        ? [
+                            NavSingle({
+                              text: "From Generated Inbox Tasks",
+                              link: withTimePlanDisplay(
+                                `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
+                                query,
+                              ),
+                            }),
+                          ]
+                        : []),
+                    ],
+                  }),
+                  FilterFewOptionsCompact(
+                    "View",
+                    selectedView,
+                    [
+                      {
+                        value: TimePlanViewMode.KANBAN_BY_EISEN,
+                        text: "Kanban by Eisen",
+                        icon: <ViewKanbanIcon />,
+                        disabled: !timePlanAllowsKanbanViews(
+                          loaderData.timePlan,
+                        ),
+                      },
+                      {
+                        value: TimePlanViewMode.KANBAN,
+                        text: "Kanban",
+                        icon: <ViewKanbanIcon />,
+                        disabled: !timePlanAllowsKanbanViews(
+                          loaderData.timePlan,
+                        ),
+                      },
+                      {
+                        value: TimePlanViewMode.LIST,
+                        text: "List",
+                        icon: <ViewListIcon />,
+                      },
+                      {
+                        value: TimePlanViewMode.TIMELINE,
+                        text: "Timeline",
+                        icon: <ViewTimelineIcon />,
+                      },
+                      ...(loaderData.timePlan.period ===
+                      RecurringTaskPeriod.WEEKLY
+                        ? [
+                            {
+                              value: TimePlanViewMode.CALENDAR,
+                              text: "Calendar Week",
+                              icon: <CalendarMonthIcon />,
+                              gatedOn: WorkspaceFeature.SCHEDULE,
+                              disabled: !timePlanAllowsCalendarView(
+                                loaderData.timePlan,
+                              ),
+                            },
+                            {
+                              value: TimePlanViewMode.CALENDAR_3_DAYS,
+                              text: "Calendar 3 Days",
+                              icon: <DateRangeIcon />,
+                              gatedOn: WorkspaceFeature.SCHEDULE,
+                              disabled: !timePlanAllowsCalendarView(
+                                loaderData.timePlan,
+                              ),
+                            },
+                            {
+                              value: TimePlanViewMode.SCHEDULE_DAY,
+                              text: "Schedule Day",
+                              icon: <ViewAgendaIcon />,
+                              gatedOn: WorkspaceFeature.SCHEDULE,
+                              disabled: !timePlanAllowsCalendarView(
+                                loaderData.timePlan,
+                              ),
+                            },
+                            {
+                              value: TimePlanViewMode.SCHEDULE_3_DAYS,
+                              text: "Schedule 3 Days",
+                              icon: <ViewAgendaIcon />,
+                              gatedOn: WorkspaceFeature.SCHEDULE,
+                              disabled: !timePlanAllowsCalendarView(
+                                loaderData.timePlan,
+                              ),
+                            },
+                          ]
+                        : [
+                            {
+                              value: TimePlanViewMode.CALENDAR,
+                              text: "Calendar",
+                              icon: <CalendarMonthIcon />,
+                              gatedOn: WorkspaceFeature.SCHEDULE,
+                              disabled: !timePlanAllowsCalendarView(
+                                loaderData.timePlan,
+                              ),
+                            },
+                            {
+                              value: TimePlanViewMode.SCHEDULE_DAY,
+                              text: "Schedule",
+                              icon: <ViewAgendaIcon />,
+                              gatedOn: WorkspaceFeature.SCHEDULE,
+                              disabled: !timePlanAllowsCalendarView(
+                                loaderData.timePlan,
+                              ),
+                            },
+                          ]),
+                    ],
+                    (selected) => setFilters({ view: selected }),
+                  ),
+                  FilterFewOptionsCompact(
+                    "Grouping",
+                    selectedGrouping,
+                    [
+                      {
+                        value: TimePlanGrouping.MERGED,
+                        text: "Merged",
+                        icon: <ViewListIcon />,
+                      },
+                      {
+                        value: TimePlanGrouping.BY_ASPECT,
+                        text: "By Aspect",
+                        icon: <FlareIcon />,
+                        gatedOn: WorkspaceFeature.LIFE_PLAN,
+                      },
+                      {
+                        value: TimePlanGrouping.BY_ASPECT_AND_GOALS,
+                        text: "By Aspect & Goals",
+                        icon: <FlagIcon />,
+                        gatedOn: WorkspaceFeature.LIFE_PLAN,
+                      },
+                    ],
+                    (selected) => setFilters({ grouping: selected }),
+                  ),
+                  FilterManyOptions<TimePlanActivityFilterValue>(
+                    "Filter",
+                    [
+                      { value: TimePlanActivityKind.FINISH, text: "Finish" },
+                      {
+                        value: TimePlanActivityKind.MAKE_PROGRESS,
+                        text: "Make Progress",
+                      },
+                      FilterOptionSeparator(),
+                      {
+                        value: TimePlanActivityFeasability.MUST_DO,
+                        text: "Must Do",
+                      },
+                      {
+                        value: TimePlanActivityFeasability.NICE_TO_HAVE,
+                        text: "Nice to Have",
+                      },
+                      {
+                        value: TimePlanActivityFeasability.STRETCH,
+                        text: "Stretch",
+                      },
+                      FilterOptionSeparator(),
+                      { value: true, text: "Done" },
+                      { value: false, text: "Not Done" },
+                    ],
+                    [
+                      ...selectedKinds,
+                      ...selectedFeasabilities,
+                      ...selectedDoneness,
+                    ],
+                    (selected) => {
+                      const kind: TimePlanActivityKind[] = [];
+                      const feasability: TimePlanActivityFeasability[] = [];
+                      const done: boolean[] = [];
+                      for (const value of selected) {
+                        if (typeof value === "boolean") {
+                          done.push(value);
+                        } else if (TIME_PLAN_ACTIVITY_KIND_VALUES.has(value)) {
+                          kind.push(value as TimePlanActivityKind);
+                        } else {
+                          feasability.push(
+                            value as TimePlanActivityFeasability,
+                          );
+                        }
+                      }
+                      setFilters({ kind, feasability, done });
+                    },
+                  ),
+                  ...(isWorkspaceFeatureAvailable(
+                    topLevelInfo.workspace,
+                    WorkspaceFeature.LIFE_PLAN,
+                  )
+                    ? [
+                        FilterManyOptions(
+                          "Aspects",
+                          sortedAspects.map((aspect) => ({
+                            value: aspect.ref_id,
+                            text: computeAspectHierarchicalNameFromRoot(
+                              aspect,
+                              allAspectsByRefId,
+                            ),
+                          })),
+                          selectedAspects,
+                          (aspects) => setFilters({ aspects }),
+                        ),
+                      ]
+                    : []),
+                ]}
+                extraActions={[
+                  ...(isWorkspaceFeatureAvailable(
+                    topLevelInfo.workspace,
+                    WorkspaceFeature.LIFE_PLAN,
+                  )
+                    ? [
+                        FilterFewOptionsCompact(
+                          "Groups",
+                          selectedGroupVisibility,
+                          [
+                            {
+                              value: GroupVisibility.NON_EMPTY_ONLY,
+                              text: "Only non-empty",
+                              icon: <ViewListIcon />,
+                            },
+                            {
+                              value: GroupVisibility.SHOW_ALL,
+                              text: "Show all",
+                              icon: <ViewListIcon />,
+                              gatedOn: WorkspaceFeature.LIFE_PLAN,
+                            },
+                          ],
+                          (selected) =>
+                            setFilters({ groupVisibility: selected }),
+                        ),
+                      ]
+                    : []),
+                ]}
+              />
+            }
+          >
+            {loaderData.activities.length === 0 && (
+              <EntityNoNothingCard
+                title="You Have To Start Somewhere"
+                message="There are no activities to show. You can create a new activity."
+                newEntityLocations={
+                  timePlanAllowsInboxTasks(loaderData.timePlan)
+                    ? withTimePlanDisplay(
+                        `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
+                        query,
+                      )
+                    : withTimePlanDisplay(
+                        `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
+                        query,
+                      )
+                }
+                helpSubject={DocsHelpSubject.TIME_PLANS}
+              />
+            )}
+
+            {selectedView === TimePlanViewMode.KANBAN_BY_EISEN &&
+              timePlanAllowsKanbanViews(loaderData.timePlan) && (
+                <>
+                  {isBigScreen && (
+                    <DragDropContext
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                    >
+                      <>
+                        {EISENS.map((e) => (
+                          <Fragment key={e}>
+                            <StandardDivider
+                              title={`${eisenIcon(e)} ${eisenName(e)}`}
+                              size="large"
+                            />
+                            <InboxTaskKanbanBoard
+                              topLevelInfo={topLevelInfo}
+                              inboxTasks={loaderData.targetInboxTasks}
+                              optimisticUpdates={NO_OPTIMISTIC_UPDATES}
+                              inboxTasksByRefId={inboxTasksByRefId}
+                              moreInfoByRefId={{}}
+                              actionableTime={ActionableTime.NOW}
+                              allowEisen={e}
+                              draggedInboxTaskId={draggedInboxTaskId}
+                              cardLinkResolver={(it) =>
+                                withTimePlanDisplay(
+                                  `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`,
+                                  query,
+                                )
+                              }
+                            />
+                          </Fragment>
+                        ))}
+                      </>
+                    </DragDropContext>
+                  )}
+                  {!isBigScreen && (
+                    <SmallScreenKanbanByEisen
                       topLevelInfo={topLevelInfo}
                       inboxTasks={loaderData.targetInboxTasks}
                       optimisticUpdates={NO_OPTIMISTIC_UPDATES}
-                      inboxTasksByRefId={inboxTasksByRefId}
                       moreInfoByRefId={{}}
                       actionableTime={ActionableTime.NOW}
-                      draggedInboxTaskId={draggedInboxTaskId}
+                      emptyParent="inbox task"
                       cardLinkResolver={(it) =>
                         withTimePlanDisplay(
                           `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`,
@@ -1506,224 +1501,264 @@ function TimePlanViewContent() {
                         )
                       }
                     />
-                  </DragDropContext>
-                )}
-                {!isBigScreen && (
-                  <SmallScreenKanban
-                    topLevelInfo={topLevelInfo}
-                    inboxTasks={loaderData.targetInboxTasks}
-                    optimisticUpdates={NO_OPTIMISTIC_UPDATES}
-                    moreInfoByRefId={{}}
-                    actionableTime={ActionableTime.NOW}
-                    emptyParent="inbox task"
-                    cardLinkResolver={(it) =>
-                      withTimePlanDisplay(
-                        `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`,
-                        query,
-                      )
-                    }
-                  />
-                )}
-              </>
-            )}
+                  )}
+                </>
+              )}
 
-          {selectedView === TimePlanViewMode.LIST && activitiesAsList}
+            {selectedView === TimePlanViewMode.KANBAN &&
+              timePlanAllowsKanbanViews(loaderData.timePlan) && (
+                <>
+                  {isBigScreen && (
+                    <DragDropContext
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                    >
+                      <InboxTaskKanbanBoard
+                        topLevelInfo={topLevelInfo}
+                        inboxTasks={loaderData.targetInboxTasks}
+                        optimisticUpdates={NO_OPTIMISTIC_UPDATES}
+                        inboxTasksByRefId={inboxTasksByRefId}
+                        moreInfoByRefId={{}}
+                        actionableTime={ActionableTime.NOW}
+                        draggedInboxTaskId={draggedInboxTaskId}
+                        cardLinkResolver={(it) =>
+                          withTimePlanDisplay(
+                            `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`,
+                            query,
+                          )
+                        }
+                      />
+                    </DragDropContext>
+                  )}
+                  {!isBigScreen && (
+                    <SmallScreenKanban
+                      topLevelInfo={topLevelInfo}
+                      inboxTasks={loaderData.targetInboxTasks}
+                      optimisticUpdates={NO_OPTIMISTIC_UPDATES}
+                      moreInfoByRefId={{}}
+                      actionableTime={ActionableTime.NOW}
+                      emptyParent="inbox task"
+                      cardLinkResolver={(it) =>
+                        withTimePlanDisplay(
+                          `/app/workspace/apps/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`,
+                          query,
+                        )
+                      }
+                    />
+                  )}
+                </>
+              )}
 
-          {timePlanViewModeShowsEvents(selectedView) &&
-            timePlanAllowsCalendarView(loaderData.timePlan) && (
-              <TimePlanCalendarActivities
-                timePlan={loaderData.timePlan}
-                periodStartDate={
-                  loaderData.calendarPeriodStartDate ??
-                  loaderData.timePlan.start_date
-                }
-                periodEndDate={
-                  loaderData.calendarPeriodEndDate ??
-                  loaderData.timePlan.end_date
-                }
-                entries={loaderData.calendarEntries ?? undefined}
-                timePlanActivities={loaderData.activities}
-                activityTimeEventBlocks={loaderData.activityTimeEventBlocks}
-                activities={activitiesAsList}
-                isAdding={isAddingTimeEvent}
-                viewMode={selectedView}
-                additionalTimezones={loaderData.calendarAdditionalTimezones}
-                onReschedule={handleCalendarReschedule}
-                onPlace={handleCalendarPlace}
-              />
-            )}
+            {selectedView === TimePlanViewMode.LIST && activitiesAsList}
 
-          {selectedView === TimePlanViewMode.TIMELINE &&
-            selectedGrouping === TimePlanGrouping.MERGED && (
-              <TimePlanTimelineMergedActivities
-                timePlan={loaderData.timePlan}
-                mustDoActivities={mustDoActivities}
-                niceToHaveActivities={niceToHaveActivities}
-                stretchActivities={stretchActivities}
-                targetInboxTasksByRefId={targetInboxTasksByRefId}
-                targetBigPlansByRefId={targetBigPlansByRefId}
-                bigPlanStatsByRefId={bigPlanStatsByRefId}
-                targetTodoTasksByRefId={targetTodoTasksByRefId}
-                targetHabitsByRefId={targetHabitsByRefId}
-                targetHabitStacksByRefId={targetHabitStacksByRefId}
-                targetChoreStacksByRefId={targetChoreStacksByRefId}
-                targetChoresByRefId={targetChoresByRefId}
-                activityDoneness={loaderData.activityDoneness}
-                timeEventsByRefId={timeEventsByRefId}
-                selectedKinds={selectedKinds}
-                selectedFeasabilities={selectedFeasabilities}
-                selectedDoneness={selectedDoneness}
-              />
-            )}
+            {timePlanViewModeShowsEvents(selectedView) &&
+              timePlanAllowsCalendarView(loaderData.timePlan) && (
+                <TimePlanCalendarActivities
+                  timePlan={loaderData.timePlan}
+                  periodStartDate={
+                    loaderData.calendarPeriodStartDate ??
+                    loaderData.timePlan.start_date
+                  }
+                  periodEndDate={
+                    loaderData.calendarPeriodEndDate ??
+                    loaderData.timePlan.end_date
+                  }
+                  entries={loaderData.calendarEntries ?? undefined}
+                  timePlanActivities={loaderData.activities}
+                  activityTimeEventBlocks={loaderData.activityTimeEventBlocks}
+                  activities={activitiesAsList}
+                  isAdding={isAddingTimeEvent}
+                  viewMode={selectedView}
+                  additionalTimezones={loaderData.calendarAdditionalTimezones}
+                  onReschedule={handleCalendarReschedule}
+                  onPlace={handleCalendarPlace}
+                />
+              )}
 
-          {selectedView === TimePlanViewMode.TIMELINE &&
-            selectedGrouping === TimePlanGrouping.BY_ASPECT && (
-              <TimePlanTimelineByAspectActivities
-                timePlan={loaderData.timePlan}
-                mustDoActivities={mustDoActivities}
-                otherActivities={otherActivities}
-                targetInboxTasksByRefId={targetInboxTasksByRefId}
-                targetBigPlansByRefId={targetBigPlansByRefId}
-                bigPlanStatsByRefId={bigPlanStatsByRefId}
-                targetTodoTasksByRefId={targetTodoTasksByRefId}
-                targetHabitsByRefId={targetHabitsByRefId}
-                targetHabitStacksByRefId={targetHabitStacksByRefId}
-                targetChoreStacksByRefId={targetChoreStacksByRefId}
-                targetChoresByRefId={targetChoresByRefId}
-                activityDoneness={loaderData.activityDoneness}
-                timeEventsByRefId={timeEventsByRefId}
-                selectedKinds={selectedKinds}
-                selectedFeasabilities={selectedFeasabilities}
-                selectedDoneness={selectedDoneness}
-                aspects={visibleAspects}
-                aspectsByRefId={allAspectsByRefId}
-                showEmptyGroups={
-                  selectedGroupVisibility === GroupVisibility.SHOW_ALL
-                }
-              />
-            )}
+            {selectedView === TimePlanViewMode.TIMELINE &&
+              selectedGrouping === TimePlanGrouping.MERGED && (
+                <TimePlanTimelineMergedActivities
+                  timePlan={loaderData.timePlan}
+                  mustDoActivities={mustDoActivities}
+                  niceToHaveActivities={niceToHaveActivities}
+                  stretchActivities={stretchActivities}
+                  targetInboxTasksByRefId={targetInboxTasksByRefId}
+                  targetBigPlansByRefId={targetBigPlansByRefId}
+                  bigPlanStatsByRefId={bigPlanStatsByRefId}
+                  targetTodoTasksByRefId={targetTodoTasksByRefId}
+                  targetHabitsByRefId={targetHabitsByRefId}
+                  targetHabitStacksByRefId={targetHabitStacksByRefId}
+                  targetChoreStacksByRefId={targetChoreStacksByRefId}
+                  targetChoresByRefId={targetChoresByRefId}
+                  activityDoneness={loaderData.activityDoneness}
+                  timeEventsByRefId={timeEventsByRefId}
+                  selectedKinds={selectedKinds}
+                  selectedFeasabilities={selectedFeasabilities}
+                  selectedDoneness={selectedDoneness}
+                />
+              )}
 
-          {selectedView === TimePlanViewMode.TIMELINE &&
-            selectedGrouping === TimePlanGrouping.BY_ASPECT_AND_GOALS && (
-              <TimePlanTimelineByAspectAndGoalActivities
-                timePlan={loaderData.timePlan}
-                mustDoActivities={mustDoActivities}
-                otherActivities={otherActivities}
-                targetInboxTasksByRefId={targetInboxTasksByRefId}
-                targetBigPlansByRefId={targetBigPlansByRefId}
-                bigPlanStatsByRefId={bigPlanStatsByRefId}
-                targetTodoTasksByRefId={targetTodoTasksByRefId}
-                targetHabitsByRefId={targetHabitsByRefId}
-                targetHabitStacksByRefId={targetHabitStacksByRefId}
-                targetChoreStacksByRefId={targetChoreStacksByRefId}
-                targetChoresByRefId={targetChoresByRefId}
-                activityDoneness={loaderData.activityDoneness}
-                timeEventsByRefId={timeEventsByRefId}
-                selectedKinds={selectedKinds}
-                selectedFeasabilities={selectedFeasabilities}
-                selectedDoneness={selectedDoneness}
-                aspects={visibleAspects}
-                aspectsByRefId={allAspectsByRefId}
-                goals={sortedGoals}
-                goalsByRefId={allGoalsByRefId}
-                showEmptyGroups={
-                  selectedGroupVisibility === GroupVisibility.SHOW_ALL
-                }
-              />
-            )}
-        </SectionCard>
+            {selectedView === TimePlanViewMode.TIMELINE &&
+              selectedGrouping === TimePlanGrouping.BY_ASPECT && (
+                <TimePlanTimelineByAspectActivities
+                  timePlan={loaderData.timePlan}
+                  mustDoActivities={mustDoActivities}
+                  otherActivities={otherActivities}
+                  targetInboxTasksByRefId={targetInboxTasksByRefId}
+                  targetBigPlansByRefId={targetBigPlansByRefId}
+                  bigPlanStatsByRefId={bigPlanStatsByRefId}
+                  targetTodoTasksByRefId={targetTodoTasksByRefId}
+                  targetHabitsByRefId={targetHabitsByRefId}
+                  targetHabitStacksByRefId={targetHabitStacksByRefId}
+                  targetChoreStacksByRefId={targetChoreStacksByRefId}
+                  targetChoresByRefId={targetChoresByRefId}
+                  activityDoneness={loaderData.activityDoneness}
+                  timeEventsByRefId={timeEventsByRefId}
+                  selectedKinds={selectedKinds}
+                  selectedFeasabilities={selectedFeasabilities}
+                  selectedDoneness={selectedDoneness}
+                  aspects={visibleAspects}
+                  aspectsByRefId={allAspectsByRefId}
+                  showEmptyGroups={
+                    selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                  }
+                />
+              )}
 
-        {loaderData.completedNontargetInboxTasks.length > 0 && (
-          <SectionCard
-            id="time-plan-untracked-inbox-tasks"
-            title="Completed & Untracked Inbox Tasks"
-          >
-            <InboxTaskStack
-              topLevelInfo={topLevelInfo}
-              showOptions={{
-                showStatus: true,
-                showEisen: true,
-                showDifficulty: true,
-              }}
-              inboxTasks={loaderData.completedNontargetInboxTasks}
-            />
-          </SectionCard>
-        )}
+            {selectedView === TimePlanViewMode.TIMELINE &&
+              selectedGrouping === TimePlanGrouping.BY_ASPECT_AND_GOALS && (
+                <TimePlanTimelineByAspectAndGoalActivities
+                  timePlan={loaderData.timePlan}
+                  mustDoActivities={mustDoActivities}
+                  otherActivities={otherActivities}
+                  targetInboxTasksByRefId={targetInboxTasksByRefId}
+                  targetBigPlansByRefId={targetBigPlansByRefId}
+                  bigPlanStatsByRefId={bigPlanStatsByRefId}
+                  targetTodoTasksByRefId={targetTodoTasksByRefId}
+                  targetHabitsByRefId={targetHabitsByRefId}
+                  targetHabitStacksByRefId={targetHabitStacksByRefId}
+                  targetChoreStacksByRefId={targetChoreStacksByRefId}
+                  targetChoresByRefId={targetChoresByRefId}
+                  activityDoneness={loaderData.activityDoneness}
+                  timeEventsByRefId={timeEventsByRefId}
+                  selectedKinds={selectedKinds}
+                  selectedFeasabilities={selectedFeasabilities}
+                  selectedDoneness={selectedDoneness}
+                  aspects={visibleAspects}
+                  aspectsByRefId={allAspectsByRefId}
+                  goals={sortedGoals}
+                  goalsByRefId={allGoalsByRefId}
+                  showEmptyGroups={
+                    selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                  }
+                />
+              )}
+          </StrataSection>
 
-        {loaderData.completedNontargetBigPlans &&
-          loaderData.completedNontargetBigPlans.length > 0 && (
-            <SectionCard
-              id="time-plan-untracked-big-plans"
-              title="Completed & Untracked Big Plans"
+          {loaderData.completedNontargetInboxTasks.length > 0 && (
+            <StrataSection
+              id="time-plan-untracked-inbox-tasks"
+              items={loaderData.completedNontargetInboxTasks.length}
+              title="Completed & Untracked Inbox Tasks"
             >
-              <BigPlanStack
+              <InboxTaskStack
                 topLevelInfo={topLevelInfo}
                 showOptions={{
-                  showDonePct: true,
                   showStatus: true,
-                  showLifePlan: true,
                   showEisen: true,
                   showDifficulty: true,
-                  showActionableDate: true,
-                  showDueDate: true,
-                  showHandleMarkDone: false,
-                  showHandleMarkNotDone: false,
                 }}
-                bigPlans={loaderData.completedNontargetBigPlans}
-                bigPlanStatsByRefId={bigPlanStatsByRefId}
+                inboxTasks={loaderData.completedNontargetInboxTasks}
               />
-            </SectionCard>
+            </StrataSection>
           )}
 
-        {sortedSubTimePlans.length > 0 && (
-          <SectionCard id="time-plan-lower" title="Lower Time Plans">
-            <TimePlanStack
-              topLevelInfo={topLevelInfo}
-              timePlans={sortedSubTimePlans}
-            />
-          </SectionCard>
-        )}
-
-        {loaderData.higherTimePlan && (
-          <SectionCard id="time-plan-higher" title="Higher Time Plan">
-            <TimePlanStack
-              topLevelInfo={topLevelInfo}
-              timePlans={[loaderData.higherTimePlan]}
-            />
-          </SectionCard>
-        )}
-
-        {loaderData.previousTimePlan && (
-          <SectionCard id="time-plan-previous" title="Previous Time Plan">
-            <TimePlanStack
-              topLevelInfo={topLevelInfo}
-              timePlans={[loaderData.previousTimePlan]}
-            />
-          </SectionCard>
-        )}
-
-        {isWorkspaceFeatureAvailable(
-          topLevelInfo.workspace,
-          WorkspaceFeature.JOURNALS,
-        ) &&
-          (loaderData.journal || sortedSubJournals.length > 0) && (
-            <SectionCard id="time-plan-journal" title="Journal For This Plan">
-              {loaderData.journal && (
-                <JournalStack
+          {loaderData.completedNontargetBigPlans &&
+            loaderData.completedNontargetBigPlans.length > 0 && (
+              <StrataSection
+                id="time-plan-untracked-big-plans"
+                items={loaderData.completedNontargetBigPlans?.length ?? 0}
+                title="Completed & Untracked Big Plans"
+              >
+                <BigPlanStack
                   topLevelInfo={topLevelInfo}
-                  journals={[loaderData.journal]}
+                  showOptions={{
+                    showDonePct: true,
+                    showStatus: true,
+                    showLifePlan: true,
+                    showEisen: true,
+                    showDifficulty: true,
+                    showActionableDate: true,
+                    showDueDate: true,
+                    showHandleMarkDone: false,
+                    showHandleMarkNotDone: false,
+                  }}
+                  bigPlans={loaderData.completedNontargetBigPlans}
+                  bigPlanStatsByRefId={bigPlanStatsByRefId}
                 />
-              )}
+              </StrataSection>
+            )}
 
-              {sortedSubJournals.length > 0 && (
-                <JournalStack
-                  topLevelInfo={topLevelInfo}
-                  journals={sortedSubJournals}
-                />
-              )}
-            </SectionCard>
+          {sortedSubTimePlans.length > 0 && (
+            <StrataSection
+              id="time-plan-lower"
+              items={sortedSubTimePlans.length}
+              split={{ size: 1 }}
+              title="Lower Time Plans"
+              summary={countSummary(sortedSubTimePlans.length, "plan", "plans")}
+            >
+              <TimePlanStack
+                topLevelInfo={topLevelInfo}
+                timePlans={sortedSubTimePlans}
+              />
+            </StrataSection>
           )}
-      </NestingAwareBlock>
+
+          {loaderData.higherTimePlan && (
+            <StrataSection id="time-plan-higher" title="Higher Time Plan">
+              <TimePlanStack
+                topLevelInfo={topLevelInfo}
+                timePlans={[loaderData.higherTimePlan]}
+              />
+            </StrataSection>
+          )}
+
+          {loaderData.previousTimePlan && (
+            <StrataSection id="time-plan-previous" title="Previous Time Plan">
+              <TimePlanStack
+                topLevelInfo={topLevelInfo}
+                timePlans={[loaderData.previousTimePlan]}
+              />
+            </StrataSection>
+          )}
+
+          {isWorkspaceFeatureAvailable(
+            topLevelInfo.workspace,
+            WorkspaceFeature.JOURNALS,
+          ) &&
+            (loaderData.journal || sortedSubJournals.length > 0) && (
+              <StrataSection
+                id="time-plan-journal"
+                items={(loaderData.journal ? 1 : 0) + sortedSubJournals.length}
+                title="Journal For This Plan"
+              >
+                {loaderData.journal && (
+                  <JournalStack
+                    topLevelInfo={topLevelInfo}
+                    journals={[loaderData.journal]}
+                  />
+                )}
+
+                {sortedSubJournals.length > 0 && (
+                  <JournalStack
+                    topLevelInfo={topLevelInfo}
+                    journals={sortedSubJournals}
+                  />
+                )}
+              </StrataSection>
+            )}
+        </NestingAwareBlock>
+      </StrataSectionStack>
 
       <NestedOutlet />
     </BranchPanel>

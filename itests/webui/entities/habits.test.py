@@ -55,9 +55,13 @@ from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page, ViewportSize, expect
 
-from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
+from itests.helpers import (
+    get_parsed_from_response,
+    open_leaf_publish_panel,
+    wait_for_hydration,
+)
 from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 _ACCESS_DENIED_LABEL = "You do not have the right access for this entity"
@@ -615,3 +619,231 @@ def test_webui_habit_stack_acl_z_denied_without_grant(
 
     _login_as_other_user(page, another_user_with_habits_enabled)
     _assert_other_user_cannot_access_habit_stack_webui(page, stack=stack)
+
+
+def test_webui_habit_sections_collapse_to_their_header(
+    page: Page, create_habit
+) -> None:
+    habit = create_habit(
+        "Sections Habit",
+        RecurringTaskPeriod.DAILY,
+        False,
+        Eisen.REGULAR,
+        Difficulty.MEDIUM,
+    )
+    page.goto(f"/app/workspace/apps/habits/habits/{habit.ref_id}")
+    wait_for_hydration(page)
+
+    # The first section is the default one: it can't be collapsed.
+    properties = page.locator("#habit-properties-section")
+    expect(properties.get_by_role("button", name="Collapse Properties")).to_have_count(
+        0
+    )
+
+    note = page.locator("#habit-note-section")
+    body = page.locator("#habit-note-section-body")
+    expect(note.locator("[data-strata-section-header]")).to_contain_text("none yet")
+    expect(body).not_to_have_attribute("hidden", "")
+
+    note.get_by_role("button", name="Collapse Note").click()
+
+    # Collapsed: the body is hidden, the header and its summary stay, and the
+    # choice is in the URL under the panel's id.
+    expect(body).to_have_attribute("hidden", "")
+    expect(note.get_by_role("button", name="Expand Note")).to_have_attribute(
+        "aria-expanded", "false"
+    )
+    expect(note.locator("[data-strata-section-header]")).to_contain_text("none yet")
+    expect(page).to_have_url(
+        re.compile(r"habit(%5B|\[)collapsed(%5D|\])=habit-note-section")
+    )
+
+    # It survives a reload, and expanding takes it out of the URL again.
+    page.reload()
+    wait_for_hydration(page)
+    expect(body).to_have_attribute("hidden", "")
+
+    note.get_by_role("button", name="Expand Note").click()
+    expect(body).not_to_have_attribute("hidden", "")
+    expect(page).not_to_have_url(re.compile(r"collapsed"))
+
+
+def test_webui_habit_z_collapses_the_section_in_the_focused_column(
+    page: Page, create_habit
+) -> None:
+    habit = create_habit(
+        "Z Key Habit",
+        RecurringTaskPeriod.DAILY,
+        False,
+        Eisen.REGULAR,
+        Difficulty.MEDIUM,
+    )
+    page.goto(f"/app/workspace/apps/habits/habits/{habit.ref_id}")
+    wait_for_hydration(page)
+
+    body = page.locator("#habit-note-section-body")
+
+    # Typing a z in a field is typing, not a shortcut.
+    page.locator('#habit-properties-section input[name="name"]').click()
+    page.keyboard.type("z")
+    expect(body).not_to_have_attribute("hidden", "")
+
+    # With the keyboard focus on a header, z collapses that section, and again
+    # expands it.
+    page.locator("#habit-note-section").get_by_role(
+        "button", name="Collapse Note"
+    ).focus()
+    page.keyboard.press("z")
+    expect(body).to_have_attribute("hidden", "")
+    page.keyboard.press("z")
+    expect(body).not_to_have_attribute("hidden", "")
+
+
+_WIDE: ViewportSize = {"width": 1920, "height": 1000}
+_NARROW: ViewportSize = {"width": 1100, "height": 900}
+
+
+@pytest.fixture()
+def habit_with_inbox_task(logged_in_client: AuthenticatedClient, create_habit):
+    """A habit which has an inbox task, so its Inbox Tasks section holds items."""
+
+    def _create(name: str) -> Habit:
+        habit: Habit = create_habit(
+            name,
+            RecurringTaskPeriod.DAILY,
+            False,
+            Eisen.REGULAR,
+            Difficulty.MEDIUM,
+        )
+        gen_result = gen_do_sync(
+            client=logged_in_client,
+            body=GenDoArgs(
+                gen_even_if_not_modified=True,
+                today="2026-09-06",
+                gen_targets=[SyncTarget.HABITS],
+                period=[RecurringTaskPeriod.DAILY],
+                filter_habit_ref_ids=[habit.ref_id],
+            ),
+        )
+        assert gen_result.status_code == 200
+        return habit
+
+    return _create
+
+
+def test_webui_habit_sections_without_a_list_cannot_be_split(
+    page: Page, create_habit
+) -> None:
+    habit = create_habit(
+        "Nothing To Split Habit",
+        RecurringTaskPeriod.DAILY,
+        False,
+        Eisen.REGULAR,
+        Difficulty.MEDIUM,
+    )
+    page.set_viewport_size(_WIDE)
+    page.goto(f"/app/workspace/apps/habits/habits/{habit.ref_id}")
+    wait_for_hydration(page)
+
+    # The first section is the default one, and the note and the inbox tasks
+    # have nothing in them: none of them has a split control.
+    expect(
+        page.get_by_role("button", name=re.compile(r"^Split .* into its own column"))
+    ).to_have_count(0)
+
+
+def test_webui_habit_section_splits_into_a_column_and_folds_back(
+    page: Page, habit_with_inbox_task
+) -> None:
+    habit = habit_with_inbox_task("Split Habit")
+    page.set_viewport_size(_WIDE)
+    page.goto(f"/app/workspace/apps/habits/habits/{habit.ref_id}")
+    wait_for_hydration(page)
+
+    page.get_by_role("button", name="Split Inbox Tasks into its own column").click()
+
+    # The section is a column of its own, which has the focus, and leaves a
+    # placeholder where it was. The split is in the URL.
+    column = page.locator("#split-panel-habit-inbox-tasks")
+    expect(column).to_be_visible()
+    expect(column).to_have_attribute("data-focused", "true")
+    expect(column.locator("[data-strata-split-host]")).to_contain_text("Split Habit")
+    expect(
+        page.locator("#habit-inbox-tasks [data-strata-section-placeholder]")
+    ).to_contain_text("in its own column")
+    expect(page).to_have_url(
+        re.compile(r"habit(%5B|\[)split(%5D|\])=habit-inbox-tasks")
+    )
+    # The path in the top bar has a chip for it.
+    expect(
+        page.get_by_role("navigation", name="Path").locator(
+            '[data-split="habit-inbox-tasks"]'
+        )
+    ).to_be_visible()
+
+    # It is there again after a reload.
+    page.reload()
+    wait_for_hydration(page)
+    expect(page.locator("#split-panel-habit-inbox-tasks")).to_be_visible()
+
+    # Folding it back puts the section where it was and takes it from the URL.
+    page.get_by_role("button", name="Fold Inbox Tasks back into its section").click()
+    expect(page.locator("#split-panel-habit-inbox-tasks")).to_have_count(0)
+    expect(page.locator("#habit-inbox-tasks-body")).to_be_visible()
+    expect(page).not_to_have_url(re.compile(r"split"))
+
+
+def test_webui_habit_split_with_no_room_folds_back_collapsed(
+    page: Page, habit_with_inbox_task
+) -> None:
+    habit = habit_with_inbox_task("No Room Habit")
+    page.set_viewport_size(_NARROW)
+    page.goto(
+        f"/app/workspace/apps/habits/habits/{habit.ref_id}"
+        "?habit%5Bsplit%5D=habit-inbox-tasks"
+    )
+    wait_for_hydration(page)
+    expect(page.locator("#split-panel-habit-inbox-tasks")).to_be_visible()
+
+    # Focusing the list leaves no room for the split, which comes back into its
+    # section, collapsed and tagged. Its chip in the top bar is struck through.
+    page.get_by_role("navigation", name="Path").get_by_role(
+        "button", name="habits"
+    ).first.click()
+    expect(page.locator("#split-panel-habit-inbox-tasks")).to_have_count(0)
+    inbox = page.locator("#habit-inbox-tasks")
+    expect(inbox.locator("[data-strata-section-tag]")).to_contain_text("folded back")
+    expect(inbox.get_by_role("button", name="Expand Inbox Tasks")).to_be_visible()
+    expect(
+        page.get_by_role("navigation", name="Path").locator(
+            '[data-split="habit-inbox-tasks"]'
+        )
+    ).to_be_disabled()
+
+    # With room again, it comes back by itself.
+    page.set_viewport_size(_WIDE)
+    expect(page.locator("#split-panel-habit-inbox-tasks")).to_be_visible()
+
+
+def test_webui_habit_s_splits_and_escape_folds_back(
+    page: Page, habit_with_inbox_task
+) -> None:
+    habit = habit_with_inbox_task("Keys Habit")
+    page.set_viewport_size(_WIDE)
+    page.goto(f"/app/workspace/apps/habits/habits/{habit.ref_id}")
+    wait_for_hydration(page)
+
+    # Typing an s in a field is typing, not a shortcut.
+    page.locator('#habit-properties-section input[name="name"]').click()
+    page.keyboard.type("s")
+    expect(page.locator("#split-panel-habit-inbox-tasks")).to_have_count(0)
+
+    # With the keyboard focus on a header, s splits that section out; Escape on
+    # the new column folds it back.
+    page.locator("#habit-inbox-tasks").get_by_role(
+        "button", name="Collapse Inbox Tasks"
+    ).focus()
+    page.keyboard.press("s")
+    expect(page.locator("#split-panel-habit-inbox-tasks")).to_be_visible()
+    page.keyboard.press("Escape")
+    expect(page.locator("#split-panel-habit-inbox-tasks")).to_have_count(0)

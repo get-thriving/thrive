@@ -20,7 +20,7 @@ import { BirthdaySelect } from "#/core/common/component/birthday-select";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -169,7 +169,8 @@ export default function OccasionView() {
       returnLocation={`/app/workspace/apps/prm/persons/${occasion.person_ref_id}`}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        fixed
         id="occasion-properties"
         title="Properties"
         actions={
@@ -238,7 +239,7 @@ export default function OccasionView() {
           schedulingParams={occasion.scheduling_params}
           actionData={actionData}
         />
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

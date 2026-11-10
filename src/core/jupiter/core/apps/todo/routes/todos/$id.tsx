@@ -36,7 +36,7 @@ import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
 import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   NavSingle,
@@ -415,6 +415,7 @@ export default function TodoTask() {
 
   return (
     <LeafPanel
+      sectionsPanelId="todo"
       key={`todo-task-${loaderData.todoTask.ref_id}`}
       entityType={NamedEntityTag.TODO_TASK}
       entityRefId={loaderData.todoTask.ref_id}
@@ -458,7 +459,9 @@ export default function TodoTask() {
         WorkspaceFeature.TIME_PLANS,
       ) &&
         loaderData.timePlanActivities && (
-          <SectionCard
+          <StrataSection
+            items={loaderData.timePlanActivities.length}
+            split={{ size: 1 }}
             id="todo-time-plans"
             title="Time Plans"
             actions={
@@ -503,7 +506,7 @@ export default function TodoTask() {
               fullInfo={false}
               showTimePlanName={true}
             />
-          </SectionCard>
+          </StrataSection>
         )}
 
       {isWorkspaceFeatureAvailable(
@@ -519,7 +522,9 @@ export default function TodoTask() {
         />
       )}
 
-      <SectionCard
+      <StrataSection
+        id="todo-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
           <SectionActions
@@ -544,7 +549,7 @@ export default function TodoTask() {
             inputsEnabled={inputsEnabled}
           />
         )}
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

@@ -24,7 +24,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { MetricEntryEditor } from "#/core/apps/metrics/sub/entry/component/editor";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 import {
@@ -207,6 +207,7 @@ export default function MetricEntry() {
 
   return (
     <LeafPanel
+      sectionsPanelId="metric-entry"
       key={`metric-${id}/entry-${entryId}`}
       entityType={NamedEntityTag.METRIC_ENTRY}
       entityRefId={loaderData.metricEntry.ref_id}
@@ -230,7 +231,9 @@ export default function MetricEntry() {
         actionResult={actionData}
       />
 
-      <SectionCard
+      <StrataSection
+        id="metric-entry-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
           <SectionActions
@@ -256,7 +259,7 @@ export default function MetricEntry() {
             />
           </>
         )}
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

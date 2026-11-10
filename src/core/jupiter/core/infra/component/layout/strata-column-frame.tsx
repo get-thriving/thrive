@@ -1,6 +1,7 @@
 import type { FocusEvent, PropsWithChildren } from "react";
 import { ButtonBase, Box, alpha, styled } from "@mui/material";
 
+import { StrataColumnKeyContext } from "#/core/infra/component/layout/strata-column-key-context";
 import { STRATA_COLUMNS_TOP } from "#/core/infra/component/layout/strata-columns-top";
 import {
   strataColors,
@@ -25,6 +26,8 @@ interface StrataColumnFrameProps {
   fallbackLeft: number;
   /** Whether the panel slides to a new place, rather than jumping. */
   animate: boolean;
+  /** For a split column: the id of the section it holds. */
+  split?: string;
 }
 
 /**
@@ -61,6 +64,7 @@ export function StrataColumnFrame(
       data-strata-column={props.id}
       data-folded={spine ? "true" : undefined}
       data-peek={peek ? "true" : undefined}
+      data-strata-split={props.split}
       data-focused={column?.focused ? "true" : undefined}
       data-animate={props.animate ? "true" : undefined}
       tabIndex={-1}
@@ -109,7 +113,9 @@ export function StrataColumnFrame(
           width: column?.contentWidth ?? "100%",
         }}
       >
-        {props.children}
+        <StrataColumnKeyContext.Provider value={column?.key ?? null}>
+          {props.children}
+        </StrataColumnKeyContext.Provider>
       </Box>
     </Frame>
   );

@@ -42,7 +42,7 @@ import {
 import { calendarEventWorkspacePathFromTimePlan } from "#/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   NavSingle,
   SectionActions,
@@ -467,7 +467,8 @@ function TimeEventInDayProperties({
   const durationMins = inDayBlock.duration_mins;
 
   return (
-    <SectionCard
+    <StrataSection
+      fixed
       id="time-plan-calendar-event-details"
       title="Properties"
       actions={openOriginalActions(
@@ -549,7 +550,7 @@ function TimeEventInDayProperties({
         bufferBeforeMins={inDayBlock.buffer_before_mins ?? null}
         bufferAfterMins={inDayBlock.buffer_after_mins ?? null}
       />
-    </SectionCard>
+    </StrataSection>
   );
 }
 
@@ -570,7 +571,8 @@ function TimeEventFullDaysProperties({
   const durationDays = fullDaysBlock.duration_days;
 
   return (
-    <SectionCard
+    <StrataSection
+      fixed
       id="time-plan-calendar-event-details"
       title="Properties"
       actions={openOriginalActions(
@@ -636,7 +638,7 @@ function TimeEventFullDaysProperties({
           />
         </FormControl>
       </Stack>
-    </SectionCard>
+    </StrataSection>
   );
 }
 

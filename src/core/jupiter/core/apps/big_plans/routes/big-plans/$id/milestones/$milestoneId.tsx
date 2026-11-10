@@ -14,7 +14,7 @@ import { getSuggestedDatesForBigPlanMilestoneDate } from "#/core/common/suggeste
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -141,7 +141,8 @@ export default function BigPlanMilestoneView() {
       returnLocation={`/app/workspace/apps/big-plans/${milestone.big_plan_ref_id}`}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        fixed
         id="milestone-properties"
         title="Properties"
         actions={
@@ -188,7 +189,7 @@ export default function BigPlanMilestoneView() {
           />
           <FieldError actionResult={actionData} fieldName="/date" />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

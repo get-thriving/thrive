@@ -1,7 +1,17 @@
 import { createContext } from "react";
 
+import type { StrataSplitSpec } from "#/core/infra/strata/strata-split-spec";
 import type { StrataLevel } from "#/core/infra/strata/strata-level";
 import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
+
+/** A section split out of its column, or asked to be and folded back. */
+export interface StrataSplitState {
+  id: string;
+  title: string;
+  /** The key of its column, when it is shown as one. */
+  key: string;
+  state: "active" | "folded";
+}
 
 /** What the workspace offers the panels that want to be columns. */
 export interface StrataColumnsApi {
@@ -11,6 +21,19 @@ export interface StrataColumnsApi {
   focus: (level: StrataLevel) => void;
   /** The same, by place on the open path: 0 is the first panel. */
   focusAt: (index: number) => void;
+  /** The same, for a route column of the open path: 0 is the first. */
+  focusRoute: (index: number) => void;
+  /** The same, by the key of any column, a split's included. */
+  focusColumn: (key: string) => void;
+  /** Splits asked for in the URL whose section is on screen. */
+  splits: StrataSplitState[];
+  /**
+   * Offer a section as a column; returns the way to take it back. `fold` is
+   * what the column's own control does.
+   */
+  registerSplit: (spec: StrataSplitSpec, fold: () => void) => () => void;
+  /** Where a split column's section is drawn, once the column is there. */
+  splitHost: (id: string) => HTMLElement | null;
   /**
    * Every open panel with where it ended up, in the order of the path; empty
    * until the layout has placed them.

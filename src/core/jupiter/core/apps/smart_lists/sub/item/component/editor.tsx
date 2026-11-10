@@ -25,7 +25,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
@@ -47,7 +47,9 @@ export function SmartListItemEditor(props: SmartListItemEditorProps) {
 
   return (
     <>
-      <SectionCard
+      <StrataSection
+        id="smart-list-item-properties-section"
+        fixed
         title="Properties"
         actions={
           props.inputsEnabled ? (
@@ -142,7 +144,7 @@ export function SmartListItemEditor(props: SmartListItemEditorProps) {
           />
           <FieldError actionResult={props.actionResult} fieldName="/url" />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
       <EntityLocationMapSection location={location} />
     </>
   );

@@ -35,7 +35,7 @@ import {
   NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { LifePlanAssociations } from "#/core/apps/life_plan/components/life-plan-associations";
@@ -116,7 +116,9 @@ export function HabitStackPropertiesEditor(
 
   return (
     <>
-      <SectionCard
+      <StrataSection
+        id="habit-stack-properties-section"
+        fixed
         title={props.title}
         actions={
           <SectionActions
@@ -292,7 +294,7 @@ export function HabitStackPropertiesEditor(
             />
           </FormControl>
         )}
-      </SectionCard>
+      </StrataSection>
       <EntityLocationMapSection location={props.location} />
     </>
   );

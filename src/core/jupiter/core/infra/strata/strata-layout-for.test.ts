@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import type { ColumnSpec } from "#/core/infra/strata/layout";
-import { strataLayoutFor } from "#/core/infra/strata/strata-layout-for";
+import {
+  strataLayoutFor,
+  strataLayoutWithSplits,
+} from "#/core/infra/strata/strata-layout-for";
+import type { StrataSplitSpec } from "#/core/infra/strata/strata-split-spec";
 
 const habits: ColumnSpec[] = [
   { key: "habits", kind: "route", size: 3, grow: true },
@@ -82,5 +86,78 @@ describe("strataLayoutFor", () => {
   it("clamps a focus that is past the path", () => {
     const layout = strataLayoutFor(habits, 7, 1440, RAIL);
     expect(layout.slots.map((slot) => slot.focused)).toEqual([false, true]);
+  });
+});
+
+describe("strataLayoutWithSplits", () => {
+  const plan: ColumnSpec[] = [
+    { key: "time-plans", kind: "route", size: 1 },
+    { key: "plan", kind: "route", size: 3, grow: true },
+    { key: "activity", kind: "route", size: 2 },
+  ];
+  const splits = new Map<string, StrataSplitSpec>([
+    [
+      "activities",
+      {
+        id: "activities",
+        parentKey: "plan",
+        title: "Activities",
+        size: 3,
+        grow: true,
+        parentSize: 2,
+      },
+    ],
+    ["note", { id: "note", parentKey: "plan", title: "Notes", size: 2 }],
+  ]);
+  const layout = (wanted: string[], focusKey: string, width: number) =>
+    strataLayoutWithSplits({
+      path: plan,
+      splits,
+      wanted,
+      focusKey,
+      width,
+      rail: RAIL,
+    });
+
+  it("is the path when nothing is asked for", () => {
+    const result = layout([], "plan", 1440);
+    expect(result.description).toBe("time-plans:1 plan:3+1 activity:2");
+    expect(result.active).toEqual([]);
+    expect(result.folded).toEqual([]);
+  });
+
+  it("shows a split as a column of its own, and the parent needs less", () => {
+    const result = layout(["activities"], "split:activities", 1440);
+    expect(result.description).toBe(
+      "time-plans:| plan:2 split:activities:3 activity:2",
+    );
+    expect(result.slots.map((slot) => slot.kind)).toEqual([
+      "route",
+      "route",
+      "split",
+      "route",
+    ]);
+    expect(result.active).toEqual(["activities"]);
+  });
+
+  it("folds a split back when it would only be a peek", () => {
+    const result = layout(["activities", "note"], "activity", 1100);
+    expect(result.description).toBe(
+      "time-plans:| plan:1/3~ split:note:2 activity:2",
+    );
+    expect(result.active).toEqual(["note"]);
+    expect(result.folded).toEqual(["activities"]);
+  });
+
+  it("ignores a split no section offered", () => {
+    const result = layout(["gone"], "plan", 1440);
+    expect(result.active).toEqual([]);
+  });
+
+  it("marks the focused column and says which it is", () => {
+    const result = layout(["note"], "split:note", 1440);
+    expect(
+      result.slots.filter((slot) => slot.focused).map((s) => s.key),
+    ).toEqual(["split:note"]);
   });
 });

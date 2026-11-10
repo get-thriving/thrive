@@ -36,7 +36,7 @@ import { InboxTaskStatusBigTag } from "#/core/common/sub/inbox_tasks/component/s
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -298,7 +298,9 @@ export default function BigPlanInboxTaskEdit() {
       entityArchived={inboxTask.archived}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        id="big-plan-inbox-task-properties-section"
+        fixed
         title="Inbox Task Properties"
         actions={
           <SectionActions
@@ -606,7 +608,7 @@ export default function BigPlanInboxTaskEdit() {
             </ButtonGroup>
           </Stack>
         </CardActions>
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

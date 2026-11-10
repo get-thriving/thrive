@@ -49,7 +49,9 @@ import { GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSectionStack } from "#/core/infra/component/strata-section-stack";
+import { countSummary } from "#/core/infra/component/count-summary";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   NavSingle,
@@ -518,146 +520,163 @@ export default function Chore() {
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
     >
-      <GlobalError actionResult={actionData} />
-      <ChorePropertiesEditor
-        title="Properties"
-        topLevelInfo={topLevelInfo}
-        lifePlan={loaderData.lifePlan}
-        allAspects={loaderData.allAspects ?? []}
-        allChapters={loaderData.allChapters ?? []}
-        allGoals={loaderData.allGoals ?? []}
-        allMilestones={loaderData.allMilestones ?? []}
-        allTags={loaderData.allTags}
-        tags={loaderData.tags}
-        allContacts={loaderData.allContacts}
-        contacts={loaderData.contacts}
-        location={loaderData.location}
-        inputsEnabled={inputsEnabled}
-        entityOwner={loaderData.owner}
-        chore={loaderData.chore}
-        allStacks={loaderData.allStacks}
-        aspect={loaderData.aspect}
-        chapter={loaderData.chapter}
-        goal={loaderData.goal}
-        actionData={actionData}
-      />
+      <StrataSectionStack panelId="chore">
+        <GlobalError actionResult={actionData} />
+        <ChorePropertiesEditor
+          title="Properties"
+          topLevelInfo={topLevelInfo}
+          lifePlan={loaderData.lifePlan}
+          allAspects={loaderData.allAspects ?? []}
+          allChapters={loaderData.allChapters ?? []}
+          allGoals={loaderData.allGoals ?? []}
+          allMilestones={loaderData.allMilestones ?? []}
+          allTags={loaderData.allTags}
+          tags={loaderData.tags}
+          allContacts={loaderData.allContacts}
+          contacts={loaderData.contacts}
+          location={loaderData.location}
+          inputsEnabled={inputsEnabled}
+          entityOwner={loaderData.owner}
+          chore={loaderData.chore}
+          allStacks={loaderData.allStacks}
+          aspect={loaderData.aspect}
+          chapter={loaderData.chapter}
+          goal={loaderData.goal}
+          actionData={actionData}
+        />
 
-      <SectionCard
-        title="Note"
-        actions={
-          <SectionActions
-            id="chore-note"
+        <StrataSection
+          id="chore-note-section"
+          items={loaderData.note ? 1 : 0}
+          title="Note"
+          summary={loaderData.note ? "written" : "none yet"}
+          actions={
+            <SectionActions
+              id="chore-note"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  text: "Create Note",
+                  value: "create-note",
+                  highlight: false,
+                  disabled: loaderData.note !== null,
+                }),
+              ]}
+            />
+          }
+        >
+          {loaderData.note && (
+            <>
+              <EntityNoteEditor
+                initialNote={loaderData.note}
+                inputsEnabled={inputsEnabled}
+              />
+            </>
+          )}
+        </StrataSection>
+
+        {isWorkspaceFeatureAvailable(
+          topLevelInfo.workspace,
+          WorkspaceFeature.SCHEDULE,
+        ) && (
+          <TimeEventInDayBlockStack
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                text: "Create Note",
-                value: "create-note",
-                highlight: false,
-                disabled: loaderData.note !== null,
-              }),
-            ]}
+            title="Time Events"
+            createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-chore?choreRefId=${loaderData.chore.ref_id}`}
+            entries={sortedTimeEventEntries}
           />
-        }
-      >
-        {loaderData.note && (
-          <>
-            <EntityNoteEditor
-              initialNote={loaderData.note}
-              inputsEnabled={inputsEnabled}
-            />
-          </>
         )}
-      </SectionCard>
 
-      {isWorkspaceFeatureAvailable(
-        topLevelInfo.workspace,
-        WorkspaceFeature.SCHEDULE,
-      ) && (
-        <TimeEventInDayBlockStack
-          topLevelInfo={topLevelInfo}
-          inputsEnabled={inputsEnabled}
-          title="Time Events"
-          createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-chore?choreRefId=${loaderData.chore.ref_id}`}
-          entries={sortedTimeEventEntries}
-        />
-      )}
-
-      {isWorkspaceFeatureAvailable(
-        topLevelInfo.workspace,
-        WorkspaceFeature.TIME_PLANS,
-      ) &&
-        loaderData.timePlanActivities && (
-          <SectionCard
-            id="chore-time-plans"
-            title="Time Plans"
-            actions={
-              <SectionActions
-                id="chore-time-plans-actions"
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={inputsEnabled}
-                actions={[
-                  NavSingle({
-                    text: "Add",
-                    highlight: false,
-                    link: `/app/workspace/apps/time-plans/add-chore-to-plans?choreRefId=${loaderData.chore.ref_id}`,
-                  }),
-                ]}
-              />
-            }
-          >
-            <TimePlanActivityList
-              topLevelInfo={topLevelInfo}
-              activities={loaderData.timePlanActivities.map(
-                (entry) => entry.time_plan_activity,
+        {isWorkspaceFeatureAvailable(
+          topLevelInfo.workspace,
+          WorkspaceFeature.TIME_PLANS,
+        ) &&
+          loaderData.timePlanActivities && (
+            <StrataSection
+              id="chore-time-plans"
+              items={loaderData.timePlanActivities.length}
+              split={{ size: 1 }}
+              title="Time Plans"
+              summary={countSummary(
+                loaderData.timePlanActivities.length,
+                "activity",
+                "activities",
               )}
-              timePlansByRefId={
-                new Map(
-                  loaderData.timePlanActivities.map((entry) => [
-                    entry.time_plan.ref_id,
-                    entry.time_plan,
-                  ]),
-                )
+              actions={
+                <SectionActions
+                  id="chore-time-plans-actions"
+                  topLevelInfo={topLevelInfo}
+                  inputsEnabled={inputsEnabled}
+                  actions={[
+                    NavSingle({
+                      text: "Add",
+                      highlight: false,
+                      link: `/app/workspace/apps/time-plans/add-chore-to-plans?choreRefId=${loaderData.chore.ref_id}`,
+                    }),
+                  ]}
+                />
               }
-              inboxTasksByRefId={new Map()}
-              bigPlansByRefId={new Map()}
-              todoTasksByRefId={new Map()}
-              habitsByRefId={new Map()}
-              choresByRefId={
-                new Map([[loaderData.chore.ref_id, loaderData.chore]])
-              }
-              activityDoneness={{}}
-              timeEventsByRefId={new Map()}
-              fullInfo={false}
-              showTimePlanName={true}
-            />
-          </SectionCard>
-        )}
+            >
+              <TimePlanActivityList
+                topLevelInfo={topLevelInfo}
+                activities={loaderData.timePlanActivities.map(
+                  (entry) => entry.time_plan_activity,
+                )}
+                timePlansByRefId={
+                  new Map(
+                    loaderData.timePlanActivities.map((entry) => [
+                      entry.time_plan.ref_id,
+                      entry.time_plan,
+                    ]),
+                  )
+                }
+                inboxTasksByRefId={new Map()}
+                bigPlansByRefId={new Map()}
+                todoTasksByRefId={new Map()}
+                habitsByRefId={new Map()}
+                choresByRefId={
+                  new Map([[loaderData.chore.ref_id, loaderData.chore]])
+                }
+                activityDoneness={{}}
+                timeEventsByRefId={new Map()}
+                fullInfo={false}
+                showTimePlanName={true}
+              />
+            </StrataSection>
+          )}
 
-      <SectionCard title="Inbox Tasks">
-        {sortedInboxTasks.length > 0 && (
-          <InboxTaskStack
-            topLevelInfo={topLevelInfo}
-            showOptions={{
-              showStatus: true,
-              showDueDate: true,
-              showHandleMarkDone: inputsEnabled,
-              showHandleMarkNotDone: inputsEnabled,
-            }}
-            inboxTasks={sortedInboxTasks}
-            moreInfoByRefId={moreInfoByRefId}
-            withPages={{
-              retrieveOffsetParamName: "inboxTasksRetrieveOffset",
-              totalCnt: loaderData.inboxTasksTotalCnt,
-              pageSize: loaderData.inboxTasksPageSize,
-            }}
-            onCardMarkDone={inputsEnabled ? handleCardMarkDone : undefined}
-            onCardMarkNotDone={
-              inputsEnabled ? handleCardMarkNotDone : undefined
-            }
-          />
-        )}
-      </SectionCard>
+        <StrataSection
+          id="chore-inbox-tasks"
+          items={loaderData.inboxTasksTotalCnt}
+          title="Inbox Tasks"
+          summary={countSummary(loaderData.inboxTasksTotalCnt, "task", "tasks")}
+        >
+          {sortedInboxTasks.length > 0 && (
+            <InboxTaskStack
+              topLevelInfo={topLevelInfo}
+              showOptions={{
+                showStatus: true,
+                showDueDate: true,
+                showHandleMarkDone: inputsEnabled,
+                showHandleMarkNotDone: inputsEnabled,
+              }}
+              inboxTasks={sortedInboxTasks}
+              moreInfoByRefId={moreInfoByRefId}
+              withPages={{
+                retrieveOffsetParamName: "inboxTasksRetrieveOffset",
+                totalCnt: loaderData.inboxTasksTotalCnt,
+                pageSize: loaderData.inboxTasksPageSize,
+              }}
+              onCardMarkDone={inputsEnabled ? handleCardMarkDone : undefined}
+              onCardMarkNotDone={
+                inputsEnabled ? handleCardMarkNotDone : undefined
+              }
+            />
+          )}
+        </StrataSection>
+      </StrataSectionStack>
     </LeafPanel>
   );
 }

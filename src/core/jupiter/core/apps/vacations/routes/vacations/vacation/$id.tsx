@@ -26,7 +26,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { VacationEditor } from "#/core/apps/vacations/sub/vacation/component/editor";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
@@ -220,6 +220,7 @@ export default function Vacation() {
 
   return (
     <LeafPanel
+      sectionsPanelId="vacation"
       key={`vacation-${loaderData.vacation.ref_id}`}
       entityType={NamedEntityTag.VACATION}
       entityRefId={loaderData.vacation.ref_id}
@@ -259,7 +260,9 @@ export default function Vacation() {
         />
       )}
 
-      <SectionCard
+      <StrataSection
+        id="vacation-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
           <SectionActions
@@ -284,7 +287,7 @@ export default function Vacation() {
             inputsEnabled={inputsEnabled}
           />
         )}
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

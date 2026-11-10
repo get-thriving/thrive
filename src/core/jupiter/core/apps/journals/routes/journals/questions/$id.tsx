@@ -25,7 +25,7 @@ import { periodName } from "#/core/common/recurring-task-period";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -145,7 +145,9 @@ export default function JournalQuestionDetail() {
     >
       <GlobalError actionResult={actionData} />
 
-      <SectionCard
+      <StrataSection
+        id="journal-question-section"
+        fixed
         title={`Question #${journalQuestion.name}`}
         actions={
           <SectionActions
@@ -181,7 +183,7 @@ export default function JournalQuestionDetail() {
         </FormControl>
 
         <input name="id" type="hidden" value={id ?? journalQuestion.ref_id} />
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

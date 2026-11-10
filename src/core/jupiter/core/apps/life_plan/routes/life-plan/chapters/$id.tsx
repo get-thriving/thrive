@@ -27,7 +27,7 @@ import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   SectionActions,
   ActionSingle,
@@ -188,6 +188,7 @@ export default function Chapter() {
 
   return (
     <LeafPanel
+      sectionsPanelId="life-plan-chapter"
       key={`chapter-${loaderData.chapter.ref_id}`}
       entityType={NamedEntityTag.CHAPTER}
       entityRefId={loaderData.chapter.ref_id}
@@ -199,7 +200,9 @@ export default function Chapter() {
       returnLocation="/app/workspace/apps/life-plan/chapters"
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        id="chapter-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -279,9 +282,11 @@ export default function Chapter() {
           />
           <FieldError actionResult={actionData} fieldName="/end_date" />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="chapter-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
           <SectionActions
@@ -305,7 +310,7 @@ export default function Chapter() {
             inputsEnabled={inputsEnabled}
           />
         )}
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

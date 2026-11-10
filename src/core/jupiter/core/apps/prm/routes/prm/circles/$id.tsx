@@ -14,7 +14,7 @@ import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -130,7 +130,9 @@ export default function Circle() {
       returnLocation="/app/workspace/apps/prm/circles"
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        id="circle-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -157,7 +159,7 @@ export default function Circle() {
           />
           <FieldError actionResult={actionData} fieldName="/name" />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
     </LeafPanel>
   );
 }

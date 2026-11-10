@@ -28,7 +28,12 @@ export function strataPhoneLayoutFor(
   const focusedWidth = Math.max(0, width - parentStrip - childSliver);
 
   const slots: StrataPlacedSlot[] = path.map((panel, index) => {
-    const base = { key: panel.key, units: 0, focused: false };
+    const base = {
+      key: panel.key,
+      kind: panel.kind,
+      units: 0,
+      focused: false,
+    };
     if (index === focusIndex) {
       return {
         ...base,

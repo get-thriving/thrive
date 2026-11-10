@@ -33,7 +33,7 @@ import {
   ActionSingle,
   NavSingle,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { TimePlanActivityList } from "#/core/apps/time_plans/sub/activity/component/list";
 import { TimeEventInDayBlockStack } from "#/core/common/sub/time_events/sub/in_day_block/component/stack";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
@@ -309,6 +309,7 @@ export default function HabitStackView() {
 
   return (
     <LeafPanel
+      sectionsPanelId="habit-stack"
       key={`habit-stack-${loaderData.habitStack.ref_id}`}
       entityType={NamedEntityTag.HABIT_STACK}
       entityRefId={loaderData.habitStack.ref_id}
@@ -348,7 +349,12 @@ export default function HabitStackView() {
         actionData={actionData}
       />
 
-      <SectionCard title="Habits">
+      <StrataSection
+        id="habit-stack-habits"
+        items={sortedHabits.length}
+        split={{ size: 2 }}
+        title="Habits"
+      >
         <EntityStack>
           {sortedHabits.map((habit) => (
             <EntityCard
@@ -364,9 +370,11 @@ export default function HabitStackView() {
             </EntityCard>
           ))}
         </EntityStack>
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="habit-stack-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
           <SectionActions
@@ -390,7 +398,7 @@ export default function HabitStackView() {
             inputsEnabled={inputsEnabled}
           />
         )}
-      </SectionCard>
+      </StrataSection>
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
@@ -410,7 +418,9 @@ export default function HabitStackView() {
         WorkspaceFeature.TIME_PLANS,
       ) &&
         loaderData.timePlanActivities && (
-          <SectionCard
+          <StrataSection
+            items={loaderData.timePlanActivities.length}
+            split={{ size: 1 }}
             id="habit-stack-time-plans"
             title="Time Plans"
             actions={
@@ -454,7 +464,7 @@ export default function HabitStackView() {
               fullInfo={false}
               showTimePlanName={true}
             />
-          </SectionCard>
+          </StrataSection>
         )}
     </LeafPanel>
   );

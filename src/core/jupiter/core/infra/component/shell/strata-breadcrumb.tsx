@@ -63,7 +63,7 @@ export function StrataBreadcrumb() {
               aria-current={last ? "page" : undefined}
               onClick={
                 columns !== null && owner >= 0
-                  ? () => columns.focusAt(owner)
+                  ? () => columns.focusRoute(owner)
                   : undefined
               }
               sx={{
@@ -85,6 +85,48 @@ export function StrataBreadcrumb() {
           </Fragment>
         );
       })}
+      {columns !== null && columns.splits.length > 0 && (
+        <Box
+          component="span"
+          aria-label="Split sections"
+          role="group"
+          sx={{ display: "inline-flex", gap: "6px", ml: 1 }}
+        >
+          {columns.splits.map((split) => {
+            const folded = split.state === "folded";
+            return (
+              <Box
+                key={split.id}
+                component="button"
+                type="button"
+                data-split={split.id}
+                data-state={split.state}
+                disabled={folded}
+                title={folded ? "Folded back · no room" : `Show ${split.title}`}
+                onClick={() => columns.focusColumn(split.key)}
+                sx={{
+                  background: "none",
+                  border: `1px solid ${theme.palette.divider}`,
+                  borderRadius: "3px",
+                  px: "6px",
+                  py: 0,
+                  font: "inherit",
+                  cursor: folded ? "default" : "pointer",
+                  textDecoration: folded ? "line-through" : "none",
+                  color: folded
+                    ? theme.palette.text.disabled
+                    : theme.palette.text.secondary,
+                  "&:hover": folded
+                    ? {}
+                    : { borderColor: theme.palette.primary.main },
+                }}
+              >
+                {split.title.toLowerCase()}
+              </Box>
+            );
+          })}
+        </Box>
+      )}
     </Box>
   );
 }
