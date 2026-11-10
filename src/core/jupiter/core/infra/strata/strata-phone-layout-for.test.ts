@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { strataPhoneLayoutFor } from "#/core/infra/strata/strata-phone-layout-for";
-import type { PanelSpec } from "#/core/infra/strata/units";
+import type { ColumnSpec } from "#/core/infra/strata/layout";
 
-const path = (...keys: string[]): PanelSpec[] =>
-  keys.map((key) => ({ key, size: 3 }));
+const path = (...keys: string[]): ColumnSpec[] =>
+  keys.map((key) => ({ key, kind: "route", size: 2 }));
 
 describe("strataPhoneLayoutFor", () => {
   it("gives a lone panel the whole width", () => {

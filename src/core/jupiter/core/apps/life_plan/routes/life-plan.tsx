@@ -88,7 +88,7 @@ const UpdateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.TRUNK,
-  strata: { size: "L", grow: true } satisfies StrataHandle,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

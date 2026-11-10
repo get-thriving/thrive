@@ -19,7 +19,6 @@ import {
   DialogTitle,
   IconButton,
   Stack,
-  styled,
 } from "@mui/material";
 import { Form, Link, useLocation } from "react-router";
 import {
@@ -46,6 +45,7 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
+import { ColumnHeader } from "#/core/infra/component/layout/column-header";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
@@ -133,144 +133,132 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const body = (
     <>
       <Form method="post">
-        <BranchPanelControls id="branch-panel-controls">
-          <TrunkPanelControlsInner>
-            <ButtonGroup size="small">
-              <IconButton onClick={handleScrollTop}>
-                <ArrowUpwardIcon />
-              </IconButton>
-              <IconButton onClick={handleScrollBottom}>
-                <ArrowDownwardIcon />
-              </IconButton>
-            </ButtonGroup>
-
-            {props.createLocation && (
-              <Button
-                id="branch-new-leaf-entity"
-                variant="contained"
-                to={preserveFilters(props.createLocation)}
-                component={Link}
-                disabled={
-                  props.inputsEnabled === false || !!props.entityArchived
-                }
-              >
-                <AddIcon />
-              </Button>
-            )}
-
-            {props.actions}
-
-            {(hasHistory || hasPublish || hasAccess) && (
-              <Box sx={{ marginLeft: "auto", display: "flex" }}>
-                {hasPublish && (
-                  <IconButton
-                    id="branch-entity-publish"
-                    onClick={() => {
-                      setShowHistory(false);
-                      setShowAccess(false);
-                      setShowPublish((p) => !p);
-                    }}
-                  >
-                    <PublicIcon color={showPublish ? "primary" : undefined} />
-                  </IconButton>
-                )}
-                {hasAccess && (
-                  <IconButton
-                    id="branch-entity-access"
-                    onClick={() => {
-                      setShowHistory(false);
-                      setShowPublish(false);
-                      setShowAccess((a) => !a);
-                    }}
-                  >
-                    <GroupIcon color={showAccess ? "primary" : undefined} />
-                  </IconButton>
-                )}
-                {hasHistory && (
-                  <IconButton
-                    onClick={() => {
-                      setShowPublish(false);
-                      setShowAccess(false);
-                      setShowHistory((h) => !h);
-                    }}
-                  >
-                    <HistoryIcon color={showHistory ? "primary" : undefined} />
-                  </IconButton>
-                )}
-              </Box>
-            )}
-
-            {props.showArchiveAndRemoveButton && (
-              <>
-                <IconButton
-                  id="branch-entity-archive"
-                  sx={
-                    !hasHistory && !hasPublish && !hasAccess
-                      ? { marginLeft: "auto" }
-                      : undefined
-                  }
-                  disabled={!props.entityArchived && !props.inputsEnabled}
-                  type="button"
-                  onClick={() => setShowArchiveDialog(true)}
-                >
-                  {props.entityArchived ? (
-                    <DeleteForeverIcon />
-                  ) : (
-                    <DeleteIcon />
-                  )}
-                </IconButton>
-                <Dialog
-                  onClose={() => setShowArchiveDialog(false)}
-                  open={showArchiveDialog}
-                  disablePortal
-                >
-                  <DialogTitle>Careful!</DialogTitle>
-                  <DialogContent>
-                    Are you sure you want to{" "}
-                    {props.entityArchived ? "remove" : "archive"} this entity?
-                    {props.entityArchived
-                      ? " This action cannot be undone."
-                      : ""}
-                  </DialogContent>
-                  <DialogActions>
-                    <Button
-                      id="branch-entity-archive-confirm"
-                      sx={{ marginLeft: "auto" }}
-                      disabled={!props.entityArchived && !props.inputsEnabled}
-                      type="submit"
-                      name="intent"
-                      value={props.entityArchived ? "remove" : "archive"}
-                    >
-                      Yes
-                    </Button>
-                    <Button onClick={() => setShowArchiveDialog(false)}>
-                      No
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-              </>
-            )}
-
-            <IconButton
-              sx={{
-                marginLeft:
-                  !props.showArchiveAndRemoveButton &&
-                  !hasHistory &&
-                  !hasPublish
-                    ? "auto"
-                    : undefined,
-              }}
-            >
-              <Link
-                data-strata-close
-                style={{ display: "flex" }}
-                to={preserveFilters(props.returnLocation)}
-              >
-                <CloseIcon />
-              </Link>
+        <ColumnHeader id="branch-panel-controls" label="detail">
+          <ButtonGroup size="small">
+            <IconButton onClick={handleScrollTop}>
+              <ArrowUpwardIcon />
             </IconButton>
-          </TrunkPanelControlsInner>
-        </BranchPanelControls>
+            <IconButton onClick={handleScrollBottom}>
+              <ArrowDownwardIcon />
+            </IconButton>
+          </ButtonGroup>
+
+          {props.createLocation && (
+            <Button
+              id="branch-new-leaf-entity"
+              variant="contained"
+              to={preserveFilters(props.createLocation)}
+              component={Link}
+              disabled={props.inputsEnabled === false || !!props.entityArchived}
+            >
+              <AddIcon />
+            </Button>
+          )}
+
+          {props.actions}
+
+          {(hasHistory || hasPublish || hasAccess) && (
+            <Box sx={{ marginLeft: "auto", display: "flex" }}>
+              {hasPublish && (
+                <IconButton
+                  id="branch-entity-publish"
+                  onClick={() => {
+                    setShowHistory(false);
+                    setShowAccess(false);
+                    setShowPublish((p) => !p);
+                  }}
+                >
+                  <PublicIcon color={showPublish ? "primary" : undefined} />
+                </IconButton>
+              )}
+              {hasAccess && (
+                <IconButton
+                  id="branch-entity-access"
+                  onClick={() => {
+                    setShowHistory(false);
+                    setShowPublish(false);
+                    setShowAccess((a) => !a);
+                  }}
+                >
+                  <GroupIcon color={showAccess ? "primary" : undefined} />
+                </IconButton>
+              )}
+              {hasHistory && (
+                <IconButton
+                  onClick={() => {
+                    setShowPublish(false);
+                    setShowAccess(false);
+                    setShowHistory((h) => !h);
+                  }}
+                >
+                  <HistoryIcon color={showHistory ? "primary" : undefined} />
+                </IconButton>
+              )}
+            </Box>
+          )}
+
+          {props.showArchiveAndRemoveButton && (
+            <>
+              <IconButton
+                id="branch-entity-archive"
+                sx={
+                  !hasHistory && !hasPublish && !hasAccess
+                    ? { marginLeft: "auto" }
+                    : undefined
+                }
+                disabled={!props.entityArchived && !props.inputsEnabled}
+                type="button"
+                onClick={() => setShowArchiveDialog(true)}
+              >
+                {props.entityArchived ? <DeleteForeverIcon /> : <DeleteIcon />}
+              </IconButton>
+              <Dialog
+                onClose={() => setShowArchiveDialog(false)}
+                open={showArchiveDialog}
+                disablePortal
+              >
+                <DialogTitle>Careful!</DialogTitle>
+                <DialogContent>
+                  Are you sure you want to{" "}
+                  {props.entityArchived ? "remove" : "archive"} this entity?
+                  {props.entityArchived ? " This action cannot be undone." : ""}
+                </DialogContent>
+                <DialogActions>
+                  <Button
+                    id="branch-entity-archive-confirm"
+                    sx={{ marginLeft: "auto" }}
+                    disabled={!props.entityArchived && !props.inputsEnabled}
+                    type="submit"
+                    name="intent"
+                    value={props.entityArchived ? "remove" : "archive"}
+                  >
+                    Yes
+                  </Button>
+                  <Button onClick={() => setShowArchiveDialog(false)}>
+                    No
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </>
+          )}
+
+          <IconButton
+            sx={{
+              marginLeft:
+                !props.showArchiveAndRemoveButton && !hasHistory && !hasPublish
+                  ? "auto"
+                  : undefined,
+            }}
+          >
+            <Link
+              data-strata-close
+              style={{ display: "flex" }}
+              to={preserveFilters(props.returnLocation)}
+            >
+              <CloseIcon />
+            </Link>
+          </IconButton>
+        </ColumnHeader>
       </Form>
 
       <div id="branch-panel-content" ref={containerRef}>
@@ -338,12 +326,3 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
     </StrataColumnFrame>
   );
 }
-
-// The column frame sizes and colours the controls bar; this is its layout.
-const BranchPanelControls = styled("div")(() => ({}));
-
-const TrunkPanelControlsInner = styled(Box)(() => ({
-  display: "flex",
-  alignItems: "center",
-  gap: "1rem",
-}));

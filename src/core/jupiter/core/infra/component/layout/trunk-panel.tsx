@@ -6,14 +6,7 @@ import {
   Group as GroupIcon,
   Public as PublicIcon,
 } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  IconButton,
-  Stack,
-  styled,
-} from "@mui/material";
+import { Box, Button, ButtonGroup, IconButton, Stack } from "@mui/material";
 import { Link, useLocation } from "react-router";
 import type { JSX, PropsWithChildren } from "react";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -33,6 +26,7 @@ import {
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import { ColumnHeader } from "#/core/infra/component/layout/column-header";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
@@ -114,68 +108,66 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
 
   const body = (
     <>
-      <TrunkPanelControls id="trunk-panel-controls">
-        <TrunkPanelControlsInner>
-          <ButtonGroup size="small">
-            <IconButton onClick={handleScrollTop}>
-              <ArrowUpwardIcon />
-            </IconButton>
-            <IconButton onClick={handleScrollBottom}>
-              <ArrowDownwardIcon />
-            </IconButton>
-          </ButtonGroup>
-
-          {props.createLocation && (
-            <Button
-              id="trunk-new-leaf-entity"
-              variant="contained"
-              to={preserveFilters(props.createLocation)}
-              component={Link}
-            >
-              <AddIcon />
-            </Button>
-          )}
-
-          {props.actions}
-
-          {(hasPublish || hasAccess) && (
-            <Box sx={{ marginLeft: "auto", display: "flex" }}>
-              {hasPublish && (
-                <IconButton
-                  id="trunk-entity-publish"
-                  onClick={() => {
-                    setShowAccess(false);
-                    setShowPublish((p) => !p);
-                  }}
-                >
-                  <PublicIcon color={showPublish ? "primary" : undefined} />
-                </IconButton>
-              )}
-              {hasAccess && (
-                <IconButton
-                  id="trunk-entity-access"
-                  onClick={() => {
-                    setShowPublish(false);
-                    setShowAccess((a) => !a);
-                  }}
-                >
-                  <GroupIcon color={showAccess ? "primary" : undefined} />
-                </IconButton>
-              )}
-            </Box>
-          )}
-
-          <IconButton
-            sx={{
-              marginLeft: hasPublish || hasAccess ? undefined : "auto",
-            }}
-          >
-            <Link data-strata-close to={props.returnLocation}>
-              <CloseIcon />
-            </Link>
+      <ColumnHeader id="trunk-panel-controls" label="list">
+        <ButtonGroup size="small">
+          <IconButton onClick={handleScrollTop}>
+            <ArrowUpwardIcon />
           </IconButton>
-        </TrunkPanelControlsInner>
-      </TrunkPanelControls>
+          <IconButton onClick={handleScrollBottom}>
+            <ArrowDownwardIcon />
+          </IconButton>
+        </ButtonGroup>
+
+        {props.createLocation && (
+          <Button
+            id="trunk-new-leaf-entity"
+            variant="contained"
+            to={preserveFilters(props.createLocation)}
+            component={Link}
+          >
+            <AddIcon />
+          </Button>
+        )}
+
+        {props.actions}
+
+        {(hasPublish || hasAccess) && (
+          <Box sx={{ marginLeft: "auto", display: "flex" }}>
+            {hasPublish && (
+              <IconButton
+                id="trunk-entity-publish"
+                onClick={() => {
+                  setShowAccess(false);
+                  setShowPublish((p) => !p);
+                }}
+              >
+                <PublicIcon color={showPublish ? "primary" : undefined} />
+              </IconButton>
+            )}
+            {hasAccess && (
+              <IconButton
+                id="trunk-entity-access"
+                onClick={() => {
+                  setShowPublish(false);
+                  setShowAccess((a) => !a);
+                }}
+              >
+                <GroupIcon color={showAccess ? "primary" : undefined} />
+              </IconButton>
+            )}
+          </Box>
+        )}
+
+        <IconButton
+          sx={{
+            marginLeft: hasPublish || hasAccess ? undefined : "auto",
+          }}
+        >
+          <Link data-strata-close to={props.returnLocation}>
+            <CloseIcon />
+          </Link>
+        </IconButton>
+      </ColumnHeader>
 
       <div id="trunk-panel-content" ref={containerRef}>
         {showPublish && hasPublish && (
@@ -236,12 +228,3 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
     </StrataColumnFrame>
   );
 }
-
-// The column frame sizes and colours the controls bar; this is its layout.
-const TrunkPanelControls = styled("div")(() => ({}));
-
-const TrunkPanelControlsInner = styled(Box)(() => ({
-  display: "flex",
-  alignItems: "center",
-  gap: "1rem",
-}));

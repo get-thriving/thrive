@@ -9,6 +9,13 @@ export interface StrataColumnsApi {
   columnFor: (level: StrataLevel) => StrataPlacedSlot | null;
   /** Make a panel the focused one, which shows it whole. */
   focus: (level: StrataLevel) => void;
+  /** The same, by place on the open path: 0 is the first panel. */
+  focusAt: (index: number) => void;
+  /**
+   * Every open panel with where it ended up, in the order of the path; empty
+   * until the layout has placed them.
+   */
+  slots: StrataPlacedSlot[];
   /** Where the columns start, which is the right edge of the rail. */
   offsetLeft: number;
   /**

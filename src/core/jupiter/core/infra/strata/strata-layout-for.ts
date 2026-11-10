@@ -3,10 +3,10 @@ import {
   layoutUnits,
   toPixels,
   unitsForWidth,
-  type PanelSpec,
+  type ColumnSpec,
   type PlacedSlot,
   type SlotState,
-} from "#/core/infra/strata/units";
+} from "#/core/infra/strata/layout";
 
 /** One path panel, placed on the screen. */
 export interface StrataPlacedSlot extends PlacedSlot {
@@ -48,14 +48,14 @@ export interface StrataLayout {
  * many units there are, which panels fit whole, and where each goes.
  */
 export function strataLayoutFor(
-  path: PanelSpec[],
+  path: ColumnSpec[],
   focus: number,
   width: number,
   rail: number,
 ): StrataLayout {
   const focusIndex = Math.max(0, Math.min(path.length - 1, focus));
   const units = unitsForWidth(width, { rail });
-  const layout = layoutUnits({ panels: path, focus: focusIndex, units });
+  const layout = layoutUnits({ columns: path, focus: focusIndex, units });
   const placement = toPixels(layout, width, { rail });
   // The engine puts the leftover at the right end; the row is centred instead.
   const gutterWidth = (placement.empty?.width ?? 0) / 2;

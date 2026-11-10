@@ -26,9 +26,9 @@ describe("strataSpecFor", () => {
     expect(
       strataSpecFor("habits", {
         displayType: DisplayType.TRUNK,
-        strata: { size: "L", grow: true },
+        strata: { size: "B", grow: true },
       }),
-    ).toEqual({ key: "habits", size: 5, grow: true });
+    ).toEqual({ key: "habits", kind: "route", size: 3, grow: true });
   });
 
   it("takes the whole screen for FULL", () => {
@@ -37,7 +37,7 @@ describe("strataSpecFor", () => {
         displayType: DisplayType.TRUNK,
         strata: { size: "FULL" },
       }),
-    ).toEqual({ key: "home", size: "full", grow: false });
+    ).toEqual({ key: "home", kind: "route", size: "full", grow: false });
   });
 
   it("falls back when the declaration is malformed", () => {
@@ -65,7 +65,7 @@ describe("strataPathFrom", () => {
         id: "habits",
         handle: {
           displayType: DisplayType.TRUNK,
-          strata: { size: "L", grow: true },
+          strata: { size: "B", grow: true },
         },
       },
       { id: "habit", handle: { displayType: DisplayType.LEAF } },
@@ -75,9 +75,9 @@ describe("strataPathFrom", () => {
       },
     ]);
     expect(path).toEqual([
-      { key: "habits", size: 5, grow: true },
-      { key: "habit", size: 2, grow: false },
-      { key: "inactive-period", size: 2, grow: false },
+      { key: "habits", kind: "route", size: 3, grow: true },
+      { key: "habit", kind: "route", size: 2, grow: false },
+      { key: "inactive-period", kind: "route", size: 2, grow: false },
     ]);
   });
 

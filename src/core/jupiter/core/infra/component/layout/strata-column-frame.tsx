@@ -9,7 +9,6 @@ import {
 } from "#/core/infra/component/strata-tokens";
 import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
 
-const CONTROLS_HEIGHT = 44;
 // How long a panel takes to move to its new place, unless the user prefers
 // no motion.
 const MOVE_MS = 180;
@@ -156,22 +155,7 @@ const Frame = styled("div")(({ theme }) => ({
     pointerEvents: "none",
   },
 
-  // The panels' control bars: a flat 44px strip, not a raised full-width one.
-  "& [id$='-panel-controls']": {
-    flex: "none",
-    height: CONTROLS_HEIGHT,
-    marginBottom: 0,
-    boxShadow: "none",
-    borderBottom: `1px solid ${theme.palette.divider}`,
-    alignItems: "center",
-  },
-  // Trunk and branch centre their controls in a 1200px box; fill the column.
-  "& #trunk-panel-controls > div, & #branch-panel-controls > div": {
-    width: "100%",
-    margin: 0,
-    paddingInline: "0.5rem",
-  },
-  // And the content, which was padded to centre itself in the window.
+  // The panels' content, which was padded to centre itself in the window.
   "& #trunk-panel-content, & #branch-panel-content, & #leaf-panel-content, & #tool-panel-content":
     {
       flex: 1,

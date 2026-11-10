@@ -81,7 +81,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
-  strata: { size: "M" } satisfies StrataHandle,
+  strata: { size: "B" } satisfies StrataHandle,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

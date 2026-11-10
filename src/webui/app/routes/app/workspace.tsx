@@ -55,6 +55,7 @@ import { default as DiscordIcon } from "@jupiter/core/infra/component/discord-ic
 import { ServiceLinksContext } from "@jupiter/core/infra/service-links-context";
 import { StrataCommandBar } from "@jupiter/core/infra/component/shell/strata-command-bar";
 import { StrataBreadcrumb } from "@jupiter/core/infra/component/shell/strata-breadcrumb";
+import { StrataColumnMap } from "@jupiter/core/infra/component/shell/strata-column-map";
 import { strataSize } from "@jupiter/core/infra/component/strata-tokens";
 import { useExpandedRail } from "@jupiter/core/infra/component/use-expanded-rail";
 import { Title } from "@jupiter/core/infra/component/title";
@@ -237,6 +238,7 @@ export default function Workspace() {
                 <Box sx={{ flex: 1, minWidth: 0, display: "flex", ml: 2 }}>
                   <StrataBreadcrumb />
                 </Box>
+                <StrataColumnMap />
               </>
             )}
 

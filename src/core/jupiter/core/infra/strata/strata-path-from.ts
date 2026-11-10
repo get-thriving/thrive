@@ -1,5 +1,5 @@
 import { strataSpecFor } from "#/core/infra/strata/strata-spec-for";
-import type { PanelSpec } from "#/core/infra/strata/units";
+import type { ColumnSpec } from "#/core/infra/strata/layout";
 
 /**
  * The panels the matched routes open, left to right: trunk, branch, leaf,
@@ -7,8 +7,8 @@ import type { PanelSpec } from "#/core/infra/strata/units";
  */
 export function strataPathFrom(
   matches: ReadonlyArray<{ id: string; handle: unknown }>,
-): PanelSpec[] {
-  const path: PanelSpec[] = [];
+): ColumnSpec[] {
+  const path: ColumnSpec[] = [];
   for (const match of matches) {
     const spec = strataSpecFor(match.id, match.handle);
     if (spec !== null) {

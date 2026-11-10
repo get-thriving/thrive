@@ -95,7 +95,7 @@ const ALLOWED_EVAL_PERIODS: RecurringTaskPeriod[] = [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
-  strata: { size: "S" } satisfies StrataHandle,
+  strata: { size: "M" } satisfies StrataHandle,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

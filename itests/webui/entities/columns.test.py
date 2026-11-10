@@ -11,7 +11,7 @@ _WIDE: ViewportSize = {"width": 1920, "height": 1000}
 # and wide enough (5 units) that the life plan still shows part of itself.
 _NARROW: ViewportSize = {"width": 1000, "height": 900}
 _RAIL_WIDTH = 52
-_UNITS_AT_WIDE = 10
+_UNITS_AT_WIDE = 9
 _UNIT_AT_WIDE = (_WIDE["width"] - _RAIL_WIDTH) / _UNITS_AT_WIDE
 _NEW_HABIT = "/app/workspace/apps/habits/habits/new"
 _NEW_ASPECT = "/app/workspace/apps/life-plan/aspects/new"
@@ -34,15 +34,15 @@ def test_leaf_opens_beside_the_list(page: Page) -> None:
     trunk = _box(page, "#trunk-panel")
     leaf = _box(page, "#leaf-panel")
 
-    # The row is 9 of the 10 units, centred, so half a unit is left on each side
-    # of it. The leaf starts where the list ends, and the two do not overlap.
-    assert abs(trunk["x"] - (_RAIL_WIDTH + _UNIT_AT_WIDE / 2)) <= 1
+    # The row is 6 of the 9 units, centred, so a unit and a half is left on each
+    # side of it. The leaf starts where the list ends, and the two do not overlap.
+    assert abs(trunk["x"] - (_RAIL_WIDTH + 1.5 * _UNIT_AT_WIDE)) <= 1
     assert abs(leaf["x"] - (trunk["x"] + trunk["width"])) <= 1
     # Both reach down to the bottom of the window, below the same top bar.
     assert trunk["y"] == leaf["y"]
-    # The habits list is large and grows one step to 7 units, the new habit is
-    # small, which is 2.
-    assert abs(trunk["width"] - 7 * _UNIT_AT_WIDE) <= 1
+    # The habits list is big and grows by a unit to 4, the new habit is medium,
+    # which is 2.
+    assert abs(trunk["width"] - 4 * _UNIT_AT_WIDE) <= 1
     assert abs(leaf["width"] - 2 * _UNIT_AT_WIDE) <= 1
 
 
@@ -69,7 +69,7 @@ def test_the_debug_overlay_describes_the_layout(page: Page) -> None:
     wait_for_hydration(page)
 
     expect(page.locator("#strata-debug-layout")).to_have_text(
-        f"X={_UNITS_AT_WIDE} · " "apps/habits/habits:5+2 apps/habits/habits/new:2 _:1"
+        f"X={_UNITS_AT_WIDE} · " "apps/habits/habits:3+1 apps/habits/habits/new:2 _:3"
     )
 
 
@@ -210,7 +210,50 @@ def test_a_tool_page_is_centred_in_the_room_after_the_rail(page: Page) -> None:
     page.goto("/app/workspace/account")
     wait_for_hydration(page)
 
-    # It is 3 of the 10 units, so 3.5 are left on each side.
+    # It is 3 of the 9 units, so 3 are left on each side.
     tool = _box(page, "#tool-panel")
-    assert abs(tool["x"] - (_RAIL_WIDTH + 3.5 * _UNIT_AT_WIDE)) <= 1
+    assert abs(tool["x"] - (_RAIL_WIDTH + 3 * _UNIT_AT_WIDE)) <= 1
     assert abs(tool["width"] - 3 * _UNIT_AT_WIDE) <= 1
+
+
+def test_a_column_has_one_header_with_its_name(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+
+    list_header = page.locator("#trunk-panel-controls")
+    leaf_header = page.locator("#leaf-panel-controls")
+    expect(list_header).to_contain_text("list")
+    expect(leaf_header).to_contain_text("detail")
+    assert _box(page, "#trunk-panel-controls")["height"] == 36
+    assert _box(page, "#leaf-panel-controls")["height"] == 36
+
+
+def test_the_column_map_shows_and_focuses_the_columns(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+
+    squares = page.locator("#strata-column-map button")
+    expect(squares).to_have_count(2)
+    expect(squares.nth(1)).to_have_attribute("aria-current", "true")
+
+    squares.nth(0).click()
+
+    expect(page.locator("#trunk-panel")).to_have_attribute("data-focused", "true")
+    expect(squares.nth(0)).to_have_attribute("aria-current", "true")
+
+
+def test_a_part_of_the_path_focuses_the_column_it_belongs_to(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+
+    path = page.get_by_role("navigation", name="Path")
+    path.get_by_role("button", name="habits").first.click()
+
+    expect(page.locator("#trunk-panel")).to_have_attribute("data-focused", "true")
+
+    path.get_by_role("button", name="new").click()
+
+    expect(page.locator("#leaf-panel")).to_have_attribute("data-focused", "true")

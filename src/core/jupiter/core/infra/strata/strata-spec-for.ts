@@ -2,22 +2,22 @@ import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 import type { StrataLevel } from "#/core/infra/strata/strata-level";
 import { strataLevelOf } from "#/core/infra/strata/strata-level-of";
-import type { PanelSize, PanelSpec } from "#/core/infra/strata/units";
+import type { ColumnSize, ColumnSpec } from "#/core/infra/strata/layout";
 
-const SIZE_UNITS: Record<StrataHandle["size"], PanelSize> = {
-  S: 2,
-  M: 3,
-  L: 5,
+const SIZE_UNITS: Record<StrataHandle["size"], ColumnSize> = {
+  S: 1,
+  M: 2,
+  B: 3,
   FULL: "full",
 };
 
-/** For a route with no `strata` on its handle: a leaf or leaflet is small. */
+/** For a route with no `strata` on its handle. */
 const FALLBACKS: Record<StrataLevel, StrataHandle> = {
-  [DisplayType.TRUNK]: { size: "M" },
-  [DisplayType.BRANCH]: { size: "M" },
-  [DisplayType.LEAF]: { size: "S" },
-  [DisplayType.LEAFLET]: { size: "S" },
-  [DisplayType.TOOL]: { size: "M" },
+  [DisplayType.TRUNK]: { size: "B" },
+  [DisplayType.BRANCH]: { size: "B" },
+  [DisplayType.LEAF]: { size: "M" },
+  [DisplayType.LEAFLET]: { size: "M" },
+  [DisplayType.TOOL]: { size: "B" },
 };
 
 function isStrataHandle(value: unknown): value is StrataHandle {
@@ -26,7 +26,7 @@ function isStrataHandle(value: unknown): value is StrataHandle {
   }
   const { size, grow } = value as Record<string, unknown>;
   return (
-    (size === "S" || size === "M" || size === "L" || size === "FULL") &&
+    (size === "S" || size === "M" || size === "B" || size === "FULL") &&
     (grow === undefined || typeof grow === "boolean")
   );
 }
@@ -35,7 +35,7 @@ function isStrataHandle(value: unknown): value is StrataHandle {
  * The panel a matched route makes in the unit layout, or null when it is not a
  * panel (the root, the workspace shell and the like). `key` is the match id.
  */
-export function strataSpecFor(key: string, handle: unknown): PanelSpec | null {
+export function strataSpecFor(key: string, handle: unknown): ColumnSpec | null {
   const level = strataLevelOf(handle);
   if (level === null) {
     return null;
@@ -44,6 +44,7 @@ export function strataSpecFor(key: string, handle: unknown): PanelSpec | null {
   const strata = isStrataHandle(declared) ? declared : FALLBACKS[level];
   return {
     key,
+    kind: "route",
     size: SIZE_UNITS[strata.size],
     grow: strata.grow ?? false,
   };

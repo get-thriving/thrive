@@ -33,7 +33,7 @@ import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
-  strata: { size: "S" } satisfies StrataHandle,
+  strata: { size: "M" } satisfies StrataHandle,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

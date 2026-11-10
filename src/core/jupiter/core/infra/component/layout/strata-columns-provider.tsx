@@ -123,6 +123,16 @@ export function StrataColumnsProvider(
     [path, pathKey, keyByLevel],
   );
 
+  const focusAt = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < path.length) {
+        setChosen({ pathKey, index });
+        setMoves((current) => current + 1);
+      }
+    },
+    [path.length, pathKey],
+  );
+
   const focusOut = useCallback(() => {
     if (focusIndex <= 0) {
       return false;
@@ -181,6 +191,8 @@ export function StrataColumnsProvider(
     () => ({
       columnFor,
       focus,
+      focusAt,
+      slots: layout?.slots ?? [],
       offsetLeft: props.offsetLeft,
       animate,
       phone: props.phone,
@@ -190,6 +202,8 @@ export function StrataColumnsProvider(
     [
       columnFor,
       focus,
+      focusAt,
+      layout,
       props.offsetLeft,
       animate,
       props.phone,

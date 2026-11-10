@@ -19,7 +19,6 @@ import {
   DialogTitle,
   IconButton,
   Stack,
-  styled,
 } from "@mui/material";
 import { Form, useNavigate } from "react-router";
 import type { PropsWithChildren } from "react";
@@ -43,6 +42,7 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
+import { ColumnHeader } from "#/core/infra/component/layout/column-header";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
@@ -172,7 +172,10 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
             )
           }
         >
-          <LeafPanelControls id="leaf-panel-controls">
+          <ColumnHeader
+            id="leaf-panel-controls"
+            label={props.isLeaflet ? "side detail" : "detail"}
+          >
             <ButtonGroup size="small">
               <IconButton onClick={handleScrollTop}>
                 <ArrowUpwardIcon />
@@ -292,7 +295,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                 </Dialog>
               </>
             )}
-          </LeafPanelControls>
+          </ColumnHeader>
         </Form>
       )}
 
@@ -363,9 +366,3 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     </StrataColumnFrame>
   );
 }
-
-// The column frame sizes and colours the controls bar; this is its layout.
-const LeafPanelControls = styled("div")(() => ({
-  display: "flex",
-  paddingInline: "0.5rem",
-}));

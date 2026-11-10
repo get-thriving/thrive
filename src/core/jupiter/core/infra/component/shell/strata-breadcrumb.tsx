@@ -1,22 +1,35 @@
 import { Box, useTheme } from "@mui/material";
-import { Fragment } from "react";
-import { useLocation } from "react-router";
+import { Fragment, useContext } from "react";
+import { useLocation, useMatches } from "react-router";
 
+import { StrataColumnsContext } from "#/core/infra/component/layout/strata-columns-context";
 import { strataPathSegments } from "#/core/infra/component/shell/strata-path-segments";
+import { strataLevelOf } from "#/core/infra/strata/strata-level-of";
+import { strataSegmentColumns } from "#/core/infra/strata/strata-segment-columns";
 
 /**
  * The mono path in the top bar, built from the URL, e.g. `big-plans / 1`. It
- * names the section and ids only; entity names arrive with the column layout.
+ * names the section and ids only; entity names arrive with the routes' labels.
+ * Each part is a button that focuses the column it belongs to.
  */
 export function StrataBreadcrumb() {
   const theme = useTheme();
   const { pathname } = useLocation();
+  const matches = useMatches();
+  const columns = useContext(StrataColumnsContext);
 
   const segments = strataPathSegments(pathname);
 
   if (segments.length === 0) {
     return null;
   }
+
+  const owners = strataSegmentColumns(
+    matches
+      .filter((match) => strataLevelOf(match.handle) !== null)
+      .map((match) => strataPathSegments(match.pathname).length),
+    segments.length,
+  );
 
   return (
     <Box
@@ -36,6 +49,7 @@ export function StrataBreadcrumb() {
     >
       {segments.map((segment, i) => {
         const last = i === segments.length - 1;
+        const owner = owners[i];
         return (
           <Fragment key={`${i}-${segment}`}>
             {i > 0 && (
@@ -44,12 +58,26 @@ export function StrataBreadcrumb() {
               </Box>
             )}
             <Box
-              component="span"
+              component={columns !== null && owner >= 0 ? "button" : "span"}
+              type={columns !== null && owner >= 0 ? "button" : undefined}
               aria-current={last ? "page" : undefined}
+              onClick={
+                columns !== null && owner >= 0
+                  ? () => columns.focusAt(owner)
+                  : undefined
+              }
               sx={{
+                // A button that reads as the text it was.
+                background: "none",
+                border: 0,
+                padding: 0,
+                font: "inherit",
+                cursor: columns !== null && owner >= 0 ? "pointer" : "default",
                 color: last
                   ? theme.palette.text.primary
                   : theme.palette.text.secondary,
+                "&:hover":
+                  columns !== null ? { textDecoration: "underline" } : {},
               }}
             >
               {segment}

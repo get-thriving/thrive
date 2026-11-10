@@ -55,7 +55,7 @@ import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
-  strata: { size: "S", grow: true } satisfies StrataHandle,
+  strata: { size: "M", grow: true } satisfies StrataHandle,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

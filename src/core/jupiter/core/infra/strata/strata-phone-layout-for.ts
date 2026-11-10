@@ -2,7 +2,7 @@ import type {
   StrataLayout,
   StrataPlacedSlot,
 } from "#/core/infra/strata/strata-layout-for";
-import type { PanelSpec } from "#/core/infra/strata/units";
+import type { ColumnSpec } from "#/core/infra/strata/layout";
 
 /** The strip the panel before the focused one folds into. */
 export const PHONE_PARENT_STRIP_PX = 10;
@@ -16,7 +16,7 @@ export const PHONE_CHILD_SLIVER_PX = 30;
  * has no room at all. The strips only exist where there is a panel to go to.
  */
 export function strataPhoneLayoutFor(
-  path: PanelSpec[],
+  path: ColumnSpec[],
   focus: number,
   width: number,
 ): StrataLayout {

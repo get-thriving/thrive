@@ -67,6 +67,8 @@ Current topics include (non-exhaustive; browse the directory):
 | 0017 | Multiple auth methods per user |
 | 0018 | Image store |
 | 0019 | UI style (Strata) |
+| 0020 | Strata unit layout (partly superseded by 0021) |
+| 0021 | Strata layout: columns, sizes, headers |
 
 ## Code layout
 
