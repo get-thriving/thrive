@@ -16,13 +16,12 @@ from jupiter_webapi_client.models.clear_all_args import ClearAllArgs
 from jupiter_webapi_client.models.init_args import InitArgs
 from jupiter_webapi_client.models.init_result import InitResult
 from jupiter_webapi_client.models.remove_all_args import RemoveAllArgs
-from jupiter_webapi_client.models.ui_style import UiStyle
 from jupiter_webapi_client.models.user_feature import UserFeature
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from playwright.sync_api import Browser, Page, StorageState
 
 from itests.conftest import TestUser
-from itests.helpers import get_parsed_from_response, set_ui_style
+from itests.helpers import get_parsed_from_response
 
 _FAKE_TOKEN = "eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTczNjI5MjEyNH0."  # nosec
 
@@ -218,13 +217,3 @@ def another_user_and_workspace(webapi_url: str) -> Iterator[AnotherUserAndWorksp
         yield AnotherUserAndWorkspace(user=other_user, init_result=init_result)
     finally:
         remove_all_sync(client=logged_in_client, body=RemoveAllArgs())
-
-
-@pytest.fixture()
-def _strata_on(logged_in_client: AuthenticatedClient) -> Iterator[None]:
-    """Turn Strata on for the user, and back off afterwards."""
-    set_ui_style(logged_in_client, UiStyle.STRATA, use_expanded_rail=False)
-    try:
-        yield
-    finally:
-        set_ui_style(logged_in_client, UiStyle.CLASSIC, use_expanded_rail=False)

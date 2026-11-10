@@ -1,11 +1,9 @@
 """Tests about the shell around the pages: the Strata icon rail and command bar."""
 
-import pytest
 from jupiter_webapi_client.client import AuthenticatedClient
-from jupiter_webapi_client.models.ui_style import UiStyle
 from playwright.sync_api import Page, ViewportSize, expect
 
-from itests.helpers import set_ui_style, wait_for_hydration
+from itests.helpers import set_expanded_rail, wait_for_hydration
 
 _RAIL = 'nav[aria-label="Main"]'
 # The rail needs room beside the centred panels, so it only shows from here up.
@@ -17,7 +15,6 @@ _NARROW: ViewportSize = {"width": 800, "height": 800}
 _MID: ViewportSize = {"width": 1100, "height": 900}
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_rail_shows_only_the_enabled_features(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto("/app/workspace")
@@ -34,7 +31,6 @@ def test_rail_shows_only_the_enabled_features(page: Page) -> None:
     expect(rail.get_by_label("Big Plans")).to_have_count(0)
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_rail_navigates_and_marks_the_current_entry(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto("/app/workspace")
@@ -48,7 +44,6 @@ def test_rail_navigates_and_marks_the_current_entry(page: Page) -> None:
     expect(rail.get_by_label("Home")).not_to_have_attribute("aria-current", "page")
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_more_popover_reaches_the_rest(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto("/app/workspace")
@@ -65,7 +60,6 @@ def test_more_popover_reaches_the_rest(page: Page) -> None:
     assert items.index("Inbox Tasks") == items.index("Collaboration") + 1
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_command_key_opens_search(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto("/app/workspace")
@@ -79,7 +73,6 @@ def test_command_key_opens_search(page: Page) -> None:
     ).to_be_visible()
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_narrow_screen_falls_back_to_the_drawer(page: Page) -> None:
     page.set_viewport_size(_NARROW)
     page.goto("/app/workspace")
@@ -88,15 +81,6 @@ def test_narrow_screen_falls_back_to_the_drawer(page: Page) -> None:
     expect(page.locator(_RAIL)).to_have_count(0)
 
 
-def test_classic_has_no_rail(page: Page) -> None:
-    page.set_viewport_size(_WIDE)
-    page.goto("/app/workspace")
-    wait_for_hydration(page)
-
-    expect(page.locator(_RAIL)).to_have_count(0)
-
-
-@pytest.mark.usefixtures("_strata_on")
 def test_expanding_the_rail_shows_labels_and_is_remembered(page: Page) -> None:
     page.set_viewport_size(_WIDER)
     page.goto("/app/workspace")
@@ -129,7 +113,7 @@ def test_expanding_the_rail_shows_labels_and_is_remembered(page: Page) -> None:
 def test_expanded_rail_gives_way_when_the_window_is_too_narrow(
     page: Page, logged_in_client: AuthenticatedClient
 ) -> None:
-    set_ui_style(logged_in_client, UiStyle.STRATA, use_expanded_rail=True)
+    set_expanded_rail(logged_in_client, True)
     try:
         page.set_viewport_size(_MID)
         page.goto("/app/workspace")
@@ -140,4 +124,4 @@ def test_expanded_rail_gives_way_when_the_window_is_too_narrow(
         expect(rail.get_by_text("Docs")).to_have_count(0)
         expect(rail.get_by_label("Expand sidebar")).to_have_count(0)
     finally:
-        set_ui_style(logged_in_client, UiStyle.CLASSIC, use_expanded_rail=False)
+        set_expanded_rail(logged_in_client, False)

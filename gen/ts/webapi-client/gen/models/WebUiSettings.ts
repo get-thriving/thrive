@@ -4,7 +4,6 @@
 /* eslint-disable */
 import type { EntityId } from './EntityId';
 import type { Timestamp } from './Timestamp';
-import type { UiStyle } from './UiStyle';
 /**
  * Web UI settings for a user.
  */
@@ -17,8 +16,6 @@ export type WebUiSettings = {
     last_modified_time: Timestamp;
     archived_time?: (Timestamp | null);
     user_ref_id: string;
-    use_night_mode: boolean;
-    ui_style: UiStyle;
     use_expanded_rail: boolean;
 };
 

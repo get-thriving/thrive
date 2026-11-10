@@ -66,7 +66,7 @@ Current topics include (non-exhaustive; browse the directory):
 | 0015 | Shared shell for the desktop and mobile apps |
 | 0017 | Multiple auth methods per user |
 | 0018 | Image store |
-| 0019 | UI styles |
+| 0019 | UI style (Strata) |
 
 ## Code layout
 

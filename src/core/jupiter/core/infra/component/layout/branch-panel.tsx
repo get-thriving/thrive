@@ -22,11 +22,9 @@ import {
   styled,
 } from "@mui/material";
 import { Form, Link, useLocation } from "react-router";
-import { motion, useIsPresent } from "framer-motion";
 import {
   type JSX,
   type PropsWithChildren,
-  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -50,17 +48,9 @@ import {
 } from "#/core/infra/scroll-restoration";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
-import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import { useHydrated } from "#/core/infra/component/use-hidrated";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
-
-const SMALL_SCREEN_ANIMATION_START = "100vw";
-const SMALL_SCREEN_ANIMATION_END = "100vw";
 
 interface BranchPanelProps {
   createLocation?: string;
@@ -80,15 +70,8 @@ interface BranchPanelProps {
 
 export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const location = useLocation();
-  const bigScreen = useBigScreen();
   const column = useStrataColumn(DisplayType.BRANCH);
-  // A phone laid out as Strata columns is laid out like a big screen: the
-  // panels sit inline, and what was one panel at a time is the layout's doing.
-  const isBigScreen = bigScreen || column.active;
   const containerRef = useRef<HTMLDivElement>(null);
-  const isPresent = useIsPresent();
-  const isHydrated = useHydrated();
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
@@ -108,40 +91,6 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
     props.entityType !== undefined &&
     props.entityRefId !== undefined;
 
-  // This little function is a hack to get around the fact that Framer Motion
-  // generates a translateX(Xpx) CSS applied to the StyledMotionDrawer element.
-  // This in turns causes browers to make this div be container for any inner
-  // child who is position: fixed. This is a problem because we want such elements
-  // to be relative to the viewport, not this element. So we use this function to
-  // not emit a translateX in case of 0px. So whenever any leaf element appears
-  // it'll work relative to the whole viewport.
-  function template(
-    { x }: { x?: string | number },
-    _generatedTransform: string,
-  ): string {
-    if (x === 0 || x === "0px" || x === "0vw" || x === "0%" || x === "0") {
-      if (isHydrated) {
-        return "";
-      } else {
-        return undefined as unknown as string;
-      }
-    }
-    return `translateX(${x})`;
-  }
-
-  const handleScroll = useCallback(
-    (ref: HTMLDivElement, pathname: string, showChildren: boolean) => {
-      if (!isPresent) {
-        return;
-      }
-      if (!isBigScreen && showChildren) {
-        return;
-      }
-      saveScrollPosition(ref, pathname);
-    },
-    [isPresent, isBigScreen],
-  );
-
   useEffect(() => {
     if (containerRef.current === null) {
       return;
@@ -149,16 +98,8 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
 
     const theRef = containerRef.current;
 
-    if (!isPresent) {
-      return;
-    }
-
     function handleScrollSpecial() {
-      handleScroll(
-        theRef,
-        extractBranchFromPath(location.pathname),
-        shouldShowALeaf,
-      );
+      saveScrollPosition(theRef, extractBranchFromPath(location.pathname));
     }
 
     restoreScrollPosition(theRef, extractBranchFromPath(location.pathname));
@@ -167,14 +108,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
     return () => {
       theRef.removeEventListener("scroll", handleScrollSpecial);
     };
-  }, [
-    containerRef,
-    location,
-    isBigScreen,
-    isPresent,
-    handleScroll,
-    shouldShowALeaf,
-  ]);
+  }, [containerRef, location]);
 
   function handleScrollTop() {
     containerRef.current?.scrollTo({
@@ -199,158 +133,147 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const body = (
     <>
       <Form method="post">
-        {(isBigScreen || !shouldShowALeaf) && (
-          <BranchPanelControls id="branch-panel-controls">
-            <TrunkPanelControlsInner
-              isbigscreen={isBigScreen ? "true" : "false"}
-            >
-              <ButtonGroup size="small">
-                <IconButton onClick={handleScrollTop}>
-                  <ArrowUpwardIcon />
-                </IconButton>
-                <IconButton onClick={handleScrollBottom}>
-                  <ArrowDownwardIcon />
-                </IconButton>
-              </ButtonGroup>
-
-              {props.createLocation && (
-                <Button
-                  id="branch-new-leaf-entity"
-                  variant="contained"
-                  to={preserveFilters(props.createLocation)}
-                  component={Link}
-                  disabled={
-                    props.inputsEnabled === false || !!props.entityArchived
-                  }
-                >
-                  <AddIcon />
-                </Button>
-              )}
-
-              {props.actions}
-
-              {(hasHistory || hasPublish || hasAccess) && (
-                <Box sx={{ marginLeft: "auto", display: "flex" }}>
-                  {hasPublish && (
-                    <IconButton
-                      id="branch-entity-publish"
-                      onClick={() => {
-                        setShowHistory(false);
-                        setShowAccess(false);
-                        setShowPublish((p) => !p);
-                      }}
-                    >
-                      <PublicIcon color={showPublish ? "primary" : undefined} />
-                    </IconButton>
-                  )}
-                  {hasAccess && (
-                    <IconButton
-                      id="branch-entity-access"
-                      onClick={() => {
-                        setShowHistory(false);
-                        setShowPublish(false);
-                        setShowAccess((a) => !a);
-                      }}
-                    >
-                      <GroupIcon color={showAccess ? "primary" : undefined} />
-                    </IconButton>
-                  )}
-                  {hasHistory && (
-                    <IconButton
-                      onClick={() => {
-                        setShowPublish(false);
-                        setShowAccess(false);
-                        setShowHistory((h) => !h);
-                      }}
-                    >
-                      <HistoryIcon
-                        color={showHistory ? "primary" : undefined}
-                      />
-                    </IconButton>
-                  )}
-                </Box>
-              )}
-
-              {props.showArchiveAndRemoveButton && (
-                <>
-                  <IconButton
-                    id="branch-entity-archive"
-                    sx={
-                      !hasHistory && !hasPublish && !hasAccess
-                        ? { marginLeft: "auto" }
-                        : undefined
-                    }
-                    disabled={!props.entityArchived && !props.inputsEnabled}
-                    type="button"
-                    onClick={() => setShowArchiveDialog(true)}
-                  >
-                    {props.entityArchived ? (
-                      <DeleteForeverIcon />
-                    ) : (
-                      <DeleteIcon />
-                    )}
-                  </IconButton>
-                  <Dialog
-                    onClose={() => setShowArchiveDialog(false)}
-                    open={showArchiveDialog}
-                    disablePortal
-                  >
-                    <DialogTitle>Careful!</DialogTitle>
-                    <DialogContent>
-                      Are you sure you want to{" "}
-                      {props.entityArchived ? "remove" : "archive"} this entity?
-                      {props.entityArchived
-                        ? " This action cannot be undone."
-                        : ""}
-                    </DialogContent>
-                    <DialogActions>
-                      <Button
-                        id="branch-entity-archive-confirm"
-                        sx={{ marginLeft: "auto" }}
-                        disabled={!props.entityArchived && !props.inputsEnabled}
-                        type="submit"
-                        name="intent"
-                        value={props.entityArchived ? "remove" : "archive"}
-                      >
-                        Yes
-                      </Button>
-                      <Button onClick={() => setShowArchiveDialog(false)}>
-                        No
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                </>
-              )}
-
-              <IconButton
-                sx={{
-                  marginLeft:
-                    !props.showArchiveAndRemoveButton &&
-                    !hasHistory &&
-                    !hasPublish
-                      ? "auto"
-                      : undefined,
-                }}
-              >
-                <Link
-                  data-strata-close
-                  style={{ display: "flex" }}
-                  to={preserveFilters(props.returnLocation)}
-                >
-                  <CloseIcon />
-                </Link>
+        <BranchPanelControls id="branch-panel-controls">
+          <TrunkPanelControlsInner>
+            <ButtonGroup size="small">
+              <IconButton onClick={handleScrollTop}>
+                <ArrowUpwardIcon />
               </IconButton>
-            </TrunkPanelControlsInner>
-          </BranchPanelControls>
-        )}
+              <IconButton onClick={handleScrollBottom}>
+                <ArrowDownwardIcon />
+              </IconButton>
+            </ButtonGroup>
+
+            {props.createLocation && (
+              <Button
+                id="branch-new-leaf-entity"
+                variant="contained"
+                to={preserveFilters(props.createLocation)}
+                component={Link}
+                disabled={
+                  props.inputsEnabled === false || !!props.entityArchived
+                }
+              >
+                <AddIcon />
+              </Button>
+            )}
+
+            {props.actions}
+
+            {(hasHistory || hasPublish || hasAccess) && (
+              <Box sx={{ marginLeft: "auto", display: "flex" }}>
+                {hasPublish && (
+                  <IconButton
+                    id="branch-entity-publish"
+                    onClick={() => {
+                      setShowHistory(false);
+                      setShowAccess(false);
+                      setShowPublish((p) => !p);
+                    }}
+                  >
+                    <PublicIcon color={showPublish ? "primary" : undefined} />
+                  </IconButton>
+                )}
+                {hasAccess && (
+                  <IconButton
+                    id="branch-entity-access"
+                    onClick={() => {
+                      setShowHistory(false);
+                      setShowPublish(false);
+                      setShowAccess((a) => !a);
+                    }}
+                  >
+                    <GroupIcon color={showAccess ? "primary" : undefined} />
+                  </IconButton>
+                )}
+                {hasHistory && (
+                  <IconButton
+                    onClick={() => {
+                      setShowPublish(false);
+                      setShowAccess(false);
+                      setShowHistory((h) => !h);
+                    }}
+                  >
+                    <HistoryIcon color={showHistory ? "primary" : undefined} />
+                  </IconButton>
+                )}
+              </Box>
+            )}
+
+            {props.showArchiveAndRemoveButton && (
+              <>
+                <IconButton
+                  id="branch-entity-archive"
+                  sx={
+                    !hasHistory && !hasPublish && !hasAccess
+                      ? { marginLeft: "auto" }
+                      : undefined
+                  }
+                  disabled={!props.entityArchived && !props.inputsEnabled}
+                  type="button"
+                  onClick={() => setShowArchiveDialog(true)}
+                >
+                  {props.entityArchived ? (
+                    <DeleteForeverIcon />
+                  ) : (
+                    <DeleteIcon />
+                  )}
+                </IconButton>
+                <Dialog
+                  onClose={() => setShowArchiveDialog(false)}
+                  open={showArchiveDialog}
+                  disablePortal
+                >
+                  <DialogTitle>Careful!</DialogTitle>
+                  <DialogContent>
+                    Are you sure you want to{" "}
+                    {props.entityArchived ? "remove" : "archive"} this entity?
+                    {props.entityArchived
+                      ? " This action cannot be undone."
+                      : ""}
+                  </DialogContent>
+                  <DialogActions>
+                    <Button
+                      id="branch-entity-archive-confirm"
+                      sx={{ marginLeft: "auto" }}
+                      disabled={!props.entityArchived && !props.inputsEnabled}
+                      type="submit"
+                      name="intent"
+                      value={props.entityArchived ? "remove" : "archive"}
+                    >
+                      Yes
+                    </Button>
+                    <Button onClick={() => setShowArchiveDialog(false)}>
+                      No
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              </>
+            )}
+
+            <IconButton
+              sx={{
+                marginLeft:
+                  !props.showArchiveAndRemoveButton &&
+                  !hasHistory &&
+                  !hasPublish
+                    ? "auto"
+                    : undefined,
+              }}
+            >
+              <Link
+                data-strata-close
+                style={{ display: "flex" }}
+                to={preserveFilters(props.returnLocation)}
+              >
+                <CloseIcon />
+              </Link>
+            </IconButton>
+          </TrunkPanelControlsInner>
+        </BranchPanelControls>
       </Form>
 
-      <BranchPanelContent
-        id="branch-panel-content"
-        ref={containerRef}
-        isbigscreen={isBigScreen ? "true" : "false"}
-        hasleaf={shouldShowALeaf ? "true" : "false"}
-      >
+      <div id="branch-panel-content" ref={containerRef}>
         {showHistory && hasHistory && (
           <EntityMutationHistoryPanel
             entityType={props.entityType!}
@@ -397,103 +320,30 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
         >
           <Stack spacing={2}>{props.children}</Stack>
         </Box>
-      </BranchPanelContent>
+      </div>
     </>
   );
 
-  if (column.active) {
-    return (
-      <StrataColumnFrame
-        id="branch-panel"
-        key={extractBranchFromPath(location.pathname)}
-        column={column.column}
-        label="detail"
-        onFocus={column.focus}
-        fallbackLeft={column.offsetLeft}
-        animate={column.animate}
-      >
-        {body}
-      </StrataColumnFrame>
-    );
-  }
-
   return (
-    <BranchPanelFrame
+    <StrataColumnFrame
       id="branch-panel"
       key={extractBranchFromPath(location.pathname)}
-      transformTemplate={template}
-      initial={{
-        opacity: 0,
-        x: isBigScreen ? undefined : SMALL_SCREEN_ANIMATION_START,
-      }}
-      animate={{ opacity: 1, x: isBigScreen ? undefined : 0 }}
-      exit={{
-        opacity: 0,
-        x: isBigScreen ? undefined : SMALL_SCREEN_ANIMATION_END,
-      }}
-      transition={{ duration: 0.5 }}
+      column={column.column}
+      label="detail"
+      onFocus={column.focus}
+      fallbackLeft={column.offsetLeft}
+      animate={column.animate}
     >
       {body}
-    </BranchPanelFrame>
+    </StrataColumnFrame>
   );
 }
 
-const BranchPanelFrame = styled(motion.div)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
-  width: "100vw",
+// The column frame sizes and colours the controls bar; this is its layout.
+const BranchPanelControls = styled("div")(() => ({}));
+
+const TrunkPanelControlsInner = styled(Box)(() => ({
+  display: "flex",
+  alignItems: "center",
+  gap: "1rem",
 }));
-
-const BranchPanelControls = styled("div")(
-  ({ theme }) => `
-      margin-bottom: 1rem;
-      height: 3rem;
-      background-color: ${theme.palette.background.paper};
-      border-radius: 0px;
-      box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.2);
-      `,
-);
-
-interface TrunkPanelControlsInnerProps {
-  isbigscreen: string;
-}
-
-const TrunkPanelControlsInner = styled(Box)<TrunkPanelControlsInnerProps>(
-  ({ theme, isbigscreen }) => ({
-    width:
-      isbigscreen === "true" ? `${theme.breakpoints.values.lg}px` : "100vw",
-    margin: "auto",
-    display: "flex",
-    alignItems: "center",
-    gap: isbigscreen === "true" ? "1rem" : "0.2rem",
-  }),
-);
-
-interface BranchPanelContentProps {
-  isbigscreen: string;
-  hasleaf: string;
-}
-
-const BranchPanelContent = styled("div")<BranchPanelContentProps>(
-  ({ theme, isbigscreen, hasleaf }) => ({
-    paddingBottom: isbigscreen === "true" ? "0.5rem" : "0px",
-    paddingTop: isbigscreen === "true" ? "0.5rem" : "0px",
-    paddingLeft:
-      isbigscreen === "true"
-        ? `calc((100vw - ${theme.breakpoints.values.lg}px) / 2)`
-        : hasleaf === "true"
-          ? "0px"
-          : "0.25rem",
-    paddingRight:
-      isbigscreen === "true"
-        ? `calc((100vw - ${theme.breakpoints.values.lg}px) / 2)`
-        : hasleaf === "true"
-          ? "0px"
-          : "0.25rem",
-    height: `calc(var(--vh, 1vh) * 100 - env(safe-area-inset-top) - ${
-      isbigscreen === "true" ? "4rem" : "3.5rem"
-    } - ${
-      isbigscreen === "true" ? "4rem" : hasleaf === "false" ? "4rem" : "0px"
-    })`,
-    overflowY: "scroll",
-  }),
-);

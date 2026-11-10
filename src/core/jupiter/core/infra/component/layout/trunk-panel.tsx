@@ -15,9 +15,8 @@ import {
   styled,
 } from "@mui/material";
 import { Link, useLocation } from "react-router";
-import { motion, useIsPresent } from "framer-motion";
 import type { JSX, PropsWithChildren } from "react";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import type {
   EntityId,
   NamedEntityTag,
@@ -36,17 +35,8 @@ import {
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
-import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import { useHydrated } from "#/core/infra/component/use-hidrated";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
-const SMALL_SCREEN_ANIMATION_START = "100vw";
-const SMALL_SCREEN_ANIMATION_END = "100vw";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 
 interface TrunkPanelProps {
   createLocation?: string;
@@ -65,22 +55,13 @@ interface TrunkPanelProps {
 }
 
 export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
-  const bigScreen = useBigScreen();
   const location = useLocation();
-  const isHydrated = useHydrated();
   const containerRef = useRef<HTMLDivElement>(null);
-  const isPresent = useIsPresent();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const [showPublish, setShowPublish] = useState(false);
   const [showAccess, setShowAccess] = useState(false);
   const preserveFilters = useSectionFiltersPreserver();
   const column = useStrataColumn(DisplayType.TRUNK);
-  // A phone laid out as Strata columns is laid out like a big screen: the
-  // panels sit inline, and what was one panel at a time is the layout's doing.
-  const isBigScreen = bigScreen || column.active;
 
   const showingAlternateView = showPublish || showAccess;
   const hasPublish =
@@ -92,41 +73,6 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
     props.entityType !== undefined &&
     props.entityRefId !== undefined;
 
-  // This little function is a hack to get around the fact that Framer Motion
-  // generates a translateX(Xpx) CSS applied to the StyledMotionDrawer element.
-  // This in turns causes browers to make this div be container for any inner
-  // child who is position: fixed. This is a problem because we want such elements
-  // to be relative to the viewport, not this element. So we use this function to
-  // not emit a translateX in case of 0px. So whenever any trunk element appears
-  // it'll work relative to the whole viewport.
-  function template(
-    { x }: { x?: string | number },
-    _generatedTransform: string,
-  ): string {
-    if (x === 0 || x === "0px" || x === "0vw" || x === "0%" || x === "0") {
-      if (isHydrated) {
-        return "";
-      } else {
-        return undefined as unknown as string;
-      }
-    }
-    return `translateX(${x})`;
-  }
-
-  const handleScroll = useCallback(
-    (ref: HTMLDivElement, pathname: string, showChildren: boolean) => {
-      if (!isPresent) {
-        return;
-      }
-      if (!isBigScreen && showChildren) {
-        return;
-      }
-
-      saveScrollPosition(ref, pathname);
-    },
-    [isPresent, isBigScreen],
-  );
-
   useEffect(() => {
     if (containerRef.current === null) {
       return;
@@ -134,16 +80,8 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
 
     const theRef = containerRef.current;
 
-    if (!isPresent) {
-      return;
-    }
-
     function handleScrollSpecial() {
-      handleScroll(
-        theRef,
-        extractTrunkFromPath(location.pathname),
-        shouldShowABranch || shouldShowALeaf || shouldShowALeaflet,
-      );
+      saveScrollPosition(theRef, extractTrunkFromPath(location.pathname));
     }
 
     restoreScrollPosition(theRef, extractTrunkFromPath(location.pathname));
@@ -152,16 +90,7 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
     return () => {
       theRef.removeEventListener("scroll", handleScrollSpecial);
     };
-  }, [
-    containerRef,
-    location,
-    isBigScreen,
-    isPresent,
-    handleScroll,
-    shouldShowABranch,
-    shouldShowALeaf,
-    shouldShowALeaflet,
-  ]);
+  }, [containerRef, location]);
 
   function handleScrollTop() {
     containerRef.current?.scrollTo({
@@ -185,81 +114,70 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
 
   const body = (
     <>
-      {(!shouldShowABranch || column.active) &&
-        (isBigScreen || !(shouldShowALeaf || shouldShowALeaflet)) && (
-          <TrunkPanelControls id="trunk-panel-controls">
-            <TrunkPanelControlsInner
-              isbigscreen={isBigScreen ? "true" : "false"}
+      <TrunkPanelControls id="trunk-panel-controls">
+        <TrunkPanelControlsInner>
+          <ButtonGroup size="small">
+            <IconButton onClick={handleScrollTop}>
+              <ArrowUpwardIcon />
+            </IconButton>
+            <IconButton onClick={handleScrollBottom}>
+              <ArrowDownwardIcon />
+            </IconButton>
+          </ButtonGroup>
+
+          {props.createLocation && (
+            <Button
+              id="trunk-new-leaf-entity"
+              variant="contained"
+              to={preserveFilters(props.createLocation)}
+              component={Link}
             >
-              <ButtonGroup size="small">
-                <IconButton onClick={handleScrollTop}>
-                  <ArrowUpwardIcon />
-                </IconButton>
-                <IconButton onClick={handleScrollBottom}>
-                  <ArrowDownwardIcon />
-                </IconButton>
-              </ButtonGroup>
+              <AddIcon />
+            </Button>
+          )}
 
-              {props.createLocation && (
-                <Button
-                  id="trunk-new-leaf-entity"
-                  variant="contained"
-                  to={preserveFilters(props.createLocation)}
-                  component={Link}
+          {props.actions}
+
+          {(hasPublish || hasAccess) && (
+            <Box sx={{ marginLeft: "auto", display: "flex" }}>
+              {hasPublish && (
+                <IconButton
+                  id="trunk-entity-publish"
+                  onClick={() => {
+                    setShowAccess(false);
+                    setShowPublish((p) => !p);
+                  }}
                 >
-                  <AddIcon />
-                </Button>
+                  <PublicIcon color={showPublish ? "primary" : undefined} />
+                </IconButton>
               )}
-
-              {props.actions}
-
-              {(hasPublish || hasAccess) && (
-                <Box sx={{ marginLeft: "auto", display: "flex" }}>
-                  {hasPublish && (
-                    <IconButton
-                      id="trunk-entity-publish"
-                      onClick={() => {
-                        setShowAccess(false);
-                        setShowPublish((p) => !p);
-                      }}
-                    >
-                      <PublicIcon color={showPublish ? "primary" : undefined} />
-                    </IconButton>
-                  )}
-                  {hasAccess && (
-                    <IconButton
-                      id="trunk-entity-access"
-                      onClick={() => {
-                        setShowPublish(false);
-                        setShowAccess((a) => !a);
-                      }}
-                    >
-                      <GroupIcon color={showAccess ? "primary" : undefined} />
-                    </IconButton>
-                  )}
-                </Box>
+              {hasAccess && (
+                <IconButton
+                  id="trunk-entity-access"
+                  onClick={() => {
+                    setShowPublish(false);
+                    setShowAccess((a) => !a);
+                  }}
+                >
+                  <GroupIcon color={showAccess ? "primary" : undefined} />
+                </IconButton>
               )}
+            </Box>
+          )}
 
-              <IconButton
-                sx={{
-                  marginLeft: hasPublish || hasAccess ? undefined : "auto",
-                }}
-              >
-                <Link data-strata-close to={props.returnLocation}>
-                  <CloseIcon />
-                </Link>
-              </IconButton>
-            </TrunkPanelControlsInner>
-          </TrunkPanelControls>
-        )}
+          <IconButton
+            sx={{
+              marginLeft: hasPublish || hasAccess ? undefined : "auto",
+            }}
+          >
+            <Link data-strata-close to={props.returnLocation}>
+              <CloseIcon />
+            </Link>
+          </IconButton>
+        </TrunkPanelControlsInner>
+      </TrunkPanelControls>
 
-      <TrunkPanelContent
-        id="trunk-panel-content"
-        ref={containerRef}
-        isbigscreen={isBigScreen ? "true" : "false"}
-        hasbranch={shouldShowABranch ? "true" : "false"}
-        hasleaf={shouldShowALeaf || shouldShowALeaflet ? "true" : "false"}
-      >
+      <div id="trunk-panel-content" ref={containerRef}>
         {showPublish && hasPublish && (
           <>
             <Stack spacing={2}>
@@ -300,120 +218,30 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
         >
           <Stack spacing={2}>{props.children}</Stack>
         </Box>
-      </TrunkPanelContent>
+      </div>
     </>
   );
 
-  if (column.active) {
-    return (
-      <StrataColumnFrame
-        id="trunk-panel"
-        key={extractTrunkFromPath(location.pathname)}
-        column={column.column}
-        label="list"
-        onFocus={column.focus}
-        fallbackLeft={column.offsetLeft}
-        animate={column.animate}
-      >
-        {body}
-      </StrataColumnFrame>
-    );
-  }
-
   return (
-    <TrunkPanelFrame
+    <StrataColumnFrame
       id="trunk-panel"
       key={extractTrunkFromPath(location.pathname)}
-      transformTemplate={template}
-      initial={{
-        opacity: 0,
-        x: isBigScreen ? undefined : SMALL_SCREEN_ANIMATION_START,
-      }}
-      animate={{ opacity: 1, x: isBigScreen ? undefined : 0 }}
-      exit={{
-        opacity: 0,
-        x: isBigScreen ? undefined : SMALL_SCREEN_ANIMATION_END,
-      }}
-      transition={{ duration: 0.5 }}
+      column={column.column}
+      label="list"
+      onFocus={column.focus}
+      fallbackLeft={column.offsetLeft}
+      animate={column.animate}
     >
       {body}
-    </TrunkPanelFrame>
+    </StrataColumnFrame>
   );
 }
 
-const TrunkPanelFrame = styled(motion.div)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
-  width: "100vw",
+// The column frame sizes and colours the controls bar; this is its layout.
+const TrunkPanelControls = styled("div")(() => ({}));
+
+const TrunkPanelControlsInner = styled(Box)(() => ({
+  display: "flex",
+  alignItems: "center",
+  gap: "1rem",
 }));
-
-const TrunkPanelControls = styled("div")(
-  ({ theme }) => `
-      margin-bottom: 1rem;
-      height: 3rem;
-      background-color: ${theme.palette.background.paper};
-      border-radius: 0px;
-      box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.2);
-      `,
-);
-
-interface TrunkPanelControlsInnerProps {
-  isbigscreen: string;
-}
-
-const TrunkPanelControlsInner = styled(Box)<TrunkPanelControlsInnerProps>(
-  ({ theme, isbigscreen }) => ({
-    width:
-      isbigscreen === "true" ? `${theme.breakpoints.values.lg}px` : "100vw",
-    margin: "auto",
-    display: "flex",
-    alignItems: "center",
-    gap: isbigscreen === "true" ? "1rem" : "0.2rem",
-  }),
-);
-
-interface TrunkPanelContentProps {
-  isbigscreen: string;
-  hasbranch: string;
-  hasleaf: string;
-}
-
-const TrunkPanelContent = styled("div")<TrunkPanelContentProps>(
-  ({ theme, isbigscreen, hasleaf, hasbranch }) => ({
-    paddingTop:
-      hasbranch === "false"
-        ? isbigscreen === "true"
-          ? "0.5rem"
-          : "0px"
-        : "0px",
-    paddingBottom:
-      hasbranch === "false"
-        ? isbigscreen === "true"
-          ? "0.5rem"
-          : "0px"
-        : "0px",
-    paddingLeft:
-      hasbranch === "false"
-        ? isbigscreen === "true"
-          ? `calc((100vw - ${theme.breakpoints.values.lg}px) / 2)`
-          : "0.25rem"
-        : "0px",
-    paddingRight:
-      hasbranch === "false"
-        ? isbigscreen === "true"
-          ? `calc((100vw - ${theme.breakpoints.values.lg}px) / 2)`
-          : "0.25rem"
-        : "0px",
-    height: `calc(var(--vh, 1vh) * 100 - env(safe-area-inset-top) - ${
-      isbigscreen === "true" ? "4rem" : "3.5rem"
-    } - ${
-      hasbranch === "false"
-        ? isbigscreen === "true"
-          ? "4rem"
-          : hasleaf === "false"
-            ? "4rem"
-            : "0px"
-        : "0px"
-    })`,
-    overflowY: "scroll",
-  }),
-);

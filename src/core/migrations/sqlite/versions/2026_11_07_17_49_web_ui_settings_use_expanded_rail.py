@@ -4,7 +4,7 @@ Adds the `use_expanded_rail` preference, which makes the Strata icon rail wide
 enough to show labels. Existing users keep the narrow rail.
 
 Revision ID: 22901a2c66bf
-Revises: 66ec3fc57fcf
+Revises: e32c549b055a
 Create Date: 2026-11-07 17:49:20.204407
 
 """
@@ -12,7 +12,7 @@ Create Date: 2026-11-07 17:49:20.204407
 from alembic import op
 
 revision = "22901a2c66bf"
-down_revision = "66ec3fc57fcf"
+down_revision = "e32c549b055a"
 branch_labels = None
 depends_on = None
 

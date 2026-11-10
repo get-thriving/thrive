@@ -6,18 +6,11 @@ from jupiter_webapi_client.api.users.web_ui_settings_update import (
     sync_detailed as web_ui_settings_update_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
-from jupiter_webapi_client.models.ui_style import UiStyle
 from jupiter_webapi_client.models.web_ui_settings_update_args import (
     WebUiSettingsUpdateArgs,
 )
-from jupiter_webapi_client.models.web_ui_settings_update_args_ui_style import (
-    WebUiSettingsUpdateArgsUiStyle,
-)
 from jupiter_webapi_client.models.web_ui_settings_update_args_use_expanded_rail import (
     WebUiSettingsUpdateArgsUseExpandedRail,
-)
-from jupiter_webapi_client.models.web_ui_settings_update_args_use_night_mode import (
-    WebUiSettingsUpdateArgsUseNightMode,
 )
 from jupiter_webapi_client.types import Response
 from playwright.sync_api import Locator, Page
@@ -174,23 +167,13 @@ def get_parsed_from_response(clazz: Type[T], response: Response[S]) -> T:
     return cast(T, response.parsed)
 
 
-def set_ui_style(
-    client: AuthenticatedClient,
-    ui_style: UiStyle,
-    use_expanded_rail: bool | None = None,
-) -> None:
-    """Set the user's UI style, and the rail width unless left as it is."""
+def set_expanded_rail(client: AuthenticatedClient, use_expanded_rail: bool) -> None:
+    """Set whether the user has the rail with labels."""
     response = web_ui_settings_update_sync(
         client=client,
         body=WebUiSettingsUpdateArgs(
-            use_night_mode=WebUiSettingsUpdateArgsUseNightMode(should_change=False),
-            ui_style=WebUiSettingsUpdateArgsUiStyle(should_change=True, value=ui_style),
-            use_expanded_rail=(
-                WebUiSettingsUpdateArgsUseExpandedRail(should_change=False)
-                if use_expanded_rail is None
-                else WebUiSettingsUpdateArgsUseExpandedRail(
-                    should_change=True, value=use_expanded_rail
-                )
+            use_expanded_rail=WebUiSettingsUpdateArgsUseExpandedRail(
+                should_change=True, value=use_expanded_rail
             ),
         ),
     )

@@ -6,7 +6,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.ui_style import UiStyle
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="WebUiSettings")
@@ -23,8 +22,6 @@ class WebUiSettings:
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
         user_ref_id (str):
-        use_night_mode (bool):
-        ui_style (UiStyle): The UI style of the web app: the original look, or Strata.
         use_expanded_rail (bool):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
@@ -36,8 +33,6 @@ class WebUiSettings:
     created_time: str
     last_modified_time: str
     user_ref_id: str
-    use_night_mode: bool
-    ui_style: UiStyle
     use_expanded_rail: bool
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
@@ -55,10 +50,6 @@ class WebUiSettings:
         last_modified_time = self.last_modified_time
 
         user_ref_id = self.user_ref_id
-
-        use_night_mode = self.use_night_mode
-
-        ui_style = self.ui_style.value
 
         use_expanded_rail = self.use_expanded_rail
 
@@ -84,8 +75,6 @@ class WebUiSettings:
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
                 "user_ref_id": user_ref_id,
-                "use_night_mode": use_night_mode,
-                "ui_style": ui_style,
                 "use_expanded_rail": use_expanded_rail,
             }
         )
@@ -110,10 +99,6 @@ class WebUiSettings:
         last_modified_time = d.pop("last_modified_time")
 
         user_ref_id = d.pop("user_ref_id")
-
-        use_night_mode = d.pop("use_night_mode")
-
-        ui_style = UiStyle(d.pop("ui_style"))
 
         use_expanded_rail = d.pop("use_expanded_rail")
 
@@ -142,8 +127,6 @@ class WebUiSettings:
             created_time=created_time,
             last_modified_time=last_modified_time,
             user_ref_id=user_ref_id,
-            use_night_mode=use_night_mode,
-            ui_style=ui_style,
             use_expanded_rail=use_expanded_rail,
             archival_reason=archival_reason,
             archived_time=archived_time,

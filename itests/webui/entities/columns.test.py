@@ -2,7 +2,6 @@
 
 import re
 
-import pytest
 from playwright.sync_api import FloatRect, Page, ViewportSize, expect
 
 from itests.helpers import wait_for_hydration
@@ -24,7 +23,6 @@ def _box(page: Page, selector: str) -> FloatRect:
     return box
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_leaf_opens_beside_the_list(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto(_NEW_HABIT)
@@ -48,7 +46,6 @@ def test_leaf_opens_beside_the_list(page: Page) -> None:
     assert abs(leaf["width"] - 2 * _UNIT_AT_WIDE) <= 1
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_the_room_nothing_took_is_split_to_both_sides(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto(_NEW_HABIT)
@@ -66,7 +63,6 @@ def test_the_room_nothing_took_is_split_to_both_sides(page: Page) -> None:
     assert abs(left["width"] - right["width"]) <= 1
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_the_debug_overlay_describes_the_layout(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto(f"{_NEW_HABIT}?strata-debug=1")
@@ -77,7 +73,6 @@ def test_the_debug_overlay_describes_the_layout(page: Page) -> None:
     )
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_a_panel_that_does_not_fit_is_a_peek_that_a_click_brings_in(
     page: Page,
 ) -> None:
@@ -95,7 +90,6 @@ def test_a_panel_that_does_not_fit_is_a_peek_that_a_click_brings_in(
     expect(page.locator("#leaflet-panel")).to_have_attribute("data-folded", "true")
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_a_spine_brings_its_panel_back(page: Page) -> None:
     page.set_viewport_size(_NARROW)
     page.goto(_NEW_ASPECT)
@@ -110,7 +104,6 @@ def test_a_spine_brings_its_panel_back(page: Page) -> None:
     assert _box(page, "#leaflet-panel")["width"] > 100
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_h_and_l_move_the_focus_along_the_panels(page: Page) -> None:
     page.set_viewport_size(_NARROW)
     page.goto(_NEW_ASPECT)
@@ -138,7 +131,6 @@ def test_h_and_l_move_the_focus_along_the_panels(page: Page) -> None:
     expect(page.locator("#leaflet-panel")).not_to_have_attribute("data-folded", "true")
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_h_and_l_are_just_letters_in_a_field(page: Page) -> None:
     page.set_viewport_size(_NARROW)
     page.goto(_NEW_ASPECT)
@@ -152,7 +144,6 @@ def test_h_and_l_are_just_letters_in_a_field(page: Page) -> None:
     expect(page.locator("#leaflet-panel")).to_have_attribute("data-focused", "true")
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_escape_closes_the_focused_panel(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto(_NEW_HABIT)
@@ -166,7 +157,6 @@ def test_escape_closes_the_focused_panel(page: Page) -> None:
     expect(page.locator("#trunk-panel")).to_be_visible()
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_escape_closes_the_panel_that_has_the_focus(page: Page) -> None:
     page.set_viewport_size(_NARROW)
     page.goto(_NEW_ASPECT)
@@ -182,7 +172,6 @@ def test_escape_closes_the_panel_that_has_the_focus(page: Page) -> None:
     expect(page.locator("#leaflet-panel")).to_have_count(0)
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_escape_in_a_field_does_not_close_the_panel(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto(_NEW_HABIT)
@@ -195,7 +184,6 @@ def test_escape_in_a_field_does_not_close_the_panel(page: Page) -> None:
     expect(page.locator("#leaf-panel")).to_be_visible()
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_a_leaf_has_no_expansion_controls(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto(_NEW_HABIT)
@@ -205,7 +193,6 @@ def test_a_leaf_has_no_expansion_controls(page: Page) -> None:
     expect(page.locator("#leaf-panel-controls button")).to_have_count(4)
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_the_home_page_takes_the_whole_window(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto("/app/workspace")
@@ -218,7 +205,6 @@ def test_the_home_page_takes_the_whole_window(page: Page) -> None:
     expect(page.locator("[id^='strata-empty-slot']")).to_have_count(0)
 
 
-@pytest.mark.usefixtures("_strata_on")
 def test_a_tool_page_is_centred_in_the_room_after_the_rail(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto("/app/workspace/account")
@@ -228,16 +214,3 @@ def test_a_tool_page_is_centred_in_the_room_after_the_rail(page: Page) -> None:
     tool = _box(page, "#tool-panel")
     assert abs(tool["x"] - (_RAIL_WIDTH + 3.5 * _UNIT_AT_WIDE)) <= 1
     assert abs(tool["width"] - 3 * _UNIT_AT_WIDE) <= 1
-
-
-def test_classic_keeps_the_leaf_over_the_list(page: Page) -> None:
-    page.set_viewport_size(_WIDE)
-    page.goto(_NEW_HABIT)
-    wait_for_hydration(page)
-
-    trunk = _box(page, "#trunk-panel")
-    leaf = _box(page, "#leaf-panel")
-
-    # The list runs the full width behind the leaf, as it always did.
-    assert trunk["x"] == 0
-    assert trunk["width"] >= leaf["x"] + leaf["width"] - 1

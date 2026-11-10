@@ -1327,7 +1327,6 @@ from .travel_wish_remove_args import TravelWishRemoveArgs
 from .travel_wish_update_args import TravelWishUpdateArgs
 from .travel_wish_update_args_name import TravelWishUpdateArgsName
 from .travel_wish_update_result import TravelWishUpdateResult
-from .ui_style import UiStyle
 from .unlink_auth_method_args import UnlinkAuthMethodArgs
 from .update_grant_for_entity_args import UpdateGrantForEntityArgs
 from .update_grant_for_entity_result import UpdateGrantForEntityResult
@@ -1396,9 +1395,7 @@ from .web_ui_settings import WebUiSettings
 from .web_ui_settings_load_args import WebUiSettingsLoadArgs
 from .web_ui_settings_load_result import WebUiSettingsLoadResult
 from .web_ui_settings_update_args import WebUiSettingsUpdateArgs
-from .web_ui_settings_update_args_ui_style import WebUiSettingsUpdateArgsUiStyle
 from .web_ui_settings_update_args_use_expanded_rail import WebUiSettingsUpdateArgsUseExpandedRail
-from .web_ui_settings_update_args_use_night_mode import WebUiSettingsUpdateArgsUseNightMode
 from .web_ui_settings_update_result import WebUiSettingsUpdateResult
 from .widget_dimension import WidgetDimension
 from .widget_geometry import WidgetGeometry
@@ -2722,7 +2719,6 @@ __all__ = (
     "TravelWishUpdateArgs",
     "TravelWishUpdateArgsName",
     "TravelWishUpdateResult",
-    "UiStyle",
     "UnlinkAuthMethodArgs",
     "UpdateGrantForEntityArgs",
     "UpdateGrantForEntityResult",
@@ -2791,9 +2787,7 @@ __all__ = (
     "WebUiSettingsLoadArgs",
     "WebUiSettingsLoadResult",
     "WebUiSettingsUpdateArgs",
-    "WebUiSettingsUpdateArgsUiStyle",
     "WebUiSettingsUpdateArgsUseExpandedRail",
-    "WebUiSettingsUpdateArgsUseNightMode",
     "WebUiSettingsUpdateResult",
     "WidgetDimension",
     "WidgetGeometry",

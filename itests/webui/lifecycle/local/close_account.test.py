@@ -29,13 +29,6 @@ def test_webui_lifecycle_local_close_account(
     page.goto("/app/workspace/account")
     wait_for_hydration(page)
 
-    # Once the app has come up the sidebar covers the left of the page, which is
-    # where the button is.
-    sidebar_link = page.locator('a[href="/app/workspace/core/contacts"]')
-    expect(sidebar_link).to_be_visible()
-    page.locator("#show-sidebar").click()
-    expect(sidebar_link).to_be_hidden()
-
     page.locator("#close-account-initialize").click()
     page.locator("#close-account").click()
 

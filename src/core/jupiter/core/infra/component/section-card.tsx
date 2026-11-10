@@ -1,13 +1,4 @@
-import { UiStyle } from "@jupiter/webapi-client";
-import {
-  Box,
-  Card,
-  CardActions,
-  CardContent,
-  Chip,
-  Stack,
-  styled,
-} from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { Form } from "react-router";
 import type { JSX, PropsWithChildren } from "react";
 
@@ -18,13 +9,6 @@ import {
   strataSize,
   strataType,
 } from "#/core/infra/component/strata-tokens";
-import { CARD_INNER_CORNER_RADIUS } from "#/core/infra/component/theme";
-import { useUiStyle } from "#/core/infra/component/use-ui-style";
-
-// What the section keeps between its own border and the content inside it -
-// just enough to read as a gap, with the rest of the width going to the
-// content, especially on a phone.
-const CONTENT_PADDING = "4px";
 
 export enum ActionsPosition {
   ABOVE,
@@ -42,115 +26,42 @@ interface SectionCardProps {
 export function SectionCard(props: PropsWithChildren<SectionCardProps>) {
   const actionsPosition = props.actionsPosition ?? ActionsPosition.ABOVE;
   const handleSubmit = useInterceptedSubmit();
-  const uiStyle = useUiStyle();
-
-  // Strata has no cards in a column: a section is a mono label over a hairline
-  // with its actions at the right (ADR 0019).
-  if (uiStyle === UiStyle.STRATA) {
-    return (
-      <Box
-        id={props.id}
-        sx={{ borderBottom: `1px solid ${strataColors.line}`, pb: 1 }}
-      >
-        <Form method={props.method ?? "post"} onSubmit={handleSubmit}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 1,
-              minHeight: strataSize.columnHeader,
-              px: 0.5,
-            }}
-          >
-            <Box
-              component="span"
-              sx={{
-                fontFamily: strataFonts.mono,
-                fontSize: strataType.sectionLabel.size,
-                letterSpacing: strataType.sectionLabel.letterSpacing,
-                textTransform: "uppercase",
-                color: strataColors.textFaint,
-              }}
-            >
-              {props.title}
-            </Box>
-            {actionsPosition === ActionsPosition.ABOVE && props.actions}
-          </Box>
-          <Box sx={{ px: 0.5 }}>
-            <Stack spacing={2}>{props.children}</Stack>
-          </Box>
-          {actionsPosition === ActionsPosition.BELOW && (
-            <Box sx={{ px: 0.5, pt: 1 }}>{props.actions}</Box>
-          )}
-        </Form>
-      </Box>
-    );
-  }
-
+  // A section is a mono label over a hairline with its actions at the right
+  // (ADR 0019).
   return (
-    <StyledCard id={props.id}>
+    <Box id={props.id} sx={{ borderBottom: 1, borderColor: "divider", pb: 1 }}>
       <Form method={props.method ?? "post"} onSubmit={handleSubmit}>
-        <SectionHeader>
-          <SectionHeaderContent>
-            <SectionTitle label={props.title} />
-          </SectionHeaderContent>
-          {actionsPosition === ActionsPosition.ABOVE && props.actions}
-        </SectionHeader>
-        <CardContent
+        <Box
           sx={{
-            padding: CONTENT_PADDING,
-            "&:last-child": {
-              paddingBottom: CONTENT_PADDING,
-            },
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 1,
+            minHeight: strataSize.columnHeader,
+            px: 0.5,
           }}
         >
+          <Box
+            component="span"
+            sx={{
+              fontFamily: strataFonts.mono,
+              fontSize: strataType.sectionLabel.size,
+              letterSpacing: strataType.sectionLabel.letterSpacing,
+              textTransform: "uppercase",
+              color: strataColors.textFaint,
+            }}
+          >
+            {props.title}
+          </Box>
+          {actionsPosition === ActionsPosition.ABOVE && props.actions}
+        </Box>
+        <Box sx={{ px: 0.5 }}>
           <Stack spacing={2}>{props.children}</Stack>
-        </CardContent>
+        </Box>
         {actionsPosition === ActionsPosition.BELOW && (
-          <CardActions>{props.actions}</CardActions>
+          <Box sx={{ px: 0.5, pt: 1 }}>{props.actions}</Box>
         )}
       </Form>
-    </StyledCard>
+    </Box>
   );
 }
-
-const SectionHeader = styled("div")(() => ({
-  display: "flex",
-  flexWrap: "nowrap",
-  justifyContent: "space-between",
-  alignItems: "center",
-  height: "3rem",
-  width: "100%",
-}));
-
-const StyledCard = styled(Card)(() => ({
-  position: "relative",
-  overflow: "visible",
-}));
-
-const SectionHeaderContent = styled("div")(() => ({
-  display: "flex",
-  flex: "1 1 auto",
-  minWidth: "0",
-  flexWrap: "nowrap",
-  justifyContent: "space-between",
-  alignItems: "center",
-  height: "3rem",
-}));
-
-const SectionTitle = styled(Chip)(() => ({
-  position: "relative",
-  top: "-0.05rem",
-  fontSize: "1.5rem",
-  fontVariant: "small-caps",
-  height: "100%",
-  left: "-0.05rem",
-  paddingTop: "0.05rem",
-  paddingBottom: "0.05rem",
-  paddingRight: "2rem",
-  paddingLeft: "0.5rem",
-  borderRadius: "0px",
-  borderTopLeftRadius: CARD_INNER_CORNER_RADIUS,
-  borderBottomRightRadius: "4px",
-}));

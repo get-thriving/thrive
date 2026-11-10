@@ -2,13 +2,11 @@ import {
   type Contact,
   DocsHelpSubject,
   type Tag,
-  UiStyle,
   UserFeature,
 } from "@jupiter/webapi-client";
 import { Settings } from "@mui/icons-material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Logout from "@mui/icons-material/Logout";
-import MenuIcon from "@mui/icons-material/Menu";
 import HandshakeOutlinedIcon from "@mui/icons-material/HandshakeOutlined";
 import HelpCenterIcon from "@mui/icons-material/HelpCenter";
 import SearchIcon from "@mui/icons-material/Search";
@@ -34,7 +32,7 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { Link, useOutlet } from "react-router";
-import { AnimatePresence, useAnimate } from "framer-motion";
+import { useAnimate } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { isUserFeatureAvailable } from "@jupiter/core/users/root";
 import { CollaborationLink } from "@jupiter/core/infra/component/collaboration-link";
@@ -49,7 +47,6 @@ import { WorkspaceContainer } from "@jupiter/core/infra/component/layout/workspa
 import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { ReleaseUpdateWidget } from "@jupiter/core/infra/component/release-update-widget";
 import { SearchWidget } from "@jupiter/core/common/search/components/search-widget";
-import Sidebar from "@jupiter/core/infra/component/sidebar";
 import { StrataColumnsShell } from "@jupiter/core/infra/component/layout/strata-columns-shell";
 import { StrataRail } from "@jupiter/core/infra/component/shell/strata-rail";
 import { StrataDrawer } from "@jupiter/core/infra/component/shell/strata-drawer";
@@ -60,7 +57,6 @@ import { StrataCommandBar } from "@jupiter/core/infra/component/shell/strata-com
 import { StrataBreadcrumb } from "@jupiter/core/infra/component/shell/strata-breadcrumb";
 import { strataSize } from "@jupiter/core/infra/component/strata-tokens";
 import { useExpandedRail } from "@jupiter/core/infra/component/use-expanded-rail";
-import { useUiStyle } from "@jupiter/core/infra/component/use-ui-style";
 import { Title } from "@jupiter/core/infra/component/title";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -149,23 +145,21 @@ export default function Workspace() {
   const outlet = useOutlet();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const isBigScreen = useBigScreen();
-  const [showSidebar, setShowSidebar] = useState(isBigScreen);
   // The phone's drawer starts closed whatever the first render took the screen
   // to be: a desktop browser is assumed wide until it is measured.
   const [showDrawer, setShowDrawer] = useState(false);
-  // Strata replaces the drawer with an icon rail on big screens (ADR 0019),
-  // and the panels lay themselves out as columns beside it.
+  // Big screens have an icon rail (ADR 0019), and the panels lay themselves
+  // out as columns beside it.
   const theme = useTheme();
   // The wider rail is the user's choice, but it takes room the columns would
   // otherwise have, so it is only offered from the `lg` breakpoint up.
   const roomForExpandedRail = useMediaQuery(
     `(min-width: ${theme.breakpoints.values.lg}px)`,
   );
-  const strata = useUiStyle() === UiStyle.STRATA;
-  const showRail = strata && isBigScreen;
-  // On a small screen Strata keeps one panel at a time, with its own top bar
-  // and a drawer in place of the rail (ADR 0020).
-  const strataPhone = strata && !isBigScreen;
+  const showRail = isBigScreen;
+  // On a small screen there is one panel at a time, with its own top bar and a
+  // drawer in place of the rail (ADR 0020).
+  const strataPhone = !isBigScreen;
   const [railExpandedPreference, toggleRailExpanded] = useExpandedRail();
   const railExpanded = railExpandedPreference && roomForExpandedRail;
   const railWidth = railExpanded ? strataSize.railExpanded : strataSize.rail;
@@ -226,7 +220,6 @@ export default function Workspace() {
     >
       <WorkspaceContainer>
         <StrataColumnsShell
-          enabled={strata}
           offsetLeft={showRail ? railWidth : 0}
           phone={strataPhone}
         >
@@ -234,19 +227,8 @@ export default function Workspace() {
             {strataPhone && (
               <StrataPhoneLead onOpenDrawer={() => setShowDrawer(true)} />
             )}
-            {!showRail && !strataPhone && (
-              <IconButton
-                id="show-sidebar"
-                size="large"
-                edge="start"
-                color="inherit"
-                onClick={() => setShowSidebar((s) => !s)}
-              >
-                <MenuIcon />
-              </IconButton>
-            )}
 
-            {showRail ? (
+            {showRail && (
               <>
                 <Box sx={{ width: "9rem", flexShrink: 0, display: "flex" }}>
                   <Title hideOnSmallScreen />
@@ -256,21 +238,15 @@ export default function Workspace() {
                   <StrataBreadcrumb />
                 </Box>
               </>
-            ) : (
-              !strataPhone && <Title hideOnSmallScreen />
             )}
 
             <WorkspaceAppBarTrailing>
               <SearchWidget
                 allTags={loaderData.allTags}
                 allContacts={loaderData.allContacts}
-                {...(showRail || strataPhone
-                  ? {
-                      open: searchOpen,
-                      onOpenChange: setSearchOpen,
-                      hideTrigger: true,
-                    }
-                  : {})}
+                open={searchOpen}
+                onOpenChange={setSearchOpen}
+                hideTrigger
               />
 
               {/* <ProgressReporter token={loaderData.progressReporterToken} /> */}
@@ -487,24 +463,14 @@ export default function Workspace() {
             />
           )}
 
-          {strataPhone ? (
+          {strataPhone && (
             <StrataDrawer
               open={showDrawer}
               onClose={() => setShowDrawer(false)}
             />
-          ) : (
-            <Sidebar
-              showSidebar={showSidebar && !showRail}
-              onClickForNavigation={() => {
-                if (isBigScreen) return;
-                setShowSidebar(false);
-              }}
-            />
           )}
 
-          <AnimatePresence mode="wait" initial={false}>
-            {outlet}
-          </AnimatePresence>
+          {outlet}
 
           <ScoreSnackbarManager scoreAction={scoreAction} />
           <ReleaseUpdateWidget />
