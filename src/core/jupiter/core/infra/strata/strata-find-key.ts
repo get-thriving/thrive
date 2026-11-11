@@ -2,7 +2,7 @@ import type { StrataKeyEvent } from "#/core/infra/strata/strata-focus-key";
 
 /** What a key asks of find. */
 export type StrataFindKeyAction =
-  /** `/`: open the field, to type a query. */
+  /** `f`: open the field, to type a query. */
   | "open"
   /** `Enter` in the field: go to the match, and the search is over. */
   | "commit"
@@ -12,7 +12,7 @@ export type StrataFindKeyAction =
   | "cancel";
 
 /**
- * What a key means to find, given whether its field is open. Closed, `/` opens
+ * What a key means to find, given whether its field is open. Closed, `f` opens
  * it. Open, `Enter` goes to the match, `↓` and `↑` step through the matches and
  * `Escape` cancels; every other key is typed. Never with ctrl, meta or alt
  * held. Closed, never while the user types somewhere else or in a dialog or
@@ -27,7 +27,10 @@ export function strataFindKeyAction(
     return null;
   }
   if (!open) {
-    return !typing && !event.defaultPrevented && event.key === "/"
+    return !typing &&
+      !event.defaultPrevented &&
+      !event.shiftKey &&
+      event.key === "f"
       ? "open"
       : null;
   }

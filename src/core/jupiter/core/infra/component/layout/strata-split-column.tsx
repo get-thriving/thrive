@@ -9,6 +9,8 @@ interface StrataSplitColumnProps {
   /** The id of the section it holds. */
   id: string;
   title: string;
+  /** One of a panel's views, not a section: it closes, it does not fold back. */
+  view: boolean;
   column: StrataPlacedSlot;
   offsetLeft: number;
   animate: boolean;
@@ -23,7 +25,8 @@ interface StrataSplitColumnProps {
  * A section split out of its column (ADR 0021): the frame, one header with the
  * section's name and the control to fold it back, and an empty host which the
  * section draws its body into, so the section keeps its place in the tree and
- * with it its data, forms and fetchers.
+ * with it its data, forms and fetchers. A view of a panel (its history, its
+ * sharing) is the same, with a control to close it.
  */
 export function StrataSplitColumn(props: StrataSplitColumnProps) {
   const { id, setHost } = props;
@@ -45,8 +48,12 @@ export function StrataSplitColumn(props: StrataSplitColumnProps) {
         <IconButton
           data-strata-close
           size="small"
-          aria-label={`Fold ${props.title} back into its section`}
-          title="Fold back"
+          aria-label={
+            props.view
+              ? `Close ${props.title}`
+              : `Fold ${props.title} back into its section`
+          }
+          title={props.view ? "Close" : "Fold back"}
           onClick={props.onFold}
         >
           <Box
@@ -54,7 +61,7 @@ export function StrataSplitColumn(props: StrataSplitColumnProps) {
             aria-hidden
             sx={{ fontSize: 14, lineHeight: 1 }}
           >
-            ⇤
+            {props.view ? "×" : "⇤"}
           </Box>
         </IconButton>
       </ColumnHeader>

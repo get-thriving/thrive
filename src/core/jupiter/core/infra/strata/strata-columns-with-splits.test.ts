@@ -58,6 +58,20 @@ describe("strataColumnsWithSplits", () => {
     });
   });
 
+  it("makes a view of the panel a column of its own kind", () => {
+    const splits = new Map([
+      ["plan-history", split("plan-history", "plan", { view: true })],
+    ]);
+    const columns = strataColumnsWithSplits(path, splits, ["plan-history"]);
+    expect(columns[2]).toEqual({
+      key: "split:plan-history",
+      kind: "view",
+      size: 2,
+      grow: undefined,
+      splitId: "plan-history",
+    });
+  });
+
   it("shrinks the parent to what its splits leave it", () => {
     const splits = new Map([
       ["activities", split("activities", "plan", { size: 3, parentSize: 2 })],

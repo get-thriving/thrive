@@ -74,7 +74,7 @@ function landingOf(match: Range): HTMLElement | null {
 }
 
 /**
- * Find in the open columns, like `/` in vim. `/` opens a field at the bottom
+ * Find in the open columns. `f` opens a field at the bottom
  * left; what is typed marks every place it is in the text of the open columns,
  * and the one the search is at stands out, and `↓` and `↑` step through them.
  * `↵` goes to the match and the search is over, the field and the marks gone:
@@ -155,7 +155,7 @@ export function StrataFind() {
     [land, show],
   );
 
-  /** Ends the search; the query is kept for the next `/`. */
+  /** Ends the search; the query is kept for the next `f`. */
   const end = useCallback(() => {
     const now = current.current;
     if (now === null) {
@@ -167,7 +167,7 @@ export function StrataFind() {
     return true;
   }, [show]);
 
-  /** Ends the search and puts the keyboard back where it was before `/`. */
+  /** Ends the search and puts the keyboard back where it was before `f`. */
   const cancel = useCallback(() => {
     if (!end()) {
       return;
@@ -324,7 +324,7 @@ export function StrataFind() {
         }}
       />
       <Box component="span" sx={{ color: strataColors.amber }}>
-        /
+        f
       </Box>
       <InputBase
         inputRef={inputRef}

@@ -1,4 +1,4 @@
-"""Tests about hint mode: `g` labels what can be pressed, and a label does it."""
+"""Tests about hint mode: `s` labels what can be pressed, and a label does it."""
 
 import re
 
@@ -43,7 +43,7 @@ def _open(page: Page) -> None:
 def test_g_labels_what_can_be_pressed_and_escape_leaves(page: Page) -> None:
     _open(page)
 
-    page.keyboard.press("g")
+    page.keyboard.press("s")
 
     expect(page.locator(_HINT).first).to_be_visible()
     expect(page.locator("[data-strata-hints-status]")).to_contain_text("Go to")
@@ -62,7 +62,7 @@ def test_a_label_takes_a_field_and_types_nothing_into_it(page: Page) -> None:
     _open(page)
     name = page.get_by_label("Name")
 
-    page.keyboard.press("g")
+    page.keyboard.press("s")
     label = _label_of(name)
     for letter in label:
         page.keyboard.press(letter)
@@ -80,7 +80,7 @@ def test_a_label_takes_a_field_and_types_nothing_into_it(page: Page) -> None:
 def test_a_label_presses_a_button(page: Page) -> None:
     _open(page)
 
-    page.keyboard.press("g")
+    page.keyboard.press("s")
     label = _label_of(page.locator("#open-instant-search"))
     for letter in label:
         page.keyboard.press(letter)
@@ -92,7 +92,7 @@ def test_a_label_presses_a_button(page: Page) -> None:
 def test_a_label_follows_a_link(page: Page) -> None:
     _open(page)
 
-    page.keyboard.press("g")
+    page.keyboard.press("s")
     label = _label_of(page.locator(_RAIL).get_by_label("Home"))
     for letter in label:
         page.keyboard.press(letter)
@@ -106,7 +106,7 @@ def test_backspace_takes_a_letter_back_and_a_stray_letter_is_ignored(
 ) -> None:
     _open(page)
 
-    page.keyboard.press("g")
+    page.keyboard.press("s")
     total = page.locator(_HINT).count()
     # Every label starts with one of the letters of the alphabet; `q` is not one.
     page.keyboard.press("q")
@@ -122,21 +122,21 @@ def test_backspace_takes_a_letter_back_and_a_stray_letter_is_ignored(
     expect(page.locator(_HINT)).to_have_count(total)
 
 
-def test_g_is_just_a_letter_in_a_field(page: Page) -> None:
+def test_s_is_just_a_letter_in_a_field(page: Page) -> None:
     _open(page)
     name = page.get_by_label("Name")
 
     name.click()
-    page.keyboard.press("g")
+    page.keyboard.press("s")
 
-    expect(name).to_have_value("g")
+    expect(name).to_have_value("s")
     expect(page.locator(_HINT)).to_have_count(0)
 
 
 def test_a_shortcut_leaves_hint_mode_and_goes_on(page: Page) -> None:
     _open(page)
 
-    page.keyboard.press("g")
+    page.keyboard.press("s")
     expect(page.locator(_HINT).first).to_be_visible()
     page.keyboard.press("Control+k")
 

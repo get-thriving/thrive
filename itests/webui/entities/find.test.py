@@ -1,4 +1,4 @@
-"""Tests about find: `/` searches the text of the open columns."""
+"""Tests about find: `f` searches the text of the open columns."""
 
 import re
 
@@ -81,17 +81,15 @@ def _marked(page: Page) -> int:
     return marked
 
 
-def test_slash_opens_find_and_typing_marks_the_matches(
-    page: Page, create_habit
-) -> None:
+def test_f_opens_find_and_typing_marks_the_matches(page: Page, create_habit) -> None:
     habit = create_habit("Zebra Crossing Practice")
     _open(page, habit)
 
-    page.keyboard.press("/")
+    page.keyboard.press("f")
     bar = page.locator(_FIND)
     expect(bar).to_be_visible()
     expect(bar.get_by_role("textbox")).to_be_focused()
-    # The slash opened it, it was not typed into it.
+    # The key opened it, it was not typed into it.
     expect(bar.get_by_role("textbox")).to_have_value("")
 
     page.keyboard.type("zebra")
@@ -103,7 +101,7 @@ def test_a_query_with_no_match_says_so(page: Page, create_habit) -> None:
     habit = create_habit("Zebra Crossing Practice")
     _open(page, habit)
 
-    page.keyboard.press("/")
+    page.keyboard.press("f")
     page.keyboard.type("qzxjvw")
 
     expect(page.locator(_FIND)).to_contain_text("no matches")
@@ -114,7 +112,7 @@ def test_escape_closes_find_and_clears_the_marks(page: Page, create_habit) -> No
     habit = create_habit("Zebra Crossing Practice")
     _open(page, habit)
 
-    page.keyboard.press("/")
+    page.keyboard.press("f")
     page.keyboard.type("zebra")
     page.keyboard.press("Escape")
 
@@ -132,7 +130,7 @@ def test_arrows_step_and_enter_goes_to_the_match_and_ends_the_search(
     habit = create_habit("Zebra Two")
     _open(page, habit)
 
-    page.keyboard.press("/")
+    page.keyboard.press("f")
     page.keyboard.type("zebra")
     bar = page.locator(_FIND)
     expect(bar).to_contain_text(re.compile(r"1/\d+"))
@@ -151,7 +149,7 @@ def test_arrows_step_and_enter_goes_to_the_match_and_ends_the_search(
     expect(page.locator("a:focus")).to_have_count(1)
 
     # `/` starts a new search, with the last query there to be replaced.
-    page.keyboard.press("/")
+    page.keyboard.press("f")
     expect(bar.get_by_role("textbox")).to_be_focused()
     expect(bar.get_by_role("textbox")).to_have_value("zebra")
     page.keyboard.type("two")
@@ -163,7 +161,7 @@ def test_enter_on_a_match_follows_the_link_it_is_in(page: Page, create_habit) ->
     habit = create_habit("Walrus Lifting")
     _open(page, habit)
 
-    page.keyboard.press("/")
+    page.keyboard.press("f")
     page.keyboard.type("quokka")
     page.keyboard.press("Enter")
     # The keyboard focus is on the link the match is in, so Enter follows it.
@@ -172,15 +170,15 @@ def test_enter_on_a_match_follows_the_link_it_is_in(page: Page, create_habit) ->
     page.wait_for_url(re.compile(rf"/habits/{other.ref_id}$"))
 
 
-def test_slash_is_just_a_character_in_a_field(page: Page, create_habit) -> None:
+def test_f_is_just_a_character_in_a_field(page: Page, create_habit) -> None:
     habit = create_habit("Zebra Crossing Practice")
     _open(page, habit)
 
     page.locator(_NAME).click()
     page.keyboard.press("End")
-    page.keyboard.press("/")
+    page.keyboard.press("f")
 
-    expect(page.locator(_NAME)).to_have_value("Zebra Crossing Practice/")
+    expect(page.locator(_NAME)).to_have_value("Zebra Crossing Practicef")
     expect(page.locator(_FIND)).to_have_count(0)
 
 
@@ -220,7 +218,7 @@ def test_enter_in_find_goes_into_the_note_at_the_match(
 ) -> None:
     editor = _write_a_note(page, create_habit("Note Find Habit"))
 
-    page.keyboard.press("/")
+    page.keyboard.press("f")
     page.keyboard.type("epsilon")
     page.keyboard.press("Enter")
 

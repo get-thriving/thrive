@@ -17,29 +17,29 @@ const key = (
 });
 
 describe("strataFindKeyAction, closed", () => {
-  it("opens on /", () => {
-    expect(strataFindKeyAction(key("/"), false, false)).toBe("open");
+  it("opens on f", () => {
+    expect(strataFindKeyAction(key("f"), false, false)).toBe("open");
   });
 
-  it("opens on / that needs shift, as on some layouts", () => {
+  it("does not open on shift f", () => {
     expect(
-      strataFindKeyAction(key("/", { shiftKey: true }), false, false),
-    ).toBe("open");
+      strataFindKeyAction(key("F", { shiftKey: true }), false, false),
+    ).toBeNull();
   });
 
   it("ignores other keys, n and Enter included", () => {
-    for (const name of ["n", "N", "Escape", "Enter", "g"]) {
+    for (const name of ["/", "n", "N", "Escape", "Enter", "g"]) {
       expect(strataFindKeyAction(key(name), false, false)).toBeNull();
     }
   });
 
-  it("leaves / to a field, a dialog or a menu", () => {
-    expect(strataFindKeyAction(key("/"), false, true)).toBeNull();
+  it("leaves f to a field, a dialog or a menu", () => {
+    expect(strataFindKeyAction(key("f"), false, true)).toBeNull();
   });
 
   it("leaves a key that something else took", () => {
     expect(
-      strataFindKeyAction(key("/", { defaultPrevented: true }), false, false),
+      strataFindKeyAction(key("f", { defaultPrevented: true }), false, false),
     ).toBeNull();
   });
 });
@@ -52,8 +52,8 @@ describe("strataFindKeyAction, open", () => {
     expect(strataFindKeyAction(key("Escape"), true, true)).toBe("cancel");
   });
 
-  it("leaves every other key to be typed, / and n included", () => {
-    for (const name of ["/", "n", "N", "a", "Backspace"]) {
+  it("leaves every other key to be typed, f and n included", () => {
+    for (const name of ["f", "/", "n", "N", "a", "Backspace"]) {
       expect(strataFindKeyAction(key(name), true, true)).toBeNull();
     }
   });
@@ -67,7 +67,7 @@ describe("strataFindKeyAction, with a modifier", () => {
         { metaKey: true },
         { altKey: true },
       ]) {
-        expect(strataFindKeyAction(key("/", extra), open, false)).toBeNull();
+        expect(strataFindKeyAction(key("f", extra), open, false)).toBeNull();
         expect(strataFindKeyAction(key("Enter", extra), open, true)).toBeNull();
       }
     }

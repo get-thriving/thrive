@@ -878,7 +878,7 @@ def test_webui_habit_split_with_no_room_folds_back_collapsed(
     expect(page.locator("#split-panel-habit-inbox-tasks")).to_be_visible()
 
 
-def test_webui_habit_s_splits_and_escape_folds_back(
+def test_webui_habit_c_splits_and_escape_folds_back(
     page: Page, habit_with_inbox_task
 ) -> None:
     habit = habit_with_inbox_task("Keys Habit")
@@ -886,17 +886,17 @@ def test_webui_habit_s_splits_and_escape_folds_back(
     page.goto(f"/app/workspace/apps/habits/habits/{habit.ref_id}")
     wait_for_hydration(page)
 
-    # Typing an s in a field is typing, not a shortcut.
+    # Typing a c in a field is typing, not a shortcut.
     page.locator('#habit-properties-section input[name="name"]').click()
-    page.keyboard.type("s")
+    page.keyboard.type("c")
     expect(page.locator("#split-panel-habit-inbox-tasks")).to_have_count(0)
 
-    # With the keyboard focus on a header, s splits that section out; Escape on
+    # With the keyboard focus on a header, c splits that section out; Escape on
     # the new column folds it back.
     page.locator("#habit-inbox-tasks").get_by_role(
         "button", name="Collapse Inbox Tasks"
     ).focus()
-    page.keyboard.press("s")
+    page.keyboard.press("c")
     expect(page.locator("#split-panel-habit-inbox-tasks")).to_be_visible()
     page.keyboard.press("Escape")
     expect(page.locator("#split-panel-habit-inbox-tasks")).to_have_count(0)

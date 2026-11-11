@@ -17,37 +17,37 @@ const key = (
 });
 
 describe("strataSplitKeyAction", () => {
-  it("splits on s", () => {
-    expect(strataSplitKeyAction(key("s"), false)).toBe("split");
+  it("splits on c", () => {
+    expect(strataSplitKeyAction(key("c"), false)).toBe("split");
   });
 
-  it("folds back on shift s", () => {
-    expect(strataSplitKeyAction(key("S", { shiftKey: true }), false)).toBe(
+  it("folds back on shift c", () => {
+    expect(strataSplitKeyAction(key("C", { shiftKey: true }), false)).toBe(
       "fold",
     );
   });
 
   it("ignores other keys", () => {
-    expect(strataSplitKeyAction(key("x"), false)).toBeNull();
+    expect(strataSplitKeyAction(key("s"), false)).toBeNull();
   });
 
   it("leaves the key to a field, a dialog or a menu", () => {
-    expect(strataSplitKeyAction(key("s"), true)).toBeNull();
+    expect(strataSplitKeyAction(key("c"), true)).toBeNull();
   });
 
   it("leaves a key that something else took", () => {
     expect(
-      strataSplitKeyAction(key("s", { defaultPrevented: true }), false),
+      strataSplitKeyAction(key("c", { defaultPrevented: true }), false),
     ).toBeNull();
   });
 
-  it("ignores s with a modifier, so save stays save", () => {
+  it("ignores c with a modifier, so copy stays copy", () => {
     for (const extra of [
       { ctrlKey: true },
       { metaKey: true },
       { altKey: true },
     ]) {
-      expect(strataSplitKeyAction(key("s", extra), false)).toBeNull();
+      expect(strataSplitKeyAction(key("c", extra), false)).toBeNull();
     }
   });
 });

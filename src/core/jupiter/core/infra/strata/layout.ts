@@ -24,7 +24,10 @@
  *    into their parent instead, farthest from focus first. Folding a split back
  *    can change the parent's size (a section shown inline takes room), so the
  *    caller passes a `build` function that returns the columns for a given set
- *    of active splits.
+ *    of active splits. A view of a panel (its history, say) is a column of a
+ *    third kind: it belongs to the subject of its panel like a split, but has
+ *    no place inline to fold back into, so it is a peek or a spine, as a route
+ *    column is, when there is no room for it whole.
  */
 
 export type UnitSize = 1 | 2 | 3;
@@ -32,16 +35,16 @@ export type UnitSize = 1 | 2 | 3;
 export type ColumnSize = UnitSize | "full";
 export type FillOrder = "alternate" | "parents" | "children";
 export type SlotState = "full" | "squeezed" | "partial" | "spine";
-export type ColumnKind = "route" | "split";
+export type ColumnKind = "route" | "split" | "view";
 
 export interface ColumnSpec {
-  /** Stable id: the route id for route columns, `split:<id>` for split columns. */
+  /** Stable id: the route id for route columns, `split:<id>` for split and view columns. */
   key: string;
   kind: ColumnKind;
   size: ColumnSize;
   /** May take spare units, growing to the right. */
   grow?: boolean;
-  /** For split columns: the id the caller uses in its list of splits. */
+  /** For split and view columns: the id the caller uses in its list of splits. */
   splitId?: string;
 }
 

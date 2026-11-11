@@ -30,7 +30,7 @@ interface StrataSectionStackProps {
  * Sections of one subject, one under another. It keeps which of them are
  * collapsed, and which are split out into columns of their own, in the URL as
  * `panel-id[collapsed]=section-id` and `panel-id[split]=section-id`, and lets
- * `z`, `s` and `⇧s` work on them while the column they are in has the focus,
+ * `z`, `c` and `⇧c` work on them while the column they are in has the focus,
  * and `j`, `k` and `↵` move between them, and go into one: `↵` starts editing
  * its note, if it has one, and else opens the first item of its list.
  */

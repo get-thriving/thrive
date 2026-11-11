@@ -4,10 +4,7 @@ import {
   ArrowUpward as ArrowUpwardIcon,
   Delete as DeleteIcon,
   DeleteForever as DeleteForeverIcon,
-  Group as GroupIcon,
-  History as HistoryIcon,
   KeyboardDoubleArrowRight as KeyboardDoubleArrowRightIcon,
-  Public as PublicIcon,
 } from "@mui/icons-material";
 import {
   Box,
@@ -22,7 +19,7 @@ import {
 } from "@mui/material";
 import { Form, useNavigate } from "react-router";
 import type { PropsWithChildren } from "react";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   EntityId,
   NamedEntityTag,
@@ -36,8 +33,6 @@ import {
   interceptIntentSubmit,
 } from "#/core/infra/component/intent-interceptor";
 import type { IntentHandlers } from "#/core/infra/component/intent-interceptor";
-import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
-import { AccessPanel } from "#/core/common/sub/access/components/access-panel";
 import {
   restoreScrollPosition,
   saveScrollPosition,
@@ -48,8 +43,7 @@ import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-f
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
-import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
-import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import { useEntityViews } from "#/core/infra/component/layout/use-entity-views";
 
 interface LeafPanelProps {
   isLeaflet?: boolean;
@@ -101,7 +95,6 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
       )}
     </IntentInterceptorProvider>
   );
-  const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigate();
   // Closing a panel goes back to whatever is under it filtered as it was.
   const preserveFilters = useSectionFiltersPreserver();
@@ -110,20 +103,24 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     props.isLeaflet ? DisplayType.LEAFLET : DisplayType.LEAF,
   );
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-  const [showPublish, setShowPublish] = useState(false);
-  const [showAccess, setShowAccess] = useState(false);
-
-  const hasHistory =
-    props.entityType !== undefined && props.entityRefId !== undefined;
-  const hasPublish =
-    props.publishable === true &&
-    props.entityType !== undefined &&
-    props.entityRefId !== undefined;
-  const hasAccess =
-    props.accessable === true &&
-    props.entityType !== undefined &&
-    props.entityRefId !== undefined;
+  // What was published, who has access and the history: columns beside this
+  // one, or in its place when there is no room.
+  const views = useEntityViews({
+    home: props.isLeaflet ? "leaflet" : "leaf",
+    idPrefix: "leaf",
+    parentKey: column.column?.key ?? null,
+    entityType: props.entityType,
+    entityRefId: props.entityRefId,
+    inputsEnabled: props.inputsEnabled,
+    history: true,
+    publishable: props.publishable,
+    publishEntity: props.publishEntity,
+    accessable: props.accessable,
+    accessOwner: props.accessOwner,
+    accessStatus: props.accessStatus,
+    returnLocation: props.returnLocation,
+    forgetReturnLocation: props.forgetReturnLocation,
+  });
   const showArchiveButNotRemove =
     props.showArchiveButton && !props.showArchiveAndRemoveButton;
 
@@ -171,7 +168,6 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
   }
 
   const showControls = !props.disabled;
-  const showingAlternateView = showHistory || showPublish || showAccess;
 
   const body = (
     <>
@@ -211,55 +207,13 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               </IconButton>
             </ButtonGroup>
 
-            {(hasHistory || hasPublish || hasAccess) && (
-              <Box sx={{ marginLeft: "auto", display: "flex" }}>
-                {hasPublish && (
-                  <IconButton
-                    id="leaf-entity-publish"
-                    onClick={() => {
-                      setShowHistory(false);
-                      setShowAccess(false);
-                      setShowPublish((p) => !p);
-                    }}
-                  >
-                    <PublicIcon color={showPublish ? "primary" : undefined} />
-                  </IconButton>
-                )}
-                {hasAccess && (
-                  <IconButton
-                    id="leaf-entity-access"
-                    onClick={() => {
-                      setShowHistory(false);
-                      setShowPublish(false);
-                      setShowAccess((a) => !a);
-                    }}
-                  >
-                    <GroupIcon color={showAccess ? "primary" : undefined} />
-                  </IconButton>
-                )}
-                {hasHistory && (
-                  <IconButton
-                    onClick={() => {
-                      setShowPublish(false);
-                      setShowAccess(false);
-                      setShowHistory((h) => !h);
-                    }}
-                  >
-                    <HistoryIcon color={showHistory ? "primary" : undefined} />
-                  </IconButton>
-                )}
-              </Box>
-            )}
+            {views.buttons}
 
             {(props.showArchiveButton || props.showArchiveAndRemoveButton) && (
               <>
                 <IconButton
                   id="leaf-entity-archive"
-                  sx={
-                    !hasHistory && !hasPublish && !hasAccess
-                      ? { marginLeft: "auto" }
-                      : undefined
-                  }
+                  sx={!views.any ? { marginLeft: "auto" } : undefined}
                   disabled={
                     props.entityNotEditable ||
                     (!props.entityArchived && !props.inputsEnabled) ||
@@ -313,50 +267,11 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
       )}
 
       <div id="leaf-panel-content" ref={containerRef}>
-        {showHistory && hasHistory && (
-          <EntityMutationHistoryPanel
-            entityType={props.entityType!}
-            entityRefId={props.entityRefId!}
-          />
-        )}
-
-        {showPublish && hasPublish && (
-          <>
-            <Stack spacing={2}>
-              <PublishPanel
-                entityType={props.entityType!}
-                entityRefId={props.entityRefId!}
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={props.inputsEnabled}
-                publishEntity={props.publishEntity ?? null}
-                accessStatus={props.accessStatus}
-              />
-            </Stack>
-            <Box sx={{ height: "4rem" }}></Box>
-          </>
-        )}
-
-        {showAccess && hasAccess && props.returnLocation !== undefined && (
-          <>
-            <Stack spacing={2}>
-              <AccessPanel
-                entityType={props.entityType!}
-                entityRefId={props.entityRefId!}
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={props.inputsEnabled}
-                returnLocation={props.returnLocation}
-                forgetReturnLocation={props.forgetReturnLocation}
-                owner={props.accessOwner}
-                accessStatus={props.accessStatus}
-              />
-            </Stack>
-            <Box sx={{ height: "4rem" }}></Box>
-          </>
-        )}
+        {views.bodies}
 
         <Box
-          sx={{ display: showingAlternateView ? "none" : undefined }}
-          aria-hidden={showingAlternateView}
+          sx={{ display: views.replacesContent ? "none" : undefined }}
+          aria-hidden={views.replacesContent}
         >
           <Stack spacing={2}>{children}</Stack>
           <Box sx={{ height: "4rem" }}></Box>

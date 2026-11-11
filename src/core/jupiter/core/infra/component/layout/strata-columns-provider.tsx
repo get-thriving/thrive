@@ -46,7 +46,8 @@ function sameSplitSpec(a: StrataSplitSpec, b: StrataSplitSpec): boolean {
     a.title === b.title &&
     a.size === b.size &&
     a.grow === b.grow &&
-    a.parentSize === b.parentSize
+    a.parentSize === b.parentSize &&
+    a.view === b.view
   );
 }
 
@@ -429,6 +430,7 @@ export function StrataColumnsProvider(
               key={slot.key}
               id={id}
               title={spec.title}
+              view={spec.view === true}
               column={slot}
               offsetLeft={props.offsetLeft}
               animate={animate}

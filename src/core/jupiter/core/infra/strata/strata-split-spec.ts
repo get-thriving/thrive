@@ -2,10 +2,11 @@ import type { UnitSize } from "#/core/infra/strata/layout";
 
 /**
  * A section which can come out of its column and stand as a column of its own
- * (ADR 0021). The section registers it while it is on screen.
+ * (ADR 0021), or one of a panel's views (its history, say). The section or the
+ * panel registers it while it is on screen.
  */
 export interface StrataSplitSpec {
-  /** The section's id, which is also what the URL keeps. */
+  /** The section's or view's id, which is also what the URL keeps. */
   id: string;
   /** Key of the route column the section is in. */
   parentKey: string;
@@ -20,4 +21,9 @@ export interface StrataSplitSpec {
    * which needs less room without the section inline.
    */
   parentSize?: UnitSize;
+  /**
+   * A view of the panel rather than a section of it: it has no place inline, so
+   * its column is closed with `×` and not folded back with `⇤`.
+   */
+  view?: boolean;
 }

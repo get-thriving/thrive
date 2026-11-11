@@ -5,9 +5,6 @@ import {
   Close as CloseIcon,
   Delete as DeleteIcon,
   DeleteForever as DeleteForeverIcon,
-  Group as GroupIcon,
-  History as HistoryIcon,
-  Public as PublicIcon,
 } from "@mui/icons-material";
 import {
   Box,
@@ -24,7 +21,6 @@ import { Form, Link, useLocation } from "react-router";
 import {
   type JSX,
   type PropsWithChildren,
-  useContext,
   useEffect,
   useRef,
   useState,
@@ -37,10 +33,7 @@ import type {
   PublishEntity,
 } from "@jupiter/webapi-client";
 
-import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
-import { AccessPanel } from "#/core/common/sub/access/components/access-panel";
 import { extractBranchFromPath } from "#/core/infra/routes";
-import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   restoreScrollPosition,
   saveScrollPosition,
@@ -51,7 +44,7 @@ import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-f
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
+import { useEntityViews } from "#/core/infra/component/layout/use-entity-views";
 
 interface BranchPanelProps {
   createLocation?: string;
@@ -79,23 +72,24 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const column = useStrataColumn(DisplayType.BRANCH);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-  const [showPublish, setShowPublish] = useState(false);
-  const [showAccess, setShowAccess] = useState(false);
   const preserveFilters = useSectionFiltersPreserver();
-  const topLevelInfo = useContext(TopLevelInfoContext);
-
-  const showingAlternateView = showHistory || showPublish || showAccess;
-  const hasHistory =
-    props.entityType !== undefined && props.entityRefId !== undefined;
-  const hasPublish =
-    props.publishable === true &&
-    props.entityType !== undefined &&
-    props.entityRefId !== undefined;
-  const hasAccess =
-    props.accessable === true &&
-    props.entityType !== undefined &&
-    props.entityRefId !== undefined;
+  // What was published, who has access and the history: columns beside this
+  // one, or in its place when there is no room.
+  const views = useEntityViews({
+    home: "branch",
+    idPrefix: "branch",
+    parentKey: column.column?.key ?? null,
+    entityType: props.entityType,
+    entityRefId: props.entityRefId,
+    inputsEnabled: props.inputsEnabled ?? false,
+    history: true,
+    publishable: props.publishable,
+    publishEntity: props.publishEntity,
+    accessable: props.accessable,
+    accessOwner: props.accessOwner,
+    accessStatus: props.accessStatus,
+    returnLocation: props.returnLocation,
+  });
 
   useEffect(() => {
     if (containerRef.current === null) {
@@ -163,55 +157,13 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
 
           {props.actions}
 
-          {(hasHistory || hasPublish || hasAccess) && (
-            <Box sx={{ marginLeft: "auto", display: "flex" }}>
-              {hasPublish && (
-                <IconButton
-                  id="branch-entity-publish"
-                  onClick={() => {
-                    setShowHistory(false);
-                    setShowAccess(false);
-                    setShowPublish((p) => !p);
-                  }}
-                >
-                  <PublicIcon color={showPublish ? "primary" : undefined} />
-                </IconButton>
-              )}
-              {hasAccess && (
-                <IconButton
-                  id="branch-entity-access"
-                  onClick={() => {
-                    setShowHistory(false);
-                    setShowPublish(false);
-                    setShowAccess((a) => !a);
-                  }}
-                >
-                  <GroupIcon color={showAccess ? "primary" : undefined} />
-                </IconButton>
-              )}
-              {hasHistory && (
-                <IconButton
-                  onClick={() => {
-                    setShowPublish(false);
-                    setShowAccess(false);
-                    setShowHistory((h) => !h);
-                  }}
-                >
-                  <HistoryIcon color={showHistory ? "primary" : undefined} />
-                </IconButton>
-              )}
-            </Box>
-          )}
+          {views.buttons}
 
           {props.showArchiveAndRemoveButton && (
             <>
               <IconButton
                 id="branch-entity-archive"
-                sx={
-                  !hasHistory && !hasPublish && !hasAccess
-                    ? { marginLeft: "auto" }
-                    : undefined
-                }
+                sx={!views.any ? { marginLeft: "auto" } : undefined}
                 disabled={!props.entityArchived && !props.inputsEnabled}
                 type="button"
                 onClick={() => setShowArchiveDialog(true)}
@@ -251,7 +203,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
           <IconButton
             sx={{
               marginLeft:
-                !props.showArchiveAndRemoveButton && !hasHistory && !hasPublish
+                !props.showArchiveAndRemoveButton && !views.any
                   ? "auto"
                   : undefined,
             }}
@@ -268,49 +220,11 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
       </Form>
 
       <div id="branch-panel-content" ref={containerRef}>
-        {showHistory && hasHistory && (
-          <EntityMutationHistoryPanel
-            entityType={props.entityType!}
-            entityRefId={props.entityRefId!}
-          />
-        )}
-
-        {showPublish && hasPublish && (
-          <>
-            <Stack spacing={2}>
-              <PublishPanel
-                entityType={props.entityType!}
-                entityRefId={props.entityRefId!}
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={props.inputsEnabled ?? false}
-                publishEntity={props.publishEntity ?? null}
-                accessStatus={props.accessStatus}
-              />
-            </Stack>
-            <Box sx={{ height: "4rem" }}></Box>
-          </>
-        )}
-
-        {showAccess && hasAccess && (
-          <>
-            <Stack spacing={2}>
-              <AccessPanel
-                entityType={props.entityType!}
-                entityRefId={props.entityRefId!}
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={props.inputsEnabled ?? false}
-                returnLocation={props.returnLocation}
-                owner={props.accessOwner}
-                accessStatus={props.accessStatus}
-              />
-            </Stack>
-            <Box sx={{ height: "4rem" }}></Box>
-          </>
-        )}
+        {views.bodies}
 
         <Box
-          sx={{ display: showingAlternateView ? "none" : undefined }}
-          aria-hidden={showingAlternateView}
+          sx={{ display: views.replacesContent ? "none" : undefined }}
+          aria-hidden={views.replacesContent}
         >
           <Stack spacing={2}>
             {props.sectionsPanelId === undefined ? (

@@ -194,6 +194,29 @@ describe("layoutColumns: time plan", () => {
     ).toEqual(["time-plans", "plan", "activity"]);
   });
 
+  it("never folds a view back: with no room it is a peek", () => {
+    const res = layoutColumns({
+      wanted: ["history"],
+      build: (active) => [
+        r("list", 3),
+        r("leaf", 2),
+        ...active.map((id): ColumnSpec => ({
+          key: `split:${id}`,
+          kind: "view",
+          size: 3,
+          splitId: id,
+        })),
+      ],
+      focusKey: "list",
+      units: 6,
+    });
+    expect(res.folded).toEqual([]);
+    expect(res.active).toEqual(["history"]);
+    expect(res.layout.slots.find((s) => s.key === "split:history")?.state).toBe(
+      "partial",
+    );
+  });
+
   it("falls back to the last route column when the focus key is gone", () => {
     const res = layoutColumns({
       wanted: [],

@@ -67,7 +67,7 @@ function samePositions(
 }
 
 /**
- * Hint mode, as in Vimium: `g` puts a short label on everything on screen that
+ * Hint mode, as in Vimium: `s` puts a short label on everything on screen that
  * can be pressed or typed in, and typing a label does it, so the whole app can
  * be driven from the keyboard. A field takes the focus, a button or a link is
  * pressed. `Escape` leaves; so does a click, a move to another page, or a

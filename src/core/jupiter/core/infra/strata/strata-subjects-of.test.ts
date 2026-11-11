@@ -19,6 +19,13 @@ describe("strataSubjectsOf", () => {
     });
   });
 
+  it("puts the views of a panel in its subject too", () => {
+    expect(strataSubjectsOf(["route", "route", "view", "route"], 2)).toEqual({
+      subject: [0, 1, 1, 3],
+      inFocusedSubject: [false, true, true, false],
+    });
+  });
+
   it("copes with a row that starts with a split", () => {
     expect(strataSubjectsOf(["split", "route"], 0).subject).toEqual([0, 1]);
   });

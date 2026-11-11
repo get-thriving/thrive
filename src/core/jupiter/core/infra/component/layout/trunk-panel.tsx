@@ -3,13 +3,11 @@ import {
   ArrowDownward as ArrowDownwardIcon,
   ArrowUpward as ArrowUpwardIcon,
   Close as CloseIcon,
-  Group as GroupIcon,
-  Public as PublicIcon,
 } from "@mui/icons-material";
 import { Box, Button, ButtonGroup, IconButton, Stack } from "@mui/material";
 import { Link, useLocation } from "react-router";
 import type { JSX, PropsWithChildren } from "react";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import type {
   EntityId,
   NamedEntityTag,
@@ -18,17 +16,15 @@ import type {
   PublishEntity,
 } from "@jupiter/webapi-client";
 
-import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
-import { AccessPanel } from "#/core/common/sub/access/components/access-panel";
 import { extractTrunkFromPath } from "#/core/infra/routes";
 import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
-import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { ColumnHeader } from "#/core/infra/component/layout/column-header";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
+import { useEntityViews } from "#/core/infra/component/layout/use-entity-views";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 
@@ -51,21 +47,26 @@ interface TrunkPanelProps {
 export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
   const location = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
-  const topLevelInfo = useContext(TopLevelInfoContext);
-  const [showPublish, setShowPublish] = useState(false);
-  const [showAccess, setShowAccess] = useState(false);
   const preserveFilters = useSectionFiltersPreserver();
   const column = useStrataColumn(DisplayType.TRUNK);
-
-  const showingAlternateView = showPublish || showAccess;
-  const hasPublish =
-    props.publishable === true &&
-    props.entityType !== undefined &&
-    props.entityRefId !== undefined;
-  const hasAccess =
-    props.accessable === true &&
-    props.entityType !== undefined &&
-    props.entityRefId !== undefined;
+  // What was published and who has access: columns beside this one, or in its
+  // place when there is no room. A trunk has no history of its own.
+  const views = useEntityViews({
+    home: "trunk",
+    idPrefix: "trunk",
+    parentKey: column.column?.key ?? null,
+    entityType: props.entityType,
+    entityRefId: props.entityRefId,
+    inputsEnabled: props.inputsEnabled ?? false,
+    history: false,
+    publishable: props.publishable,
+    publishEntity: props.publishEntity,
+    accessable: props.accessable,
+    accessOwner: props.accessOwner,
+    accessStatus: props.accessStatus,
+    returnLocation: props.returnLocation,
+    forgetReturnLocation: props.forgetReturnLocation,
+  });
 
   useEffect(() => {
     if (containerRef.current === null) {
@@ -131,36 +132,11 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
 
         {props.actions}
 
-        {(hasPublish || hasAccess) && (
-          <Box sx={{ marginLeft: "auto", display: "flex" }}>
-            {hasPublish && (
-              <IconButton
-                id="trunk-entity-publish"
-                onClick={() => {
-                  setShowAccess(false);
-                  setShowPublish((p) => !p);
-                }}
-              >
-                <PublicIcon color={showPublish ? "primary" : undefined} />
-              </IconButton>
-            )}
-            {hasAccess && (
-              <IconButton
-                id="trunk-entity-access"
-                onClick={() => {
-                  setShowPublish(false);
-                  setShowAccess((a) => !a);
-                }}
-              >
-                <GroupIcon color={showAccess ? "primary" : undefined} />
-              </IconButton>
-            )}
-          </Box>
-        )}
+        {views.buttons}
 
         <IconButton
           sx={{
-            marginLeft: hasPublish || hasAccess ? undefined : "auto",
+            marginLeft: views.any ? undefined : "auto",
           }}
         >
           <Link data-strata-close to={props.returnLocation}>
@@ -170,43 +146,11 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
       </ColumnHeader>
 
       <div id="trunk-panel-content" ref={containerRef}>
-        {showPublish && hasPublish && (
-          <>
-            <Stack spacing={2}>
-              <PublishPanel
-                entityType={props.entityType!}
-                entityRefId={props.entityRefId!}
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={props.inputsEnabled ?? false}
-                publishEntity={props.publishEntity ?? null}
-                accessStatus={props.accessStatus}
-              />
-            </Stack>
-            <Box sx={{ height: "4rem" }}></Box>
-          </>
-        )}
-
-        {showAccess && hasAccess && (
-          <>
-            <Stack spacing={2}>
-              <AccessPanel
-                entityType={props.entityType!}
-                entityRefId={props.entityRefId!}
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={props.inputsEnabled ?? false}
-                returnLocation={props.returnLocation}
-                forgetReturnLocation={props.forgetReturnLocation}
-                owner={props.accessOwner}
-                accessStatus={props.accessStatus}
-              />
-            </Stack>
-            <Box sx={{ height: "4rem" }}></Box>
-          </>
-        )}
+        {views.bodies}
 
         <Box
-          sx={{ display: showingAlternateView ? "none" : undefined }}
-          aria-hidden={showingAlternateView}
+          sx={{ display: views.replacesContent ? "none" : undefined }}
+          aria-hidden={views.replacesContent}
         >
           <Stack spacing={2}>{props.children}</Stack>
         </Box>

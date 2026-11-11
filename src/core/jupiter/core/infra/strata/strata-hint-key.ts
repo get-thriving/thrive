@@ -2,7 +2,7 @@ import { STRATA_HINT_ALPHABET } from "#/core/infra/strata/strata-hint-labels";
 import type { StrataKeyEvent } from "#/core/infra/strata/strata-focus-key";
 
 /**
- * Whether a key event asks for hint mode: `g` on its own. Never while the user
+ * Whether a key event asks for hint mode: `s` on its own. Never while the user
  * is typing or in a dialog or menu, with a modifier held, or when something
  * else took the key.
  */
@@ -11,7 +11,7 @@ export function isStrataHintEnterKey(
   typing: boolean,
 ): boolean {
   return (
-    event.key === "g" &&
+    event.key === "s" &&
     !typing &&
     !event.defaultPrevented &&
     !event.ctrlKey &&

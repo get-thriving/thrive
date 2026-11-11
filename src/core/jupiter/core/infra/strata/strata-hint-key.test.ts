@@ -20,52 +20,52 @@ const key = (
 });
 
 describe("isStrataHintEnterKey", () => {
-  it("enters hint mode on g", () => {
-    expect(isStrataHintEnterKey(key("g"), false)).toBe(true);
+  it("enters hint mode on s", () => {
+    expect(isStrataHintEnterKey(key("s"), false)).toBe(true);
   });
 
   it("ignores other keys", () => {
-    expect(isStrataHintEnterKey(key("f"), false)).toBe(false);
+    expect(isStrataHintEnterKey(key("g"), false)).toBe(false);
   });
 
-  it("leaves g to a field, a dialog or a menu", () => {
-    expect(isStrataHintEnterKey(key("g"), true)).toBe(false);
+  it("leaves s to a field, a dialog or a menu", () => {
+    expect(isStrataHintEnterKey(key("s"), true)).toBe(false);
   });
 
   it("leaves a key that something else took", () => {
     expect(
-      isStrataHintEnterKey(key("g", { defaultPrevented: true }), false),
+      isStrataHintEnterKey(key("s", { defaultPrevented: true }), false),
     ).toBe(false);
   });
 
-  it("ignores g with a modifier", () => {
+  it("ignores s with a modifier", () => {
     for (const extra of [
       { ctrlKey: true },
       { metaKey: true },
       { altKey: true },
       { shiftKey: true },
     ]) {
-      expect(isStrataHintEnterKey(key("g", extra), false)).toBe(false);
+      expect(isStrataHintEnterKey(key("s", extra), false)).toBe(false);
     }
   });
 });
 
 describe("strataHintKeyAction", () => {
   it("takes the letters of the alphabet, whatever their case", () => {
-    expect(strataHintKeyAction(key("s"))).toEqual({
+    expect(strataHintKeyAction(key("d"))).toEqual({
       kind: "letter",
-      letter: "s",
+      letter: "d",
     });
-    expect(strataHintKeyAction(key("S", { shiftKey: true }))).toEqual({
+    expect(strataHintKeyAction(key("D", { shiftKey: true }))).toEqual({
       kind: "letter",
-      letter: "s",
+      letter: "d",
     });
   });
 
-  it("takes g as a letter too, so Escape is the way out", () => {
-    expect(strataHintKeyAction(key("g"))).toEqual({
+  it("takes s as a letter too, so Escape is the way out", () => {
+    expect(strataHintKeyAction(key("s"))).toEqual({
       kind: "letter",
-      letter: "g",
+      letter: "s",
     });
   });
 
