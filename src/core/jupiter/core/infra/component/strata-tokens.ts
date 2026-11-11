@@ -35,6 +35,7 @@ export const strataColors = {
   amberHover: "#F6CB73",
   amberTint: "rgba(240,180,60,0.13)", // selected row / focused column background
   amberTintStrong: "rgba(240,180,60,0.14)", // active rail item, status chip
+  amberLine: "rgba(240,180,60,0.42)", // top line of the columns of the focused subject
   amberTintChanged: "rgba(240,180,60,0.07)", // changed (unsaved) form row
 
   // Status

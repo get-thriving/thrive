@@ -182,6 +182,8 @@ def test_escape_in_a_field_does_not_close_the_panel(page: Page) -> None:
 
     expect(page).to_have_url(re.compile(r"/habits/new"))
     expect(page.locator("#leaf-panel")).to_be_visible()
+    # It leaves the field instead, to the column, so the keys work again.
+    expect(page.get_by_label("Name")).not_to_be_focused()
 
 
 def test_a_leaf_has_no_expansion_controls(page: Page) -> None:

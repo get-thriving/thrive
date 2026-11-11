@@ -54,7 +54,7 @@ export function SectionHeader(props: SectionHeaderProps) {
         alignItems: "center",
         gap: 1,
         minHeight: strataSize.sectionHeader,
-        px: 0.5,
+        px: 1,
       }}
     >
       {props.hideTitle === true ? null : collapsible ? (

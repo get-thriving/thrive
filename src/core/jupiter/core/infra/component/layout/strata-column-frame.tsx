@@ -66,6 +66,7 @@ export function StrataColumnFrame(
       data-peek={peek ? "true" : undefined}
       data-strata-split={props.split}
       data-focused={column?.focused ? "true" : undefined}
+      data-subject-focused={column?.inFocusedSubject ? "true" : undefined}
       data-animate={props.animate ? "true" : undefined}
       tabIndex={-1}
       onFocusCapture={handleFocusCapture}
@@ -148,17 +149,26 @@ const Frame = styled("div")(({ theme }) => ({
   // The panel itself takes the keyboard focus when it is focused with `h` or
   // `l`; the marker below says so, not the browser's outline.
   "&:focus": { outline: "none" },
-  // The focused panel, when there is more than one, has an amber top edge.
-  "&[data-focused='true']::before": {
+  // A 2px line along the top of every column shows what it is about: a dim
+  // amber one for the columns of the focused subject (a route column and the
+  // sections split out of it), a full amber one for the focused column, and
+  // a neutral one for the rest.
+  "&::before": {
     content: '""',
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     height: 2,
-    backgroundColor: strataColors.amber,
+    backgroundColor: strataColors.lineStrong,
     zIndex: 2,
     pointerEvents: "none",
+  },
+  "&[data-subject-focused='true']::before": {
+    backgroundColor: strataColors.amberLine,
+  },
+  "&[data-focused='true']::before": {
+    backgroundColor: strataColors.amber,
   },
 
   // The panels' content, which was padded to centre itself in the window.

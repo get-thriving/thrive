@@ -11,6 +11,7 @@ import {
   type SlotState,
 } from "#/core/infra/strata/layout";
 import { strataColumnsWithSplits } from "#/core/infra/strata/strata-columns-with-splits";
+import { strataSubjectsOf } from "#/core/infra/strata/strata-subjects-of";
 import type { StrataSplitSpec } from "#/core/infra/strata/strata-split-spec";
 
 /** One path panel, placed on the screen. */
@@ -22,6 +23,10 @@ export interface StrataPlacedSlot extends PlacedSlot {
   units: number;
   /** Only meaningful with more than one panel open. */
   focused: boolean;
+  /** Index of the route column whose subject this is; splits share it. */
+  subject: number;
+  /** Shares its subject with the focused column, which does itself. */
+  inFocusedSubject: boolean;
   /**
    * A spine that shows the panel's name, in a strip wide enough to read it.
    * Only on a phone, for the panel that follows the focused one.
@@ -118,6 +123,10 @@ function place(
   const placement = toPixels(layout, width, { rail });
   // The engine puts the leftover at the right end; the row is centred instead.
   const gutterWidth = (placement.empty?.width ?? 0) / 2;
+  const subjects = strataSubjectsOf(
+    layout.slots.map((slot) => slot.kind),
+    layout.focus,
+  );
   return {
     slots: placement.slots.map((placed, index) => ({
       ...placed,
@@ -126,6 +135,9 @@ function place(
       state: layout.slots[index].state,
       units: layout.slots[index].units,
       focused: layout.slots.length > 1 && index === layout.focus,
+      subject: subjects.subject[index],
+      inFocusedSubject:
+        layout.slots.length > 1 && subjects.inFocusedSubject[index],
     })),
     gutters:
       gutterWidth > 0

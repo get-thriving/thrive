@@ -10,6 +10,10 @@ import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 import { isStrataCollapseKey } from "#/core/infra/strata/strata-collapse-key";
 import { strataSplitKey } from "#/core/infra/strata/strata-columns-with-splits";
 import { strataSplitKeyAction } from "#/core/infra/strata/strata-split-key";
+import {
+  strataNextSection,
+  strataStackKeyAction,
+} from "#/core/infra/strata/strata-stack-key";
 
 const FILTERS = z.object({
   collapsed: z.array(z.string()).default([]),
@@ -25,7 +29,8 @@ interface StrataSectionStackProps {
  * Sections of one subject, one under another. It keeps which of them are
  * collapsed, and which are split out into columns of their own, in the URL as
  * `panel-id[collapsed]=section-id` and `panel-id[split]=section-id`, and lets
- * `z`, `s` and `⇧s` work on them while the column they are in has the focus.
+ * `z`, `s` and `⇧s` work on them while the column they are in has the focus,
+ * and `j`, `k` and `↵` move between them and open the first item of one.
  */
 export function StrataSectionStack(
   props: PropsWithChildren<StrataSectionStackProps>,
@@ -73,7 +78,8 @@ export function StrataSectionStack(
       const typing = isTypingTarget(event.target);
       const collapse = isStrataCollapseKey(event, typing);
       const splitAction = strataSplitKeyAction(event, typing);
-      if (!collapse && splitAction === null) {
+      const stackAction = strataStackKeyAction(event, typing);
+      if (!collapse && splitAction === null && stackAction === null) {
         return;
       }
       const column = document.querySelector<HTMLElement>(
@@ -90,6 +96,44 @@ export function StrataSectionStack(
           el.closest("[data-strata-column]") === column,
       );
       const active = document.activeElement;
+
+      if (stackAction !== null) {
+        // The sections themselves, not the split placeholders, in the order
+        // they are on the page.
+        const sections = mine.filter(
+          (el) => el.dataset.strataSectionSplit === undefined,
+        );
+        const current = sections.findIndex(
+          (el) => active !== null && el.contains(active),
+        );
+        if (stackAction === "open") {
+          // Only on the section itself: on anything inside it, `↵` keeps its
+          // own meaning (a link opens, a button presses).
+          if (current < 0 || sections[current] !== active) {
+            return;
+          }
+          const item = sections[current].querySelector<HTMLAnchorElement>(
+            "[id$='-body'] a[href]",
+          );
+          if (item === null) {
+            return;
+          }
+          event.preventDefault();
+          item.click();
+          return;
+        }
+        const next = strataNextSection(stackAction, sections.length, current);
+        if (next === null) {
+          return;
+        }
+        event.preventDefault();
+        // Without scrolling, as the browser would only bring it into view;
+        // the section's top goes to the top of the column.
+        sections[next].focus({ preventScroll: true });
+        sections[next].scrollIntoView({ block: "start" });
+        return;
+      }
+
       const pick = (candidates: HTMLElement[]) =>
         candidates.find((el) => active !== null && el.contains(active)) ??
         candidates[0];

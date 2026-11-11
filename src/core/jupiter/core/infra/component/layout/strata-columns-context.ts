@@ -10,6 +10,8 @@ export interface StrataSplitState {
   title: string;
   /** The key of its column, when it is shown as one. */
   key: string;
+  /** The key of the route column its section is in. */
+  parentKey: string;
   state: "active" | "folded";
 }
 

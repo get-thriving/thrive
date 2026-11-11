@@ -699,6 +699,35 @@ def test_webui_habit_z_collapses_the_section_in_the_focused_column(
     expect(body).not_to_have_attribute("hidden", "")
 
 
+def test_webui_habit_escape_leaves_a_field_for_its_section(
+    page: Page, create_habit
+) -> None:
+    habit = create_habit(
+        "Escape Field Habit",
+        RecurringTaskPeriod.DAILY,
+        False,
+        Eisen.REGULAR,
+        Difficulty.MEDIUM,
+    )
+    page.goto(f"/app/workspace/apps/habits/habits/{habit.ref_id}")
+    wait_for_hydration(page)
+
+    name = page.locator('#habit-properties-section input[name="name"]')
+    name.click()
+    page.keyboard.type("x")
+
+    # Escape leaves the field, with what was typed still in it, and puts the
+    # keyboard focus on the section it is in.
+    page.keyboard.press("Escape")
+    expect(name).not_to_be_focused()
+    expect(name).to_have_value(re.compile(r"x$"))
+    expect(page.locator("#habit-properties-section")).to_be_focused()
+
+    # The keys that move around work again: j goes to the next section.
+    page.keyboard.press("j")
+    expect(page.locator("#habit-properties-section")).not_to_be_focused()
+
+
 _WIDE: ViewportSize = {"width": 1920, "height": 1000}
 _NARROW: ViewportSize = {"width": 1100, "height": 900}
 

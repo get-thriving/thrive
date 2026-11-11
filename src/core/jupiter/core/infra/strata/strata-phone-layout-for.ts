@@ -33,6 +33,8 @@ export function strataPhoneLayoutFor(
       kind: panel.kind,
       units: 0,
       focused: false,
+      subject: index,
+      inFocusedSubject: path.length > 1 && index === focusIndex,
     };
     if (index === focusIndex) {
       return {

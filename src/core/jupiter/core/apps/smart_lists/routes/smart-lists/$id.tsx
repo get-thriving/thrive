@@ -70,7 +70,7 @@ const UpdateSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
-  strata: { size: "M", grow: true } satisfies StrataHandle,
+  strata: { size: "S", grow: true } satisfies StrataHandle,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

@@ -9,6 +9,7 @@ import { useInterceptedSubmit } from "#/core/infra/component/intent-interceptor"
 import { SectionHeader } from "#/core/infra/component/section-header";
 import { ActionsPosition } from "#/core/infra/component/section-card";
 import { StrataSectionPlaceholder } from "#/core/infra/component/strata-section-placeholder";
+import { strataColors } from "#/core/infra/component/strata-tokens";
 import { useStrataSections } from "#/core/infra/component/strata-sections-context";
 import { strataSplitKey } from "#/core/infra/strata/strata-columns-with-splits";
 
@@ -174,7 +175,7 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
                     : undefined
                 }
               />
-              <Box id={bodyId} sx={{ px: 0.5 }}>
+              <Box id={bodyId} sx={{ px: 1 }}>
                 <Stack spacing={2}>{props.children}</Stack>
                 {bodyActionsBelow}
               </Box>
@@ -190,7 +191,18 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
     <Box
       id={props.id}
       {...sectionAttributes}
-      sx={{ borderBottom: 1, borderColor: "divider", pb: 1 }}
+      tabIndex={stack ? -1 : undefined}
+      sx={{
+        borderBottom: 1,
+        borderColor: "divider",
+        pb: 1,
+        // `j` and `k` put the keyboard focus on the section itself.
+        "&:focus": { outline: "none" },
+        // The mark is on the heading only, not the whole body.
+        "&:focus > form > [data-strata-section-header]": {
+          boxShadow: `inset 1px 0 0 ${strataColors.amber}`,
+        },
+      }}
     >
       <Form method={props.method ?? "post"} onSubmit={handleSubmit}>
         <SectionHeader
@@ -221,7 +233,7 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
               : undefined
           }
         />
-        <Box id={bodyId} hidden={collapsed} sx={{ px: 0.5 }}>
+        <Box id={bodyId} hidden={collapsed} sx={{ px: 1 }}>
           <Stack spacing={2}>{props.children}</Stack>
           {bodyActionsBelow}
         </Box>

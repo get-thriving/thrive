@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GlobalStyles } from "@mui/material";
 import { useMatches, useSearchParams } from "react-router";
 
+import { isEditableFieldTarget } from "#/core/infra/component/layout/is-editable-field-target";
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
 import { StrataDebugOverlay } from "#/core/infra/component/layout/strata-debug-overlay";
 import { StrataColumnStrip } from "#/core/infra/component/layout/strata-column-strip";
@@ -18,6 +19,7 @@ import {
 } from "#/core/infra/component/layout/strata-columns-context";
 import { strataCloseFocusedColumn } from "#/core/infra/component/layout/strata-close-focused-column";
 import { isStrataCloseKey } from "#/core/infra/strata/strata-close-key";
+import { isStrataLeaveFieldKey } from "#/core/infra/strata/strata-leave-field-key";
 import { strataFocusStep } from "#/core/infra/strata/strata-focus-key";
 import { strataLayoutWithSplits } from "#/core/infra/strata/strata-layout-for";
 import {
@@ -291,6 +293,7 @@ export function StrataColumnsProvider(
           id,
           title: spec.title,
           key: strataSplitKey(id),
+          parentKey: spec.parentKey,
           state: shown ? ("active" as const) : ("folded" as const),
         },
       ];
@@ -328,6 +331,31 @@ export function StrataColumnsProvider(
       if (strataCloseFocusedColumn()) {
         event.preventDefault();
       }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // `Escape` in a field leaves it for the section it is in (or else the
+  // column), so the keys that move around work again. What was typed stays.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (
+        !isStrataLeaveFieldKey(event, isEditableFieldTarget(event.target)) ||
+        !(event.target instanceof HTMLElement)
+      ) {
+        return;
+      }
+      const field = event.target;
+      const home =
+        field.closest<HTMLElement>("[data-strata-section][tabindex]") ??
+        field.closest<HTMLElement>("[data-strata-column]");
+      if (home === null) {
+        return;
+      }
+      event.preventDefault();
+      field.blur();
+      home.focus({ preventScroll: true });
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
