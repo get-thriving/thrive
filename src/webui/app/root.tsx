@@ -1,6 +1,7 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import type {
   LoaderFunctionArgs,
+  MiddlewareFunction,
   ShouldRevalidateFunction,
 } from "react-router";
 import { Links, Meta, Outlet, Scripts, useLoaderData } from "react-router";
@@ -25,8 +26,13 @@ import plexSerif400Css from "@fontsource/ibm-plex-serif/400.css?url";
 import plexSerif500Css from "@fontsource/ibm-plex-serif/500.css?url";
 import type { LoaderDataOf } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
+import { carrySectionFiltersThroughRedirects } from "@jupiter/core/infra/carry-section-filters-through-redirects";
 
 const THEME = buildStrataTheme();
+
+export const middleware: MiddlewareFunction<Response>[] = [
+  carrySectionFiltersThroughRedirects,
+];
 
 export async function loader({ request, url }: LoaderFunctionArgs) {
   let useExpandedRail = false;

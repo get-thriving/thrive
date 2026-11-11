@@ -50,6 +50,7 @@ import { Fragment, useCallback, useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 
+import { noErrorNoData } from "#/core/infra/action-result";
 import { useRevalidateOnReturn } from "#/core/apps/time_plans/store/revalidate-on-return";
 import { useTimePlanMutation } from "#/core/apps/time_plans/store/mutation";
 import {
@@ -432,16 +433,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 }
 
-export async function action({ request, url, params }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, UpdateFormSchema);
-  // The form posts to this very page, so the way the plan is being looked at
-  // comes along with it and can be handed back on the way out.
-  const timePlanLocation = withTimePlanDisplay(
-    `/app/workspace/apps/time-plans/${id}`,
-    url.searchParams,
-  );
 
   try {
     switch (form.intent) {
@@ -478,7 +473,8 @@ export async function action({ request, url, params }: ActionFunctionArgs) {
                 }
               : { should_change: false },
         });
-        return redirect(timePlanLocation);
+        // Stays on the page: the way the plan is looked at is in its URL.
+        return noErrorNoData();
       }
 
       case "change-time-config-for-generated": {
@@ -512,7 +508,8 @@ export async function action({ request, url, params }: ActionFunctionArgs) {
                 }
               : { should_change: false },
         });
-        return redirect(timePlanLocation);
+        // Stays on the page: the way the plan is looked at is in its URL.
+        return noErrorNoData();
       }
 
       case "archive": {
@@ -536,7 +533,8 @@ export async function action({ request, url, params }: ActionFunctionArgs) {
           owner: form.publishOwner,
         });
 
-        return redirect(timePlanLocation);
+        // Stays on the page: the way the plan is looked at is in its URL.
+        return noErrorNoData();
       }
 
       case "activate-publish": {
@@ -544,7 +542,8 @@ export async function action({ request, url, params }: ActionFunctionArgs) {
           ref_id: form.publishEntityRefId,
         });
 
-        return redirect(timePlanLocation);
+        // Stays on the page: the way the plan is looked at is in its URL.
+        return noErrorNoData();
       }
 
       case "to-draft-publish": {
@@ -552,7 +551,8 @@ export async function action({ request, url, params }: ActionFunctionArgs) {
           ref_id: form.publishEntityRefId,
         });
 
-        return redirect(timePlanLocation);
+        // Stays on the page: the way the plan is looked at is in its URL.
+        return noErrorNoData();
       }
 
       default:

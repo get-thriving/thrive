@@ -185,6 +185,24 @@ def test_webui_chore_publish_and_view_public(page: Page, create_chore) -> None:
     expect(page.locator('input[name="name"]')).to_have_value("Published Chore")
 
 
+def test_webui_chore_action_that_redirects_keeps_the_layout(
+    page: Page, create_chore
+) -> None:
+    chore = create_chore("Layout Chore")
+    page.goto(
+        f"/app/workspace/apps/chores/chores/{chore.ref_id}"
+        "?chore%5Bcollapsed%5D=chore-note-section"
+    )
+    page.wait_for_selector("#leaf-panel")
+
+    # An action that ends in a redirect to the same page hands back the
+    # collapsed sections it was posted with, so the page looks as it did.
+    open_leaf_publish_panel(page, "Chore-publish")
+    page.locator("button[id='Chore-publish-create']").click()
+    page.wait_for_url(re.compile(r"chore%5Bcollapsed%5D=chore-note-section"))
+    expect(page.locator("#chore-note-section-body")).to_have_attribute("hidden", "")
+
+
 @pytest.fixture()
 def another_user_with_chores_enabled(
     webapi_url: str,

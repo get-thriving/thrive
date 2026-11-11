@@ -33,6 +33,7 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
 import { DateTime } from "luxon";
 
+import { noErrorNoData } from "#/core/infra/action-result";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import {
   sortInboxTaskTimeEventsNaturally,
@@ -387,7 +388,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/apps/habits/habits/${id}`);
+        // Stays on the page: the layout in its URL is left as it is.
+        return noErrorNoData();
       }
 
       case "create-note": {
@@ -396,7 +398,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           content: [],
         });
 
-        return redirect(`/app/workspace/apps/habits/habits/${id}`);
+        // Stays on the page: the layout in its URL is left as it is.
+        return noErrorNoData();
       }
 
       case "archive": {
@@ -420,7 +423,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           owner: form.publishOwner,
         });
 
-        return redirect(`/app/workspace/apps/habits/habits/${id}`);
+        // Stays on the page: the layout in its URL is left as it is.
+        return noErrorNoData();
       }
 
       case "activate-publish": {
@@ -428,7 +432,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.publishEntityRefId,
         });
 
-        return redirect(`/app/workspace/apps/habits/habits/${id}`);
+        // Stays on the page: the layout in its URL is left as it is.
+        return noErrorNoData();
       }
 
       case "to-draft-publish": {
@@ -436,7 +441,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.publishEntityRefId,
         });
 
-        return redirect(`/app/workspace/apps/habits/habits/${id}`);
+        // Stays on the page: the layout in its URL is left as it is.
+        return noErrorNoData();
       }
 
       default:
@@ -566,7 +572,11 @@ export default function Habit() {
             aspect={loaderData.aspect}
             chapter={loaderData.chapter}
             goal={loaderData.goal}
-            actionData={actionData}
+            actionData={
+              actionData?.theType === "some-error-no-data"
+                ? actionData
+                : undefined
+            }
           />
 
           <StrataSection

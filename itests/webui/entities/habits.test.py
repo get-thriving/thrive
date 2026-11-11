@@ -699,6 +699,30 @@ def test_webui_habit_z_collapses_the_section_in_the_focused_column(
     expect(body).not_to_have_attribute("hidden", "")
 
 
+def test_webui_habit_action_that_stays_keeps_the_layout(
+    page: Page, create_habit
+) -> None:
+    habit = create_habit(
+        "Stay Habit",
+        RecurringTaskPeriod.DAILY,
+        False,
+        Eisen.REGULAR,
+        Difficulty.MEDIUM,
+    )
+    page.goto(
+        f"/app/workspace/apps/habits/habits/{habit.ref_id}"
+        "?habit%5Bcollapsed%5D=habit-streak"
+    )
+    wait_for_hydration(page)
+    expect(page.locator("#habit-streak-body")).to_have_attribute("hidden", "")
+
+    # Regenerating tasks does not leave the page, so the layout in its URL is
+    # left as it was.
+    page.get_by_role("button", name="Gen", exact=True).click()
+    expect(page).to_have_url(re.compile(r"habit%5Bcollapsed%5D=habit-streak"))
+    expect(page.locator("#habit-streak-body")).to_have_attribute("hidden", "")
+
+
 def test_webui_habit_escape_leaves_a_field_for_its_section(
     page: Page, create_habit
 ) -> None:
