@@ -25,8 +25,12 @@ export interface StrataColumnsApi {
   focusAt: (index: number) => void;
   /** The same, for a route column of the open path: 0 is the first. */
   focusRoute: (index: number) => void;
-  /** The same, by the key of any column, a split's included. */
-  focusColumn: (key: string) => void;
+  /**
+   * The same, by the key of any column, a split's included. The column takes
+   * the keyboard focus too, unless `takeFocus` is false, for a caller that puts
+   * the keyboard focus somewhere inside it itself.
+   */
+  focusColumn: (key: string, takeFocus?: boolean) => void;
   /** Splits asked for in the URL whose section is on screen. */
   splits: StrataSplitState[];
   /**

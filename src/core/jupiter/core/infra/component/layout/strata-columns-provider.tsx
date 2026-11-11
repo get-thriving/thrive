@@ -7,6 +7,7 @@ import { isEditableFieldTarget } from "#/core/infra/component/layout/is-editable
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
 import { StrataDebugOverlay } from "#/core/infra/component/layout/strata-debug-overlay";
 import { StrataColumnStrip } from "#/core/infra/component/layout/strata-column-strip";
+import { StrataFind } from "#/core/infra/component/layout/strata-find";
 import { StrataHints } from "#/core/infra/component/layout/strata-hints";
 import {
   STRATA_PHONE_BAR_HEIGHT_PX,
@@ -193,9 +194,11 @@ export function StrataColumnsProvider(
   );
 
   const focusColumn = useCallback(
-    (key: string) => {
+    (key: string, takeFocus: boolean = true) => {
       setChosen({ pathKey, key });
-      setMoves((current) => current + 1);
+      if (takeFocus) {
+        setMoves((current) => current + 1);
+      }
     },
     [pathKey],
   );
@@ -413,6 +416,7 @@ export function StrataColumnsProvider(
     <StrataColumnsContext.Provider value={api}>
       {props.children}
       <StrataHints />
+      <StrataFind />
       {!props.phone &&
         layout?.slots.map((slot) => {
           const id = strataSplitIdOf(slot.key);

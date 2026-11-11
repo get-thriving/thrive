@@ -6,6 +6,7 @@ import { useStrataColumnKey } from "#/core/infra/component/layout/strata-column-
 import { StrataColumnsContext } from "#/core/infra/component/layout/strata-columns-context";
 import { StrataSectionsContext } from "#/core/infra/component/strata-sections-context";
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
+import { strataEnterEditable } from "#/core/infra/component/layout/strata-enter-editable";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 import { isStrataCollapseKey } from "#/core/infra/strata/strata-collapse-key";
 import { strataSplitKey } from "#/core/infra/strata/strata-columns-with-splits";
@@ -30,7 +31,8 @@ interface StrataSectionStackProps {
  * collapsed, and which are split out into columns of their own, in the URL as
  * `panel-id[collapsed]=section-id` and `panel-id[split]=section-id`, and lets
  * `z`, `s` and `⇧s` work on them while the column they are in has the focus,
- * and `j`, `k` and `↵` move between them and open the first item of one.
+ * and `j`, `k` and `↵` move between them, and go into one: `↵` starts editing
+ * its note, if it has one, and else opens the first item of its list.
  */
 export function StrataSectionStack(
   props: PropsWithChildren<StrataSectionStackProps>,
@@ -110,6 +112,12 @@ export function StrataSectionStack(
           // Only on the section itself: on anything inside it, `↵` keeps its
           // own meaning (a link opens, a button presses).
           if (current < 0 || sections[current] !== active) {
+            return;
+          }
+          // A note, or anything else that can be written in, is gone into:
+          // `↵` starts the editing, with the caret at the end of it.
+          if (strataEnterEditable(sections[current])) {
+            event.preventDefault();
             return;
           }
           const item = sections[current].querySelector<HTMLAnchorElement>(
