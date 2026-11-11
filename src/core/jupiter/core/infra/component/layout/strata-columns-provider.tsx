@@ -7,6 +7,7 @@ import { isEditableFieldTarget } from "#/core/infra/component/layout/is-editable
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
 import { StrataDebugOverlay } from "#/core/infra/component/layout/strata-debug-overlay";
 import { StrataColumnStrip } from "#/core/infra/component/layout/strata-column-strip";
+import { StrataHints } from "#/core/infra/component/layout/strata-hints";
 import {
   STRATA_PHONE_BAR_HEIGHT_PX,
   STRATA_PHONE_STRIP_HEIGHT_PX,
@@ -411,6 +412,7 @@ export function StrataColumnsProvider(
   return (
     <StrataColumnsContext.Provider value={api}>
       {props.children}
+      <StrataHints />
       {!props.phone &&
         layout?.slots.map((slot) => {
           const id = strataSplitIdOf(slot.key);
