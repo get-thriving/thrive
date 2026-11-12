@@ -136,6 +136,7 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
 
   const sectionAttributes = {
     "data-strata-section": props.id,
+    "data-strata-section-title": props.title,
     "data-strata-section-panel": stack?.panelId,
     "data-strata-section-fixed": props.fixed === true ? "true" : undefined,
     "data-strata-splittable": splittable ? "true" : undefined,

@@ -9,6 +9,7 @@ import { StrataDebugOverlay } from "#/core/infra/component/layout/strata-debug-o
 import { StrataColumnStrip } from "#/core/infra/component/layout/strata-column-strip";
 import { StrataFind } from "#/core/infra/component/layout/strata-find";
 import { StrataHints } from "#/core/infra/component/layout/strata-hints";
+import { StrataMap } from "#/core/infra/component/layout/strata-map";
 import {
   STRATA_PHONE_BAR_HEIGHT_PX,
   STRATA_PHONE_STRIP_HEIGHT_PX,
@@ -422,6 +423,8 @@ export function StrataColumnsProvider(
   return (
     <StrataColumnsContext.Provider value={api}>
       {props.children}
+      {/* Before the others, which it keeps from the keys it takes. */}
+      <StrataMap />
       <StrataHints />
       <StrataFind />
       {!props.phone &&

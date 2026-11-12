@@ -6,6 +6,7 @@ import { useLocation } from "react-router";
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
 import { strataActivateHintTarget } from "#/core/infra/component/layout/strata-activate-hint-target";
 import { strataHintTargets } from "#/core/infra/component/layout/strata-hint-targets";
+import { StrataLabelChip } from "#/core/infra/component/layout/strata-label-chip";
 import {
   strataColors,
   strataFonts,
@@ -216,10 +217,10 @@ export function StrataHints() {
         }
         const typed = session.typed.length;
         return (
-          <Box
+          <StrataLabelChip
             key={label}
-            component="span"
-            aria-hidden="true"
+            label={label}
+            typed={typed}
             data-strata-hint={label}
             sx={{
               position: "absolute",
@@ -227,25 +228,8 @@ export function StrataHints() {
                 label.length * 9 + 10
               }px))`,
               top: `clamp(0px, ${position.y}px, calc(100vh - 18px))`,
-              padding: "0 4px",
-              lineHeight: "16px",
-              fontFamily: strataFonts.mono,
-              fontSize: 11,
-              fontWeight: 500,
-              textTransform: "uppercase",
-              color: strataColors.ground,
-              backgroundColor: strataColors.amber,
-              border: `1px solid ${strataColors.amberHover}`,
-              borderRadius: `${strataRadius.small}px`,
-              boxShadow: "0 1px 3px rgba(0,0,0,0.6)",
-              whiteSpace: "nowrap",
             }}
-          >
-            <Box component="span" sx={{ opacity: 0.4 }}>
-              {label.slice(0, typed)}
-            </Box>
-            {label.slice(typed)}
-          </Box>
+          />
         );
       })}
       <Box

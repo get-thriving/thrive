@@ -63,6 +63,7 @@ export function StrataColumnFrame(
       id={props.id}
       data-strata-column={props.id}
       data-strata-column-key={column?.key}
+      data-strata-column-label={props.label}
       data-folded={spine ? "true" : undefined}
       data-peek={peek ? "true" : undefined}
       data-strata-split={props.split}
