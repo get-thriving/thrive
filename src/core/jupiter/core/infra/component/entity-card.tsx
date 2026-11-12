@@ -16,6 +16,7 @@ import type { LinkProps } from "react-router";
 
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { FakeLink, StandardLink } from "#/core/infra/component/standard-link";
+import { strataColors } from "#/core/infra/component/strata-tokens";
 import { useDelayedPrefetch } from "#/core/infra/component/use-delayed-prefetch";
 import { useSectionFiltersPreservedTo } from "#/core/infra/component/use-section-filter";
 
@@ -103,7 +104,16 @@ export function EntityCard(props: PropsWithChildren<EntityCardProps>) {
     >
       <Card
         id={props.entityId}
+        // An item of a list: `e` goes into the list of a section, and then `j`
+        // and `k` move between the items and `↵` opens one (ADR 0021).
+        data-strata-item=""
+        tabIndex={-1}
         sx={{
+          // The one with the keyboard focus is marked by a line on its left.
+          "&:focus": {
+            outline: "none",
+            boxShadow: `inset 2px 0 0 ${strataColors.amber}`,
+          },
           display: "flex",
           marginLeft: props.indent ? `${props.indent}rem` : "0",
           justifyContent: "space-between",

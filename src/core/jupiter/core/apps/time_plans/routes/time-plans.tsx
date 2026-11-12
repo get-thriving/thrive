@@ -399,6 +399,8 @@ function CurrentTimePlan(props: CurrentTimePlanProps) {
   return (
     <TimePlanCard
       key={`time-plan-${props.timePlan.ref_id}`}
+      // The same plan is in the list of all of them below, with its id.
+      entityId={`current-time-plan-${props.timePlan.ref_id}`}
       topLevelInfo={props.topLevelInfo}
       timePlan={props.timePlan}
       tags={props.tags}

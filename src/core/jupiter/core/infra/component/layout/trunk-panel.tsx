@@ -24,6 +24,7 @@ import {
 import { ColumnHeader } from "#/core/infra/component/layout/column-header";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
+import { useStrataColumnItemKeys } from "#/core/infra/component/layout/use-strata-column-item-keys";
 import { useEntityViews } from "#/core/infra/component/layout/use-entity-views";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
@@ -67,6 +68,10 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
     returnLocation: props.returnLocation,
     forgetReturnLocation: props.forgetReturnLocation,
   });
+
+  // The list of a trunk is the column's own, with no sections: `e`, `j`, `k`
+  // and `↵` go through its items.
+  useStrataColumnItemKeys(containerRef);
 
   useEffect(() => {
     if (containerRef.current === null) {

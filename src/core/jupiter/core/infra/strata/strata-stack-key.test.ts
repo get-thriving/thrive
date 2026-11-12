@@ -20,10 +20,11 @@ const key = (
 });
 
 describe("strataStackKeyAction", () => {
-  it("moves on j and k, opens on enter", () => {
+  it("moves on j and k, opens on enter, goes into the items on e", () => {
     expect(strataStackKeyAction(key("j"), false)).toBe("next");
     expect(strataStackKeyAction(key("k"), false)).toBe("previous");
     expect(strataStackKeyAction(key("Enter"), false)).toBe("open");
+    expect(strataStackKeyAction(key("e"), false)).toBe("items");
   });
 
   it("ignores other keys", () => {
@@ -31,7 +32,7 @@ describe("strataStackKeyAction", () => {
   });
 
   it("leaves the keys to a field, a dialog or a menu", () => {
-    for (const name of ["j", "k", "Enter"]) {
+    for (const name of ["j", "k", "Enter", "e"]) {
       expect(strataStackKeyAction(key(name), true)).toBeNull();
     }
   });
@@ -55,6 +56,11 @@ describe("strataStackKeyAction", () => {
 });
 
 describe("strataNextSection", () => {
+  it("works for the items of a section as it does for sections", () => {
+    expect(strataNextSection("next", 4, 1)).toBe(2);
+    expect(strataNextSection("next", 4, 3)).toBe(3);
+  });
+
   it("starts at the first section going down and the last going up", () => {
     expect(strataNextSection("next", 3, -1)).toBe(0);
     expect(strataNextSection("previous", 3, -1)).toBe(2);

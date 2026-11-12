@@ -7,6 +7,9 @@ import { StrataColumnsContext } from "#/core/infra/component/layout/strata-colum
 import { StrataSectionsContext } from "#/core/infra/component/strata-sections-context";
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
 import { strataEnterEditable } from "#/core/infra/component/layout/strata-enter-editable";
+import { strataItemKey } from "#/core/infra/component/layout/strata-item-key";
+import { strataOpenItem } from "#/core/infra/component/layout/strata-open-item";
+import { strataSectionItems } from "#/core/infra/component/layout/strata-section-items";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 import { isStrataCollapseKey } from "#/core/infra/strata/strata-collapse-key";
 import { strataSplitKey } from "#/core/infra/strata/strata-columns-with-splits";
@@ -32,7 +35,9 @@ interface StrataSectionStackProps {
  * `panel-id[collapsed]=section-id` and `panel-id[split]=section-id`, and lets
  * `z`, `c` and `⇧c` work on them while the column they are in has the focus,
  * and `j`, `k` and `↵` move between them, and go into one: `↵` starts editing
- * its note, if it has one, and else opens the first item of its list.
+ * its note, if it has one, and else opens the first item of its list. `e` goes
+ * into the list instead, to its first item, and then `j` and `k` move between
+ * the items and `↵` opens one; `Escape` goes back up to the section.
  */
 export function StrataSectionStack(
   props: PropsWithChildren<StrataSectionStackProps>,
@@ -108,6 +113,34 @@ export function StrataSectionStack(
         const current = sections.findIndex(
           (el) => active !== null && el.contains(active),
         );
+
+        // The list the keys go through: the section the focus is in, or the one
+        // section a split column holds, which has no focus of its own.
+        const inSplit =
+          column.dataset.strataSplit === undefined
+            ? undefined
+            : mine.find((el) => el.dataset.strataSectionSplit === "column");
+        const scope = inSplit ?? (current >= 0 ? sections[current] : undefined);
+
+        // The items: on one, `j` and `k` move between them and `↵` opens it;
+        // `e` goes into the list of the section that has the focus itself, and
+        // in a split column, where the section has no focus of its own, `j` and
+        // `k` go in too, from the first and from the last.
+        if (
+          strataItemKey(
+            event,
+            stackAction,
+            scope,
+            inSplit === undefined ? "section" : "column",
+          )
+        ) {
+          return;
+        }
+        if (stackAction === "items") {
+          return;
+        }
+        const items = scope === undefined ? [] : strataSectionItems(scope);
+
         if (stackAction === "open") {
           // Only on the section itself: on anything inside it, `↵` keeps its
           // own meaning (a link opens, a button presses).
@@ -120,14 +153,22 @@ export function StrataSectionStack(
             event.preventDefault();
             return;
           }
-          const item = sections[current].querySelector<HTMLAnchorElement>(
+          // Otherwise the first item of its list; a list that does not mark
+          // its items has its first link opened.
+          const first = items[0];
+          if (first !== undefined) {
+            event.preventDefault();
+            strataOpenItem(first);
+            return;
+          }
+          const link = sections[current].querySelector<HTMLAnchorElement>(
             "[id$='-body'] a[href]",
           );
-          if (item === null) {
+          if (link === null) {
             return;
           }
           event.preventDefault();
-          item.click();
+          link.click();
           return;
         }
         const next = strataNextSection(stackAction, sections.length, current);

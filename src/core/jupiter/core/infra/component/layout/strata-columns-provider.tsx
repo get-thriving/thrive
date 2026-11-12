@@ -20,6 +20,7 @@ import {
   type StrataSplitState,
 } from "#/core/infra/component/layout/strata-columns-context";
 import { strataCloseFocusedColumn } from "#/core/infra/component/layout/strata-close-focused-column";
+import { strataLeaveItem } from "#/core/infra/component/layout/strata-leave-item";
 import { isStrataCloseKey } from "#/core/infra/strata/strata-close-key";
 import { isStrataLeaveFieldKey } from "#/core/infra/strata/strata-leave-field-key";
 import { strataFocusStep } from "#/core/infra/strata/strata-focus-key";
@@ -327,10 +328,15 @@ export function StrataColumnsProvider(
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [columns, focusIndex, focusColumn]);
 
-  // `Escape` closes the focused panel, with the close control it has.
+  // `Escape` closes the focused panel, with the close control it has; from an
+  // item of a list it first goes back up to the section the item is in.
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (!isStrataCloseKey(event, isTypingTarget(event.target))) {
+        return;
+      }
+      if (strataLeaveItem()) {
+        event.preventDefault();
         return;
       }
       if (strataCloseFocusedColumn()) {

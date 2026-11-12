@@ -24,6 +24,11 @@ export interface TimePlanShowOptions {
 }
 
 interface TimePlanCardProps {
+  /**
+   * The card's DOM id. A plan shown twice on a page, as the current one and in
+   * the list of all, needs a different id each time; it defaults to the plan's.
+   */
+  entityId?: string;
   label?: string;
   topLevelInfo: TopLevelInfo;
   timePlan: TimePlan;
@@ -50,7 +55,7 @@ export function TimePlanCard(props: TimePlanCardProps) {
       : `/app/workspace/apps/time-plans/${timePlan.ref_id}`;
   return (
     <EntityCard
-      entityId={`time-plan-${timePlan.ref_id}`}
+      entityId={props.entityId ?? `time-plan-${timePlan.ref_id}`}
       allowSwipe={props.allowSwipe}
       allowSelect={props.allowSelect}
       allowMarkNotDone={props.allowMarkNotDone}
