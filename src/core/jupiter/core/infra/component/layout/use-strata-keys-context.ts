@@ -19,7 +19,8 @@ function sameContext(a: StrataKeysContext, b: StrataKeysContext): boolean {
     a.split === b.split &&
     a.sections === b.sections &&
     a.items === b.items &&
-    a.targets === b.targets
+    a.targets === b.targets &&
+    a.scrolls === b.scrolls
   );
 }
 
@@ -70,10 +71,14 @@ export function useStrataKeysContext(
     });
     document.addEventListener("focusin", schedule);
     document.addEventListener("focusout", schedule);
+    // A column that grew or shrank with the window may have started or stopped
+    // scrolling.
+    window.addEventListener("resize", schedule);
     return () => {
       observer.disconnect();
       document.removeEventListener("focusin", schedule);
       document.removeEventListener("focusout", schedule);
+      window.removeEventListener("resize", schedule);
       clearTimeout(timer);
     };
   }, [slots]);

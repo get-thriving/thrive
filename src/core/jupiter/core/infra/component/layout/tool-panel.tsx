@@ -21,7 +21,7 @@ export function ToolPanel(props: PropsWithChildren) {
       fallbackLeft={column.offsetLeft}
       animate={column.animate}
     >
-      <div id="tool-panel-content">
+      <div id="tool-panel-content" data-strata-scroll>
         <Stack spacing={2}>{props.children}</Stack>
       </div>
     </StrataColumnFrame>

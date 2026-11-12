@@ -12,6 +12,7 @@ const quiet: StrataKeysContext = {
   sections: 0,
   items: 0,
   targets: 0,
+  scrolls: false,
 };
 
 /** The keys, one string each, such as `"h l columns"`. */
@@ -29,6 +30,16 @@ describe("strataFooterKeys", () => {
   it("offers h and l only with another column to go to", () => {
     expect(listed({ columns: 1 })).not.toContain("h l columns");
     expect(listed({ columns: 2 })[0]).toBe("h l columns");
+  });
+
+  it("offers the top and the bottom only on a column that scrolls", () => {
+    expect(listed({ scrolls: false })).not.toContain("⇧k ⇧j top bottom");
+    expect(listed({ scrolls: true })).toEqual([
+      "s hints",
+      "f find",
+      "⇧k ⇧j top bottom",
+      "esc close",
+    ]);
   });
 
   it("offers the map only with two places to jump to", () => {

@@ -1,10 +1,5 @@
-import {
-  Add as AddIcon,
-  ArrowDownward as ArrowDownwardIcon,
-  ArrowUpward as ArrowUpwardIcon,
-  Close as CloseIcon,
-} from "@mui/icons-material";
-import { Box, Button, ButtonGroup, IconButton, Stack } from "@mui/material";
+import { Add as AddIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Box, Button, IconButton, Stack } from "@mui/material";
 import { Link, useLocation } from "react-router";
 import type { JSX, PropsWithChildren } from "react";
 import { useEffect, useRef } from "react";
@@ -22,6 +17,7 @@ import {
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
 import { ColumnHeader } from "#/core/infra/component/layout/column-header";
+import { ColumnScrollButtons } from "#/core/infra/component/layout/column-scroll-buttons";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
 import { useStrataColumnItemKeys } from "#/core/infra/component/layout/use-strata-column-item-keys";
@@ -92,37 +88,10 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
     };
   }, [containerRef, location]);
 
-  function handleScrollTop() {
-    containerRef.current?.scrollTo({
-      left: 0,
-      top: 0,
-      behavior: "smooth",
-    });
-  }
-
-  function handleScrollBottom() {
-    if (!containerRef.current) {
-      return;
-    }
-
-    containerRef.current.scrollTo({
-      left: 0,
-      top: containerRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }
-
   const body = (
     <>
       <ColumnHeader id="trunk-panel-controls" label="list">
-        <ButtonGroup size="small">
-          <IconButton onClick={handleScrollTop}>
-            <ArrowUpwardIcon />
-          </IconButton>
-          <IconButton onClick={handleScrollBottom}>
-            <ArrowDownwardIcon />
-          </IconButton>
-        </ButtonGroup>
+        <ColumnScrollButtons />
 
         {props.createLocation && (
           <Button
@@ -150,7 +119,7 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
         </IconButton>
       </ColumnHeader>
 
-      <div id="trunk-panel-content" ref={containerRef}>
+      <div id="trunk-panel-content" ref={containerRef} data-strata-scroll>
         {views.bodies}
 
         <Box

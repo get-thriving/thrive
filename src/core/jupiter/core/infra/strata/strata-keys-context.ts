@@ -33,4 +33,6 @@ export interface StrataKeysContext {
   items: number;
   /** How many places the map could jump to. */
   targets: number;
+  /** The focused column holds more than fits, so it has a top and a bottom. */
+  scrolls: boolean;
 }

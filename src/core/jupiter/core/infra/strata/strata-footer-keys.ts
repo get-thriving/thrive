@@ -13,7 +13,8 @@ const ESCAPE = ["esc"];
  * use it and how to leave it; in a field, only how to leave the field. Each key
  * is listed only where it does something, as the rules of the keys decide:
  * `h` and `l` with a column to go to, `e` with a list to go into, `z` and `c`
- * on a stack of sections, and so on.
+ * on a stack of sections, `⇧k` and `⇧j` on a column that has more than fits,
+ * and so on.
  */
 export function strataFooterKeys(
   context: StrataKeysContext,
@@ -88,9 +89,13 @@ export function strataFooterKeys(
   if (context.targets > 1) {
     keys.push({ keys: ["a"], label: "map" });
   }
-  keys.push(
-    { keys: ["f"], label: "find" },
-    { keys: ESCAPE, label: context.focus === "item" ? "back" : "close" },
-  );
+  keys.push({ keys: ["f"], label: "find" });
+  if (context.scrolls) {
+    keys.push({ keys: ["⇧k", "⇧j"], label: "top bottom" });
+  }
+  keys.push({
+    keys: ESCAPE,
+    label: context.focus === "item" ? "back" : "close",
+  });
   return keys;
 }

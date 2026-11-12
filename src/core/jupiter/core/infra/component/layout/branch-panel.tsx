@@ -1,7 +1,5 @@
 import {
   Add as AddIcon,
-  ArrowDownward as ArrowDownwardIcon,
-  ArrowUpward as ArrowUpwardIcon,
   Close as CloseIcon,
   Delete as DeleteIcon,
   DeleteForever as DeleteForeverIcon,
@@ -9,7 +7,6 @@ import {
 import {
   Box,
   Button,
-  ButtonGroup,
   Dialog,
   DialogActions,
   DialogContent,
@@ -40,6 +37,7 @@ import {
 } from "#/core/infra/scroll-restoration";
 import { StrataSectionStack } from "#/core/infra/component/strata-section-stack";
 import { ColumnHeader } from "#/core/infra/component/layout/column-header";
+import { ColumnScrollButtons } from "#/core/infra/component/layout/column-scroll-buttons";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
@@ -110,38 +108,11 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
     };
   }, [containerRef, location]);
 
-  function handleScrollTop() {
-    containerRef.current?.scrollTo({
-      left: 0,
-      top: 0,
-      behavior: "smooth",
-    });
-  }
-
-  function handleScrollBottom() {
-    if (!containerRef.current) {
-      return;
-    }
-
-    containerRef.current.scrollTo({
-      left: 0,
-      top: containerRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }
-
   const body = (
     <>
       <Form method="post">
         <ColumnHeader id="branch-panel-controls" label="detail">
-          <ButtonGroup size="small">
-            <IconButton onClick={handleScrollTop}>
-              <ArrowUpwardIcon />
-            </IconButton>
-            <IconButton onClick={handleScrollBottom}>
-              <ArrowDownwardIcon />
-            </IconButton>
-          </ButtonGroup>
+          <ColumnScrollButtons />
 
           {props.createLocation && (
             <Button
@@ -219,7 +190,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
         </ColumnHeader>
       </Form>
 
-      <div id="branch-panel-content" ref={containerRef}>
+      <div id="branch-panel-content" ref={containerRef} data-strata-scroll>
         {views.bodies}
 
         <Box

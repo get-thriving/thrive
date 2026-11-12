@@ -1,3 +1,4 @@
+import { strataColumnScrolls } from "#/core/infra/component/layout/strata-scroll-column";
 import { isEditableFieldTarget } from "#/core/infra/component/layout/is-editable-field-target";
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
 import {
@@ -22,6 +23,7 @@ export const STRATA_QUIET_KEYS_CONTEXT: StrataKeysContext = {
   sections: 0,
   items: 0,
   targets: 0,
+  scrolls: false,
 };
 
 function overlayOnPage(): StrataKeysContext["overlay"] {
@@ -102,5 +104,6 @@ export function strataKeysContextFromPage(
     sections: sections.length,
     items: scope === null ? 0 : strataSectionItems(scope).length,
     targets,
+    scrolls: strataColumnScrolls(frame),
   };
 }

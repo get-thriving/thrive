@@ -23,10 +23,12 @@ import {
 } from "#/core/infra/component/layout/strata-columns-context";
 import { strataCloseFocusedColumn } from "#/core/infra/component/layout/strata-close-focused-column";
 import { strataLeaveItem } from "#/core/infra/component/layout/strata-leave-item";
+import { strataScrollFocusedColumn } from "#/core/infra/component/layout/strata-scroll-column";
 import { isStrataCloseKey } from "#/core/infra/strata/strata-close-key";
 import { isStrataLeaveFieldKey } from "#/core/infra/strata/strata-leave-field-key";
 import { strataFocusStep } from "#/core/infra/strata/strata-focus-key";
 import { strataLayoutWithSplits } from "#/core/infra/strata/strata-layout-for";
+import { strataScrollKeyAction } from "#/core/infra/strata/strata-scroll-key";
 import {
   strataSplitIdOf,
   strataSplitKey,
@@ -327,6 +329,19 @@ export function StrataColumnsProvider(
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [columns, focusIndex, focusColumn]);
+
+  // `⇧k` and `⇧j` scroll the focused column to its top and to its bottom, in
+  // every kind of column.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const action = strataScrollKeyAction(event, isTypingTarget(event.target));
+      if (action !== null && strataScrollFocusedColumn(action)) {
+        event.preventDefault();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // `Escape` closes the focused panel, with the close control it has; from an
   // item of a list it first goes back up to the section the item is in.

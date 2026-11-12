@@ -2,6 +2,7 @@ import { Box, IconButton } from "@mui/material";
 import { useCallback } from "react";
 
 import { ColumnHeader } from "#/core/infra/component/layout/column-header";
+import { ColumnScrollButtons } from "#/core/infra/component/layout/column-scroll-buttons";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
 
@@ -45,6 +46,7 @@ export function StrataSplitColumn(props: StrataSplitColumnProps) {
       animate={props.animate}
     >
       <ColumnHeader id={`split-panel-controls-${id}`} label={props.title}>
+        <ColumnScrollButtons />
         <IconButton
           data-strata-close
           size="small"
@@ -68,6 +70,7 @@ export function StrataSplitColumn(props: StrataSplitColumnProps) {
       <Box
         ref={hostRef}
         data-strata-split-host
+        data-strata-scroll
         sx={{ flex: 1, minHeight: 0, overflowY: "auto", p: "0.5rem" }}
       />
     </StrataColumnFrame>

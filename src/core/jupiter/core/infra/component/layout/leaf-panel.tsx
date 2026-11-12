@@ -1,7 +1,5 @@
 import {
   ArrowBack as ArrowBackIcon,
-  ArrowDownward as ArrowDownwardIcon,
-  ArrowUpward as ArrowUpwardIcon,
   Close as CloseIcon,
   Delete as DeleteIcon,
   DeleteForever as DeleteForeverIcon,
@@ -9,7 +7,6 @@ import {
 import {
   Box,
   Button,
-  ButtonGroup,
   Dialog,
   DialogActions,
   DialogContent,
@@ -39,6 +36,7 @@ import {
 } from "#/core/infra/scroll-restoration";
 import { StrataSectionStack } from "#/core/infra/component/strata-section-stack";
 import { ColumnHeader } from "#/core/infra/component/layout/column-header";
+import { ColumnScrollButtons } from "#/core/infra/component/layout/column-scroll-buttons";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
@@ -149,26 +147,6 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     };
   }, [containerRef, props.fakeKey]);
 
-  function handleScrollTop() {
-    containerRef.current?.scrollTo({
-      left: 0,
-      top: 0,
-      behavior: "smooth",
-    });
-  }
-
-  function handleScrollBottom() {
-    if (!containerRef.current) {
-      return;
-    }
-
-    containerRef.current.scrollTo({
-      left: 0,
-      top: containerRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }
-
   const showControls = !props.disabled;
 
   const body = (
@@ -187,17 +165,11 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
             id="leaf-panel-controls"
             label={props.isLeaflet ? "side detail" : "detail"}
           >
-            <ButtonGroup size="small">
-              <IconButton onClick={handleScrollTop}>
-                <ArrowUpwardIcon />
-              </IconButton>
-              <IconButton onClick={handleScrollBottom}>
-                <ArrowDownwardIcon />
-              </IconButton>
+            <ColumnScrollButtons>
               <IconButton onClick={() => navigation(-1)}>
                 <ArrowBackIcon />
               </IconButton>
-            </ButtonGroup>
+            </ColumnScrollButtons>
 
             {views.buttons}
 
@@ -275,7 +247,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
         </Form>
       )}
 
-      <div id="leaf-panel-content" ref={containerRef}>
+      <div id="leaf-panel-content" ref={containerRef} data-strata-scroll>
         {views.bodies}
 
         <Box
