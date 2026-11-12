@@ -2,9 +2,9 @@ import {
   ArrowBack as ArrowBackIcon,
   ArrowDownward as ArrowDownwardIcon,
   ArrowUpward as ArrowUpwardIcon,
+  Close as CloseIcon,
   Delete as DeleteIcon,
   DeleteForever as DeleteForeverIcon,
-  KeyboardDoubleArrowRight as KeyboardDoubleArrowRightIcon,
 } from "@mui/icons-material";
 import {
   Box,
@@ -17,7 +17,7 @@ import {
   IconButton,
   Stack,
 } from "@mui/material";
-import { Form, useNavigate } from "react-router";
+import { Form, Link, useNavigate } from "react-router";
 import type { PropsWithChildren } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -123,6 +123,8 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
   });
   const showArchiveButNotRemove =
     props.showArchiveButton && !props.showArchiveAndRemoveButton;
+  const hasArchiveButton =
+    props.showArchiveButton || props.showArchiveAndRemoveButton;
 
   useEffect(() => {
     if (containerRef.current === null) {
@@ -192,16 +194,6 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               <IconButton onClick={handleScrollBottom}>
                 <ArrowDownwardIcon />
               </IconButton>
-              {props.returnLocation !== undefined && (
-                <IconButton
-                  data-strata-close
-                  onClick={() =>
-                    navigation(preserveFilters(props.returnLocation as string))
-                  }
-                >
-                  <KeyboardDoubleArrowRightIcon />
-                </IconButton>
-              )}
               <IconButton onClick={() => navigation(-1)}>
                 <ArrowBackIcon />
               </IconButton>
@@ -209,7 +201,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
 
             {views.buttons}
 
-            {(props.showArchiveButton || props.showArchiveAndRemoveButton) && (
+            {hasArchiveButton && (
               <>
                 <IconButton
                   id="leaf-entity-archive"
@@ -261,6 +253,23 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
                   </DialogActions>
                 </Dialog>
               </>
+            )}
+
+            {props.returnLocation !== undefined && (
+              <IconButton
+                sx={{
+                  marginLeft:
+                    !hasArchiveButton && !views.any ? "auto" : undefined,
+                }}
+              >
+                <Link
+                  data-strata-close
+                  style={{ display: "flex" }}
+                  to={preserveFilters(props.returnLocation)}
+                >
+                  <CloseIcon />
+                </Link>
+              </IconButton>
             )}
           </ColumnHeader>
         </Form>

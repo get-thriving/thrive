@@ -442,9 +442,7 @@ def test_webui_todo_note_saves_when_the_panel_closes_mid_save(
     page.keyboard.type("Saved even though the panel went away.")
 
     # Close the panel right away, without waiting for the save to come back.
-    page.locator(
-        "#leaf-panel-controls button:has(svg[data-testid='KeyboardDoubleArrowRightIcon'])"
-    ).click()
+    page.locator("#leaf-panel-controls [data-strata-close]").click()
     page.wait_for_url(re.compile(r"/app/workspace/apps/todos$"))
 
     page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
