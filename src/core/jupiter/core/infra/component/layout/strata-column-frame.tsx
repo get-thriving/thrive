@@ -2,6 +2,7 @@ import type { FocusEvent, PropsWithChildren } from "react";
 import { ButtonBase, Box, alpha, styled } from "@mui/material";
 
 import { StrataColumnKeyContext } from "#/core/infra/component/layout/strata-column-key-context";
+import { STRATA_COLUMNS_BOTTOM } from "#/core/infra/component/layout/strata-columns-bottom";
 import { STRATA_COLUMNS_TOP } from "#/core/infra/component/layout/strata-columns-top";
 import {
   strataColors,
@@ -127,7 +128,7 @@ export function StrataColumnFrame(
 const Frame = styled("div")(({ theme }) => ({
   position: "fixed",
   top: STRATA_COLUMNS_TOP,
-  bottom: 0,
+  bottom: STRATA_COLUMNS_BOTTOM,
   boxSizing: "border-box",
   overflow: "hidden",
   backgroundColor: theme.palette.background.paper,

@@ -4,6 +4,7 @@ import { createPortal, flushSync } from "react-dom";
 import { useLocation } from "react-router";
 
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
+import { STRATA_COLUMNS_BOTTOM } from "#/core/infra/component/layout/strata-columns-bottom";
 import { StrataColumnsContext } from "#/core/infra/component/layout/strata-columns-context";
 import { strataEnterEditable } from "#/core/infra/component/layout/strata-enter-editable";
 import { strataFindMatches } from "#/core/infra/component/layout/strata-find-matches";
@@ -296,8 +297,9 @@ export function StrataFind() {
       sx={{
         position: "fixed",
         left: (columns?.offsetLeft ?? 0) + 16,
-        // Clear of the banner a local build puts along the bottom.
-        bottom: 36,
+        // Clear of the footer, and of the banner a local build puts along the
+        // bottom.
+        bottom: `calc(${STRATA_COLUMNS_BOTTOM} + 12px)`,
         zIndex: theme.zIndex.tooltip + 1,
         display: "flex",
         alignItems: "center",

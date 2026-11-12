@@ -1,5 +1,6 @@
 import { styled } from "@mui/material";
 
+import { STRATA_COLUMNS_BOTTOM } from "#/core/infra/component/layout/strata-columns-bottom";
 import { STRATA_COLUMNS_TOP } from "#/core/infra/component/layout/strata-columns-top";
 
 interface StrataEmptySlotProps {
@@ -23,7 +24,7 @@ export function StrataEmptySlot(props: StrataEmptySlotProps) {
 const EmptySlot = styled("div")(({ theme }) => ({
   position: "fixed",
   top: STRATA_COLUMNS_TOP,
-  bottom: 0,
+  bottom: STRATA_COLUMNS_BOTTOM,
   boxSizing: "border-box",
   backgroundColor: theme.palette.background.default,
   zIndex: theme.zIndex.appBar - 2,

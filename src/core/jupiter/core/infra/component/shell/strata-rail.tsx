@@ -1,5 +1,6 @@
 import { Box, useTheme } from "@mui/material";
 
+import { STRATA_COLUMNS_BOTTOM } from "#/core/infra/component/layout/strata-columns-bottom";
 import { strataColors, strataSize } from "#/core/infra/component/strata-tokens";
 import { StrataRailEntries } from "#/core/infra/component/shell/strata-rail-entries";
 
@@ -28,7 +29,7 @@ export function StrataRail(props: StrataRailProps) {
         // Below the app bar, which is a static 4rem toolbar (3.5rem on small
         // screens, where the rail is not shown).
         top: "calc(env(safe-area-inset-top) + 4rem)",
-        bottom: 0,
+        bottom: STRATA_COLUMNS_BOTTOM,
         left: 0,
         width: props.expanded ? strataSize.railExpanded : strataSize.rail,
         zIndex: theme.zIndex.appBar - 1,

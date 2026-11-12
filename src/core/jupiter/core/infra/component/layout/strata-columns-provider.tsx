@@ -8,6 +8,7 @@ import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
 import { StrataDebugOverlay } from "#/core/infra/component/layout/strata-debug-overlay";
 import { StrataColumnStrip } from "#/core/infra/component/layout/strata-column-strip";
 import { StrataFind } from "#/core/infra/component/layout/strata-find";
+import { StrataFooter } from "#/core/infra/component/layout/strata-footer";
 import { StrataHints } from "#/core/infra/component/layout/strata-hints";
 import { StrataMap } from "#/core/infra/component/layout/strata-map";
 import {
@@ -427,6 +428,7 @@ export function StrataColumnsProvider(
       <StrataMap />
       <StrataHints />
       <StrataFind />
+      <StrataFooter />
       {!props.phone &&
         layout?.slots.map((slot) => {
           const id = strataSplitIdOf(slot.key);

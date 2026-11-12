@@ -1,5 +1,6 @@
 import { Box, alpha, styled } from "@mui/material";
 
+import { STRATA_COLUMNS_BOTTOM } from "#/core/infra/component/layout/strata-columns-bottom";
 import { STRATA_COLUMNS_TOP } from "#/core/infra/component/layout/strata-columns-top";
 import {
   strataColors,
@@ -48,7 +49,7 @@ export function StrataDebugOverlay(props: StrataDebugOverlayProps) {
 const Overlay = styled(Box)(({ theme }) => ({
   position: "fixed",
   top: STRATA_COLUMNS_TOP,
-  bottom: 0,
+  bottom: STRATA_COLUMNS_BOTTOM,
   left: 0,
   right: 0,
   zIndex: theme.zIndex.modal + 1,
