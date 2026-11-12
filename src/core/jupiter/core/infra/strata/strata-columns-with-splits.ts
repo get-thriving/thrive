@@ -18,7 +18,8 @@ export function strataSplitIdOf(key: string): string | null {
  * column goes right after the route column it comes from, in the order they
  * were opened; a parent with a split out may need less room than with the
  * section inline, so its size follows (the smallest any of its splits asks for).
- * A view of the panel is one of them, of the kind that is never folded back.
+ * A view of the panel is one of them, of the kind that has no section to go
+ * back into.
  */
 export function strataColumnsWithSplits(
   path: ColumnSpec[],
@@ -47,7 +48,6 @@ export function strataColumnsWithSplits(
         kind: split.view === true ? "view" : "split",
         size: split.size,
         grow: split.grow,
-        splitId: split.id,
       });
     }
   }

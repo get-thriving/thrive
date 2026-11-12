@@ -76,16 +76,14 @@ export interface StrataSplitsLayout extends StrataLayout {
   columns: ColumnSpec[];
   /** Index of the focused column in `columns`. */
   focus: number;
-  /** The splits shown as columns. */
+  /** The splits shown as columns: those asked for whose section offered one. */
   active: string[];
-  /** The splits asked for which were folded back into their sections. */
-  folded: string[];
 }
 
 /**
- * The same, with some sections split out into columns of their own. A split
- * which would only be a spine or a peek is folded back into its section
- * instead, farthest from the focus first (`layoutColumns`).
+ * The same, with some sections split out into columns of their own. A split is
+ * laid out like any column, whole, a peek or a spine; it is never put back
+ * into its section for lack of room (`layoutColumns`).
  */
 export function strataLayoutWithSplits(input: {
   path: ColumnSpec[];
@@ -99,10 +97,9 @@ export function strataLayoutWithSplits(input: {
   rail: number;
 }): StrataSplitsLayout {
   const units = unitsForWidth(input.width, { rail: input.rail });
+  const active = input.wanted.filter((id) => input.splits.has(id));
   const result = layoutColumns({
-    wanted: input.wanted.filter((id) => input.splits.has(id)),
-    build: (active) =>
-      strataColumnsWithSplits(input.path, input.splits, active),
+    columns: strataColumnsWithSplits(input.path, input.splits, active),
     focusKey: input.focusKey,
     units,
   });
@@ -110,8 +107,7 @@ export function strataLayoutWithSplits(input: {
     ...place(result.layout, input.width, input.rail),
     columns: result.columns,
     focus: result.layout.focus,
-    active: result.active,
-    folded: result.folded,
+    active,
   };
 }
 

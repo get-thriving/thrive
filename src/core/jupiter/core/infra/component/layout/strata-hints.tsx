@@ -260,9 +260,6 @@ export function StrataHints() {
         <Box component="span">
           {session.typed === "" ? "type a label" : session.typed}
         </Box>
-        <Box component="span" sx={{ color: strataColors.textFaint }}>
-          esc cancels
-        </Box>
       </Box>
     </Box>,
     document.body,

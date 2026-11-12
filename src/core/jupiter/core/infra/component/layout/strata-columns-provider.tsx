@@ -144,8 +144,8 @@ export function StrataColumnsProvider(
   }, [matches]);
 
   // What is laid out: the columns on screen, in order, which of them is
-  // focused, and which splits are shown or were folded back for lack of room.
-  // A small screen has no splits: sections stay inline.
+  // focused, and which splits are shown. A small screen has no splits:
+  // sections stay inline.
   const view = useMemo(() => {
     if (path.length === 0) {
       return null;
@@ -286,27 +286,25 @@ export function StrataColumnsProvider(
 
   const splitHost = useCallback((id: string) => hosts.get(id) ?? null, [hosts]);
 
-  // The splits the user asked for whose section is on screen: shown as
-  // columns, or folded back for lack of room.
+  // The splits the user asked for whose section is on screen, which are shown
+  // as columns.
   const splits = useMemo<StrataSplitState[]>(() => {
     const active = view?.active ?? [];
-    return wanted.flatMap((id) => {
+    return active.flatMap((id) => {
       const spec = splitSpecs.get(id);
       if (spec === undefined) {
         return [];
       }
-      const shown = active.includes(id);
       return [
         {
           id,
           title: spec.title,
           key: strataSplitKey(id),
           parentKey: spec.parentKey,
-          state: shown ? ("active" as const) : ("folded" as const),
         },
       ];
     });
-  }, [wanted, splitSpecs, view]);
+  }, [splitSpecs, view]);
 
   // `h` and `l` move the focus along the open columns, which brings the new
   // one in whole.

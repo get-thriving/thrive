@@ -4,15 +4,14 @@ import type { StrataSplitSpec } from "#/core/infra/strata/strata-split-spec";
 import type { StrataLevel } from "#/core/infra/strata/strata-level";
 import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
 
-/** A section split out of its column, or asked to be and folded back. */
+/** A section split out of its column. */
 export interface StrataSplitState {
   id: string;
   title: string;
-  /** The key of its column, when it is shown as one. */
+  /** The key of its column. */
   key: string;
   /** The key of the route column its section is in. */
   parentKey: string;
-  state: "active" | "folded";
 }
 
 /** What the workspace offers the panels that want to be columns. */
@@ -31,7 +30,7 @@ export interface StrataColumnsApi {
    * the keyboard focus somewhere inside it itself.
    */
   focusColumn: (key: string, takeFocus?: boolean) => void;
-  /** Splits asked for in the URL whose section is on screen. */
+  /** Splits asked for in the URL whose section is on screen, as columns. */
   splits: StrataSplitState[];
   /**
    * Offer a section as a column; returns the way to take it back. `fold` is

@@ -846,7 +846,7 @@ def test_webui_habit_section_splits_into_a_column_and_folds_back(
     expect(page).not_to_have_url(re.compile(r"split"))
 
 
-def test_webui_habit_split_with_no_room_folds_back_collapsed(
+def test_webui_habit_split_with_no_room_is_a_spine(
     page: Page, habit_with_inbox_task
 ) -> None:
     habit = habit_with_inbox_task("No Room Habit")
@@ -856,26 +856,25 @@ def test_webui_habit_split_with_no_room_folds_back_collapsed(
         "?habit%5Bsplit%5D=habit-inbox-tasks"
     )
     wait_for_hydration(page)
-    expect(page.locator("#split-panel-habit-inbox-tasks")).to_be_visible()
+    column = page.locator("#split-panel-habit-inbox-tasks")
+    expect(column).to_be_visible()
 
-    # Focusing the list leaves no room for the split, which comes back into its
-    # section, collapsed and tagged. Its chip in the top bar is struck through.
+    # Focusing the list leaves no room for the split. It stays a column, as a
+    # spine, and its section stays a placeholder: it is not put back.
     page.get_by_role("navigation", name="Path").get_by_role(
         "button", name="habits"
     ).first.click()
-    expect(page.locator("#split-panel-habit-inbox-tasks")).to_have_count(0)
-    inbox = page.locator("#habit-inbox-tasks")
-    expect(inbox.locator("[data-strata-section-tag]")).to_contain_text("folded back")
-    expect(inbox.get_by_role("button", name="Expand Inbox Tasks")).to_be_visible()
+    expect(column).to_have_attribute("data-folded", "true")
     expect(
-        page.get_by_role("navigation", name="Path").locator(
-            '[data-split="habit-inbox-tasks"]'
-        )
-    ).to_be_disabled()
+        page.locator("#habit-inbox-tasks [data-strata-section-placeholder]")
+    ).to_have_count(1)
 
-    # With room again, it comes back by itself.
-    page.set_viewport_size(_WIDE)
-    expect(page.locator("#split-panel-habit-inbox-tasks")).to_be_visible()
+    # Its chip in the top bar brings it in whole.
+    page.get_by_role("navigation", name="Path").locator(
+        '[data-split="habit-inbox-tasks"]'
+    ).click()
+    expect(column).to_have_attribute("data-focused", "true")
+    expect(column).not_to_have_attribute("data-folded", "true")
 
 
 def test_webui_habit_c_splits_and_escape_folds_back(

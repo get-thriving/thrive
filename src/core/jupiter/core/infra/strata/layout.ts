@@ -17,17 +17,15 @@
  *    is a 10px spine. Spare units go to columns marked `grow`, rightmost first,
  *    one size step each when the cap is on (S→M, M→B, B→XL).
  *
- * 2. `layoutColumns` knows the two kinds of column. Route columns come from
- *    navigation (the URL path) and fold to spines or hashed peeks. Split
- *    columns are a section or view of a subject that is already on screen,
- *    pulled out into its own column; when they don't fit whole they fold back
- *    into their parent instead, farthest from focus first. Folding a split back
- *    can change the parent's size (a section shown inline takes room), so the
- *    caller passes a `build` function that returns the columns for a given set
- *    of active splits. A view of a panel (its history, say) is a column of a
- *    third kind: it belongs to the subject of its panel like a split, but has
- *    no place inline to fold back into, so it is a peek or a spine, as a route
- *    column is, when there is no room for it whole.
+ * 2. `layoutColumns` knows the three kinds of column. Route columns come from
+ *    navigation (the URL path). Split columns are a section of a subject that
+ *    is already on screen, pulled out into its own column, and view columns are
+ *    a view of a panel (its history, say). All three are laid out alike: whole
+ *    while there is room, a hashed peek or a 10px spine when there is not. None
+ *    is ever put back into its parent for lack of room, as that builds its body
+ *    again in the new place, which for a long list is slow. The kinds differ in
+ *    what they belong to: a split or a view shares the subject of the route
+ *    column before it.
  */
 
 export type UnitSize = 1 | 2 | 3;
@@ -44,8 +42,6 @@ export interface ColumnSpec {
   size: ColumnSize;
   /** May take spare units, growing to the right. */
   grow?: boolean;
-  /** For split and view columns: the id the caller uses in its list of splits. */
-  splitId?: string;
 }
 
 export interface Slot {
@@ -154,10 +150,8 @@ export function layoutUnits(input: LayoutUnitsInput): LayoutResult {
 }
 
 export interface LayoutColumnsInput {
-  /** Split ids the user asked for, in the order they were opened (from the URL). */
-  wanted: string[];
-  /** Returns the columns, left to right, for a given set of active splits. */
-  build: (activeSplits: string[]) => ColumnSpec[];
+  /** The columns, left to right: route columns, with splits and views after theirs. */
+  columns: ColumnSpec[];
   /** Key of the focused column. If it isn't present, `fallbackFocus` decides. */
   focusKey: string;
   /** Index to focus when `focusKey` isn't among the columns. Default: the last route column. */
@@ -170,10 +164,6 @@ export interface LayoutColumnsInput {
 export interface ColumnsResult {
   columns: ColumnSpec[];
   layout: LayoutResult;
-  /** Splits that are shown as columns. */
-  active: string[];
-  /** Splits that were folded back for lack of room, in the order they were folded. */
-  folded: string[];
 }
 
 export function layoutColumns(input: LayoutColumnsInput): ColumnsResult {
@@ -184,41 +174,9 @@ export function layoutColumns(input: LayoutColumnsInput): ColumnsResult {
         if (cols[i].kind === "route") return i;
       return cols.length - 1;
     });
-  let active = input.wanted.slice();
-  const folded: string[] = [];
-  for (let guard = 0; guard <= input.wanted.length; guard++) {
-    const columns = input.build(active);
-    let focus = columns.findIndex((c) => c.key === input.focusKey);
-    if (focus < 0) focus = fallback(columns);
-    const layout = layoutUnits({
-      columns,
-      focus,
-      units: input.units,
-      order: input.order,
-      capGrowth: input.capGrowth,
-    });
-    const victims = layout.slots
-      .map((s, i) => ({ s, i }))
-      .filter(
-        ({ s, i }) =>
-          s.kind === "split" &&
-          i !== focus &&
-          (s.state === "spine" || s.state === "partial"),
-      )
-      .sort(
-        (a, b) => Math.abs(b.i - focus) - Math.abs(a.i - focus) || b.i - a.i,
-      );
-    if (victims.length === 0) return { columns, layout, active, folded };
-    const id = columns[victims[0].i].splitId ?? columns[victims[0].i].key;
-    active = active.filter((s) => s !== id);
-    folded.push(id);
-  }
-  // Unreachable in practice: every iteration removes one split.
-  const columns = input.build(active);
-  const focus = Math.max(
-    0,
-    columns.findIndex((c) => c.key === input.focusKey),
-  );
+  const columns = input.columns;
+  let focus = columns.findIndex((c) => c.key === input.focusKey);
+  if (focus < 0) focus = fallback(columns);
   return {
     columns,
     layout: layoutUnits({
@@ -228,8 +186,6 @@ export function layoutColumns(input: LayoutColumnsInput): ColumnsResult {
       order: input.order,
       capGrowth: input.capGrowth,
     }),
-    active,
-    folded,
   };
 }
 

@@ -3,7 +3,6 @@ import { useContext, useEffect, useRef } from "react";
 
 import { StrataColumnsContext } from "#/core/infra/component/layout/strata-columns-context";
 import { strataColors } from "#/core/infra/component/strata-tokens";
-import type { StrataSplitState } from "#/core/infra/component/layout/strata-columns-context";
 import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
 
 /** The side of a column's square, in px. */
@@ -19,9 +18,7 @@ const MAX_WIDTH = FITS * SQUARE + (FITS - 1) * GAP_BETWEEN;
 /**
  * In the top bar: one square for each open panel, all the same size. A whole
  * panel is a plain square, a peek is striped, a spine is a darker one and the
- * focused one is amber. A section split out which had to fold back for lack of
- * room is a dashed square, with nothing to focus. Each other square is a
- * button that focuses its panel.
+ * focused one is amber. Each square is a button that focuses its panel.
  */
 export function StrataColumnMap() {
   const columns = useContext(StrataColumnsContext);
@@ -52,7 +49,6 @@ export function StrataColumnMap() {
     subject: number;
     focused: boolean;
     entries: Array<{ slot: StrataPlacedSlot; index: number }>;
-    folded: StrataSplitState[];
   }> = [];
   columns.slots.forEach((slot, index) => {
     const last = groups[groups.length - 1];
@@ -64,19 +60,9 @@ export function StrataColumnMap() {
         subject: slot.subject,
         focused: slot.inFocusedSubject,
         entries: [{ slot, index }],
-        folded: [],
       });
     }
   });
-  for (const split of columns.splits) {
-    if (split.state === "folded") {
-      groups
-        .find((group) =>
-          group.entries.some(({ slot }) => slot.key === split.parentKey),
-        )
-        ?.folded.push(split);
-    }
-  }
 
   return (
     <Box
@@ -159,26 +145,6 @@ export function StrataColumnMap() {
               />
             );
           })}
-          {group.folded.map((split) => (
-            <Box
-              key={split.id}
-              component="button"
-              type="button"
-              disabled
-              data-state="folded-back"
-              aria-label={`${split.title}, folded back, no room`}
-              title={`${split.title} · folded back, no room`}
-              sx={{
-                height: SQUARE,
-                width: SQUARE,
-                flex: "none",
-                padding: 0,
-                borderRadius: "2px",
-                border: `1px dashed ${strataColors.lineStrong}`,
-                backgroundColor: "transparent",
-              }}
-            />
-          ))}
         </Box>
       ))}
     </Box>

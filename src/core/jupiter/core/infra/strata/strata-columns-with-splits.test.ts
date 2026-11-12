@@ -44,7 +44,7 @@ describe("strataColumnsWithSplits", () => {
     ).toEqual(["list", "plan", "split:activities", "split:notes", "activity"]);
   });
 
-  it("gives a split its own size, growth and id", () => {
+  it("gives a split its own size and growth", () => {
     const splits = new Map([
       ["activities", split("activities", "plan", { size: 3, grow: true })],
     ]);
@@ -54,7 +54,6 @@ describe("strataColumnsWithSplits", () => {
       kind: "split",
       size: 3,
       grow: true,
-      splitId: "activities",
     });
   });
 
@@ -68,7 +67,6 @@ describe("strataColumnsWithSplits", () => {
       kind: "view",
       size: 2,
       grow: undefined,
-      splitId: "plan-history",
     });
   });
 

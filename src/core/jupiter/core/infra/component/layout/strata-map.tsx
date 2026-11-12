@@ -242,9 +242,6 @@ export function StrataMap() {
           <Box component="span" data-strata-map-typed="true">
             {session.typed === "" ? "type a label" : session.typed}
           </Box>
-          <Box component="span" sx={{ color: strataColors.textFaint }}>
-            esc cancels
-          </Box>
         </Box>
         <Box sx={{ display: "flex", alignItems: "flex-start", gap: "6px" }}>
           {session.columns.map((column, position) => {

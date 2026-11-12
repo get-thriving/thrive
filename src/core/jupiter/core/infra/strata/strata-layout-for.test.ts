@@ -123,7 +123,6 @@ describe("strataLayoutWithSplits", () => {
     const result = layout([], "plan", 1440);
     expect(result.description).toBe("time-plans:1 plan:3+1 activity:2");
     expect(result.active).toEqual([]);
-    expect(result.folded).toEqual([]);
   });
 
   it("shows a split as a column of its own, and the parent needs less", () => {
@@ -140,13 +139,20 @@ describe("strataLayoutWithSplits", () => {
     expect(result.active).toEqual(["activities"]);
   });
 
-  it("folds a split back when it would only be a peek", () => {
+  it("keeps a split as a peek when it only gets part of its room", () => {
     const result = layout(["activities", "note"], "activity", 1100);
     expect(result.description).toBe(
-      "time-plans:| plan:1/3~ split:note:2 activity:2",
+      "time-plans:| plan:| split:activities:1/3~ split:note:2 activity:2",
     );
-    expect(result.active).toEqual(["note"]);
-    expect(result.folded).toEqual(["activities"]);
+    expect(result.active).toEqual(["activities", "note"]);
+  });
+
+  it("keeps a split with no room at all as a spine", () => {
+    const result = layout(["activities", "note"], "activity", 900);
+    expect(result.description).toBe(
+      "time-plans:| plan:| split:activities:| split:note:2 activity:2",
+    );
+    expect(result.active).toEqual(["activities", "note"]);
   });
 
   it("ignores a split no section offered", () => {

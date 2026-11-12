@@ -1,6 +1,6 @@
 import { Box, Stack } from "@mui/material";
 import { Form } from "react-router";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef } from "react";
 import type { JSX, PropsWithChildren } from "react";
 import { createPortal } from "react-dom";
 
@@ -56,9 +56,10 @@ const DEFAULT_SPLIT_SIZE = 2;
  * to just the header and its summary, and a section that offers a `split` can
  * be pulled out into a column of its own: its body is then drawn into that
  * column, from here, so its data, forms and fetchers stay as they are, and a
- * placeholder row stays in its place. When there is no room for the column the
- * section comes back, collapsed, with a tag saying so. The body stays mounted
- * while collapsed, so a form in it keeps what was typed and still submits.
+ * placeholder row stays in its place. The column is never given up for lack of
+ * room: it narrows to a peek or a spine, as any column does. The body stays
+ * mounted while collapsed, so a form in it keeps what was typed and still
+ * submits.
  */
 export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
   const actionsPosition = props.actionsPosition ?? ActionsPosition.ABOVE;
@@ -76,12 +77,10 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
     columns !== null &&
     !columns.phone;
   const registerSplit = columns?.registerSplit;
-  const splitState = splittable
-    ? (columns.splits.find((split) => split.id === props.id)?.state ?? "none")
-    : "none";
+  const isSplit =
+    splittable && columns.splits.some((split) => split.id === props.id);
   const host = splittable ? columns.splitHost(props.id) : null;
-  const inColumn = splitState === "active" && host !== null;
-  const folded = splitState === "folded";
+  const inColumn = isSplit && host !== null;
 
   // Offer the section as a column while it is on screen. The control of the
   // column calls the latest `setSplit`, not the one of the render it left.
@@ -116,23 +115,9 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
     parentSize,
   ]);
 
-  // A section folded back comes back collapsed; the user may open it.
-  const [openWhileFolded, setOpenWhileFolded] = useState(false);
-  useEffect(() => setOpenWhileFolded(false), [folded]);
-
   const collapsible = stack !== null && props.fixed !== true;
-  const collapsed =
-    collapsible &&
-    (folded ? !openWhileFolded : stack.collapsed.includes(props.id));
+  const collapsed = collapsible && stack.collapsed.includes(props.id);
   const bodyId = `${props.id}-body`;
-
-  function handleToggle() {
-    if (folded) {
-      setOpenWhileFolded((open) => !open);
-    } else {
-      stack?.toggle(props.id);
-    }
-  }
 
   const sectionAttributes = {
     "data-strata-section": props.id,
@@ -211,21 +196,13 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
           title={props.title}
           summary={props.summary}
           collapsed={collapsible ? collapsed : undefined}
-          onToggle={collapsible ? handleToggle : undefined}
-          tag={folded ? "folded back · no room" : undefined}
+          onToggle={collapsible ? () => stack?.toggle(props.id) : undefined}
           splitAction={
             splittable
-              ? folded
-                ? {
-                    kind: "fold",
-                    label: `Stop splitting ${props.title}`,
-                    onClick: () => stack?.setSplit(props.id, false),
-                  }
-                : {
-                    kind: "split",
-                    label: `Split ${props.title} into its own column`,
-                    onClick: () => stack?.setSplit(props.id, true),
-                  }
+              ? {
+                  label: `Split ${props.title} into its own column`,
+                  onClick: () => stack?.setSplit(props.id, true),
+                }
               : undefined
           }
           actions={

@@ -174,7 +174,7 @@ export function useEntityViews(config: EntityViewsConfig): EntityViews {
   // until then, or if it never does, it stands in the panel.
   function inColumn(view: StrataPanelView): boolean {
     const id = strataPanelViewId(home, view);
-    return columns?.splits.find((split) => split.id === id)?.state === "active";
+    return columns?.splits.some((split) => split.id === id) ?? false;
   }
   const replacesContent = open.some((view) => !inColumn(view));
 

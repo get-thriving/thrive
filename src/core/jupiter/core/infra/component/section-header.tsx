@@ -18,15 +18,13 @@ interface SectionHeaderProps {
   collapsed?: boolean;
   onToggle?: () => void;
   actions?: JSX.Element;
-  /** Said after the summary, e.g. "folded back · no room". */
-  tag?: string;
   /**
    * Leave the title out, for a section in a column of its own, where the
    * column's header already says it.
    */
   hideTitle?: boolean;
-  /** `⇥` pulls the section out into a column; `⇤` takes it back. */
-  splitAction?: { kind: "split" | "fold"; label: string; onClick: () => void };
+  /** `⇥` pulls the section out into a column. */
+  splitAction?: { label: string; onClick: () => void };
 }
 
 /**
@@ -90,27 +88,13 @@ export function SectionHeader(props: SectionHeaderProps) {
           {props.summary}
         </Box>
       )}
-      {props.tag !== undefined && (
-        <Box
-          component="span"
-          data-strata-section-tag
-          sx={{
-            flex: "none",
-            fontFamily: strataFonts.mono,
-            fontSize: strataType.meta.size,
-            color: strataColors.amber,
-          }}
-        >
-          {props.tag}
-        </Box>
-      )}
       <Box sx={{ flex: 1 }} />
       {props.actions}
       {props.splitAction !== undefined && (
         <Box
           component="button"
           type="button"
-          data-strata-split-action={props.splitAction.kind}
+          data-strata-split-action="split"
           aria-label={props.splitAction.label}
           title={props.splitAction.label}
           onClick={props.splitAction.onClick}
@@ -126,7 +110,7 @@ export function SectionHeader(props: SectionHeaderProps) {
             "&:hover": { color: strataColors.amber },
           }}
         >
-          {props.splitAction.kind === "split" ? "⇥" : "⇤"}
+          ⇥
         </Box>
       )}
     </Box>

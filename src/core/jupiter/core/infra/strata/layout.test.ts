@@ -100,118 +100,100 @@ describe("layoutUnits", () => {
  * section, the note section and spread views of activities. While activities
  * is shown inline, the plan needs B; once it's split out, M is enough.
  */
-const timePlan =
-  (activityOpen: boolean) =>
-  (active: string[]): ColumnSpec[] => {
-    const cols: ColumnSpec[] = [
-      r("time-plans", 1),
-      r("plan", active.includes("activities") ? 2 : 3, true),
-    ];
-    for (const s of active) {
-      if (s === "activities")
-        cols.push({
-          key: "activities",
-          kind: "split",
-          size: 3,
-          grow: true,
-          splitId: s,
-        });
-      else if (s === "note")
-        cols.push({ key: "note", kind: "split", size: 2, splitId: s });
-      else
-        cols.push({
-          key: s.replace("view:", ""),
-          kind: "split",
-          size: 3,
-          splitId: s,
-        });
-    }
-    if (activityOpen) cols.push(r("activity", 2));
-    return cols;
-  };
+const timePlan = (active: string[], activityOpen: boolean): ColumnSpec[] => {
+  const cols: ColumnSpec[] = [
+    r("time-plans", 1),
+    r("plan", active.includes("activities") ? 2 : 3, true),
+  ];
+  for (const s of active) {
+    if (s === "activities")
+      cols.push({ key: "activities", kind: "split", size: 3, grow: true });
+    else if (s === "note") cols.push({ key: "note", kind: "split", size: 2 });
+    else cols.push({ key: s.replace("view:", ""), kind: "split", size: 3 });
+  }
+  if (activityOpen) cols.push(r("activity", 2));
+  return cols;
+};
 const tp = (
-  wanted: string[],
+  active: string[],
   focusKey: string,
   units: number,
   activityOpen = true,
-) => {
-  const res = layoutColumns({
-    wanted,
-    build: timePlan(activityOpen),
-    focusKey,
-    units,
-  });
-  return { layout: describeLayout(res.layout), folded: res.folded };
-};
+) =>
+  describeLayout(
+    layoutColumns({
+      columns: timePlan(active, activityOpen),
+      focusKey,
+      units,
+    }).layout,
+  );
 
 describe("layoutColumns: time plan", () => {
   it("1440 (X 7): nothing split, activity open", () => {
-    expect(tp([], "plan", 7)).toEqual({
-      layout: "time-plans:1 plan:3+1 activity:2",
-      folded: [],
-    });
+    expect(tp([], "plan", 7)).toBe("time-plans:1 plan:3+1 activity:2");
   });
 
   it("1440: activities split out, focused", () => {
-    expect(tp(["activities"], "activities", 7)).toEqual({
-      layout: "time-plans:| plan:2 activities:3 activity:2",
-      folded: [],
-    });
+    expect(tp(["activities"], "activities", 7)).toBe(
+      "time-plans:| plan:2 activities:3 activity:2",
+    );
   });
 
-  it("1440: spreading the week view folds the activities list back into the plan", () => {
-    expect(tp(["activities", "view:week"], "week", 7)).toEqual({
-      layout: "time-plans:| plan:2/3~ week:3 activity:2",
-      folded: ["activities"],
-    });
+  it("1440: spreading the week view leaves the activities list a peek", () => {
+    expect(tp(["activities", "view:week"], "week", 7)).toBe(
+      "time-plans:| plan:| activities:2/3~ week:3 activity:2",
+    );
   });
 
   it("1920 (X 9): list and week fit side by side", () => {
-    expect(tp(["activities", "view:week"], "week", 9)).toEqual({
-      layout: "time-plans:| plan:1/2~ activities:3 week:3 activity:2",
-      folded: [],
-    });
+    expect(tp(["activities", "view:week"], "week", 9)).toBe(
+      "time-plans:| plan:1/2~ activities:3 week:3 activity:2",
+    );
   });
 
-  it("1440: closing the activity keeps the list, folds the week view", () => {
-    expect(tp(["activities", "view:week"], "plan", 7, false)).toEqual({
-      layout: "time-plans:1 plan:2 activities:3+1",
-      folded: ["view:week"],
-    });
+  it("1440: closing the activity keeps the list, leaves the week view a peek", () => {
+    expect(tp(["activities", "view:week"], "plan", 7, false)).toBe(
+      "time-plans:1 plan:2 activities:3 week:1/3~",
+    );
   });
 
-  it("never folds the focused split, and route columns never fold back", () => {
+  it("a split that only gets part of its room is a peek", () => {
+    // The activity has the focus, with the note beside it: the two units left
+    // are the activities list's.
+    expect(tp(["activities", "note"], "activity", 6)).toBe(
+      "time-plans:| plan:| activities:2/3~ note:2 activity:2",
+    );
+  });
+
+  it("a split with no room at all is a spine, and stays a column", () => {
     const res = layoutColumns({
-      wanted: ["activities", "note"],
-      build: timePlan(true),
+      columns: timePlan(["activities", "note"], true),
       focusKey: "note",
-      units: 6,
+      units: 4,
     });
-    expect(res.folded).toEqual(["activities"]);
+    expect(describeLayout(res.layout)).toBe(
+      "time-plans:| plan:| activities:| note:2 activity:2",
+    );
     expect(res.layout.slots.find((s) => s.key === "note")?.state).toBe("full");
-    expect(
-      res.layout.slots.filter((s) => s.kind === "route").map((s) => s.key),
-    ).toEqual(["time-plans", "plan", "activity"]);
+    expect(res.columns.map((c) => c.key)).toEqual([
+      "time-plans",
+      "plan",
+      "activities",
+      "note",
+      "activity",
+    ]);
   });
 
-  it("never folds a view back: with no room it is a peek", () => {
+  it("lays a view out like any column: with no room it is a peek", () => {
     const res = layoutColumns({
-      wanted: ["history"],
-      build: (active) => [
+      columns: [
         r("list", 3),
         r("leaf", 2),
-        ...active.map((id): ColumnSpec => ({
-          key: `split:${id}`,
-          kind: "view",
-          size: 3,
-          splitId: id,
-        })),
+        { key: "split:history", kind: "view", size: 3 },
       ],
       focusKey: "list",
       units: 6,
     });
-    expect(res.folded).toEqual([]);
-    expect(res.active).toEqual(["history"]);
     expect(res.layout.slots.find((s) => s.key === "split:history")?.state).toBe(
       "partial",
     );
@@ -219,8 +201,7 @@ describe("layoutColumns: time plan", () => {
 
   it("falls back to the last route column when the focus key is gone", () => {
     const res = layoutColumns({
-      wanted: [],
-      build: timePlan(true),
+      columns: timePlan([], true),
       focusKey: "week",
       units: 7,
     });

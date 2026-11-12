@@ -365,16 +365,6 @@ export function StrataFind() {
       >
         {status}
       </Box>
-      <Box
-        component="span"
-        sx={{
-          color: strataColors.textFaint,
-          letterSpacing: "0.04em",
-          whiteSpace: "nowrap",
-        }}
-      >
-        ↵ go · ↑↓ step · esc
-      </Box>
     </Box>,
     document.body,
   );
