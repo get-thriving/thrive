@@ -256,26 +256,6 @@ def _timestamp(value: datetime) -> str:
     return value.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
 
 
-def test_api_todo_find_only_archived(
-    logged_in_client: AuthenticatedClient, create_todo, archive_todo
-) -> None:
-    open_todo = create_todo("Only Archived: still open")
-    archived_todo = create_todo("Only Archived: archived")
-    archive_todo(archived_todo.ref_id)
-
-    # Archived ones stay out unless asked for, and then they come with the rest...
-    assert _names(_find_todos(logged_in_client)) >= {open_todo.name}
-    assert archived_todo.name not in _names(_find_todos(logged_in_client))
-    with_archived = _names(_find_todos(logged_in_client, allow_archived=True))
-    assert {open_todo.name, archived_todo.name} <= with_archived
-
-    # ...unless only the archived ones are wanted.
-    only_archived = _find_todos(logged_in_client, only_archived=True)
-    assert archived_todo.name in _names(only_archived)
-    assert open_todo.name not in _names(only_archived)
-    assert all(e.todo_task.archived for e in only_archived)
-
-
 def test_api_todo_find_filter_finished_after(
     logged_in_client: AuthenticatedClient,
     create_todo,
@@ -304,11 +284,12 @@ def test_api_todo_find_filter_finished_after(
     live = _find_todos(logged_in_client, filter_finished_after=an_hour_ago)
     assert _names(live) == {finished.name}
 
-    # Just the archived ones, which is what a recent-history view wants.
-    archived = _find_todos(
-        logged_in_client, only_archived=True, filter_finished_after=an_hour_ago
-    )
-    assert _names(archived) == {finished_then_archived.name}
+    # The archived ones are marked as such, so a view can tell them apart.
+    archived_flags = {e.todo_task.name: e.todo_task.archived for e in both}
+    assert archived_flags == {
+        finished.name: False,
+        finished_then_archived.name: True,
+    }
 
 
 def test_api_todo_find_filter_finished_after_is_a_real_cut(
@@ -322,7 +303,9 @@ def test_api_todo_find_filter_finished_after_is_a_real_cut(
     later = create_finished_todo("Finished Cut: later")
     archive_todo(later.ref_id)
 
-    found = _find_todos(logged_in_client, only_archived=True, filter_finished_after=cut)
+    found = _find_todos(
+        logged_in_client, allow_archived=True, filter_finished_after=cut
+    )
     assert _names(found) == {later.name}
 
     in_the_future = _timestamp(datetime.now(UTC) + timedelta(days=1))
@@ -497,11 +480,10 @@ def test_api_todo_find_filter_finished_after_covers_shared_todos_and_only_them(
         sharee_client, allow_archived=True, filter_finished_after=an_hour_ago
     )
     assert _names(found) == {shared_live.name, shared_archived.name}
-
-    found_archived = _find_todos(
-        sharee_client, only_archived=True, filter_finished_after=an_hour_ago
-    )
-    assert _names(found_archived) == {shared_archived.name}
+    assert {e.todo_task.name: e.todo_task.archived for e in found} == {
+        shared_live.name: False,
+        shared_archived.name: True,
+    }
 
 
 def _assert_other_user_cannot_access_todo(

@@ -9,7 +9,6 @@ import type { Timestamp } from './Timestamp';
  */
 export type TodoTaskFindArgs = {
     allow_archived?: (boolean | null);
-    only_archived?: (boolean | null);
     filter_finished_after?: (Timestamp | null);
     include_tags?: (boolean | null);
     include_contacts?: (boolean | null);

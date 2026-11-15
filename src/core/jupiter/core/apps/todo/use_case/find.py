@@ -58,14 +58,11 @@ class TodoTaskFindArgs(JupiterFindCrownEntityArgs):
     """TodoTaskFind args."""
 
     allow_archived: bool | None
-    # Return only the archived todo tasks, instead of the archived ones along
-    # with the rest. Implies `allow_archived`.
-    only_archived: bool | None
     # Return only the todo tasks whose inbox task was finished (done or not
-    # done) at or after this time. What it costs follows the number of todo
-    # tasks finished since, not the number there are: asking for the archived
-    # ones finished in the last week does not load every archived todo task
-    # there ever was.
+    # done) at or after this time, archived ones too if `allow_archived` says so.
+    # What it costs follows the number of todo tasks finished since, not the
+    # number there are: asking for what was finished in the last week does not
+    # load every archived todo task there ever was.
     filter_finished_after: Timestamp | None
     include_tags: bool | None
     include_contacts: bool | None
@@ -210,8 +207,7 @@ class TodoTaskFindUseCase(
         args: TodoTaskFindArgs,
     ) -> TodoTaskFindResult:
         """Execute the command's action."""
-        only_archived = args.only_archived or False
-        allow_archived = (args.allow_archived or False) or only_archived
+        allow_archived = args.allow_archived or False
         include_tags = args.include_tags or False
         include_contacts = args.include_contacts or False
         include_locations = args.include_locations or False
@@ -259,8 +255,6 @@ class TodoTaskFindUseCase(
                 allow_archived=allow_archived,
                 filter_ref_ids=args.filter_ref_ids,
             )
-        if only_archived:
-            todo_tasks = [todo_task for todo_task in todo_tasks if todo_task.archived]
         if args.filter_aspect_ref_ids is not None:
             filter_aspect_ref_ids = set(args.filter_aspect_ref_ids)
             todo_tasks = [

@@ -14,9 +14,21 @@ interface Props {
     | "info"
     | "success"
     | "warning";
+  /** Just a short date, with the full label and date as a tooltip, for where room is tight. */
+  compact?: boolean;
 }
 
 export function ADateTag(props: Props) {
+  if (props.compact) {
+    const date = aDateToDate(props.date).setLocale("en-gb");
+    return (
+      <SlimChip
+        label={date.toFormat("d LLL")}
+        title={`${props.label} ${date.toLocaleString()}`}
+        color={props.color ?? "info"}
+      />
+    );
+  }
   return (
     <SlimChip
       label={`${props.label} ${aDateToDate(props.date)

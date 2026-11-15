@@ -99,17 +99,17 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
 
-  // The board's done column also shows archived todos finished in the last
-  // seven days. There can be tens of thousands of archived todos, so they are
-  // asked for on their own, with the finished-date cut made by the API. The
-  // user's timezone is not known here, so ask for a day more than seven and
+  // The board's done column also shows what was finished in the last seven
+  // days, archived or not. There can be tens of thousands of archived todos, so
+  // that is asked for on its own, with the finished-date cut made by the API.
+  // The user's timezone is not known here, so ask for a day more than seven and
   // let the board make the exact cut, which is what needs the timezone.
   const finishedSince = DateTime.now()
     .toUTC()
     .minus({ days: TODO_BOARD_ARCHIVE_WINDOW_DAYS + 1 })
     .toISO();
 
-  const [response, archivedResponse, allContacts] = await Promise.all([
+  const [response, recentlyFinishedResponse, allContacts] = await Promise.all([
     apiClient.todo.todoTaskFind({
       allow_archived: false,
       include_notes: false,
@@ -119,7 +119,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       include_inbox_tasks: true,
     }),
     apiClient.todo.todoTaskFind({
-      only_archived: true,
+      allow_archived: true,
       filter_finished_after: finishedSince,
       include_notes: false,
       include_life_plan: false,
@@ -134,7 +134,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return {
     entries: response.entries,
-    archivedEntries: archivedResponse.entries,
+    // The ones that are not archived are in `entries` already.
+    archivedEntries: recentlyFinishedResponse.entries.filter(
+      (entry) => entry.todo_task.archived,
+    ),
     allContacts: allContacts.contacts as Array<Contact>,
   };
 }

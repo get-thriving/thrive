@@ -1,6 +1,7 @@
 import type { DragStart, DropResult } from "@hello-pangea/dnd";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
-import type { InboxTask, InboxTaskStatus } from "@jupiter/webapi-client";
+import type { InboxTask } from "@jupiter/webapi-client";
+import { InboxTaskStatus } from "@jupiter/webapi-client";
 import { Box, Tab, Tabs, Typography, alpha } from "@mui/material";
 import { DateTime } from "luxon";
 import { Fragment, useState } from "react";
@@ -18,7 +19,7 @@ import {
   isTodoBoardRecentlyFinishedArchivedTask,
   todoBoardDayLabel,
 } from "#/core/apps/todo/board-done-groups";
-import { TodoBoardCard } from "#/core/apps/todo/components/board-card";
+import { InboxTaskCard } from "#/core/common/sub/inbox_tasks/component/card";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import { isCompleted } from "#/core/common/sub/inbox_tasks/status";
 import { filterInboxTasksForDisplay } from "#/core/common/sub/inbox_tasks/root";
@@ -190,18 +191,27 @@ export function TodoBoard(props: TodoBoardProps) {
     if (info?.todoTask === undefined) {
       return null;
     }
+    const status = statusOf(inboxTask);
     return (
-      <TodoBoardCard
+      <InboxTaskCard
         topLevelInfo={props.topLevelInfo}
+        dense
+        showOptions={{
+          // The column says which status it is, except for these two, which
+          // share a column with what is not like them.
+          showStatus:
+            status === InboxTaskStatus.BLOCKED ||
+            status === InboxTaskStatus.NOT_DONE,
+          showEisen: true,
+          showDifficulty: true,
+          showDueDate: true,
+        }}
         inboxTask={inboxTask}
-        todoTask={info.todoTask}
-        owner={
-          info.owner !== undefined &&
-          info.owner.ref_id !== props.topLevelInfo.user.ref_id
-            ? info.owner
-            : undefined
+        optimisticState={props.optimisticUpdates[inboxTask.ref_id]}
+        parent={info}
+        linkResolver={(_, parent) =>
+          `/app/workspace/apps/todos/${parent?.todoTask?.ref_id}`
         }
-        status={statusOf(inboxTask)}
       />
     );
   }
