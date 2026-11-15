@@ -61,10 +61,7 @@ import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
 } from "#/core/common/sub/inbox_tasks/root";
-import {
-  TODO_BOARD_ARCHIVE_WINDOW_DAYS,
-  todoBoardFinishedTime,
-} from "#/core/apps/todo/board-done-groups";
+import { TODO_BOARD_ARCHIVE_WINDOW_DAYS } from "#/core/apps/todo/board-done-groups";
 import { TodoBoard } from "#/core/apps/todo/components/board";
 import { InboxTaskKanbanBoard } from "#/core/common/sub/inbox_tasks/component/kanban-board";
 import {
@@ -101,38 +98,43 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.todo.todoTaskFind({
-    // Archived todos only matter to the board's done column.
-    allow_archived: true,
-    include_notes: false,
-    include_life_plan: true,
-    include_contacts: true,
-    include_locations: true,
-    include_inbox_tasks: true,
-  });
 
-  const allContacts = await apiClient.contacts.contactFind({
-    allow_archived: false,
-  });
+  // The board's done column also shows archived todos finished in the last
+  // seven days. There can be tens of thousands of archived todos, so they are
+  // asked for on their own, with the finished-date cut made by the API. The
+  // user's timezone is not known here, so ask for a day more than seven and
+  // let the board make the exact cut, which is what needs the timezone.
+  const finishedSince = DateTime.now()
+    .toUTC()
+    .minus({ days: TODO_BOARD_ARCHIVE_WINDOW_DAYS + 1 })
+    .toISO();
 
-  // The board shows archived todos finished in the last seven days. The user's
-  // timezone is not known here, so keep a day more than that, and let the
-  // board do the exact cut, which is the only thing that needs the timezone.
-  const now = DateTime.now();
-  const keepFinishedSince = now.minus({
-    days: TODO_BOARD_ARCHIVE_WINDOW_DAYS + 1,
-  });
-  const archivedEntries = response.entries.filter(
-    (entry) =>
-      entry.todo_task.archived &&
-      entry.inbox_task !== undefined &&
-      entry.inbox_task !== null &&
-      todoBoardFinishedTime(entry.inbox_task, "UTC", now) >= keepFinishedSince,
-  );
+  const [response, archivedResponse, allContacts] = await Promise.all([
+    apiClient.todo.todoTaskFind({
+      allow_archived: false,
+      include_notes: false,
+      include_life_plan: true,
+      include_contacts: true,
+      include_locations: true,
+      include_inbox_tasks: true,
+    }),
+    apiClient.todo.todoTaskFind({
+      only_archived: true,
+      filter_finished_after: finishedSince,
+      include_notes: false,
+      include_life_plan: false,
+      include_contacts: true,
+      include_locations: true,
+      include_inbox_tasks: true,
+    }),
+    apiClient.contacts.contactFind({
+      allow_archived: false,
+    }),
+  ]);
 
   return {
-    entries: response.entries.filter((entry) => !entry.todo_task.archived),
-    archivedEntries,
+    entries: response.entries,
+    archivedEntries: archivedResponse.entries,
     allContacts: allContacts.contacts as Array<Contact>,
   };
 }
