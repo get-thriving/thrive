@@ -66,6 +66,9 @@ Current topics include (non-exhaustive; browse the directory):
 | 0015 | Shared shell for the desktop and mobile apps |
 | 0017 | Multiple auth methods per user |
 | 0018 | Image store |
+| 0019 | UI style (Strata) |
+| 0020 | Strata unit layout (partly superseded by 0021) |
+| 0021 | Strata layout: columns, sizes, headers |
 
 ## Code layout
 
@@ -103,6 +106,20 @@ This will generate a new file in src/core/migrations/sqlite/versions
 and in src/core/migrations/postgres/versions,
 link it in the sequence of migrations, and you can then edit it
 there, based on the patterns established.
+
+## Updating the docs pictures
+
+The pictures in the docs are generated from a demo workspace, not taken by
+hand. When the UI changes, regenerate them with:
+
+```bash
+mise run build:docs-screenshots
+```
+
+It starts a fresh `docs-screenshots` instance, seeds it, takes the pictures and
+installs them under `src/docs/material/assets`. The demo data and the list of
+screens (desktop, mobile) live in `src/docs/screenshots/screenshots.toml`; see
+`src/docs/screenshots/README.md` before adding a picture to the docs.
 
 ### Lint, fix & check commands
 

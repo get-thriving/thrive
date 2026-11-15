@@ -34,7 +34,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { SectionCard } from "#/core/infra/component/section-card";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
@@ -59,6 +59,7 @@ import { SchedulingParamsBlock } from "#/core/common/component/scheduling-params
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const ParamsSchema = z.object({});
 
@@ -94,6 +95,8 @@ const ALLOWED_EVAL_PERIODS: RecurringTaskPeriod[] = [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "M" } satisfies StrataHandle,
+  label: "Settings",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -235,7 +238,8 @@ export default function LifePlanSettings() {
   }, [loaderData]);
 
   return (
-    <BranchPanel
+    <EntityPanel
+      kind="branch"
       key={"life-plan/settings"}
       returnLocation="/app/workspace/apps/life-plan"
       inputsEnabled={inputsEnabled}
@@ -265,7 +269,7 @@ export default function LifePlanSettings() {
               />
             }
           >
-            <Stack spacing={2} useFlexGap direction="row">
+            <Stack spacing={1.25} useFlexGap direction="row">
               <BirthdaySelect
                 name="birthday"
                 allowNoneBirthday={false}
@@ -310,7 +314,7 @@ export default function LifePlanSettings() {
               />
             }
           >
-            <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+            <Stack direction={isBigScreen ? "row" : "column"} spacing={1.25}>
               <FormControl fullWidth>
                 <FormLabel id="evalApproach">Generation Approach</FormLabel>
                 <ToggleButtonGroup
@@ -372,8 +376,11 @@ export default function LifePlanSettings() {
 
             {evalApproach === LifePlanEvalApproach.TASK && (
               <>
-                <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
-                  <Stack spacing={2} sx={{ flex: 1 }}>
+                <Stack
+                  direction={isBigScreen ? "row" : "column"}
+                  spacing={1.25}
+                >
+                  <Stack spacing={1.25} sx={{ flex: 1 }}>
                     <Divider>
                       <Typography variant="h6">Eval Task Properties</Typography>
                     </Divider>
@@ -418,7 +425,7 @@ export default function LifePlanSettings() {
                     />
                   </Stack>
 
-                  <Stack spacing={2} sx={{ flex: 1 }}>
+                  <Stack spacing={1.25} sx={{ flex: 1 }}>
                     <Divider>
                       <Typography variant="h6">
                         Days To Generate In Advance
@@ -474,7 +481,7 @@ export default function LifePlanSettings() {
           </SectionCard>
         </>
       )}
-    </BranchPanel>
+    </EntityPanel>
   );
 }
 

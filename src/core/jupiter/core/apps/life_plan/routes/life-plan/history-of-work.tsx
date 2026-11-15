@@ -13,11 +13,10 @@ import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction,
 } from "react-router";
-import { Link, useSearchParams } from "react-router";
+import { Link } from "react-router";
 import { DateTime } from "luxon";
 import { useContext, type PropsWithChildren } from "react";
 import { z } from "zod";
-import { parseQuery } from "zodix";
 import { Box, styled } from "@mui/material";
 
 import { sortAspectsByTreeOrder } from "#/core/apps/life_plan/sub/aspects/root";
@@ -27,38 +26,45 @@ import { BigPlanStatusTag } from "#/core/apps/big_plans/component/status-tag";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { PeriodTag } from "#/core/common/component/period-tag";
 import { makeBranchErrorBoundary } from "#/core/infra/component/error-boundary";
-import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { SectionCard } from "#/core/infra/component/section-card";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import {
-  NavMultipleCompact,
-  NavSingle,
+  FilterFewOptionsCompact,
   SectionActions,
 } from "#/core/infra/component/section-actions";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
-import { newURLParams } from "#/core/infra/navigation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const ParamsSchema = z.object({});
 
-const QuerySchema = z.object({
-  hideNoGoal: z
-    .enum(["true", "false"])
-    .optional()
-    .transform((v) => (v === "true" ? true : false)),
+// Which of the work is shown: what is under a goal, what is under none, or both.
+enum GoalsShown {
+  ALL = "all",
+  WITH_GOAL = "with-goal",
+  NO_GOAL = "no-goal",
+}
+
+const PANEL_ID = "life-plan-history-of-work";
+
+const FILTERS = z.object({
+  goals: z.nativeEnum(GoalsShown).default(GoalsShown.ALL),
 });
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "B" } satisfies StrataHandle,
+  label: "History of work",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const query = parseQuery(request, QuerySchema);
   const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
     include_aspects: true,
@@ -101,9 +107,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   ]);
 
   return {
-    query: {
-      hideNoGoal: query.hideNoGoal,
-    },
     aspects: (summaryResponse.aspects ?? []) as AspectSummary[],
     goals: (summaryResponse.goals ?? []) as GoalSummary[],
     bigPlanEntries: (bigPlansResponse?.entries ??
@@ -118,8 +121,13 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function LifePlanHistoryOfWork() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
-  const [searchParams] = useSearchParams();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const [{ goals: goalsShown }, setFilters] = useSectionFilters(
+    PANEL_ID,
+    FILTERS,
+  );
+  const showGoals = goalsShown !== GoalsShown.NO_GOAL;
+  const showNoGoal = goalsShown !== GoalsShown.WITH_GOAL;
 
   const sortedAspects = sortAspectsByTreeOrder(loaderData.aspects);
 
@@ -131,7 +139,8 @@ export default function LifePlanHistoryOfWork() {
   const allChores = loaderData.choreEntries.map((e) => e.chore);
 
   return (
-    <BranchPanel
+    <EntityPanel
+      kind="branch"
       key={"life-plan/history-of-work"}
       returnLocation="/app/workspace/apps/life-plan"
       inputsEnabled={true}
@@ -141,18 +150,16 @@ export default function LifePlanHistoryOfWork() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
-            NavMultipleCompact({
-              navs: [
-                NavSingle({
-                  text: "Show No Goals",
-                  link: `/app/workspace/apps/life-plan/history-of-work?${newURLParams(searchParams, "hideNoGoal", "false")}`,
-                }),
-                NavSingle({
-                  text: "Hide No Goals",
-                  link: `/app/workspace/apps/life-plan/history-of-work?${newURLParams(searchParams, "hideNoGoal", "true")}`,
-                }),
+            FilterFewOptionsCompact(
+              "Goals",
+              goalsShown,
+              [
+                { value: GoalsShown.ALL, text: "All Work" },
+                { value: GoalsShown.WITH_GOAL, text: "With A Goal" },
+                { value: GoalsShown.NO_GOAL, text: "No Goal" },
               ],
-            }),
+              (goals) => setFilters({ goals }),
+            ),
           ]}
         />
       }
@@ -167,7 +174,7 @@ export default function LifePlanHistoryOfWork() {
             <Box key={`aspect-${aspect.ref_id}`}>
               <StandardDivider title={String(aspect.name)} size="large" />
 
-              {aspectGoals.map((goal) => {
+              {(showGoals ? aspectGoals : []).map((goal) => {
                 const goalHabits = allHabits.filter(
                   (h: Habit) =>
                     h.aspect_ref_id === aspect.ref_id &&
@@ -298,7 +305,7 @@ export default function LifePlanHistoryOfWork() {
               })}
 
               {/* Always show a last "No Goal" entry */}
-              {!loaderData.query.hideNoGoal &&
+              {showNoGoal &&
                 (() => {
                   const noGoalHabits = allHabits.filter(
                     (h: Habit) =>
@@ -423,7 +430,7 @@ export default function LifePlanHistoryOfWork() {
           );
         })}
       </SectionCard>
-    </BranchPanel>
+    </EntityPanel>
   );
 }
 

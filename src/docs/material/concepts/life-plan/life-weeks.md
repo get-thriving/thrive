@@ -4,6 +4,8 @@ The _Life Weeks_ view visualises your entire life as a grid of small cells —
 one cell per week. The grid has **52 columns** (one per week of the year) and
 **100 rows** (one per year of life), giving 5 200 cells in total.
 
+![The grid of your life, one cell per period, with the current one in gold and the share of life lived so far](../../assets/life-plan-life-weeks.png "The grid of your life, one cell per period, with the current one in gold and the share of life lived so far")
+
 Each cell is coloured to show where that week sits relative to today:
 
 | Colour      | Meaning             |

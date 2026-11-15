@@ -27,6 +27,7 @@ import { isCompleted } from "#/core/apps/big_plans/status";
 import { BigPlanStatusTag } from "#/core/apps/big_plans/component/status-tag";
 import { EntityNameOneLineComponent } from "#/core/common/component/entity-name";
 import { EntityLink } from "#/core/infra/component/entity-card";
+import { strataColors } from "#/core/infra/component/strata-tokens";
 import { EisenTag } from "#/core/common/component/eisen-tag";
 import { DifficultyTag } from "#/core/common/component/difficulty-tag";
 import { BigPlanDonePctTag } from "#/core/apps/big_plans/component/done-pct-tag";
@@ -109,7 +110,22 @@ export function BigPlanTimelineBigScreen({
             const location = entriesByRefId?.get(entry.ref_id)?.location;
 
             return (
-              <TableRow id={`big-plan-${entry.ref_id}`} key={entry.ref_id}>
+              <TableRow
+                id={`big-plan-${entry.ref_id}`}
+                key={entry.ref_id}
+                // A row is an item of the list: `j` and `k` move between the
+                // rows and `↵` opens one, or picks it where it is picked.
+                data-strata-item=""
+                data-strata-selectable={allowSelect && onClick ? "" : undefined}
+                tabIndex={-1}
+                onClick={() => allowSelect && onClick?.(entry)}
+                sx={{
+                  "&:focus": { outline: "none" },
+                  "&:focus > td:first-of-type": {
+                    boxShadow: `inset 2px 0 0 ${strataColors.amber}`,
+                  },
+                }}
+              >
                 <TableCell
                   sx={{
                     position: "relative",
@@ -119,7 +135,6 @@ export function BigPlanTimelineBigScreen({
                         ? theme.palette.action.hover
                         : "transparent",
                   }}
-                  onClick={() => allowSelect && onClick?.(entry)}
                 >
                   {ownersByBigPlanRefId?.get(entry.ref_id) && (
                     <UserLightChip

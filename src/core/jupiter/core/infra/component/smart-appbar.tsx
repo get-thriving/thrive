@@ -1,7 +1,12 @@
 import { AppBar, Toolbar } from "@mui/material";
 import type { PropsWithChildren } from "react";
 
-export function SmartAppBar(props: PropsWithChildren) {
+interface SmartAppBarProps {
+  /** A plain 56px bar, as on a phone, whatever the width. */
+  compact?: boolean;
+}
+
+export function SmartAppBar(props: PropsWithChildren<SmartAppBarProps>) {
   return (
     <AppBar
       position="static"
@@ -10,7 +15,15 @@ export function SmartAppBar(props: PropsWithChildren) {
         zIndex: (theme) => theme.zIndex.drawer + 10,
       }}
     >
-      <Toolbar>{props.children}</Toolbar>
+      <Toolbar
+        sx={
+          props.compact
+            ? { minHeight: 56, "@media (min-width:600px)": { minHeight: 56 } }
+            : undefined
+        }
+      >
+        {props.children}
+      </Toolbar>
     </AppBar>
   );
 }

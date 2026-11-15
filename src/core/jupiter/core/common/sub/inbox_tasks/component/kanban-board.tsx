@@ -1,7 +1,7 @@
 import { Draggable, Droppable } from "@hello-pangea/dnd";
 import type { InboxTask, Eisen } from "@jupiter/webapi-client";
 import { InboxTaskStatus } from "@jupiter/webapi-client";
-import { Box, Stack, Typography, styled } from "@mui/material";
+import { Box, Stack, Typography, alpha, styled } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { memo } from "react";
 
@@ -334,13 +334,13 @@ const InboxTasksColumnHighDiv = styled("div")<InboxTasksColumnHighDivProps>(
     minHeight: "100%",
     backgroundColor:
       divStatus === DragTargetStatus.SOURCE_DRAG
-        ? "rgb(191, 204, 229)"
+        ? alpha(theme.palette.info.main, 0.25)
         : divStatus === DragTargetStatus.SELECT_DRAG
-          ? "#f5f5f5"
+          ? theme.palette.action.hover
           : divStatus === DragTargetStatus.ALLOW_DRAG
-            ? "rgb(234, 246, 215)"
+            ? alpha(theme.palette.success.main, 0.22)
             : divStatus === DragTargetStatus.FORBID_DRAG
-              ? "rgb(243, 196, 196)"
+              ? alpha(theme.palette.error.main, 0.22)
               : theme.palette.background.paper,
   }),
 );

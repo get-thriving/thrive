@@ -22,7 +22,7 @@ import { DirSelect } from "#/core/apps/docs/sub/dir/component/select";
 import { isDirRoot } from "#/core/apps/docs/sub/dir/root";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { SectionCard } from "#/core/infra/component/section-card";
 import {
   ActionSingle,
@@ -53,6 +53,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "Settings",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -172,7 +173,8 @@ export default function DirFolderSettings() {
   const isRoot = isDirRoot(loaderData.dir);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`docs-dir-settings-${loaderData.dir.ref_id}`}
       entityType={NamedEntityTag.DIR}
       entityRefId={loaderData.dir.ref_id}
@@ -206,7 +208,7 @@ export default function DirFolderSettings() {
           ) : undefined
         }
       >
-        <Stack spacing={2}>
+        <Stack spacing={1.25}>
           {isRoot && (
             <Typography
               variant="body2"
@@ -255,7 +257,7 @@ export default function DirFolderSettings() {
           />
         </Stack>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

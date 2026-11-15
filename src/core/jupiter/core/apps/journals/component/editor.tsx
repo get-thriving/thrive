@@ -11,7 +11,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
@@ -32,7 +32,9 @@ export function JournalEditor(props: JournalEditorProps) {
   const timeConfigEditable = props.inputsEnabled && props.corePropertyEditable;
 
   return (
-    <SectionCard
+    <StrataSection
+      id="journal-properties-section"
+      fixed
       title="Properties"
       actions={
         <SectionActions
@@ -57,7 +59,11 @@ export function JournalEditor(props: JournalEditorProps) {
         />
       }
     >
-      <Stack direction={isBigScreen ? "row" : "column"} spacing={2} useFlexGap>
+      <Stack
+        direction={isBigScreen ? "row" : "column"}
+        spacing={1.25}
+        useFlexGap
+      >
         <FormControl fullWidth>
           <InputLabel id="rightNow" shrink margin="dense">
             The Date
@@ -100,6 +106,6 @@ export function JournalEditor(props: JournalEditorProps) {
           />
         </FormControl>
       </Stack>
-    </SectionCard>
+    </StrataSection>
   );
 }

@@ -22,7 +22,7 @@ modified via other processes like [garbage collection](garbage-collection.md).
 
 In the Web UI user-level flags live under `Account` and currently look like:
 
-![User Feature Flags Overview](../assets/user-feature-flags-overview.png)
+![The account page, with the Gamification feature flag in the user's feature flags section](../assets/user-feature-flags-overview.png "The account page, with the Gamification feature flag in the user's feature flags section")
 
 In the CLI you can view the user feature flags with `user-show` and change them
 via`user-change-feature-flags`.
@@ -32,7 +32,7 @@ via`user-change-feature-flags`.
 In the Web UI workspace-level feature flags live under `Settings` and currently
 looks like:
 
-![Workspace Feature Flags Overview](../assets/workspace-feature-flags-overview.png)
+![Workspace settings: the name of the workspace and a toggle for each feature flag](../assets/workspace-feature-flags-overview.png "Workspace settings: the name of the workspace and a toggle for each feature flag")
 
 In the CLI you can view the workspace feature flags with `workspace-show` and
 change them via`workspace-change-feature-flags`.

@@ -20,9 +20,9 @@ import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { IconSelector } from "#/core/infra/component/icon-selector";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -64,6 +64,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "Details",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -169,7 +170,9 @@ export default function SmartListDetails() {
     accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
+      sectionsPanelId="smart-list"
       key={`smart-list-${id}/details`}
       entityType={NamedEntityTag.SMART_LIST}
       entityRefId={loaderData.smartList.ref_id}
@@ -183,7 +186,9 @@ export default function SmartListDetails() {
       accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        id="smart-list-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -242,24 +247,27 @@ export default function SmartListDetails() {
           />
           <FieldError actionResult={actionData} fieldName="/icon" />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="smart-list-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
-          <SectionActions
-            id="smart-list-note"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                text: "Create Note",
-                value: "create-note",
-                highlight: false,
-                disabled: loaderData.note !== null,
-              }),
-            ]}
-          />
+          loaderData.note !== null ? undefined : (
+            <SectionActions
+              id="smart-list-note"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  text: "Create Note",
+                  value: "create-note",
+                  highlight: false,
+                }),
+              ]}
+            />
+          )
         }
       >
         {loaderData.note && (
@@ -270,8 +278,8 @@ export default function SmartListDetails() {
             />
           </>
         )}
-      </SectionCard>
-    </LeafPanel>
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

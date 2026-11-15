@@ -10,7 +10,7 @@ import { useContext } from "react";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   SectionCard,
@@ -39,6 +39,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New circle",
 };
 
 export async function action({ request, url }: ActionFunctionArgs) {
@@ -72,7 +73,8 @@ export default function NewCircle() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="prm/circles/new"
       fakeKey={"prm/circles/new"}
       returnLocation="/app/workspace/apps/prm/circles"
@@ -114,7 +116,7 @@ export default function NewCircle() {
           <FieldError actionResult={actionData} fieldName="/name" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

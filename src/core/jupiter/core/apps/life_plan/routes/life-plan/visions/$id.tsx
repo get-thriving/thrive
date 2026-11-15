@@ -12,9 +12,9 @@ import { useContext } from "react";
 import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   isVisionActivable,
   isVisionEditable,
@@ -31,6 +31,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -44,6 +45,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: strataEntityLabel("Vision"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -117,20 +119,22 @@ export default function Vision() {
   const isActivable = isVisionActivable(loaderData.vision);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key={`vision-${loaderData.vision.ref_id}`}
       entityType={NamedEntityTag.VISION}
       entityRefId={loaderData.vision.ref_id}
       fakeKey={`vision-${loaderData.vision.ref_id}`}
       showArchiveAndRemoveButton
-      isLeaflet
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.vision.archived}
       returnLocation="/app/workspace/apps/life-plan/visions"
     >
       <GlobalError actionResult={actionData} />
 
-      <SectionCard
+      <StrataSection
+        id="vision-section"
+        fixed
         title="Vision"
         actions={
           <SectionActions
@@ -152,8 +156,8 @@ export default function Vision() {
           initialNote={loaderData.note}
           inputsEnabled={noteInputsEnabled}
         />
-      </SectionCard>
-    </LeafPanel>
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

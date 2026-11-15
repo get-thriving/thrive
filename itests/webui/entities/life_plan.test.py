@@ -76,7 +76,11 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 from jupiter_webapi_client.types import Unset
 from playwright.sync_api import Page, expect
 
-from itests.helpers import fill_after_hydration, get_parsed_from_response
+from itests.helpers import (
+    click_entity_archive,
+    fill_after_hydration,
+    get_parsed_from_response,
+)
 from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 
@@ -509,7 +513,7 @@ def test_webui_life_plan_aspects_archive(page: Page, create_aspect) -> None:
     aspect = create_aspect("Aspect Lifecycle Archive")
     page.goto(f"/app/workspace/apps/life-plan/aspects/{aspect.ref_id}")
     page.wait_for_selector("#leaf-panel")
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
     page.wait_for_url("/app/workspace/apps/life-plan/aspects")
 
@@ -584,7 +588,7 @@ def test_webui_life_plan_chapters_archive(
     )
     page.goto(f"/app/workspace/apps/life-plan/chapters/{chapter.ref_id}")
     page.wait_for_selector("#leaf-panel")
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
     page.wait_for_url("/app/workspace/apps/life-plan/chapters")
 
@@ -640,7 +644,7 @@ def test_webui_life_plan_goals_archive(page: Page, create_aspect, create_goal) -
     goal = create_goal("Goal Lifecycle Archive", aspect_ref_id=aspect.ref_id)
     page.goto(f"/app/workspace/apps/life-plan/goals/{goal.ref_id}")
     page.wait_for_selector("#leaf-panel")
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
     page.wait_for_url("/app/workspace/apps/life-plan/goals")
 
@@ -714,7 +718,7 @@ def test_webui_life_plan_milestones_archive(
     )
     page.goto(f"/app/workspace/apps/life-plan/milestones/{milestone.ref_id}")
     page.wait_for_selector("#leaf-panel")
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
     page.wait_for_url("/app/workspace/apps/life-plan/milestones")
 

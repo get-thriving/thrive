@@ -6,7 +6,7 @@ import { ScoreHistory } from "@jupiter/core/gamification/component/score-history
 import { ScoreOverview } from "@jupiter/core/gamification/component/score-overview";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
-import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
@@ -15,6 +15,7 @@ import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TOOL,
+  label: "Gamification",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -34,7 +35,11 @@ export default function Gamification() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
   return (
-    <TrunkPanel key={"gamification"} returnLocation="/app/workspace">
+    <EntityPanel
+      kind="trunk"
+      key={"gamification"}
+      returnLocation="/app/workspace"
+    >
       <ToolPanel>
         {loaderData.userScoreOverview && (
           <SectionCard title="💪 Scores Overview">
@@ -47,7 +52,7 @@ export default function Gamification() {
           </SectionCard>
         )}
       </ToolPanel>
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

@@ -41,14 +41,13 @@ import {
 } from "#/core/common/sub/time_events/time-event";
 import { calendarEventWorkspacePathFromTimePlan } from "#/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { handleLoaderApiError } from "#/core/infra/errors.server";
@@ -59,6 +58,7 @@ import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -73,6 +73,7 @@ const ParamsSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Calendar event"),
 };
 
 type ScheduleExtras = {
@@ -306,7 +307,8 @@ export default function TimePlanCalendarEventDetails() {
   const timePlanView = query;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`time-plan-calendar-event-${loaderData.kind}-${loaderData.refId}`}
       fakeKey={`time-plan-calendar-event-${loaderData.kind}-${loaderData.refId}`}
       inputsEnabled={true}
@@ -315,7 +317,6 @@ export default function TimePlanCalendarEventDetails() {
         `/app/workspace/apps/time-plans/${id}`,
         timePlanView,
       )}
-      initialExpansionState={LeafPanelExpansionState.SMALL}
     >
       {loaderData.kind === "schedule-event-in-day" && (
         <ScheduleEventInDayProperties
@@ -343,7 +344,7 @@ export default function TimePlanCalendarEventDetails() {
           originalPath={loaderData.originalPath}
         />
       )}
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 
@@ -469,7 +470,8 @@ function TimeEventInDayProperties({
   const durationMins = inDayBlock.duration_mins;
 
   return (
-    <SectionCard
+    <StrataSection
+      fixed
       id="time-plan-calendar-event-details"
       title="Properties"
       actions={openOriginalActions(
@@ -519,7 +521,7 @@ function TimeEventInDayProperties({
         />
       </FormControl>
 
-      <Stack spacing={2} direction="row">
+      <Stack spacing={1.25} direction="row">
         <ButtonGroup variant="outlined" disabled>
           <Button variant={durationMins === 15 ? "contained" : "outlined"}>
             15m
@@ -551,7 +553,7 @@ function TimeEventInDayProperties({
         bufferBeforeMins={inDayBlock.buffer_before_mins ?? null}
         bufferAfterMins={inDayBlock.buffer_after_mins ?? null}
       />
-    </SectionCard>
+    </StrataSection>
   );
 }
 
@@ -572,7 +574,8 @@ function TimeEventFullDaysProperties({
   const durationDays = fullDaysBlock.duration_days;
 
   return (
-    <SectionCard
+    <StrataSection
+      fixed
       id="time-plan-calendar-event-details"
       title="Properties"
       actions={openOriginalActions(
@@ -612,7 +615,7 @@ function TimeEventFullDaysProperties({
         />
       </FormControl>
 
-      <Stack spacing={2} direction="row">
+      <Stack spacing={1.25} direction="row">
         <ButtonGroup variant="outlined" disabled>
           <Button variant={durationDays === 1 ? "contained" : "outlined"}>
             1D
@@ -638,7 +641,7 @@ function TimeEventFullDaysProperties({
           />
         </FormControl>
       </Stack>
-    </SectionCard>
+    </StrataSection>
   );
 }
 

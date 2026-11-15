@@ -2,7 +2,6 @@ import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction,
 } from "react-router";
-import TuneIcon from "@mui/icons-material/Tune";
 import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import { useContext } from "react";
@@ -14,12 +13,8 @@ import { EntityStack } from "#/core/infra/component/entity-stack";
 import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   NavMultipleSpread,
   NavSingle,
@@ -29,9 +24,13 @@ import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
+  // Circles are in the app of the people, which the rail calls PRM.
+  label: "PRM",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -52,15 +51,12 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 export default function Circles() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
-
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"prm/circles"}
-      createLocation="/app/workspace/apps/prm/circles/new"
       returnLocation="/app/workspace/apps/prm/persons"
       actions={
         <SectionActions
@@ -68,6 +64,11 @@ export default function Circles() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
+            NavSingle({
+              id: "trunk-new-leaf-entity",
+              text: "New",
+              link: "/app/workspace/apps/prm/circles/new",
+            }),
             NavMultipleSpread({
               navs: [
                 NavSingle({
@@ -77,16 +78,11 @@ export default function Circles() {
                 }),
               ],
             }),
-            NavSingle({
-              text: "Settings",
-              link: `/app/workspace/apps/prm/settings`,
-              icon: <TuneIcon />,
-            }),
           ]}
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+      <NestingAwareBlock>
         <EntityStack>
           {loaderData.circles.length === 0 && (
             <EntityNoNothingCard
@@ -112,7 +108,7 @@ export default function Circles() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

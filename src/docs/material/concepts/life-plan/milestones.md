@@ -10,6 +10,8 @@ moments you look back on as turning points or landmarks. Unlike
 [chapters](chapters.md), which span a period of time, a milestone is a
 point in time.
 
+![The milestones list: dated moments on the road, each belonging to an aspect](../../assets/life-plan-milestones.png "The milestones list: dated moments on the road, each belonging to an aspect")
+
 Examples of milestones:
 
 - _"Graduated university"_ — June 2019

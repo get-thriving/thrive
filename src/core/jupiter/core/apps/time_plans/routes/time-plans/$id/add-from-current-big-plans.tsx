@@ -50,7 +50,7 @@ import { BigPlanTimelineSmallScreen } from "#/core/apps/big_plans/component/time
 import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionMultipleSpread,
   ActionSingle,
@@ -61,7 +61,6 @@ import { SectionCard } from "#/core/infra/component/section-card";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TimePlanActivityFeasabilitySelect } from "#/core/apps/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "#/core/apps/time_plans/sub/activity/component/kind-select";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
@@ -76,6 +75,7 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 enum View {
   LIST_MERGED = "list-merged",
@@ -109,6 +109,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
+  label: "Add from current big plans",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -259,20 +261,15 @@ export default function TimePlanAddFromCurrentBigPlans() {
   );
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`time-plan-${id}/add-from-current-big-plans`}
       fakeKey={`time-plan-${id}/add-from-current-big-plans`}
       returnLocation={withTimePlanView(
         `/app/workspace/apps/time-plans/${id}`,
         timePlanView,
       )}
-      returnLocationDiscriminator="add-from-current-big-plans"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.LARGE}
-      allowedExpansionStates={[
-        LeafPanelExpansionState.LARGE,
-        LeafPanelExpansionState.FULL,
-      ]}
     >
       <GlobalError actionResult={actionData} />
 
@@ -332,7 +329,7 @@ export default function TimePlanAddFromCurrentBigPlans() {
         }
       >
         <Stack
-          spacing={2}
+          spacing={1.25}
           useFlexGap
           direction={isBigScreen ? "row" : "column"}
         >
@@ -474,7 +471,7 @@ export default function TimePlanAddFromCurrentBigPlans() {
           value={Array.from(targetBigPlanRefIds).join(",")}
         />
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

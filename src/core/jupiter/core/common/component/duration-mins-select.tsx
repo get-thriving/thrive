@@ -35,7 +35,7 @@ export function DurationMinsSelect(props: DurationMinsSelectProps) {
   const label = props.label ?? "Duration (Mins)";
 
   return (
-    <Stack spacing={2} direction="row">
+    <Stack spacing={1.25} direction="row">
       <ButtonGroup variant="outlined" disabled={!props.inputsEnabled}>
         {DURATION_MINS_PRESETS.map((preset) => (
           <Button

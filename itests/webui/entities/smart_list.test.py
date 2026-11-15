@@ -39,9 +39,12 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 from playwright.sync_api import Page, expect
 
 from itests.helpers import (
+    click_entity_archive,
+    expect_entity_archive_disabled,
     get_parsed_from_response,
     open_branch_publish_panel,
     open_leaf_publish_panel,
+    wait_for_hydration,
 )
 from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
@@ -177,6 +180,34 @@ def test_webui_smart_list_view_one_items(
     expect(page.locator(f"#smart-list-item-{smart_list_item2.ref_id}")).to_contain_text(
         "Smart List Item 2"
     )
+
+
+def test_webui_smart_list_items_are_gone_through_with_j_and_k(
+    page: Page, create_smart_list, create_smart_list_item
+) -> None:
+    smart_list = create_smart_list("Smart List With Keys")
+    first = create_smart_list_item("Keys Item 1", smart_list.ref_id)
+    second = create_smart_list_item("Keys Item 2", smart_list.ref_id)
+
+    page.set_viewport_size({"width": 1400, "height": 900})
+    page.goto(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}/items")
+    wait_for_hydration(page)
+    expect(page.locator("#branch-panel")).to_have_attribute("data-focused", "true")
+
+    # The list is the branch's own, with no sections: `j` goes in at the first
+    # item, and then moves on, stopping at the end.
+    page.keyboard.press("j")
+    expect(page.locator(f"#smart-list-item-{first.ref_id}")).to_be_focused()
+    page.keyboard.press("j")
+    expect(page.locator(f"#smart-list-item-{second.ref_id}")).to_be_focused()
+    page.keyboard.press("k")
+    expect(page.locator(f"#smart-list-item-{first.ref_id}")).to_be_focused()
+
+    # `↵` opens the one with the focus, in the column after the list.
+    page.keyboard.press("j")
+    page.keyboard.press("Enter")
+    page.wait_for_url(re.compile(rf"smart-lists/{smart_list.ref_id}/{second.ref_id}"))
+    expect(page.locator("#leaf-panel")).to_be_visible()
 
 
 def test_webui_smart_list_publish_and_view_public(
@@ -370,7 +401,7 @@ def test_webui_smart_list_acl_reader_can_read_but_not_update_or_archive(
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL List")
     expect(page.locator('input[name="name"]')).to_be_disabled()
     expect(page.locator("button[id='smart-list-update']")).to_be_disabled()
-    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+    expect_entity_archive_disabled(page, "leaf")
 
 
 def test_webui_smart_list_acl_writer_can_read_and_update(
@@ -413,7 +444,7 @@ def test_webui_smart_list_acl_writer_can_read_and_archive(
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Archive List")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_url(f"/app/workspace/apps/smart-lists/{smart_list.ref_id}")

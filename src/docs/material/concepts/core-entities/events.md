@@ -5,6 +5,8 @@ Events are the core entities used to represent things in time.
 In Thrive, events are managed in the [Calendar](../calendar.md) and are useful
 both for planning (future) and recording (past).
 
+![The calendar's daily view: each event is a block in time, in its stream's colour](../../assets/events-calendar.png "The calendar's daily view: each event is a block in time, in its stream's colour")
+
 ## What An Event Contains
 
 At a minimum, an event has:
@@ -24,6 +26,8 @@ An in-day event can also carry a _buffer before_ and a _buffer after_, each a
 number of minutes. These are optional, and they hold the logistics around the
 event -- travelling to it, or winding down from it -- so that time reads as
 taken up without becoming part of the event itself.
+
+![An in-day event being edited: stream, name, start, duration and the buffers before and after](../../assets/events-update.png "An in-day event being edited: stream, name, start, duration and the buffers before and after")
 
 Buffers show up in the calendar as hatched bands hugging the event, and can be
 set wherever an in-day event is created or edited. Leaving a buffer field empty

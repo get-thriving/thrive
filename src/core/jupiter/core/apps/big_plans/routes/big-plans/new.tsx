@@ -22,7 +22,7 @@ import {
   bigPlanCreateArgs,
 } from "#/core/apps/big_plans/create-form";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { handleActionApiError } from "#/core/infra/errors.server";
@@ -38,6 +38,7 @@ const ParamsSchema = z.object({});
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New big plan",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -96,7 +97,8 @@ export default function NewBigPlan() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="big-plans/new"
       fakeKey={`big-plans/new`}
       returnLocation="/app/workspace/apps/big-plans"
@@ -108,7 +110,7 @@ export default function NewBigPlan() {
         inputsEnabled={inputsEnabled}
         actionResult={actionData}
       />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

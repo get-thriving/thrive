@@ -15,6 +15,7 @@ import { bigPlanDonePct } from "#/core/apps/big_plans/root";
 import { isCompleted } from "#/core/apps/big_plans/status";
 import { BigPlanStatusTag } from "#/core/apps/big_plans/component/status-tag";
 import { EntityNameOneLineComponent } from "#/core/common/component/entity-name";
+import { strataColors } from "#/core/infra/component/strata-tokens";
 import { EntityStack } from "#/core/infra/component/entity-stack";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
@@ -98,6 +99,11 @@ export function BigPlanTimelineSmallScreen({
           return (
             <SmallScreenTimelineLine
               key={bigPlan.ref_id}
+              // A line is an item of the list: `j` and `k` move between the
+              // lines and `↵` opens one, or picks it where it is picked.
+              data-strata-item=""
+              data-strata-selectable={allowSelect && onClick ? "" : undefined}
+              tabIndex={-1}
               selected={allowSelect && selectedPredicate?.(bigPlan)}
               onClick={() => allowSelect && onClick?.(bigPlan)}
             >
@@ -207,6 +213,11 @@ const SmallScreenTimelineLine = styled("div")<SmallScreenTimelineLineProps>(
     position: "relative",
     height: "1.5rem",
     backgroundColor: selected ? theme.palette.action.hover : "transparent",
+    // The one with the keyboard focus is marked by a line on its left.
+    "&:focus": {
+      outline: "none",
+      boxShadow: `inset 2px 0 0 ${strataColors.amber}`,
+    },
   }),
 );
 

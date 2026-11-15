@@ -1,5 +1,6 @@
 __pycache__/
 tsconfig.tsbuildinfo
+output.json
 node_modules/
 secrets
 Config.project.secret

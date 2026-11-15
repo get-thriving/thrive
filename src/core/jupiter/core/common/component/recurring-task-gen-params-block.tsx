@@ -149,7 +149,7 @@ export function RecurringTaskGenParamsBlock(
 
           {period === RecurringTaskPeriod.WEEKLY && (
             <>
-              <Stack spacing={2} useFlexGap direction="row">
+              <Stack spacing={1.25} useFlexGap direction="row">
                 <FormControl fullWidth>
                   <InputLabel id="actionableFromDay">
                     Actionable From Day [Optional]
@@ -212,7 +212,7 @@ export function RecurringTaskGenParamsBlock(
 
           {period === RecurringTaskPeriod.MONTHLY && (
             <>
-              <Stack spacing={2} useFlexGap direction="row">
+              <Stack spacing={1.25} useFlexGap direction="row">
                 <FormControl fullWidth>
                   <InputLabel id="actionableFromDay">
                     Actionable From Day [Optional]
@@ -271,7 +271,7 @@ export function RecurringTaskGenParamsBlock(
 
           {period === RecurringTaskPeriod.QUARTERLY && (
             <>
-              <Stack spacing={2} useFlexGap direction="row">
+              <Stack spacing={1.25} useFlexGap direction="row">
                 <FormControl fullWidth>
                   <InputLabel id="actionableFromDay">
                     Actionable From Day [Optional]
@@ -329,7 +329,7 @@ export function RecurringTaskGenParamsBlock(
                 </FormControl>
               </Stack>
 
-              <Stack spacing={2} useFlexGap direction="row">
+              <Stack spacing={1.25} useFlexGap direction="row">
                 <FormControl fullWidth>
                   <InputLabel id="dueAtDay">Due At Day [Optional]</InputLabel>
                   <Select
@@ -383,7 +383,7 @@ export function RecurringTaskGenParamsBlock(
 
           {period === RecurringTaskPeriod.YEARLY && (
             <>
-              <Stack spacing={2} useFlexGap direction="row">
+              <Stack spacing={1.25} useFlexGap direction="row">
                 <FormControl fullWidth>
                   <InputLabel id="actionableFromDay">
                     Actionable From Day [Optional]
@@ -456,7 +456,7 @@ export function RecurringTaskGenParamsBlock(
                 </FormControl>
               </Stack>
 
-              <Stack spacing={2} useFlexGap direction="row">
+              <Stack spacing={1.25} useFlexGap direction="row">
                 <FormControl fullWidth>
                   <InputLabel id="dueAtDay">Due At Day [Optional]</InputLabel>
                   <Select

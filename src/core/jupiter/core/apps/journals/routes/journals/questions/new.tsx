@@ -17,8 +17,11 @@ import { parseForm } from "zodix";
 import { PeriodSelect } from "#/core/common/component/period-select";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import {
+  ActionsPosition,
+  SectionCard,
+} from "#/core/infra/component/section-card";
 import {
   ActionSingle,
   SectionActions,
@@ -44,6 +47,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New question",
 };
 
 export async function action({ request, url }: ActionFunctionArgs) {
@@ -78,7 +82,8 @@ export default function NewJournalQuestion() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="journals/questions/new"
       fakeKey="journals/questions/new"
       returnLocation="/app/workspace/apps/journals/questions"
@@ -87,6 +92,7 @@ export default function NewJournalQuestion() {
       <GlobalError actionResult={actionData} />
       <SectionCard
         title="New Question"
+        actionsPosition={ActionsPosition.BELOW}
         actions={
           <SectionActions
             id="journal-question-create"
@@ -131,7 +137,7 @@ export default function NewJournalQuestion() {
           <FieldError actionResult={actionData} fieldName="/period" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -22,7 +22,7 @@ import {
   habitCreateArgs,
 } from "#/core/apps/habits/create-form";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { handleActionApiError } from "#/core/infra/errors.server";
@@ -38,6 +38,7 @@ const ParamsSchema = z.object({});
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New habit",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -104,7 +105,8 @@ export default function NewHabit() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="habits/new"
       fakeKey={"habits/new"}
       returnLocation="/app/workspace/apps/habits/habits"
@@ -116,7 +118,7 @@ export default function NewHabit() {
         inputsEnabled={inputsEnabled}
         actionResult={actionData}
       />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

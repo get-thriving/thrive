@@ -1859,13 +1859,13 @@ version = "1.3.3"
 source = { editable = "gen/py/webapi-client" }
 dependencies = [
     { name = "attrs" },
-    { name = "httpx" },
+    { name = "httpx2" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "attrs", specifier = ">=22.2.0" },
-    { name = "httpx", specifier = ">=0.23.1,<0.29.0" },
+    { name = "httpx2", specifier = ">=2.13.1,<3" },
 ]
 
 [[package]]

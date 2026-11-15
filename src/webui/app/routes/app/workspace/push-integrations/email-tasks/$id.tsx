@@ -34,7 +34,7 @@ import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-sele
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
@@ -54,6 +54,7 @@ import { SchedulingParamsBlock } from "@jupiter/core/common/component/scheduling
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -85,6 +86,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Email task"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -239,7 +241,8 @@ export default function EmailTask() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`email-task-${loaderData.emailTask.ref_id}`}
       entityType={NamedEntityTag.EMAIL_TASK}
       entityRefId={loaderData.emailTask.ref_id}
@@ -462,7 +465,7 @@ export default function EmailTask() {
           />
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

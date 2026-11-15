@@ -26,3 +26,5 @@ an inbox task from a metric - and none is specified, this one will be used
 instead.
 
 [Feature flags](feature-flags.md) are also associated with a workspace.
+
+![The workspace settings: its name and which features are turned on](../assets/workspaces-update.png "The workspace settings: its name and which features are turned on")

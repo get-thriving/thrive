@@ -9,7 +9,7 @@ or"Meditate for 5 minutes".
 
 In the habits view, the task templates might look like this:
 
-![Habits Overview](../assets/habits-overview.png)
+![Habits by period, with the tasks due today and this week on the right](../assets/habits-overview.png "Habits by period, with the tasks due today and this week on the right")
 
 ## Properties
 
@@ -45,7 +45,7 @@ instantiation of a task of thatperiod.
 
 While in the inbox, the instantiated tasks might look like this:}
 
-![Inbox Task from Habit](../assets/habits-inbox-task.png)
+![An inbox task generated from a habit, opened next to the list of all inbox tasks](../assets/habits-inbox-task.png "An inbox task generated from a habit, opened next to the list of all inbox tasks")
 
 The instantiated task in the inbox is constructed from the habit template, butit
 also changes in the following way:
@@ -174,6 +174,8 @@ Habit inbox tasks are created via [task generation](tasks-generation.md).
 A habit also carries [scheduling constraints](scheduling-constraints.md). A
 habit like "no sweets today" isn't something you sit down and do, so it can be
 marked as not schedulable, and it then takes up none of a time plan's hours.
+
+![A habit open for editing: period, Eisenhower status, difficulty, repeats, scheduling and its streak](../assets/habits-update.png "A habit open for editing: period, Eisenhower status, difficulty, repeats, scheduling and its streak")
 
 ## Stacks
 

@@ -40,6 +40,8 @@ from playwright.sync_api import Page, expect
 
 from itests.conftest import TestUser
 from itests.helpers import (
+    click_entity_archive,
+    expect_entity_archive_disabled,
     get_parsed_from_response,
     open_leaf_publish_panel,
     type_entity_note_editor_and_wait_for_save,
@@ -168,6 +170,8 @@ def test_webui_todo_edit_note(page: Page, create_todo) -> None:
     page.reload()
     page.wait_for_selector("#leaf-panel")
     page.wait_for_selector("#entity-block-editor")
+    # There is a note now, so there is nothing left to create.
+    expect(page.locator("button[id='todo-create-note']")).to_have_count(0)
 
     type_entity_note_editor_and_wait_for_save(page, "This is a todo note.")
 
@@ -187,7 +191,7 @@ def test_webui_todo_archive(page: Page, create_todo) -> None:
     page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_url("/app/workspace/apps/todos")
@@ -357,7 +361,7 @@ def test_webui_todo_acl_reader_can_read_but_not_update_or_archive(
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Todo")
     expect(page.locator('input[name="name"]')).to_be_disabled()
     expect(page.locator("button[id='todo-update']")).to_be_disabled()
-    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+    expect_entity_archive_disabled(page, "leaf")
 
 
 def test_webui_todo_acl_writer_can_read_and_update(
@@ -400,7 +404,7 @@ def test_webui_todo_acl_writer_can_read_and_archive(
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Archive Todo")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_url("/app/workspace/apps/todos")
@@ -442,9 +446,7 @@ def test_webui_todo_note_saves_when_the_panel_closes_mid_save(
     page.keyboard.type("Saved even though the panel went away.")
 
     # Close the panel right away, without waiting for the save to come back.
-    page.locator(
-        "#leaf-panel-controls button:has(svg[data-testid='KeyboardDoubleArrowRightIcon'])"
-    ).click()
+    page.locator("#leaf-panel-controls [data-strata-close]").click()
     page.wait_for_url(re.compile(r"/app/workspace/apps/todos$"))
 
     page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")

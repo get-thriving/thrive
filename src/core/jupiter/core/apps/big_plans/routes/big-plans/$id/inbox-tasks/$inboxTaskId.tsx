@@ -35,8 +35,8 @@ import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { InboxTaskStatusBigTag } from "#/core/common/sub/inbox_tasks/component/status-big-tag";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -53,6 +53,7 @@ import {
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -118,6 +119,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: strataEntityLabel("Inbox task"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -289,16 +291,18 @@ export default function BigPlanInboxTaskEdit() {
   const inputsEnabled = navigation.state === "idle" && !inboxTask.archived;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key={`big-plan-inbox-task-${inboxTask.ref_id}`}
-      isLeaflet
       fakeKey={`big-plan-inbox-task-${inboxTask.ref_id}`}
       returnLocation={`/app/workspace/apps/big-plans/${bigPlanId}`}
       inputsEnabled={inputsEnabled}
       entityArchived={inboxTask.archived}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        id="big-plan-inbox-task-properties-section"
+        fixed
         title="Inbox Task Properties"
         actions={
           <SectionActions
@@ -316,7 +320,7 @@ export default function BigPlanInboxTaskEdit() {
           />
         }
       >
-        <Stack spacing={2} useFlexGap>
+        <Stack spacing={1.25} useFlexGap>
           <Box sx={{ display: "flex", flexDirection: "row", gap: "0.25rem" }}>
             <FormControl sx={{ flexGrow: 3 }}>
               <InputLabel id="name">Name</InputLabel>
@@ -606,8 +610,8 @@ export default function BigPlanInboxTaskEdit() {
             </ButtonGroup>
           </Stack>
         </CardActions>
-      </SectionCard>
-    </LeafPanel>
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

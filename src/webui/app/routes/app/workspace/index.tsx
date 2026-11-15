@@ -52,11 +52,8 @@ import {
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { isUserFeatureAvailable } from "@jupiter/core/users/root";
 import { sortAndFilterTabsByTheirOrder } from "@jupiter/core/home/sub/tab/root";
-import {
-  useTrunkNeedsToShowLeaf,
-  DisplayType,
-} from "@jupiter/core/infra/component/use-nested-entities";
-import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
@@ -108,9 +105,12 @@ import { newURLParams } from "@jupiter/core/infra/navigation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "FULL" } satisfies StrataHandle,
+  label: "Home",
 };
 
 const QuerySchema = z.object({
@@ -428,7 +428,6 @@ export default function WorkspaceHome() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "loading" ? false : true;
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const isBigScreen = useBigScreen();
 
   const sortedHabitInboxTasks = loaderData.habitInboxTasks
@@ -759,7 +758,8 @@ export default function WorkspaceHome() {
   };
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"workspace"}
       returnLocation="/app/workspace"
       actions={
@@ -777,7 +777,7 @@ export default function WorkspaceHome() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {isBigScreen && (
           <>
             {bigScreenTabs.length === 0 && (
@@ -826,7 +826,7 @@ export default function WorkspaceHome() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

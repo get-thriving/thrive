@@ -51,6 +51,7 @@ const GCFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.TOOL,
+  label: "Garbage collection",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

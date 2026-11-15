@@ -30,7 +30,7 @@ import { MetricDirectionSelect } from "#/core/apps/metrics/component/direction-s
 import { IconSelector } from "#/core/infra/component/icon-selector";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
@@ -80,6 +80,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New metric",
 };
 
 export async function action({ request, url }: ActionFunctionArgs) {
@@ -168,7 +169,8 @@ export default function NewMetric() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="metrics/new"
       fakeKey={"metrics/new"}
       returnLocation="/app/workspace/apps/metrics"
@@ -199,7 +201,7 @@ export default function NewMetric() {
           />
         }
       >
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={1.25}>
           <FormControl fullWidth sx={{ flexGrow: 3 }}>
             <InputLabel id="name">Name</InputLabel>
             <OutlinedInput label="Name" name="name" readOnly={!inputsEnabled} />
@@ -362,7 +364,7 @@ export default function NewMetric() {
           actionData={actionData}
         />
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

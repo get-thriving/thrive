@@ -35,7 +35,7 @@ import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-sele
 import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
@@ -55,6 +55,7 @@ import { SchedulingParamsBlock } from "@jupiter/core/common/component/scheduling
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -62,6 +63,7 @@ const ParamsSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Slack task"),
 };
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
@@ -229,7 +231,8 @@ export default function SlackTask() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`slack-task-${loaderData.slackTask.ref_id}`}
       entityType={NamedEntityTag.SLACK_TASK}
       entityRefId={loaderData.slackTask.ref_id}
@@ -455,7 +458,7 @@ export default function SlackTask() {
           />
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

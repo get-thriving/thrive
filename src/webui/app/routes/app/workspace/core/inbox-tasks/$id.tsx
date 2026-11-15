@@ -27,8 +27,9 @@ import { parentLinkNamespaceFromEntityLinkWire } from "#/core/common/sub/inbox_t
 import { InboxTaskPropertiesEditor } from "@jupiter/core/common/sub/inbox_tasks/component/properties-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
+import { countSummary } from "@jupiter/core/infra/component/count-summary";
+import { StrataSection } from "@jupiter/core/infra/component/strata-section";
 import { TimePlanActivityList } from "@jupiter/core/apps/time_plans/sub/activity/component/list";
 import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
@@ -45,6 +46,8 @@ import { entityOwnedByCurrentUser } from "#/core/common/sub/access/access-level"
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -117,6 +120,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "M" } satisfies StrataHandle,
+  label: strataEntityLabel("Inbox task"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -370,7 +375,9 @@ export default function InboxTask() {
   const emptyTimeEventsByRefId = new Map<string, Array<TimeEventInDayBlock>>();
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
+      sectionsPanelId="inbox-task"
       key={`inbox-task-${inboxTask.ref_id}`}
       fakeKey={`inbox-task-${inboxTask.ref_id}`}
       showArchiveAndRemoveButton={ownedByCurrentUser}
@@ -394,9 +401,16 @@ export default function InboxTask() {
         WorkspaceFeature.TIME_PLANS,
       ) &&
         timePlanActivities && (
-          <SectionCard
+          <StrataSection
             id="inbox-task-time-plans"
+            items={timePlanActivities.length}
+            split={{ size: 1 }}
             title="Time Plans"
+            summary={countSummary(
+              timePlanActivities.length,
+              "activity",
+              "activities",
+            )}
             actions={
               <SectionActions
                 id="inbox-task-time-plans-actions"
@@ -426,9 +440,9 @@ export default function InboxTask() {
               fullInfo={false}
               showTimePlanName={true}
             />
-          </SectionCard>
+          </StrataSection>
         )}
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -22,7 +22,7 @@ import { useContext } from "react";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
@@ -58,6 +58,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New item",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -113,7 +114,8 @@ export default function NewSmartListItem() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`smart-list-${id}/new`}
       fakeKey={`smart-list-${id}/new`}
       returnLocation={`/app/workspace/apps/smart-lists/${id}`}
@@ -170,7 +172,7 @@ export default function NewSmartListItem() {
           <FieldError actionResult={actionData} fieldName="/url" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

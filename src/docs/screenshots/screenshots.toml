@@ -1,0 +1,1031 @@
+# The pictures of the docs: who the demo user is, what data the demo workspace
+# holds, and which screens to take pictures of. Read README.md first.
+#
+# Run it with `mise run build:docs-screenshots`.
+
+# ---------------------------------------------------------------------------
+# The demo user and workspace. These are created on a fresh instance.
+# ---------------------------------------------------------------------------
+
+[user]
+email = "docs-demo@example.com"
+name = "Alex Rivera"
+password = "docs-demo-password-1"
+timezone = "Europe/Bucharest"
+birthday = "12 Sep"
+birth_year = 1990
+workspace_name = "Alex's Workspace"
+root_aspect = "Life"
+first_stream = "Life"
+features = ["gamification"]
+
+[workspace]
+# Everything, except the integrations that need an external service.
+features = [
+  "big-plans", "chores", "docs", "habits", "journals", "life-plan", "metrics",
+  "prm", "schedule", "smart-lists", "time-plans", "todo-task", "vacations",
+  "working-mem",
+]
+
+# ---------------------------------------------------------------------------
+# The kinds of screens. A shot picks one with `profile = "..."`.
+# ---------------------------------------------------------------------------
+
+[profile.desktop]
+width = 1500
+height = 926
+scale = 1.5
+
+[profile.mobile]
+width = 390
+height = 844
+scale = 2
+mobile = true
+
+# A tall window, for the month and year of the calendar.
+[profile.tall]
+width = 1500
+height = 1500
+scale = 1.5
+
+# Small windows for the forms of the logged out screens.
+[profile.form]
+width = 1100
+height = 470
+scale = 2
+
+# ===========================================================================
+# THE DATA
+#
+# Each [[seed]] is one call to the WebAPI, or one call per item of `foreach`.
+# `op` is the module of the client (`gen/py/webapi-client/.../api/<op>.py`),
+# `args` the body of the call. `save = "name"` remembers the id of what was
+# created, to use later as `{{ ref("name") }}`. Dates are `{{ day(n) }}`, n days
+# from today, so the data always looks current.
+# ===========================================================================
+
+# -- Habits -----------------------------------------------------------------
+
+[[seed]]
+op = "habits.habit_create"
+foreach = [
+  { name = "Get at least 7h30m of quality sleep", period = "daily", is_key = true, eisen = "important", difficulty = "easy" },
+  { name = "Go for a walk for at least 15 minutes", period = "daily", is_key = false, eisen = "regular", difficulty = "easy" },
+  { name = "Drink at least 8 glasses of water", period = "daily", is_key = false, eisen = "regular", difficulty = "easy" },
+  { name = "Stretch for 10 minutes", period = "daily", is_key = false, eisen = "regular", difficulty = "easy" },
+  { name = "Read for half an hour", period = "daily", is_key = true, eisen = "important", difficulty = "medium" },
+]
+args = "{{ item }}"
+save = "habit_{{ i }}"
+
+[[seed]]
+op = "habits.habit_create"
+save = "habit_5"
+[seed.args]
+name = "Go to the gym"
+period = "weekly"
+is_key = true
+eisen = "important"
+difficulty = "hard"
+repeats_strategy = "spread-out-no-overlap"
+repeats_in_period_count = 3
+
+[[seed]]
+op = "habits.habit_create"
+foreach = [
+  { name = "Call a friend", period = "weekly", is_key = false, eisen = "regular", difficulty = "easy" },
+  { name = "Review the week and plan the next", period = "weekly", is_key = true, eisen = "important", difficulty = "medium" },
+]
+args = "{{ item }}"
+save = "habit_{{ i + 6 }}"
+
+# -- Chores -----------------------------------------------------------------
+
+[[seed]]
+op = "chores.chore_create"
+foreach = [
+  { name = "Water the plants", period = "weekly", eisen = "regular", difficulty = "easy", is_key = false, must_do = false },
+  { name = "Clean the kitchen", period = "weekly", eisen = "regular", difficulty = "medium", is_key = false, must_do = false },
+  { name = "Take out the recycling", period = "weekly", eisen = "regular", difficulty = "easy", is_key = false, must_do = false },
+  { name = "Pay the rent", period = "monthly", eisen = "important-and-urgent", difficulty = "easy", is_key = false, must_do = false },
+  { name = "Back up the laptop", period = "monthly", eisen = "important", difficulty = "easy", is_key = false, must_do = false },
+  { name = "Renew the car insurance", period = "yearly", eisen = "important", difficulty = "medium", is_key = false, must_do = false },
+]
+args = "{{ item }}"
+save = "chore_{{ i }}"
+
+# -- Todos ------------------------------------------------------------------
+
+[[seed]]
+op = "todo.todo_task_create"
+foreach = [
+  { name = "Book a dentist appointment", is_key = false, eisen = "important", difficulty = "easy", due_date = "{{ day(2) }}" },
+  { name = "Finish the quarterly report", is_key = true, eisen = "important-and-urgent", difficulty = "hard", due_date = "{{ day(1) }}" },
+  { name = "Buy a birthday present for Elena", is_key = false, eisen = "urgent", difficulty = "easy", due_date = "{{ day(5) }}" },
+  { name = "Renew the passport", is_key = false, eisen = "important", difficulty = "medium", due_date = "{{ day(20) }}" },
+  { name = "Fix the bike's rear brake", is_key = false, eisen = "regular", difficulty = "medium", due_date = "{{ day(9) }}" },
+  { name = "Reply to Oliver about the trip", is_key = false, eisen = "urgent", difficulty = "easy", due_date = "{{ day(0) }}" },
+  { name = "Sort the photos from last summer", is_key = false, eisen = "regular", difficulty = "medium", due_date = "{{ day(30) }}" },
+]
+args = "{{ item }}"
+save = "todo_{{ i }}"
+
+# -- Big plans --------------------------------------------------------------
+
+[[seed]]
+op = "big_plans.big_plan_create"
+foreach = [
+  { name = "Run a half marathon", is_key = true, eisen = "important", difficulty = "hard", actionable_date = "{{ day(-40) }}", due_date = "{{ day(70) }}" },
+  { name = "Learn conversational Spanish", is_key = true, eisen = "important", difficulty = "hard", actionable_date = "{{ day(-20) }}", due_date = "{{ day(160) }}" },
+  { name = "Redo the balcony", is_key = true, eisen = "regular", difficulty = "medium", actionable_date = "{{ day(10) }}", due_date = "{{ day(50) }}" },
+  { name = "Read twelve books this year", is_key = true, eisen = "regular", difficulty = "medium", actionable_date = "{{ day(-90) }}", due_date = "{{ day(200) }}" },
+]
+args = "{{ item }}"
+save = "big_plan_{{ i }}"
+
+# -- Metrics, with a year of entries each -----------------------------------
+
+[[seed]]
+op = "metrics.metric_create"
+foreach = [
+  { name = "Weight", icon = "⚖️", metric_unit = "weight", metric_direction = "down_is_good", collection_period = "weekly", is_key = true, collection_eisen = "regular", collection_difficulty = "easy" },
+  { name = "Savings", icon = "💰", metric_unit = "money", metric_direction = "up_is_good", collection_period = "monthly", is_key = true, collection_eisen = "regular", collection_difficulty = "easy" },
+  { name = "Books read", icon = "📚", metric_unit = "count", metric_direction = "up_is_good", collection_period = "monthly", is_key = true, collection_eisen = "regular", collection_difficulty = "easy" },
+]
+args = "{{ item }}"
+save = "metric_{{ i }}"
+
+[[seed]]
+op = "metrics.metric_entry_create"
+foreach = "{{ [{'metric_ref_id': ref('metric_0'), 'value': round(84.0 - 0.3 * k + (0.2 if k % 3 == 0 else -0.1), 1), 'collection_time': day(-(11 - k) * 7)} for k in range(12)] }}"
+args = "{{ item }}"
+
+[[seed]]
+op = "metrics.metric_entry_create"
+foreach = "{{ [{'metric_ref_id': ref('metric_1'), 'value': round(4200.0 + 310.0 * k + (0.2 if k % 3 == 0 else -0.1), 1), 'collection_time': day(-(11 - k) * 30)} for k in range(12)] }}"
+args = "{{ item }}"
+
+[[seed]]
+op = "metrics.metric_entry_create"
+foreach = "{{ [{'metric_ref_id': ref('metric_2'), 'value': round(1.0 * k + (0.2 if k % 3 == 0 else -0.1), 1), 'collection_time': day(-(11 - k) * 30)} for k in range(12)] }}"
+args = "{{ item }}"
+
+[[seed]]
+op = "metrics.metric_load"
+args = { ref_id = "{{ ref('metric_0') }}" }
+saves = [{ name = "metric_entry", path = "metric_entries.0.ref_id" }]
+
+# -- Smart lists ------------------------------------------------------------
+
+[[seed]]
+op = "smart_lists.smart_list_create"
+foreach = [{ name = "Books to read" }, { name = "Movies to watch" }, { name = "Restaurants to try" }]
+args = "{{ item }}"
+save = "smart_list_{{ i }}"
+
+[[seed]]
+op = "smart_lists.smart_list_item_create"
+foreach = "{{ [{'smart_list_ref_id': ref('smart_list_0'), 'name': n, 'is_done': j == 0} for j, n in enumerate(['Project Hail Mary', 'The Denial of Death', 'Deep Work', 'Educated', 'Sapiens'])] }}"
+args = "{{ item }}"
+
+[[seed]]
+op = "smart_lists.smart_list_item_create"
+foreach = "{{ [{'smart_list_ref_id': ref('smart_list_1'), 'name': n, 'is_done': j == 0} for j, n in enumerate(['Arrival', 'Perfect Days', 'The Grand Budapest Hotel', 'Past Lives'])] }}"
+args = "{{ item }}"
+
+[[seed]]
+op = "smart_lists.smart_list_item_create"
+foreach = "{{ [{'smart_list_ref_id': ref('smart_list_2'), 'name': n, 'is_done': j == 0} for j, n in enumerate(['Trattoria Sorrento', 'Ramen Ichi', 'Casa Maria'])] }}"
+args = "{{ item }}"
+
+[[seed]]
+op = "smart_lists.smart_list_load"
+args = { ref_id = "{{ ref('smart_list_0') }}" }
+saves = [{ name = "smart_list_item", path = "smart_list_items.0.ref_id" }]
+
+# -- Vacations --------------------------------------------------------------
+
+[[seed]]
+op = "vacations.vacation_create"
+foreach = [
+  { name = "Easter in the mountains", start_date = "{{ day(25) }}", end_date = "{{ day(31) }}" },
+  { name = "Summer in Kefalonia", start_date = "{{ day(100) }}", end_date = "{{ day(114) }}" },
+  { name = "Winter break", start_date = "{{ day(240) }}", end_date = "{{ day(250) }}" },
+]
+args = "{{ item }}"
+save = "vacation_{{ i }}"
+
+# -- Circles and persons ----------------------------------------------------
+
+[[seed]]
+op = "prm.circle_create"
+foreach = [{ name = "Family" }, { name = "Friends" }, { name = "Colleagues" }]
+args = "{{ item }}"
+save = "circle_{{ i }}"
+
+[[seed]]
+op = "prm.person_create"
+foreach = [
+  { name = "Elena Stancu", catch_up_period = "monthly", catch_up_eisen = "regular", catch_up_difficulty = "easy", circle_ref_ids = ["{{ ref('circle_1') }}", "{{ ref('circle_2') }}"] },
+  { name = "Oliver Leisalu", catch_up_period = "quarterly", catch_up_eisen = "regular", catch_up_difficulty = "easy", circle_ref_ids = ["{{ ref('circle_2') }}"] },
+  { name = "Amy Tabarly", catch_up_period = "monthly", catch_up_eisen = "regular", catch_up_difficulty = "easy", circle_ref_ids = ["{{ ref('circle_1') }}"] },
+  { name = "Florin Ionescu", catch_up_period = "quarterly", catch_up_eisen = "regular", catch_up_difficulty = "easy", circle_ref_ids = ["{{ ref('circle_0') }}"] },
+  { name = "Maria Popescu", catch_up_period = "monthly", catch_up_eisen = "regular", catch_up_difficulty = "easy", circle_ref_ids = ["{{ ref('circle_0') }}", "{{ ref('circle_1') }}"] },
+]
+args = "{{ item }}"
+save = "person_{{ i }}"
+
+[[seed]]
+op = "prm.occasion_create"
+foreach = [
+  { person_ref_id = "{{ ref('person_0') }}", kind = "birthday", name = "Elena's birthday", date = "{{ shortdate(5) }}" },
+  { person_ref_id = "{{ ref('person_1') }}", kind = "birthday", name = "Oliver's birthday", date = "{{ shortdate(40) }}" },
+  { person_ref_id = "{{ ref('person_2') }}", kind = "anniversary", name = "Wedding anniversary", date = "{{ shortdate(90) }}" },
+]
+args = "{{ item }}"
+
+# -- Tags and notes ---------------------------------------------------------
+
+[[seed]]
+op = "tags.tag_create"
+foreach = [{ name = "work" }, { name = "health" }, { name = "home" }, { name = "family" }]
+args = "{{ item }}"
+
+[[seed]]
+op = "tags.tag_link_upsert"
+foreach = [
+  { owner = "TodoTask:std:{{ ref('todo_1') }}", tag_names = ["work"] },
+  { owner = "TodoTask:std:{{ ref('todo_0') }}", tag_names = ["health"] },
+  { owner = "TodoTask:std:{{ ref('todo_4') }}", tag_names = ["home"] },
+  { owner = "TodoTask:std:{{ ref('todo_2') }}", tag_names = ["family"] },
+  { owner = "Habit:std:{{ ref('habit_5') }}", tag_names = ["health"] },
+  { owner = "Habit:std:{{ ref('habit_4') }}", tag_names = ["home"] },
+  { owner = "BigPlan:std:{{ ref('big_plan_0') }}", tag_names = ["health"] },
+  { owner = "BigPlan:std:{{ ref('big_plan_2') }}", tag_names = ["home", "family"] },
+]
+args = "{{ item }}"
+
+[[seed]]
+op = "notes.note_create"
+[seed.args]
+owner = "BigPlan:std:{{ ref('big_plan_0') }}"
+content = [
+  { correlation_id = "n1", kind = "heading", text = "Training plan", level = 2 },
+  { correlation_id = "n2", kind = "paragraph", text = "Build up to 18 km by week 8, then taper. Keep two easy runs and one long run each week." },
+  { correlation_id = "n3", kind = "checklist", items = [{ text = "Buy new running shoes", checked = true }, { text = "Register for the race", checked = true }, { text = "First 10 km run", checked = false }, { text = "Book a physio check", checked = false }] },
+]
+
+[[seed]]
+op = "notes.note_create"
+[seed.args]
+owner = "TodoTask:std:{{ ref('todo_1') }}"
+content = [
+  { correlation_id = "n4", kind = "paragraph", text = "Numbers are in the shared sheet. Draft by Wednesday, review with the team on Thursday." },
+  { correlation_id = "n5", kind = "checklist", items = [{ text = "Collect the figures", checked = true }, { text = "Write the summary", checked = false }, { text = "Send for review", checked = false }] },
+]
+
+# -- The calendar -----------------------------------------------------------
+
+[[seed]]
+op = "schedule.schedule_stream_find"
+args = {}
+saves = [{ name = "stream", path = "entries.0.schedule_stream.ref_id" }]
+
+[[seed]]
+op = "schedule.schedule_stream_create_for_user"
+foreach = [{ name = "Work", color = "green" }, { name = "Family", color = "orange" }]
+args = "{{ item }}"
+save = "stream_{{ item['name'].lower() }}"
+
+# A regular week, repeated for five weeks around today, plus a few one-offs.
+# Each row is: day of the week (0 is Monday), name, start, minutes, stream.
+[[seed]]
+op = "schedule.schedule_event_in_day_create"
+foreach = '''{{ [
+  {'schedule_stream_ref_id': ref(s), 'name': n, 'start_date': day(k), 'start_time_in_day': utc(t, k), 'duration_mins': m}
+  for k in range(-14, 22)
+  for (wd, n, t, m, s) in [
+    (0, 'Team sync', '10:00', 45, 'stream_work'),
+    (2, 'Team sync', '10:00', 45, 'stream_work'),
+    (4, 'Team sync', '10:00', 45, 'stream_work'),
+    (0, 'Project planning', '14:00', 90, 'stream_work'),
+    (1, 'Design review', '11:00', 60, 'stream_work'),
+    (3, 'One to one with Sam', '15:30', 30, 'stream_work'),
+    (4, 'Plan the week', '08:30', 30, 'stream_work'),
+    (1, 'Gym', '18:30', 75, 'stream'),
+    (3, 'Gym', '18:30', 75, 'stream'),
+    (0, 'Spanish class', '19:00', 90, 'stream'),
+    (2, 'Lunch with Elena', '13:00', 60, 'stream'),
+    (4, 'Call with Oliver', '16:00', 30, 'stream'),
+    (5, 'Run: long slow', '08:00', 120, 'stream'),
+    (5, 'Farmers market', '10:30', 60, 'stream_family'),
+    (6, 'Family brunch', '11:00', 120, 'stream_family'),
+    (6, 'Read in the park', '15:00', 90, 'stream'),
+    (2, 'Standup', '09:15', 15, 'stream_work'),
+    (2, 'Sprint demo', '15:00', 60, 'stream_work'),
+    (2, 'Pottery class', '18:30', 90, 'stream'),
+  ]
+  if weekday(k) == wd
+] }}'''
+args = "{{ item }}"
+
+[[seed]]
+op = "schedule.schedule_event_in_day_create"
+foreach = [
+  { name = "Dentist", offset = 1, time = "09:30", mins = 45, stream = "stream" },
+  { name = "Birthday dinner for Elena", offset = 5, time = "19:30", mins = 150, stream = "stream_family" },
+  { name = "Quarterly review", offset = 3, time = "12:00", mins = 60, stream = "stream_work" },
+  { name = "Pick up the bike", offset = 2, time = "17:30", mins = 30, stream = "stream" },
+]
+args = { schedule_stream_ref_id = "{{ ref(item['stream']) }}", name = "{{ item['name'] }}", start_date = "{{ day(item['offset']) }}", start_time_in_day = "{{ utc(item['time'], item['offset']) }}", duration_mins = "{{ item['mins'] }}" }
+
+# -- The life plan ----------------------------------------------------------
+
+[[seed]]
+op = "life_plan.aspect_find"
+args = {}
+saves = [{ name = "root_aspect", path = "entries.0.aspect.ref_id" }]
+
+[[seed]]
+op = "life_plan.aspect_create"
+foreach = [{ name = "Body & Mind" }, { name = "Career" }, { name = "Relationships" }, { name = "Home" }]
+args = { parent_aspect_ref_id = "{{ ref('root_aspect') }}", name = "{{ item['name'] }}" }
+save = "aspect_{{ i }}"
+
+[[seed]]
+op = "life_plan.chapter_create"
+foreach = [
+  { name = "Get fit again", aspect_ref_id = "{{ ref('aspect_0') }}", start_date = "{{ pdate(-60) }}", end_date = "{{ pdate(120) }}" },
+  { name = "Settle into the new role", aspect_ref_id = "{{ ref('aspect_1') }}", start_date = "{{ pdate(-30) }}", end_date = "{{ pdate(150) }}" },
+  { name = "Make the home comfortable", aspect_ref_id = "{{ ref('aspect_3') }}", start_date = "{{ pdate(0) }}", end_date = "{{ pdate(200) }}" },
+]
+args = "{{ item }}"
+
+[[seed]]
+op = "life_plan.goal_create"
+foreach = [
+  { name = "Run a half marathon", aspect_ref_id = "{{ ref('aspect_0') }}" },
+  { name = "Sleep well, every night", aspect_ref_id = "{{ ref('aspect_0') }}" },
+  { name = "Grow into a senior role", aspect_ref_id = "{{ ref('aspect_1') }}" },
+  { name = "Stay close to friends and family", aspect_ref_id = "{{ ref('aspect_2') }}" },
+]
+args = "{{ item }}"
+save = "goal_{{ i }}"
+
+[[seed]]
+op = "life_plan.goal_create"
+args = { name = "Finish a 10 km race", aspect_ref_id = "{{ ref('aspect_0') }}", parent_goal_ref_id = "{{ ref('goal_0') }}" }
+
+[[seed]]
+op = "life_plan.milestone_create"
+foreach = [
+  { name = "First 10 km run", date = "{{ day(30) }}", aspect_ref_id = "{{ ref('aspect_0') }}" },
+  { name = "Performance review", date = "{{ day(60) }}", aspect_ref_id = "{{ ref('aspect_1') }}" },
+  { name = "Balcony done", date = "{{ day(75) }}", aspect_ref_id = "{{ ref('aspect_3') }}" },
+  { name = "Half marathon race day", date = "{{ day(150) }}", aspect_ref_id = "{{ ref('aspect_0') }}" },
+]
+args = "{{ item }}"
+
+# The vision starts as a draft with an empty note. Write in it, then activate.
+[[seed]]
+op = "life_plan.vision_create_draft"
+args = {}
+saves = [{ name = "vision", path = "vision", take = "ref_id" }, { name = "vision_note", path = "note", take = "ref_id" }]
+
+[[seed]]
+op = "notes.note_update"
+fill_unchanged = true
+[seed.args]
+ref_id = "{{ ref('vision_note') }}"
+content = { should_change = true, value = [
+  { correlation_id = "v1", kind = "heading", text = "The life I want", level = 2 },
+  { correlation_id = "v2", kind = "paragraph", text = "A body that carries me through long days, work I am proud of, a home that feels calm, and time for the people I love." },
+  { correlation_id = "v3", kind = "checklist", items = [{ text = "Healthy and strong", checked = false }, { text = "Growing at work", checked = false }, { text = "Close to friends and family", checked = false }] },
+] }
+
+[[seed]]
+op = "life_plan.vision_mark_draft_as_active"
+args = { ref_id = "{{ ref('vision') }}" }
+
+# -- Journals and time plans ------------------------------------------------
+
+[[seed]]
+op = "journals.journal_create"
+args = { right_now = "{{ day(0) }}", period = "weekly" }
+save = "journal"
+
+[[seed]]
+op = "time_plans.time_plan_create"
+args = { right_now = "{{ day(0) }}", period = "weekly" }
+save = "time_plan"
+
+[[seed]]
+op = "time_plans.time_plan_create"
+args = { right_now = "{{ day(0) }}", period = "monthly" }
+
+# -- The home screen: a Today tab with a few widgets -------------------------
+
+[[seed]]
+op = "home.home_tab_create"
+args = { target = "big-screen", name = "Today", icon = "☀️" }
+save = "home_tab"
+
+[[seed]]
+op = "home.home_widget_create"
+foreach = [
+  { the_type = "motd", row = 0, col = 0, dimension = "Dim-1x1", properties = "{{ None }}" },
+  { the_type = "key-habits-streaks", row = 0, col = 1, dimension = "Dim-3x1", properties = { kind = "key-habits-streaks", habit_ref_ids = ["{{ ref('habit_0') }}", "{{ ref('habit_1') }}"] } },
+  { the_type = "todo-inbox-tasks", row = 1, col = 0, dimension = "Dim-3x1", properties = "{{ None }}" },
+  { the_type = "key-big-plans-progress", row = 3, col = 1, dimension = "Dim-3x1", properties = { kind = "key-big-plans-progress", big_plan_ref_ids = ["{{ ref('big_plan_0') }}", "{{ ref('big_plan_1') }}", "{{ ref('big_plan_2') }}"] } },
+  { the_type = "upcoming-birthdays", row = 1, col = 2, dimension = "Dim-3x1", properties = "{{ None }}" },
+]
+args = { home_tab_ref_id = "{{ ref('home_tab') }}", the_type = "{{ item['the_type'] }}", row = "{{ item['row'] }}", col = "{{ item['col'] }}", dimension = "{{ item['dimension'] }}", properties = "{{ item['properties'] }}" }
+
+# -- Something published ----------------------------------------------------
+
+[[seed]]
+op = "publish.publish_entity_create"
+args = { owner = "TodoTask:std:{{ ref('todo_3') }}" }
+save = "publish_entity"
+
+[[seed]]
+op = "publish.publish_entity_activate"
+args = { ref_id = "{{ ref('publish_entity') }}" }
+
+# -- A past: the tasks of the last weeks, most of them finished -------------
+
+[[seed]]
+action = "backfill_history"
+days = 42
+done_ratio = 0.82
+seed = 7
+
+# -- Inbox tasks, found by where they come from -----------------------------
+
+[[seed]]
+op = "inbox_tasks.inbox_task_find"
+args = {}
+saves = [
+  { name = "inbox_task_habit", path = "entries", where = { "habit.name" = "~Get at least" }, take = "inbox_task.ref_id", optional = true },
+  { name = "inbox_task_chore", path = "entries", where = { "chore.name" = "!null" }, take = "inbox_task.ref_id", optional = true },
+  { name = "inbox_task_todo", path = "entries", where = { "todo_task.name" = "!null" }, take = "inbox_task.ref_id", optional = true },
+]
+
+# ===========================================================================
+# THE SHOTS
+#
+# `name`: the file in .build-cache/docs-screenshots/out.
+# `assets`: where to install the picture, relative to src/docs/material. The
+#     same picture can go to many places.
+# `path`: where to go. Optional `profile` (desktop by default), `login`
+#     (true by default), `settle_ms`, `clip`, `retries`.
+# `steps`: what to do on the page before taking the picture, see README.md.
+# `continue_from_previous`: stay on the page the previous shot ended on.
+# ===========================================================================
+
+# -- The home screen --------------------------------------------------------
+
+[[shot]]
+name = "home-page"
+assets = ["assets/home-page.png", "assets/showcase/home-page.png"]
+path = "/app/workspace"
+
+# -- Inbox tasks ------------------------------------------------------------
+
+[[shot]]
+name = "index-inbox"
+assets = ["assets/index-inbox.png", "assets/showcase/showcase-desktop-inbox-tasks.png"]
+path = "/app/workspace/core/inbox-tasks"
+
+[[shot]]
+name = "inbox-tasks-update"
+assets = ["assets/inbox-tasks-update.png"]
+path = "/app/workspace/core/inbox-tasks/{{ ref('inbox_task_todo') }}"
+
+[[shot]]
+name = "index-inbox-mobile"
+assets = ["assets/index-inbox-mobile.png"]
+profile = "mobile"
+path = "/app/workspace/core/inbox-tasks"
+clip = { x = 0, y = 0, width = 390, height = 818 }
+
+[[shot]]
+name = "clients-mobile-inbox"
+assets = ["assets/clients-mobile-inbox.png"]
+profile = "mobile"
+path = "/app/workspace/core/inbox-tasks"
+settle_ms = 2000
+
+[[shot]]
+name = "clients-mobile-todos"
+assets = ["assets/clients-mobile-todos.png"]
+profile = "mobile"
+path = "/app/workspace/apps/todos"
+settle_ms = 2000
+
+# -- Habits, chores ---------------------------------------------------------
+
+[[shot]]
+name = "habits-overview"
+assets = ["assets/habits-overview.png"]
+path = "/app/workspace/apps/habits/habits"
+
+[[shot]]
+name = "habits-update"
+assets = ["assets/habits-update.png"]
+path = "/app/workspace/apps/habits/habits/{{ ref('habit_0') }}"
+
+[[shot]]
+name = "habits-inbox-task"
+assets = ["assets/habits-inbox-task.png"]
+path = "/app/workspace/core/inbox-tasks/{{ ref('inbox_task_habit') }}"
+
+[[shot]]
+name = "scheduling-constraints-habit"
+assets = ["assets/scheduling-constraints-habit.png"]
+path = "/app/workspace/apps/habits/habits/{{ ref('habit_5') }}"
+steps = [{ scroll_to_text = "Scheduling" }]
+
+[[shot]]
+name = "chores-overview"
+assets = ["assets/chores-overview.png"]
+path = "/app/workspace/apps/chores/chores"
+
+[[shot]]
+name = "chores-update"
+assets = ["assets/chores-update.png"]
+path = "/app/workspace/apps/chores/chores/{{ ref('chore_0') }}"
+
+[[shot]]
+name = "chores-inbox-task"
+assets = ["assets/chores-inbox-task.png"]
+path = "/app/workspace/core/inbox-tasks/{{ ref('inbox_task_chore') }}"
+
+# -- Todos ------------------------------------------------------------------
+
+[[shot]]
+name = "todos-swiftview"
+assets = ["assets/todos-swiftview.png"]
+path = "/app/workspace/apps/todos"
+
+[[shot]]
+name = "notes-on-todo"
+assets = ["assets/notes-on-todo.png"]
+path = "/app/workspace/apps/todos/{{ ref('todo_1') }}"
+
+# The panel of a todo, scrolled down to the bottom with the keyboard.
+[[shot]]
+name = "todos-update"
+assets = ["assets/todos-update.png"]
+path = "/app/workspace/apps/todos/{{ ref('todo_1') }}"
+steps = [{ press = "l", wait = 400 }, { press = "Shift+J", wait = 800 }]
+
+# -- Big plans --------------------------------------------------------------
+
+[[shot]]
+name = "index-big-plans-timeline"
+assets = ["assets/index-big-plans-timeline.png"]
+path = "/app/workspace/apps/big-plans"
+
+[[shot]]
+name = "big-plans-update"
+assets = ["assets/big-plans-update.png"]
+path = "/app/workspace/apps/big-plans/{{ ref('big_plan_0') }}"
+
+[[shot]]
+name = "tags-and-notes-on-entity"
+assets = ["assets/tags-and-notes-on-entity.png"]
+path = "/app/workspace/apps/big-plans/{{ ref('big_plan_0') }}"
+
+# -- Metrics ----------------------------------------------------------------
+
+[[shot]]
+name = "metrics-overview"
+assets = ["assets/metrics-overview.png"]
+path = "/app/workspace/apps/metrics"
+
+[[shot]]
+name = "metrics-list"
+assets = ["assets/metrics-list.png", "assets/showcase/showcase-desktop-metrics.png"]
+path = "/app/workspace/apps/metrics/{{ ref('metric_0') }}"
+
+[[shot]]
+name = "metrics-update"
+assets = ["assets/metrics-update.png", "assets/metrics-settings.png"]
+path = "/app/workspace/apps/metrics/{{ ref('metric_0') }}/details"
+
+[[shot]]
+name = "metrics-entry-update"
+assets = ["assets/metrics-entry-update.png"]
+path = "/app/workspace/apps/metrics/{{ ref('metric_0') }}/entries/{{ ref('metric_entry') }}"
+
+# -- Smart lists ------------------------------------------------------------
+
+[[shot]]
+name = "smart-lists-overview"
+assets = ["assets/smart-lists-overview.png"]
+path = "/app/workspace/apps/smart-lists"
+
+[[shot]]
+name = "smart-lists-list"
+assets = ["assets/smart-lists-list.png"]
+path = "/app/workspace/apps/smart-lists/{{ ref('smart_list_0') }}"
+
+[[shot]]
+name = "smart-lists-update"
+assets = ["assets/smart-lists-update.png"]
+path = "/app/workspace/apps/smart-lists/{{ ref('smart_list_0') }}/details"
+
+[[shot]]
+name = "smart-lists-item-update"
+assets = ["assets/smart-lists-item-update.png"]
+path = "/app/workspace/apps/smart-lists/{{ ref('smart_list_0') }}/{{ ref('smart_list_item') }}"
+
+# -- Persons and circles ----------------------------------------------------
+
+[[shot]]
+name = "persons-overview"
+assets = ["assets/persons-overview.png"]
+path = "/app/workspace/apps/prm/persons"
+
+[[shot]]
+name = "persons-update"
+assets = ["assets/persons-update.png"]
+path = "/app/workspace/apps/prm/persons/{{ ref('person_0') }}"
+
+[[shot]]
+name = "occasions-person"
+assets = ["assets/occasions-person.png"]
+path = "/app/workspace/apps/prm/persons/{{ ref('person_0') }}"
+steps = [{ scroll_to_text = "Occasions" }]
+
+[[shot]]
+name = "circles-overview"
+assets = ["assets/circles-overview.png"]
+path = "/app/workspace/apps/prm/circles/{{ ref('circle_1') }}"
+
+# -- Vacations --------------------------------------------------------------
+
+[[shot]]
+name = "vacations-overview"
+assets = ["assets/vacations-overview.png"]
+path = "/app/workspace/apps/vacations/vacation"
+
+[[shot]]
+name = "vacations-update"
+assets = ["assets/vacations-update.png"]
+path = "/app/workspace/apps/vacations/vacation/{{ ref('vacation_0') }}"
+
+# -- Journals, time plans, working memory -----------------------------------
+
+[[shot]]
+name = "journals-overview"
+assets = ["assets/journals-overview.png"]
+path = "/app/workspace/apps/journals"
+
+[[shot]]
+name = "journal-update"
+assets = ["assets/journal-update.png"]
+path = "/app/workspace/apps/journals/{{ ref('journal') }}"
+
+[[shot]]
+name = "time-plans-overview"
+assets = ["assets/time-plans-overview.png", "assets/showcase/showcase-desktop-timeplan.png"]
+path = "/app/workspace/apps/time-plans/{{ ref('time_plan') }}"
+
+[[shot]]
+name = "working-mem-page"
+assets = ["assets/working-mem-page.png"]
+path = "/app/workspace/apps/working-mem"
+steps = [
+  { focus_editor = true },
+  { type_lines = ["Mon", "- Call the bank about the card", "- Idea: plan the balcony around a small herb garden", "- Ask Oliver about the trip dates", "", "Tue", "- Dentist moved to Friday", "- Read chapters 4-5 before the book club"], wait = 1500 },
+]
+
+# -- The life plan ----------------------------------------------------------
+
+[[shot]]
+name = "life-plan-overview"
+assets = ["assets/life-plan-overview.png"]
+path = "/app/workspace/apps/life-plan"
+
+[[shot]]
+name = "life-plan-life-weeks"
+assets = ["assets/life-plan-life-weeks.png"]
+path = "/app/workspace/apps/life-plan"
+clip = { x = 0, y = 0, width = 1500, height = 380 }
+
+[[shot]]
+name = "life-plan-vision"
+assets = ["assets/life-plan-vision.png"]
+path = "/app/workspace/apps/life-plan/visions/{{ ref('vision') }}"
+
+[[shot]]
+name = "life-plan-chapters"
+assets = ["assets/life-plan-chapters.png"]
+path = "/app/workspace/apps/life-plan/chapters"
+
+[[shot]]
+name = "life-plan-goals"
+assets = ["assets/life-plan-goals.png"]
+path = "/app/workspace/apps/life-plan/goals"
+
+[[shot]]
+name = "life-plan-milestones"
+assets = ["assets/life-plan-milestones.png"]
+path = "/app/workspace/apps/life-plan/milestones"
+
+[[shot]]
+name = "aspects-overview"
+assets = ["assets/aspects-overview.png"]
+path = "/app/workspace/apps/life-plan/aspects"
+
+[[shot]]
+name = "aspects-update"
+assets = ["assets/aspects-update.png"]
+path = "/app/workspace/apps/life-plan/aspects/{{ ref('aspect_3') }}"
+
+# -- The calendar -----------------------------------------------------------
+
+[[shot]]
+name = "calendar-view-calendar-weekly"
+assets = ["assets/calendar-view-calendar-weekly.png", "assets/showcase/showcase-desktop-calendar.png"]
+path = "/app/workspace/calendar?period=weekly&view=calendar"
+steps = [{ wheel = 420, at = [700, 500], wait = 600 }]
+
+[[shot]]
+name = "calendar-view-calendar-monthly"
+assets = ["assets/calendar-view-calendar-monthly.png"]
+profile = "tall"
+path = "/app/workspace/calendar?period=monthly&view=calendar"
+
+[[shot]]
+name = "calendar-view-calendar-yearly"
+assets = ["assets/calendar-view-calendar-yearly.png"]
+profile = "tall"
+path = "/app/workspace/calendar?period=yearly&view=calendar"
+
+[[shot]]
+name = "events-calendar"
+assets = ["assets/events-calendar.png"]
+path = "/app/workspace/calendar?period=daily&view=calendar&date={{ day(-((weekday(0) - 2) % 7)) }}"
+steps = [{ wheel = 190, at = [700, 500], wait = 600 }]
+
+[[shot]]
+name = "events-update"
+assets = ["assets/events-update.png"]
+path = "/app/workspace/calendar?period=daily&view=calendar&date={{ day(-((weekday(0) - 2) % 7)) }}"
+steps = [{ wheel = 250, at = [700, 500], wait = 600 }, { click_text = "Team sync", wait = 1500 }]
+
+[[shot]]
+name = "calendar-event-view"
+assets = ["assets/calendar-event-view.png"]
+path = "/app/workspace/calendar?period=weekly&view=calendar"
+steps = [{ click_text = "Lunch with Elena", wait = 1500 }]
+
+# -- Tools ------------------------------------------------------------------
+
+[[shot]]
+name = "gc"
+assets = ["assets/gc.png"]
+path = "/app/workspace/tools/gc"
+
+[[shot]]
+name = "gen"
+assets = ["assets/gen.png"]
+path = "/app/workspace/tools/gen"
+
+[[shot]]
+name = "pomodoro-timer"
+assets = ["assets/pomodoro-timer.png"]
+path = "/app/workspace/tools/pomodoro"
+
+[[shot]]
+name = "report-form"
+assets = ["assets/report-form.png"]
+path = "/app/workspace/tools/report"
+
+# The report takes a while to run, the two pictures are of the same page.
+[[shot]]
+name = "report-global"
+assets = ["assets/report-global.png"]
+path = "/app/workspace/tools/report"
+steps = [
+  { click_role = "button", name = "Run Report", wait = 2000 },
+  { wait_until_button_enabled = "Run Report", wait = 1500 },
+]
+
+[[shot]]
+name = "report-streaks"
+assets = ["assets/report-streaks.png"]
+continue_from_previous = true
+steps = [{ wheel = 900, wait = 600 }]
+
+[[shot]]
+name = "stats-compute"
+assets = ["assets/stats-compute.png"]
+path = "/app/workspace/tools/stats"
+
+# -- Tags, publishing, collaboration, access --------------------------------
+
+[[shot]]
+name = "tags-overview"
+assets = ["assets/tags-overview.png"]
+path = "/app/workspace/core/tags"
+
+[[shot]]
+name = "publish-list"
+assets = ["assets/publish-list.png"]
+path = "/app/workspace/core/publish"
+
+[[shot]]
+name = "publish-panel"
+assets = ["assets/publish-panel.png"]
+path = "/app/workspace/apps/todos/{{ ref('todo_1') }}"
+steps = [
+  { press = "l", wait = 400 },
+  { press = ".", wait = 700 },
+  { click_text = "Publish", exact = true, wait = 2000 },
+]
+
+[[shot]]
+name = "collaboration-page"
+assets = ["assets/collaboration-page.png"]
+path = "/app/workspace/core/collaboration"
+
+[[shot]]
+name = "collaboration-access"
+assets = ["assets/collaboration-access.png"]
+path = "/app/workspace/apps/todos/{{ ref('todo_1') }}"
+steps = [
+  { press = "l", wait = 400 },
+  { press = ".", wait = 700 },
+  { click_text = "Access", exact = true, wait = 2000 },
+]
+
+[[shot]]
+name = "collaboration-invite"
+assets = ["assets/collaboration-invite.png"]
+continue_from_previous = true
+steps = [{ click_role = "button", name = "Invite", wait = 1500 }]
+
+[[shot]]
+name = "archival-entity-menu"
+assets = ["assets/archival-entity-menu.png"]
+path = "/app/workspace/apps/todos/{{ ref('todo_1') }}"
+steps = [{ press = "l", wait = 400 }, { press = ".", wait = 800 }]
+
+[[shot]]
+name = "access-keys"
+assets = ["assets/access-keys.png"]
+path = "/app/workspace/access"
+
+# -- The account and the workspace ------------------------------------------
+
+[[shot]]
+name = "accounts-account"
+assets = ["assets/accounts-account.png", "assets/user-feature-flags-overview.png"]
+path = "/app/workspace/account"
+
+[[shot]]
+name = "accounts-change-password"
+assets = ["assets/accounts-change-password.png"]
+path = "/app/workspace/account"
+steps = [{ click_text = "Change Password", wait = 1200 }]
+
+[[shot]]
+name = "accounts-where-to"
+assets = ["assets/accounts-where-to.png", "assets/gamification-menu.png"]
+path = "/app/workspace"
+steps = [{ click = "#account-menu", wait = 900 }]
+
+[[shot]]
+name = "workspaces"
+assets = [
+  "assets/workspaces.png",
+  "assets/workspaces-update.png",
+  "assets/workspace-feature-flags-overview.png",
+]
+path = "/app/workspace/settings"
+
+[[shot]]
+name = "home-screen-tab-editor"
+assets = ["assets/home-screen-tab-editor.png"]
+path = "/app/workspace"
+steps = [{ click_role = "link", name = "Settings", wait = 1500 }]
+
+[[shot]]
+name = "gamification-overview"
+assets = ["assets/gamification-overview.png"]
+path = "/app/workspace/gamification"
+settle_ms = 2500
+
+# -- The keyboard -----------------------------------------------------------
+
+[[shot]]
+name = "keyboard-hints"
+assets = ["assets/keyboard-hints.png"]
+path = "/app/workspace/apps/todos"
+steps = [{ press = "s" }]
+
+[[shot]]
+name = "keyboard-map"
+assets = ["assets/keyboard-map.png"]
+path = "/app/workspace/apps/todos/{{ ref('todo_1') }}"
+steps = [{ press = "a" }]
+
+[[shot]]
+name = "keyboard-apps"
+assets = ["assets/keyboard-apps.png"]
+path = "/app/workspace/apps/todos"
+steps = [{ press = "q" }]
+
+[[shot]]
+name = "keyboard-commands"
+assets = ["assets/keyboard-commands.png"]
+path = "/app/workspace/apps/todos"
+steps = [{ press = "x" }]
+
+[[shot]]
+name = "keyboard-new"
+assets = ["assets/keyboard-new.png"]
+path = "/app/workspace/apps/todos"
+steps = [{ press = "n" }]
+
+[[shot]]
+name = "keyboard-find"
+assets = ["assets/keyboard-find.png"]
+path = "/app/workspace/apps/todos"
+steps = [{ press = "f" }, { type = "dent", wait = 4000 }]
+
+[[shot]]
+name = "keyboard-search"
+assets = ["assets/keyboard-search.png", "assets/search-quick.png"]
+path = "/app/workspace"
+steps = [{ press = "ControlOrMeta+k" }, { type = "gym", wait = 4000 }]
+
+# -- Logged out: the front door, recovering an account ----------------------
+
+[[shot]]
+name = "tutorial-go-to-workspace"
+assets = ["assets/tutorial-go-to-workspace.png"]
+profile = "form"
+login = false
+path = "/"
+settle_ms = 2500
+
+[[shot]]
+name = "recover-account-login"
+assets = ["assets/recover-account-login.png"]
+profile = "form"
+login = false
+path = "/app/lifecycle/login/local/login"
+settle_ms = 2500
+steps = [{ click = "#login button", nth = -1, wait = 800 }]
+
+[[shot]]
+name = "recover-account-form"
+assets = ["assets/recover-account-form.png"]
+profile = "form"
+login = false
+path = "/app/lifecycle/util/local/reset-password"
+settle_ms = 2500
+
+[[shot]]
+name = "tutorial-init"
+assets = ["assets/tutorial-init.png"]
+profile = "form"
+login = false
+path = "/app/lifecycle/init/local/create-user"
+settle_ms = 2500
+
+# -- The tutorial. It creates a todo, so it goes last. ----------------------
+
+[[shot]]
+name = "tutorial-todos"
+assets = ["assets/tutorial-todos.png"]
+path = "/app/workspace/apps/todos"
+
+[[shot]]
+name = "tutorial-new-todo"
+assets = ["assets/tutorial-new-todo.png"]
+path = "/app/workspace/apps/todos/new"
+steps = [{ fill = "form input[type=text]", value = "My first task", wait = 300 }]
+
+[[shot]]
+name = "tutorial-created-todo"
+assets = ["assets/tutorial-created-todo.png"]
+continue_from_previous = true
+steps = [{ click_role = "button", name = "Create", exact = true, wait = 2500 }]
+
+[[shot]]
+name = "tutorial-todo-kanban"
+assets = ["assets/tutorial-todo-kanban.png"]
+continue_from_previous = true
+steps = [
+  { click_text = "SwiftView", wait = 500 },
+  { click_text = "Kanban by Eisen", wait = 1500 },
+  { click_text = "My first task", wait = 1500 },
+  { click_role = "button", name = "Mark Done", wait = 2500 },
+  { scroll_to_text = "My first task", exact = false, nth = 1, wait = 800 },
+]

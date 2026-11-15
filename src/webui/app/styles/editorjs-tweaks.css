@@ -15,5 +15,17 @@
 }
 
 #entity-block-editor .codex-editor__redactor {
-  padding-bottom: 4rem !important;
+  padding-bottom: 2rem !important;
+}
+
+/* A note fills its column or section: the side margins of its text and the
+   room kept for the toolbar are very thin. */
+#entity-block-editor .ce-block__content,
+#entity-block-editor .ce-toolbar__content {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+#entity-block-editor .codex-editor__redactor {
+  margin-right: 1.5rem;
 }

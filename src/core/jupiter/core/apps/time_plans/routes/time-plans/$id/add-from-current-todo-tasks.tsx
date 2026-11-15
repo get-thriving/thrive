@@ -34,7 +34,7 @@ import { EntityStack } from "#/core/infra/component/entity-stack";
 import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionMultipleSpread,
   ActionSingle,
@@ -44,7 +44,6 @@ import { SectionCard } from "#/core/infra/component/section-card";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TimePlanActivityFeasabilitySelect } from "#/core/apps/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "#/core/apps/time_plans/sub/activity/component/kind-select";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
@@ -55,6 +54,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -81,6 +81,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "B" } satisfies StrataHandle,
+  label: "Add from current todo tasks",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -256,20 +258,15 @@ export default function TimePlanAddFromCurrentTodoTasks() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`time-plan-${id}/add-from-current-todo-tasks`}
       fakeKey={`time-plan-${id}/add-from-current-todo-tasks`}
       returnLocation={withTimePlanView(
         `/app/workspace/apps/time-plans/${id}`,
         timePlanViewParam,
       )}
-      returnLocationDiscriminator="add-from-current-todo-tasks"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.LARGE}
-      allowedExpansionStates={[
-        LeafPanelExpansionState.LARGE,
-        LeafPanelExpansionState.FULL,
-      ]}
     >
       <GlobalError actionResult={actionData} />
 
@@ -300,7 +297,7 @@ export default function TimePlanAddFromCurrentTodoTasks() {
         }
       >
         <Stack
-          spacing={2}
+          spacing={1.25}
           useFlexGap
           direction={isBigScreen ? "row" : "column"}
         >
@@ -361,7 +358,7 @@ export default function TimePlanAddFromCurrentTodoTasks() {
           </>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -169,7 +169,7 @@ export default function InitCreateWorkspace() {
             <FieldError actionResult={actionData} fieldName="/timezone" />
           </FormControl>
 
-          <Stack spacing={2} useFlexGap direction="row">
+          <Stack spacing={1.25} useFlexGap direction="row">
             <BirthdaySelect
               name="userBirthday"
               allowNoneBirthday={false}
@@ -205,7 +205,7 @@ export default function InitCreateWorkspace() {
             </AccordionSummary>
 
             <AccordionDetails>
-              <Stack spacing={2} useFlexGap>
+              <Stack spacing={1.25} useFlexGap>
                 <FormControl fullWidth>
                   <InputLabel id="workspaceRootAspectName">
                     Root Aspect Name

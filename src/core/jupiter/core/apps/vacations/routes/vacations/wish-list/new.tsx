@@ -11,7 +11,7 @@ import { useContext, useState } from "react";
 import { LocationsEditor } from "#/core/common/sub/locations/component/locations-editor";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionsPosition,
   SectionCard,
@@ -40,6 +40,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New travel wish",
 };
 
 export async function action({ request, url }: ActionFunctionArgs) {
@@ -77,7 +78,8 @@ export default function NewTravelWish() {
   const hasLocation = locationRefIds.length > 0;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="vacations/wish-list/new"
       fakeKey={"vacations/wish-list/new"}
       returnLocation="/app/workspace/apps/vacations/wish-list"
@@ -120,7 +122,7 @@ export default function NewTravelWish() {
           <FieldError actionResult={actionData} fieldName="/location_ref_id" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

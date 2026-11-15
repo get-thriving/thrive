@@ -9,7 +9,7 @@ home insurance every month".
 
 In the chores view, the task templates might look like this:
 
-![Chores templates](../assets/chores-overview.png)
+![Chores laid out by period: weekly, monthly and yearly, with what is due this week](../assets/chores-overview.png "Chores laid out by period: weekly, monthly and yearly, with what is due this week")
 
 ## Properties
 
@@ -45,7 +45,7 @@ instantiation of a task of thatperiod.
 
 While in the inbox, the instantiated tasks might look like this:
 
-![Inbox Task from Chore](../assets/chores-inbox-task.png)
+![An inbox task generated from a chore, opened next to the list of all inbox tasks](../assets/chores-inbox-task.png "An inbox task generated from a chore, opened next to the list of all inbox tasks")
 
 The instantiated task in the inbox is constructed from the chore template, butit
 also changes in the following way:
@@ -151,3 +151,5 @@ intervalis fully contained within a vacation, that task won't be instantiated in
 the inbox viageneration. For example, if you have a vacation from Monday
 `2020-02-09` toSunday `2020-02-15`, then all daily and weekly tasks for that
 week won't be created, butall monthly, quarterly and yearly ones will.
+
+![A chore open for editing: period, Eisenhower status, difficulty, skip rule and scheduling](../assets/chores-update.png "A chore open for editing: period, Eisenhower status, difficulty, skip rule and scheduling")

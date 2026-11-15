@@ -1,0 +1,265 @@
+"""Tests about the Strata unit layout: panels side by side, not over each other."""
+
+import re
+
+from playwright.sync_api import FloatRect, Page, ViewportSize, expect
+
+from itests.helpers import wait_for_hydration
+
+_WIDE: ViewportSize = {"width": 1920, "height": 1000}
+# Narrow enough that the life plan, an aspect and a new one cannot all fit,
+# and wide enough (5 units) that the life plan still shows part of itself.
+_NARROW: ViewportSize = {"width": 1000, "height": 900}
+_RAIL_WIDTH = 52
+_UNITS_AT_WIDE = 9
+_UNIT_AT_WIDE = (_WIDE["width"] - _RAIL_WIDTH) / _UNITS_AT_WIDE
+_NEW_HABIT = "/app/workspace/apps/habits/habits/new"
+_NEW_ASPECT = "/app/workspace/apps/life-plan/aspects/new"
+
+
+def _box(page: Page, selector: str) -> FloatRect:
+    box = page.locator(selector).bounding_box()
+    assert box is not None, f"{selector} is not on the page"
+    return box
+
+
+def test_leaf_opens_beside_the_list(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+
+    expect(page.locator("#trunk-panel")).to_be_visible()
+    expect(page.locator("#leaf-panel")).to_be_visible()
+
+    trunk = _box(page, "#trunk-panel")
+    leaf = _box(page, "#leaf-panel")
+
+    # The row is 6 of the 9 units, centred, so a unit and a half is left on each
+    # side of it. The leaf starts where the list ends, and the two do not overlap.
+    assert abs(trunk["x"] - (_RAIL_WIDTH + 1.5 * _UNIT_AT_WIDE)) <= 1
+    assert abs(leaf["x"] - (trunk["x"] + trunk["width"])) <= 1
+    # Both reach down to the bottom of the window, below the same top bar.
+    assert trunk["y"] == leaf["y"]
+    # The habits list is big and grows by a unit to 4, the new habit is medium,
+    # which is 2.
+    assert abs(trunk["width"] - 4 * _UNIT_AT_WIDE) <= 1
+    assert abs(leaf["width"] - 2 * _UNIT_AT_WIDE) <= 1
+
+
+def test_the_room_nothing_took_is_split_to_both_sides(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+
+    trunk = _box(page, "#trunk-panel")
+    leaf = _box(page, "#leaf-panel")
+    left = _box(page, "#strata-empty-slot-left")
+    right = _box(page, "#strata-empty-slot-right")
+
+    assert left["x"] == _RAIL_WIDTH
+    assert abs(left["x"] + left["width"] - trunk["x"]) <= 1
+    assert abs(right["x"] - (leaf["x"] + leaf["width"])) <= 1
+    assert abs(right["x"] + right["width"] - _WIDE["width"]) <= 1
+    assert abs(left["width"] - right["width"]) <= 1
+
+
+def test_the_debug_overlay_describes_the_layout(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(f"{_NEW_HABIT}?strata-debug=1")
+    wait_for_hydration(page)
+
+    expect(page.locator("#strata-debug-layout")).to_have_text(
+        f"X={_UNITS_AT_WIDE} · " "apps/habits/habits:3+1 apps/habits/habits/new:2 _:3"
+    )
+
+
+def test_a_panel_that_does_not_fit_is_a_peek_that_a_click_brings_in(
+    page: Page,
+) -> None:
+    page.set_viewport_size(_NARROW)
+    page.goto(_NEW_ASPECT)
+    wait_for_hydration(page)
+
+    # The newest panel is whole, and the life plan only partly fits.
+    expect(page.locator("#trunk-panel")).to_have_attribute("data-peek", "true")
+    expect(page.locator("#leaflet-panel")).not_to_have_attribute("data-peek", "true")
+
+    page.get_by_role("button", name="Show list").click()
+
+    expect(page.locator("#trunk-panel")).not_to_have_attribute("data-peek", "true")
+    expect(page.locator("#leaflet-panel")).to_have_attribute("data-folded", "true")
+
+
+def test_a_spine_brings_its_panel_back(page: Page) -> None:
+    page.set_viewport_size(_NARROW)
+    page.goto(_NEW_ASPECT)
+    wait_for_hydration(page)
+
+    page.get_by_role("button", name="Show list").click()
+    expect(page.locator("#leaflet-panel")).to_have_attribute("data-folded", "true")
+
+    page.get_by_role("button", name="Show side detail").click()
+
+    expect(page.locator("#leaflet-panel")).not_to_have_attribute("data-folded", "true")
+    assert _box(page, "#leaflet-panel")["width"] > 100
+
+
+def test_h_and_l_move_the_focus_along_the_panels(page: Page) -> None:
+    page.set_viewport_size(_NARROW)
+    page.goto(_NEW_ASPECT)
+    wait_for_hydration(page)
+
+    # The newest panel starts focused.
+    expect(page.locator("#leaflet-panel")).to_have_attribute("data-focused", "true")
+
+    page.keyboard.press("h")
+    expect(page.locator("#leaf-panel")).to_have_attribute("data-focused", "true")
+    page.keyboard.press("h")
+    expect(page.locator("#trunk-panel")).to_have_attribute("data-focused", "true")
+    # The focused list is whole now, and the newest panel folded away.
+    expect(page.locator("#trunk-panel")).not_to_have_attribute("data-peek", "true")
+    expect(page.locator("#leaflet-panel")).to_have_attribute("data-folded", "true")
+    expect(page.locator("#trunk-panel")).to_be_focused()
+
+    # There is nothing further left.
+    page.keyboard.press("h")
+    expect(page.locator("#trunk-panel")).to_have_attribute("data-focused", "true")
+
+    page.keyboard.press("l")
+    page.keyboard.press("l")
+    expect(page.locator("#leaflet-panel")).to_have_attribute("data-focused", "true")
+    expect(page.locator("#leaflet-panel")).not_to_have_attribute("data-folded", "true")
+
+
+def test_h_and_l_are_just_letters_in_a_field(page: Page) -> None:
+    page.set_viewport_size(_NARROW)
+    page.goto(_NEW_ASPECT)
+    wait_for_hydration(page)
+
+    name = page.get_by_label("Name")
+    name.click()
+    page.keyboard.type("hall")
+
+    expect(name).to_have_value("hall")
+    expect(page.locator("#leaflet-panel")).to_have_attribute("data-focused", "true")
+
+
+def test_escape_closes_the_focused_panel(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+    expect(page.locator("#leaf-panel")).to_be_visible()
+
+    page.keyboard.press("Escape")
+
+    expect(page).to_have_url(re.compile(r"/app/workspace/apps/habits/habits(\?.*)?$"))
+    expect(page.locator("#leaf-panel")).to_have_count(0)
+    expect(page.locator("#trunk-panel")).to_be_visible()
+
+
+def test_escape_closes_the_panel_that_has_the_focus(page: Page) -> None:
+    page.set_viewport_size(_NARROW)
+    page.goto(_NEW_ASPECT)
+    wait_for_hydration(page)
+
+    # The list is focused, so Escape closes the list and what is open from it.
+    page.keyboard.press("h")
+    page.keyboard.press("h")
+    expect(page.locator("#trunk-panel")).to_have_attribute("data-focused", "true")
+    page.keyboard.press("Escape")
+
+    expect(page).not_to_have_url(re.compile(r"/aspects/new"))
+    expect(page.locator("#leaflet-panel")).to_have_count(0)
+
+
+def test_escape_in_a_field_does_not_close_the_panel(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+
+    page.get_by_label("Name").click()
+    page.keyboard.press("Escape")
+
+    expect(page).to_have_url(re.compile(r"/habits/new"))
+    expect(page.locator("#leaf-panel")).to_be_visible()
+    # It leaves the field instead, to the column, so the keys work again.
+    expect(page.get_by_label("Name")).not_to_be_focused()
+
+
+def test_a_leaf_has_no_expansion_controls(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+
+    # The title and the close, and nothing else: no expand, no shrink, no scroll
+    # and no back. A new habit has no history, no sharing and nothing to archive.
+    expect(page.locator("#leaf-panel-controls button")).to_have_count(1)
+    expect(page.locator("#leaf-panel-controls [data-strata-title]")).to_have_count(1)
+    expect(page.locator("#leaf-panel-controls [data-strata-close]")).to_have_count(1)
+    expect(page.locator("#leaf-panel-controls [data-strata-menu]")).to_have_count(0)
+
+
+def test_the_home_page_takes_the_whole_window(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto("/app/workspace")
+    wait_for_hydration(page)
+
+    trunk = _box(page, "#trunk-panel")
+
+    assert trunk["x"] == _RAIL_WIDTH
+    assert abs(trunk["x"] + trunk["width"] - _WIDE["width"]) <= 1
+    expect(page.locator("[id^='strata-empty-slot']")).to_have_count(0)
+
+
+def test_a_tool_page_is_centred_in_the_room_after_the_rail(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto("/app/workspace/tools/gc")
+    wait_for_hydration(page)
+
+    # It is 3 of the 9 units, so 3 are left on each side.
+    tool = _box(page, "#tool-panel")
+    assert abs(tool["x"] - (_RAIL_WIDTH + 3 * _UNIT_AT_WIDE)) <= 1
+    assert abs(tool["width"] - 3 * _UNIT_AT_WIDE) <= 1
+
+
+def test_a_column_has_one_header_with_its_name(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+
+    list_header = page.locator("#trunk-panel-controls")
+    leaf_header = page.locator("#leaf-panel-controls")
+    expect(list_header).to_contain_text("Habits")
+    expect(leaf_header).to_contain_text("New habit")
+    assert _box(page, "#trunk-panel-controls")["height"] == 36
+    assert _box(page, "#leaf-panel-controls")["height"] == 36
+
+
+def test_the_column_map_shows_and_focuses_the_columns(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+
+    squares = page.locator("#strata-column-map button")
+    expect(squares).to_have_count(2)
+    expect(squares.nth(1)).to_have_attribute("aria-current", "true")
+
+    squares.nth(0).click()
+
+    expect(page.locator("#trunk-panel")).to_have_attribute("data-focused", "true")
+    expect(squares.nth(0)).to_have_attribute("aria-current", "true")
+
+
+def test_a_part_of_the_path_focuses_the_column_it_belongs_to(page: Page) -> None:
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    wait_for_hydration(page)
+
+    path = page.get_by_role("navigation", name="Path")
+    path.get_by_role("button", name="Habits", exact=True).click()
+
+    expect(page.locator("#trunk-panel")).to_have_attribute("data-focused", "true")
+
+    path.get_by_role("button", name="New habit", exact=True).click()
+
+    expect(page.locator("#leaf-panel")).to_have_attribute("data-focused", "true")

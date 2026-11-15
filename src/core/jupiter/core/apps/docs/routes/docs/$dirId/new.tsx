@@ -16,7 +16,7 @@ import { parseForm, parseParams } from "zodix";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { SectionCard } from "#/core/infra/component/section-card";
 import {
   ActionSingle,
@@ -85,6 +85,7 @@ export async function action({ request, url, params }: ActionFunctionArgs) {
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New directory",
 };
 
 export const shouldRevalidate: ShouldRevalidateFunction =
@@ -98,7 +99,8 @@ export default function NewDirectory() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`docs-${dirId}-dir-new`}
       fakeKey={`docs-${dirId}-dir-new`}
       returnLocation={`/app/workspace/apps/docs/${dirId}`}
@@ -140,7 +142,7 @@ export default function NewDirectory() {
           <FieldError actionResult={actionData} fieldName="/name" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

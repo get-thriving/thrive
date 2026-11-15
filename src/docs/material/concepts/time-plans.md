@@ -15,7 +15,7 @@ _activity_. A time plan can be said to be the collection of its activities.
 Time plans are also closely linked with [journals](./journals.md).
 Whereasjournals are backward looking, time plans are forward looking.
 
-![Journals](../assets/time-plans-overview.png)
+![Time plans: the list of plans by period, and a quarterly plan with its notes, progress and activities](../assets/time-plans-overview.png "Time plans: the list of plans by period, and a quarterly plan with its notes, progress and activities")
 
 ## Auto-Generation
 

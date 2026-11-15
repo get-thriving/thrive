@@ -12,7 +12,7 @@ It is performed daily automatically, but can be triggerd at any time manually.
 In the web app you can find info in the `Generate Tasks` left-hand side tab,
 under _tools_. It lookssomething like this:
 
-![Gen](../assets/gen.png)
+![Generate tasks: pick a date, and see the previous runs and what each one created](../assets/gen.png "Generate tasks: pick a date, and see the previous runs and what each one created")
 
 You can select a time for which you want the tasks generated. This helps with
 backfills and preparationof tasks for the future.

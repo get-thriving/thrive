@@ -11,7 +11,7 @@ import { parseForm, parseParams } from "zodix";
 import { useContext } from "react";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   SectionActions,
   ActionSingle,
@@ -48,6 +48,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "Details",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -121,7 +122,8 @@ export default function HomeTabDetails() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`home-tab-details-${loaderData.tab.ref_id}`}
       entityType={NamedEntityTag.HOME_TAB}
       entityRefId={loaderData.tab.ref_id}
@@ -171,7 +173,7 @@ export default function HomeTabDetails() {
           <FieldError actionResult={actionData} fieldName="/icon" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

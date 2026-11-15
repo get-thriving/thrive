@@ -111,7 +111,7 @@ export function PublishPanel(props: PublishPanelProps) {
             : "Publish this entity to share a read-only link with others."}
         </Typography>
       ) : (
-        <Stack spacing={2}>
+        <Stack spacing={1.25}>
           <Typography variant="body2">
             Status:{" "}
             <Typography

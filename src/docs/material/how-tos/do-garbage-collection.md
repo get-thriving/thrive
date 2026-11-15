@@ -17,7 +17,7 @@ still be able to access them, but they won't appear in the inbox task view.
 In order to perform garbage collection in the webapp you need to go to the
 "Garbage Collect" left-hand side menuitem and click "Garbage Collect".
 
-![GC](../assets/gc.png)
+![Garbage collection: choose targets, run it, and see how many entities each run archived](../assets/gc.png "Garbage collection: choose targets, run it, and see how many entities each run archived")
 
 ## With the CLI App
 

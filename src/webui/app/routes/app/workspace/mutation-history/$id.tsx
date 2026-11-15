@@ -6,13 +6,14 @@ import type {
 import { z } from "zod";
 import { parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { EntityEventList } from "@jupiter/core/infra/component/layout/entity-event-list";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -20,6 +21,7 @@ const ParamsSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Mutation"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -58,7 +60,8 @@ export default function MutationDetail() {
   const mutationLabel = mutationName.replace(/UseCase$/, "");
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`mutation-history/${mutationLabel}`}
       fakeKey={`mutation-history/${mutationLabel}`}
       returnLocation="/app/workspace/mutation-history"
@@ -91,7 +94,7 @@ export default function MutationDetail() {
           emptyMessage="No entity events found for this mutation."
         />
       </Stack>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

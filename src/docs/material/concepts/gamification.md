@@ -25,14 +25,14 @@ quarterly, yearly and lifetimetotal scores that Thrive tracks.
 
 You can view the daily and weekly score summary in the Web UI:
 
-![Gamification Menu](../assets/gamification-menu.png)
+![The account menu showing today's and this week's score](../assets/gamification-menu.png "The account menu showing today's and this week's score")
 
 A more comprehensive view is shown in the gamification menu you get to by
 clicking on the scores.You can see the current scores, as well as best
 daily/weekly/monthly/quarterly/yearly ones so far,recorded for the last quarter,
 year, and even the whole lifetime.
 
-![Gamification Overview](../assets/gamification-overview.png)
+![The gamification page: scores by period, current, best this quarter, best this year and best ever](../assets/gamification-overview.png "The gamification page: scores by period, current, best this quarter, best this year and best ever")
 
 If there's enough data, you can also see a graphical history of your scores.
 
@@ -58,4 +58,4 @@ At account creation time you can opt in or opt out of it:
 
 Similarly, later on you can enable or disable it from `Account` settings:
 
-![Account Settings](../assets/user-feature-flags-overview.png)
+![The account page, with the Gamification feature flag in the user's feature flags section](../assets/user-feature-flags-overview.png "The account page, with the Gamification feature flag in the user's feature flags section")

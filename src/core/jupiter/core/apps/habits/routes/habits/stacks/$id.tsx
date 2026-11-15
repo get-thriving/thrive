@@ -25,7 +25,7 @@ import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { HabitStackPropertiesEditor } from "#/core/apps/habits/component/stack-properties-editor";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
@@ -33,7 +33,7 @@ import {
   ActionSingle,
   NavSingle,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { TimePlanActivityList } from "#/core/apps/time_plans/sub/activity/component/list";
 import { TimeEventInDayBlockStack } from "#/core/common/sub/time_events/sub/in_day_block/component/stack";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
@@ -48,6 +48,7 @@ import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -87,6 +88,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Habit stack"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -308,7 +310,9 @@ export default function HabitStackView() {
   const sortedHabits = sortHabitsNaturally(loaderData.habits);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
+      sectionsPanelId="habit-stack"
       key={`habit-stack-${loaderData.habitStack.ref_id}`}
       entityType={NamedEntityTag.HABIT_STACK}
       entityRefId={loaderData.habitStack.ref_id}
@@ -348,7 +352,12 @@ export default function HabitStackView() {
         actionData={actionData}
       />
 
-      <SectionCard title="Habits">
+      <StrataSection
+        id="habit-stack-habits"
+        items={sortedHabits.length}
+        split={{ size: 2 }}
+        title="Habits"
+      >
         <EntityStack>
           {sortedHabits.map((habit) => (
             <EntityCard
@@ -364,24 +373,27 @@ export default function HabitStackView() {
             </EntityCard>
           ))}
         </EntityStack>
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="habit-stack-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
-          <SectionActions
-            id="habit-stack-note"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                text: "Create Note",
-                value: "create-note",
-                highlight: false,
-                disabled: loaderData.note !== null,
-              }),
-            ]}
-          />
+          loaderData.note !== null ? undefined : (
+            <SectionActions
+              id="habit-stack-note"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  text: "Create Note",
+                  value: "create-note",
+                  highlight: false,
+                }),
+              ]}
+            />
+          )
         }
       >
         {loaderData.note && (
@@ -390,7 +402,7 @@ export default function HabitStackView() {
             inputsEnabled={inputsEnabled}
           />
         )}
-      </SectionCard>
+      </StrataSection>
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
@@ -410,7 +422,9 @@ export default function HabitStackView() {
         WorkspaceFeature.TIME_PLANS,
       ) &&
         loaderData.timePlanActivities && (
-          <SectionCard
+          <StrataSection
+            items={loaderData.timePlanActivities.length}
+            split={{ size: 1 }}
             id="habit-stack-time-plans"
             title="Time Plans"
             actions={
@@ -454,9 +468,9 @@ export default function HabitStackView() {
               fullInfo={false}
               showTimePlanName={true}
             />
-          </SectionCard>
+          </StrataSection>
         )}
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -16,6 +16,8 @@ guest links (no account), see [Share an Entity](share-an-entity.md) instead.
 4. Choose an access level: **Reader**, **Commenter**, or **Writer**.
 5. Confirm the invite.
 
+![The Access panel of an entity, with the Invite button at the top](../assets/collaboration-access.png "The Access panel of an entity, with the Invite button at the top")
+
 The other person gets access right away and sees a pending invite under
 **Core → Collaboration → Invites**.
 
@@ -30,6 +32,8 @@ entity and update or remove the grant.
    card.
 3. **Acknowledge** to clear the pending invite, or **Cancel** if you are the
    owner withdrawing it before they acknowledge.
+
+![The Collaboration hub, where an invite waits until you acknowledge it](../assets/collaboration-page.png "The Collaboration hub, where an invite waits until you acknowledge it")
 
 You can open the shared entity from Collaboration or from the usual feature
 list (for example Vacations), where an owner chip marks items that belong to

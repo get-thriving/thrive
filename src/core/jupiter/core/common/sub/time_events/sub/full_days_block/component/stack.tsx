@@ -1,6 +1,7 @@
 import type { CombinedTimeEventFullDaysEntry } from "#/core/common/sub/time_events/time-event";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { countSummary } from "#/core/infra/component/count-summary";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { TimeEventFullDaysBlockCard } from "#/core/common/sub/time_events/sub/full_days_block/component/card";
 
 interface TimeEventFullDaysBlockStackProps {
@@ -16,9 +17,12 @@ export function TimeEventFullDaysBlockStack(
   const actions = undefined;
 
   return (
-    <SectionCard
+    <StrataSection
       id="time-event-full-days-block-stack"
       title={props.title}
+      items={props.entries.length}
+      split={{ size: 1 }}
+      summary={countSummary(props.entries.length, "event", "events")}
       actions={actions}
     >
       {props.entries.map((entry) => (
@@ -27,6 +31,6 @@ export function TimeEventFullDaysBlockStack(
           entry={entry}
         />
       ))}
-    </SectionCard>
+    </StrataSection>
   );
 }

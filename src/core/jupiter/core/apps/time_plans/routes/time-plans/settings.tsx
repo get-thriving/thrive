@@ -32,7 +32,7 @@ import { periodName } from "#/core/common/recurring-task-period";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
-import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { makeBranchErrorBoundary } from "#/core/infra/component/error-boundary";
 import { PeriodSelect } from "#/core/common/component/period-select";
@@ -40,7 +40,7 @@ import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { TimePlanGenerationApproachSelect } from "#/core/apps/time_plans/component/generation-approach-select";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -85,6 +85,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  label: "Settings",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -214,7 +215,9 @@ export default function TimePlansSettings() {
   }, [loaderData]);
 
   return (
-    <BranchPanel
+    <EntityPanel
+      kind="branch"
+      sectionsPanelId="time-plans-settings"
       key={"time-plans/settings"}
       returnLocation="/app/workspace/apps/time-plans"
       inputsEnabled={inputsEnabled}
@@ -225,9 +228,10 @@ export default function TimePlansSettings() {
         WorkspaceFeature.TIME_PLANS,
       ) && (
         <>
-          <SectionCard
-            id="time-plans-settings"
-            title="Settings"
+          <StrataSection
+            id="time-plans-settings-properties-section"
+            fixed
+            title="Properties"
             actions={
               <SectionActions
                 id="time-plans-settings-actions"
@@ -249,7 +253,7 @@ export default function TimePlansSettings() {
               />
             }
           >
-            <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+            <Stack direction={isBigScreen ? "row" : "column"} spacing={1.25}>
               <FormControl fullWidth>
                 <FormLabel id="periods">Periods You Want To Plan</FormLabel>
                 <PeriodSelect
@@ -292,7 +296,10 @@ export default function TimePlansSettings() {
                   <Typography variant="h6">Document Properties</Typography>
                 </Divider>
 
-                <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+                <Stack
+                  direction={isBigScreen ? "row" : "column"}
+                  spacing={1.25}
+                >
                   <FormControl fullWidth>
                     <FormControlLabel
                       control={
@@ -340,7 +347,10 @@ export default function TimePlansSettings() {
                   </Typography>
                 </Divider>
 
-                <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+                <Stack
+                  direction={isBigScreen ? "row" : "column"}
+                  spacing={1.25}
+                >
                   <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
                     <FormLabel id="planningTaskEisen">
                       Planning Task Eisen
@@ -395,7 +405,10 @@ export default function TimePlansSettings() {
                   </Typography>
                 </Divider>
 
-                <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+                <Stack
+                  direction={isBigScreen ? "row" : "column"}
+                  spacing={1.25}
+                >
                   {Object.values(RecurringTaskPeriod).map((period) => {
                     if (!periods.includes(period)) {
                       return null;
@@ -426,11 +439,14 @@ export default function TimePlansSettings() {
                 </Stack>
               </>
             )}
-          </SectionCard>
+          </StrataSection>
 
-          <SectionCard
-            id="time-plans-generated-time-plans-and-planning-tasks"
+          <StrataSection
+            id="time-plans-generated-planning-tasks-section"
             title="Generated Planning Tasks"
+            summary={`${loaderData.planningTasks.length}`}
+            items={loaderData.planningTasks.length}
+            split={{ size: 2, grow: true }}
           >
             <InboxTaskStack
               topLevelInfo={topLevelInfo}
@@ -442,10 +458,10 @@ export default function TimePlansSettings() {
               }}
               inboxTasks={loaderData.planningTasks}
             />
-          </SectionCard>
+          </StrataSection>
         </>
       )}
-    </BranchPanel>
+    </EntityPanel>
   );
 }
 

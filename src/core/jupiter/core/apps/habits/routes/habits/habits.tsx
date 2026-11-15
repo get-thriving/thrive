@@ -46,7 +46,7 @@ import { EntityStack } from "#/core/infra/component/entity-stack";
 import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
 import {
   FilterFewOptionsCompact,
@@ -62,10 +62,7 @@ import {
   sortAspectsByTreeOrder,
 } from "#/core/apps/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/apps/life_plan/sub/goals/root";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { IsSuspendedTag } from "#/core/common/component/is-suspended-tag";
 import { HabitKeyHabitStreakWidget } from "#/core/apps/habits/component/key-habit-streak-widget";
@@ -89,9 +86,13 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataTrunkLabel } from "#/core/infra/strata/strata-trunk-label";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
+  label: strataTrunkLabel,
 };
 
 enum Grouping {
@@ -199,8 +200,6 @@ export default function Habits() {
 
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
-
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
   const [mobileTab, setMobileTab] = useState<"streaks" | "habits" | "tasks">(
     "streaks",
@@ -393,9 +392,10 @@ export default function Habits() {
   };
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"habits"}
-      createLocation="/app/workspace/apps/habits/habits/new"
+      count={sortedHabits.length}
       returnLocation="/app/workspace"
       actions={
         <SectionActions
@@ -403,6 +403,11 @@ export default function Habits() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
+            NavSingle({
+              id: "trunk-new-leaf-entity",
+              text: "New",
+              link: "/app/workspace/apps/habits/habits/new",
+            }),
             FilterFewOptionsCompact(
               "Grouping",
               selectedGrouping,
@@ -493,7 +498,7 @@ export default function Habits() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {isBigScreen ? (
           <>
             {loaderData.habits.length === 0 && (
@@ -503,10 +508,6 @@ export default function Habits() {
                 newEntityLocations="/app/workspace/apps/habits/habits/new"
                 helpSubject={DocsHelpSubject.HABITS}
               />
-            )}
-
-            {loaderData.keyHabitStreaks.length > 0 && (
-              <HabitKeyHabitStreakWidget {...streakWidgetProps} />
             )}
 
             <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
@@ -677,7 +678,7 @@ export default function Habits() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

@@ -1,11 +1,13 @@
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import { Button, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
+import TuneIcon from "@mui/icons-material/Tune";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   ShouldRevalidateFunction,
 } from "react-router";
-import { redirect, Link, useActionData, useNavigation } from "react-router";
+import { redirect, useActionData, useNavigation } from "react-router";
+import { useContext } from "react";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
@@ -19,13 +21,14 @@ import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { SectionCard } from "#/core/infra/component/section-card";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-} from "#/core/infra/component/use-nested-entities";
+  NavSingle,
+  SectionActions,
+} from "#/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
   handleActionApiError,
@@ -34,6 +37,8 @@ import {
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   dirId: z.string(),
@@ -59,6 +64,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
+  label: strataEntityLabel("Doc"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -158,7 +165,7 @@ export default function DocInFolder() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
+  const topLevelInfo = useContext(TopLevelInfoContext);
 
   const inputsEnabled =
     navigation.state === "idle" &&
@@ -166,7 +173,8 @@ export default function DocInFolder() {
     accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`doc-${loaderData.doc.ref_id}`}
       entityType={NamedEntityTag.DOC}
       entityRefId={loaderData.doc.ref_id}
@@ -181,35 +189,37 @@ export default function DocInFolder() {
       accessStatus={loaderData.accessStatus}
       returnLocation={`/app/workspace/apps/docs/${loaderData.dirId}`}
       forgetReturnLocation="/app/workspace/apps/docs/root-redirect"
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      shouldShowALeaflet={shouldShowALeaflet}
+      actions={
+        <SectionActions
+          id="docs-doc"
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={navigation.state === "idle"}
+          actions={[
+            NavSingle({
+              id: "docs-doc-settings",
+              text: "Settings",
+              link: `/app/workspace/apps/docs/${loaderData.dirId}/doc/${loaderData.doc.ref_id}/settings`,
+              icon: <TuneIcon />,
+            }),
+          ]}
+        />
+      }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
-        <SectionCard
-          title="Doc"
-          actions={
-            <Button
-              component={Link}
-              to={`/app/workspace/apps/docs/${loaderData.dirId}/doc/${loaderData.doc.ref_id}/settings`}
-              variant="outlined"
-              size="small"
-              type="button"
-            >
-              Settings
-            </Button>
-          }
-        >
+        <SectionCard title="Doc">
           <DocEditor
             initialDoc={loaderData.doc}
             initialNote={loaderData.note}
             inputsEnabled={inputsEnabled}
             parentDirRefId={loaderData.doc.parent_dir_ref_id}
             rightOfName={
+              // Tags and locations keep their regular size; the name takes
+              // the rest of the line.
               <Stack
                 direction="row"
                 spacing={1}
-                sx={{ minWidth: 0, width: "100%" }}
+                sx={{ minWidth: 0, flex: "0 1 28rem" }}
               >
                 <TagsEditor
                   name="tags"
@@ -223,7 +233,6 @@ export default function DocInFolder() {
                 />
                 <LocationsEditor
                   name="locations"
-                  aloneOnLine
                   linkedLocation={loaderData.location}
                   inputsEnabled={inputsEnabled}
                   entityOwnerRefId={loaderData.owner?.ref_id}
@@ -240,7 +249,7 @@ export default function DocInFolder() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

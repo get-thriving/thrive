@@ -12,7 +12,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { DurationMinsSelect } from "#/core/common/component/duration-mins-select";
 
@@ -72,7 +72,8 @@ export function TimeEventInDayBlockPropertiesEditor(
         startTimeInDay={startTimeInDay}
         durationMins={durationMins}
       />
-      <SectionCard
+      <StrataSection
+        fixed
         id="time-event-in-day-block-properties"
         title={props.title}
         actions={
@@ -169,7 +170,7 @@ export function TimeEventInDayBlockPropertiesEditor(
           onBufferAfterMinsChange={setBufferAfterMins}
           actionResult={props.actionData}
         />
-      </SectionCard>
+      </StrataSection>
     </>
   );
 }

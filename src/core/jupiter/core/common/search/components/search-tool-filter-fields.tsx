@@ -40,12 +40,12 @@ export interface SearchToolFilterFieldsProps {
 
 export function SearchToolFilterFields(props: SearchToolFilterFieldsProps) {
   return (
-    <Stack useFlexGap spacing={2}>
+    <Stack useFlexGap spacing={1.25}>
       <Stack
         useFlexGap
         sx={{ alignItems: "center" }}
         direction={props.isBigScreen ? "row" : "column"}
-        spacing={2}
+        spacing={1.25}
       >
         <FormControl fullWidth>
           <InputLabel id="limit">Limit</InputLabel>
@@ -101,11 +101,11 @@ export function SearchToolFilterFields(props: SearchToolFilterFieldsProps) {
       <FieldError actionResult={props.actionResult} fieldName="/offset" />
 
       <Stack
-        spacing={2}
+        spacing={1.25}
         useFlexGap
         direction={props.isBigScreen ? "row" : "column"}
       >
-        <Stack spacing={2} useFlexGap sx={{ flexGrow: 1 }}>
+        <Stack spacing={1.25} useFlexGap sx={{ flexGrow: 1 }}>
           <FormControl fullWidth>
             <InputLabel id="filterCreatedTimeAfter" shrink>
               Created After
@@ -153,7 +153,7 @@ export function SearchToolFilterFields(props: SearchToolFilterFieldsProps) {
           </FormControl>
         </Stack>
 
-        <Stack spacing={2} useFlexGap sx={{ flexGrow: 1 }}>
+        <Stack spacing={1.25} useFlexGap sx={{ flexGrow: 1 }}>
           <FormControl fullWidth>
             <InputLabel id="filterLastModifiedTimeAfter" shrink>
               Last Modified After
@@ -201,7 +201,7 @@ export function SearchToolFilterFields(props: SearchToolFilterFieldsProps) {
           </FormControl>
         </Stack>
 
-        <Stack spacing={2} useFlexGap sx={{ flexGrow: 1 }}>
+        <Stack spacing={1.25} useFlexGap sx={{ flexGrow: 1 }}>
           <FormControl fullWidth>
             <InputLabel id="filterArchivedTimeAfter" shrink>
               Archived After

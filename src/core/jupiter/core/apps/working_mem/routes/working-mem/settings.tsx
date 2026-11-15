@@ -23,7 +23,7 @@ import {
 import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { PeriodSelect } from "#/core/common/component/period-select";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
@@ -54,6 +54,7 @@ const ParamsSchema = z.object({});
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "Settings",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -142,7 +143,8 @@ export default function WorkingMemSettings() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="working-mem/settings"
       fakeKey={"working-mem/settings"}
       returnLocation="/app/workspace/apps/working-mem"
@@ -212,7 +214,7 @@ export default function WorkingMemSettings() {
           />
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

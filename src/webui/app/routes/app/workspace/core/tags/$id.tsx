@@ -17,7 +17,7 @@ import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
@@ -31,6 +31,7 @@ import {
 } from "@jupiter/core/infra/errors.server";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -51,6 +52,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Tag"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -128,7 +130,8 @@ export default function TagDetail() {
   const tag = loaderData.tag;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`core/tags/${tag.ref_id}`}
       fakeKey={`core/tags/${tag.ref_id}`}
       returnLocation="/app/workspace/core/tags"
@@ -168,10 +171,10 @@ export default function TagDetail() {
           <FieldError actionResult={actionData} fieldName="/name" />
         </FormControl>
 
-        {/* Helpful for actions coming from LeafPanel dialog as well */}
+        {/* Helpful for actions coming from EntityPanel dialog as well */}
         <input name="id" type="hidden" value={id ?? tag.ref_id} />
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

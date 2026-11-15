@@ -21,7 +21,7 @@ import { parseForm, parseParams } from "zodix";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionsPosition,
   SectionCard,
@@ -48,6 +48,7 @@ const ResetFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: "Reset streak",
 };
 
 export async function action({ request, url, params }: ActionFunctionArgs) {
@@ -80,9 +81,9 @@ export default function StreakInactivePeriodReset() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key="streak-inactive-periods/reset"
-      isLeaflet
       fakeKey="streak-inactive-periods/reset"
       returnLocation={habitLocation(habitId!, query.toString())}
       inputsEnabled={inputsEnabled}
@@ -123,7 +124,7 @@ export default function StreakInactivePeriodReset() {
           recorded colours come back if you archive this period.
         </Typography>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

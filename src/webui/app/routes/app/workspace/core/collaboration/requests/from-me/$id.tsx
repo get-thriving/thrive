@@ -30,7 +30,7 @@ import { accessRequestStatusName } from "@jupiter/core/common/sub/access/sub/req
 import { workspacePathForEntityTag } from "@jupiter/core/common/workspace-entity-path";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ButtonSingle,
@@ -47,6 +47,7 @@ import { entityTagName } from "@jupiter/core/named-entity-tag";
 import { formatUserLightLabel } from "@jupiter/core/users/components/user-light-chip";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -58,6 +59,7 @@ const CancelFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Grant"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -125,7 +127,8 @@ export default function CollaborationRequestFromMe() {
   );
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`core/collaboration/requests/from-me/${accessRequest.ref_id}`}
       fakeKey={`core/collaboration/requests/from-me/${accessRequest.ref_id}`}
       returnLocation="/app/workspace/core/collaboration"
@@ -163,7 +166,7 @@ export default function CollaborationRequestFromMe() {
           />
         }
       >
-        <Stack spacing={2} useFlexGap>
+        <Stack spacing={1.25} useFlexGap>
           <Stack direction="row" useFlexGap spacing={1}>
             <FormControl sx={{ flexGrow: 1, minWidth: "8rem" }}>
               <InputLabel id="entity-type">Entity Type</InputLabel>
@@ -253,7 +256,7 @@ export default function CollaborationRequestFromMe() {
           </DialogActions>
         </Dialog>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -8,7 +8,7 @@ constraints of [big plans](big-plans.md).
 
 In the workspace overview, you can view the set of smart lists:
 
-![Smart lists](../assets/smart-lists-overview.png)
+![Smart lists: the list of smart lists](../assets/smart-lists-overview.png "Smart lists: the list of smart lists")
 
 Smart list items are the actual books you want to read, movies you've seen, or
 courses you've attended.They are attached to a particular smart list.
@@ -18,7 +18,9 @@ Square", in your list ofmovies, and places to visit, respectively.
 
 Each smart list contains many items, for example:
 
-![Smart list items](../assets/smart-lists-list.png)
+![A smart list item open for editing: its name, whether it is done, and its notes](../assets/smart-lists-item-update.png "A smart list item open for editing: its name, whether it is done, and its notes")
+
+![A smart list open next to the list of smart lists, with its items and which are done](../assets/smart-lists-list.png "A smart list open next to the list of smart lists, with its items and which are done")
 
 ## Properties
 
@@ -39,3 +41,5 @@ track of info you otherwise can'tright now (author, year of publication, etc).
 Smart list items also have an optional url. It can be used to provide extra
 information about the particular item,such as an Amazon link where it can be
 bought, or the actual link of the actual interesting article you want toread.
+
+![The details of a smart list: its name and what it holds](../assets/smart-lists-update.png "The details of a smart list: its name and what it holds")

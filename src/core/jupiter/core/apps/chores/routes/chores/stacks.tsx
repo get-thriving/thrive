@@ -17,11 +17,8 @@ import { EntityStack } from "#/core/infra/component/entity-stack";
 import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   NavSingle,
@@ -36,9 +33,11 @@ import { sortChoreStacksNaturally } from "#/core/apps/chores/root";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { strataTrunkLabel } from "#/core/infra/strata/strata-trunk-label";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  label: strataTrunkLabel,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -61,7 +60,6 @@ export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 export default function ChoreStacks() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
   const sortedStacks = sortChoreStacksNaturally(
     loaderData.entries.map((entry) => entry.chore_stack),
@@ -71,9 +69,9 @@ export default function ChoreStacks() {
   );
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key="chores-stacks"
-      createLocation="/app/workspace/apps/chores/stacks/new"
       returnLocation="/app/workspace"
       actions={
         <SectionActions
@@ -81,6 +79,11 @@ export default function ChoreStacks() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
+            NavSingle({
+              id: "trunk-new-leaf-entity",
+              text: "New",
+              link: "/app/workspace/apps/chores/stacks/new",
+            }),
             NavSingle({
               id: "chores-all",
               text: "All chores",
@@ -90,7 +93,7 @@ export default function ChoreStacks() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {sortedStacks.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"
@@ -134,7 +137,7 @@ export default function ChoreStacks() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

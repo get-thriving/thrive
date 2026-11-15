@@ -247,6 +247,7 @@ from .code_block_kind import CodeBlockKind
 from .collaboration_entry import CollaborationEntry
 from .collaboration_invite_entry import CollaborationInviteEntry
 from .collaboration_request_entry import CollaborationRequestEntry
+from .color_scheme import ColorScheme
 from .contact import Contact
 from .contact_archive_args import ContactArchiveArgs
 from .contact_create_args import ContactCreateArgs
@@ -638,6 +639,7 @@ from .key_big_plans_progress_home_widget_properties import KeyBigPlansProgressHo
 from .key_big_plans_progress_home_widget_properties_kind import KeyBigPlansProgressHomeWidgetPropertiesKind
 from .key_habits_streaks_home_widget_properties import KeyHabitsStreaksHomeWidgetProperties
 from .key_habits_streaks_home_widget_properties_kind import KeyHabitsStreaksHomeWidgetPropertiesKind
+from .keyboard_action import KeyboardAction
 from .life_plan import LifePlan
 from .life_plan_eval_approach import LifePlanEvalApproach
 from .life_plan_eval_task_generation_in_advance_days import LifePlanEvalTaskGenerationInAdvanceDays
@@ -1392,10 +1394,16 @@ from .vision_mark_draft_as_active_args import VisionMarkDraftAsActiveArgs
 from .vision_remove_args import VisionRemoveArgs
 from .vision_status import VisionStatus
 from .web_ui_settings import WebUiSettings
+from .web_ui_settings_key_bindings import WebUiSettingsKeyBindings
 from .web_ui_settings_load_args import WebUiSettingsLoadArgs
 from .web_ui_settings_load_result import WebUiSettingsLoadResult
+from .web_ui_settings_reset_key_bindings_args import WebUiSettingsResetKeyBindingsArgs
+from .web_ui_settings_reset_key_bindings_result import WebUiSettingsResetKeyBindingsResult
 from .web_ui_settings_update_args import WebUiSettingsUpdateArgs
-from .web_ui_settings_update_args_use_night_mode import WebUiSettingsUpdateArgsUseNightMode
+from .web_ui_settings_update_args_color_scheme import WebUiSettingsUpdateArgsColorScheme
+from .web_ui_settings_update_args_key_bindings import WebUiSettingsUpdateArgsKeyBindings
+from .web_ui_settings_update_args_key_bindings_value import WebUiSettingsUpdateArgsKeyBindingsValue
+from .web_ui_settings_update_args_use_expanded_rail import WebUiSettingsUpdateArgsUseExpandedRail
 from .web_ui_settings_update_result import WebUiSettingsUpdateResult
 from .widget_dimension import WidgetDimension
 from .widget_geometry import WidgetGeometry
@@ -1669,6 +1677,7 @@ __all__ = (
     "CollaborationEntry",
     "CollaborationInviteEntry",
     "CollaborationRequestEntry",
+    "ColorScheme",
     "Contact",
     "ContactArchiveArgs",
     "ContactCreateArgs",
@@ -2054,6 +2063,7 @@ __all__ = (
     "JupiterWebApiStorageEngine",
     "KeyBigPlansProgressHomeWidgetProperties",
     "KeyBigPlansProgressHomeWidgetPropertiesKind",
+    "KeyboardAction",
     "KeyHabitsStreaksHomeWidgetProperties",
     "KeyHabitsStreaksHomeWidgetPropertiesKind",
     "LifePlan",
@@ -2784,10 +2794,16 @@ __all__ = (
     "VisionRemoveArgs",
     "VisionStatus",
     "WebUiSettings",
+    "WebUiSettingsKeyBindings",
     "WebUiSettingsLoadArgs",
     "WebUiSettingsLoadResult",
+    "WebUiSettingsResetKeyBindingsArgs",
+    "WebUiSettingsResetKeyBindingsResult",
     "WebUiSettingsUpdateArgs",
-    "WebUiSettingsUpdateArgsUseNightMode",
+    "WebUiSettingsUpdateArgsColorScheme",
+    "WebUiSettingsUpdateArgsKeyBindings",
+    "WebUiSettingsUpdateArgsKeyBindingsValue",
+    "WebUiSettingsUpdateArgsUseExpandedRail",
     "WebUiSettingsUpdateResult",
     "WidgetDimension",
     "WidgetGeometry",

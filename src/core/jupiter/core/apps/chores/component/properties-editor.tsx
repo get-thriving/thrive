@@ -47,7 +47,7 @@ import {
   NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { constructFieldName } from "#/core/infra/field-names";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -133,7 +133,9 @@ export function ChorePropertiesEditor(props: ChorePropertiesEditorProps) {
 
   return (
     <>
-      <SectionCard
+      <StrataSection
+        id="chore-properties-section"
+        fixed
         title={props.title}
         actions={
           <SectionActions
@@ -384,7 +386,7 @@ export function ChorePropertiesEditor(props: ChorePropertiesEditorProps) {
           <FieldError actionResult={props.actionData} fieldName="/suspended" />
         </FormControl>
 
-        <Stack spacing={2} direction={isBigScreen ? "row" : "column"}>
+        <Stack spacing={1.25} direction={isBigScreen ? "row" : "column"}>
           <FormControl fullWidth>
             <InputLabel id="startAtDate" shrink>
               Start At Date [Optional]
@@ -433,7 +435,7 @@ export function ChorePropertiesEditor(props: ChorePropertiesEditorProps) {
             />
           </FormControl>
         </Stack>
-      </SectionCard>
+      </StrataSection>
       <EntityLocationMapSection location={props.location} />
     </>
   );

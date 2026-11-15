@@ -17,7 +17,7 @@ import { LocationDedupedBanner } from "@jupiter/core/common/sub/locations/compon
 import { LocationSearchNameField } from "@jupiter/core/common/sub/locations/component/location-search-name-field";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
@@ -68,6 +68,7 @@ function gpsFromForm(
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New location",
 };
 
 export async function action({ request, url }: ActionFunctionArgs) {
@@ -139,7 +140,8 @@ export default function NewLocation() {
   }, [defaultAddressLine, defaultCountry, defaultLatitude, defaultLongitude]);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="core/locations/new"
       fakeKey={"core/locations/new"}
       returnLocation="/app/workspace/core/locations"
@@ -171,7 +173,7 @@ export default function NewLocation() {
           />
         }
       >
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={1.25}>
           <FormControl fullWidth sx={{ flexGrow: 3 }}>
             <LocationSearchNameField
               defaultValue={defaultName}
@@ -218,7 +220,7 @@ export default function NewLocation() {
           />
           <FieldError actionResult={actionData} fieldName="/country" />
         </FormControl>
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={1.25}>
           <FormControl fullWidth>
             <InputLabel id="latitude">Latitude</InputLabel>
             <OutlinedInput
@@ -248,7 +250,7 @@ export default function NewLocation() {
           </FormControl>
         </Stack>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

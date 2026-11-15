@@ -13,8 +13,8 @@ import { parseForm, parseParams } from "zodix";
 import { getSuggestedDatesForBigPlanMilestoneDate } from "#/core/common/suggested-date";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -30,6 +30,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -52,6 +53,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: strataEntityLabel("Milestone"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -129,19 +131,20 @@ export default function BigPlanMilestoneView() {
   const inputsEnabled = navigation.state === "idle" && !milestone.archived;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key={`big-plan-milestone-${milestone.ref_id}`}
       entityType={NamedEntityTag.BIG_PLAN_MILESTONE}
       entityRefId={milestone.ref_id}
       fakeKey={`big-plan-milestone-${milestone.ref_id}`}
-      isLeaflet
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityArchived={milestone.archived}
       returnLocation={`/app/workspace/apps/big-plans/${milestone.big_plan_ref_id}`}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        fixed
         id="milestone-properties"
         title="Properties"
         actions={
@@ -159,7 +162,7 @@ export default function BigPlanMilestoneView() {
           />
         }
       >
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={1.25}>
           <FormControl sx={{ flexGrow: 3 }}>
             <InputLabel id="name">Name</InputLabel>
             <OutlinedInput
@@ -188,8 +191,8 @@ export default function BigPlanMilestoneView() {
           />
           <FieldError actionResult={actionData} fieldName="/date" />
         </FormControl>
-      </SectionCard>
-    </LeafPanel>
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

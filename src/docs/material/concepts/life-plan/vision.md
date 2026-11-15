@@ -11,6 +11,8 @@ reflections — a description of the kind of life you are aiming to build.
 Think of it as the answer to: _"If everything went well, what would my life
 look and feel like?"_
 
+![The active vision opened beside the Life Plan, with its heading, text and checklist](../../assets/life-plan-vision.png "The active vision opened beside the Life Plan, with its heading, text and checklist")
+
 Having a written Vision gives your goals, chapters, and daily work a sense of
 direction and meaning. The periodic [evaluation](overview.md#periodic-evaluation)
 workflow is designed to keep the Vision alive and up to date.

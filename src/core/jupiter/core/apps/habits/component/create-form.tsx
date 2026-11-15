@@ -218,7 +218,7 @@ export function HabitCreateForm(props: HabitCreateFormProps) {
         />
 
         {selectedPeriod !== RecurringTaskPeriod.DAILY && (
-          <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={1.25}>
             <FormControl sx={{ flexGrow: 3 }}>
               <HabitRepeatStrategySelect
                 name="repeatsStrategy"
@@ -251,7 +251,7 @@ export function HabitCreateForm(props: HabitCreateFormProps) {
         )}
 
         {props.timePlan !== null && (
-          <Stack direction="row" useFlexGap spacing={2}>
+          <Stack direction="row" useFlexGap spacing={1.25}>
             <FormControl fullWidth>
               <InputLabel id="timePlanActivityKind">Activity Kind</InputLabel>
               <TimePlanActivitKindSelect

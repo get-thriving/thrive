@@ -12,7 +12,7 @@ import { HomeTabTargetSelect } from "@jupiter/core/home/component/home-tab-targe
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { IconSelector } from "@jupiter/core/infra/component/icon-selector";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -43,6 +43,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New tab",
 };
 
 export async function action({ request, url }: ActionFunctionArgs) {
@@ -78,7 +79,8 @@ export default function NewTab() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="home-tab/new"
       fakeKey={"home/settings/tab/new"}
       returnLocation="/app/workspace/home/settings"
@@ -135,7 +137,7 @@ export default function NewTab() {
           <FieldError actionResult={actionData} fieldName="/icon" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

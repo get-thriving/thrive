@@ -18,7 +18,7 @@ import { useContext, useState } from "react";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { RecurringTaskGenParamsBlock } from "#/core/common/component/recurring-task-gen-params-block";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
@@ -68,6 +68,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New person",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -173,7 +174,8 @@ export default function NewPerson() {
   );
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="persons/new"
       fakeKey={"persons/new"}
       returnLocation="/app/workspace/apps/prm/persons"
@@ -250,7 +252,7 @@ export default function NewPerson() {
           />
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

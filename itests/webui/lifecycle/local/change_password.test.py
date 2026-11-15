@@ -30,8 +30,6 @@ def test_webui_lifecycle_local_change_password(
     # here then the redirect from "post /login" with cookies will not work!
     page.wait_for_url("/app/workspace")
 
-    page.locator("#show-sidebar").click()
-
     page.locator("#account-menu").click()
     page.locator("#security").click()
 

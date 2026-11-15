@@ -72,7 +72,7 @@ import { TodoTaskPropertiesEditor } from "@jupiter/core/apps/todo/components/pro
 import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   ActionMultipleSpread,
   ActionSingle,
@@ -93,6 +93,7 @@ import { noSchedulingParamsUpdateArgs } from "@jupiter/core/common/scheduling-pa
 import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -279,6 +280,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Time event"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -1065,7 +1067,8 @@ export default function TimeEventInDayBlockViewOne() {
   }, [query, debounceForeign]);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`time-event-in-day-block-${loaderData.inDayBlock.ref_id}`}
       fakeKey={`time-event-in-day-block-${loaderData.inDayBlock.ref_id}`}
       showArchiveAndRemoveButton={corePropertyEditable}
@@ -1159,7 +1162,7 @@ export default function TimeEventInDayBlockViewOne() {
           />
         </FormControl>
 
-        <Stack spacing={2} direction="row">
+        <Stack spacing={1.25} direction="row">
           <ButtonGroup
             variant="outlined"
             disabled={!(inputsEnabled && corePropertyEditable)}
@@ -1347,7 +1350,7 @@ export default function TimeEventInDayBlockViewOne() {
           />
         </SectionCard>
       )}
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

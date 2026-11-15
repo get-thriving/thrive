@@ -26,15 +26,11 @@ import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-ca
 import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { JournalCard } from "#/core/apps/journals/component/card";
 import { JournalStack } from "#/core/apps/journals/component/stack";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import {
@@ -46,9 +42,13 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataTrunkLabel } from "#/core/infra/strata/strata-trunk-label";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "S", grow: true } satisfies StrataHandle,
+  label: strataTrunkLabel,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -88,9 +88,6 @@ export default function Journals() {
 
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
-
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
   const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
     PANEL_ID,
@@ -148,9 +145,10 @@ export default function Journals() {
   }
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"journals"}
-      createLocation="/app/workspace/apps/journals/new"
+      count={sortedJournals.length}
       returnLocation="/app/workspace"
       actions={
         <SectionActions
@@ -158,15 +156,11 @@ export default function Journals() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
-            FilterManyOptions(
-              "Tags",
-              loaderData.allTags.map((tag) => ({
-                value: tag.ref_id,
-                text: tag.name,
-              })),
-              selectedTagsRefId,
-              (tags) => setFilters({ tags }),
-            ),
+            NavSingle({
+              id: "trunk-new-leaf-entity",
+              text: "New",
+              link: "/app/workspace/apps/journals/new",
+            }),
             NavSingle({
               id: "journals-questions",
               text: "Questions",
@@ -178,14 +172,20 @@ export default function Journals() {
               link: `/app/workspace/apps/journals/settings`,
               icon: <TuneIcon />,
             }),
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              selectedTagsRefId,
+              (tags) => setFilters({ tags }),
+            ),
           ]}
         />
       }
     >
-      <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeaf}
-      >
+      <NestingAwareBlock>
         {sortedJournals.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"
@@ -342,7 +342,7 @@ export default function Journals() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

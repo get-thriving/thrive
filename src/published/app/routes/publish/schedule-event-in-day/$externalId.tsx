@@ -7,10 +7,9 @@ import { parseParams } from "zodix";
 import { timeEventInDayBlockParamsToTimezone } from "@jupiter/core/common/sub/time_events/time-event";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { ScheduleEventInDayEditor } from "@jupiter/core/apps/schedule/sub/event_in_day/component/editor";
 import { isCorePropertyEditable } from "@jupiter/core/apps/schedule/sub/event_in_day/root";
@@ -90,14 +89,13 @@ export default function PublishedScheduleEventInDay() {
   );
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`published-schedule-event-in-day-${scheduleEventInDay.ref_id}`}
       fakeKey={`published-schedule-event-in-day-${scheduleEventInDay.ref_id}`}
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <ScheduleEventInDayEditor
         scheduleEventInDay={scheduleEventInDay}
@@ -132,7 +130,7 @@ export default function PublishedScheduleEventInDay() {
           </Typography>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

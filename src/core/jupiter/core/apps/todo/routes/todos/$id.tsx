@@ -35,8 +35,8 @@ import { TimeEventInDayBlockStack } from "#/core/common/sub/time_events/sub/in_d
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
 import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   NavSingle,
@@ -59,6 +59,8 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -115,6 +117,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "M" } satisfies StrataHandle,
+  label: strataEntityLabel("Todo"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -412,7 +416,9 @@ export default function TodoTask() {
     sortInboxTaskTimeEventsNaturally(timeEventEntries);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
+      sectionsPanelId="todo"
       key={`todo-task-${loaderData.todoTask.ref_id}`}
       entityType={NamedEntityTag.TODO_TASK}
       entityRefId={loaderData.todoTask.ref_id}
@@ -451,12 +457,44 @@ export default function TodoTask() {
         actionData={actionData}
       />
 
+      <StrataSection
+        id="todo-note-section"
+        items={loaderData.note ? 1 : 0}
+        title="Note"
+        actions={
+          loaderData.note !== null ? undefined : (
+            <SectionActions
+              id="todo-create-note"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  id: "todo-create-note",
+                  text: "Create Note",
+                  value: "create-note",
+                  highlight: false,
+                }),
+              ]}
+            />
+          )
+        }
+      >
+        {loaderData.note && (
+          <EntityNoteEditor
+            initialNote={loaderData.note}
+            inputsEnabled={inputsEnabled}
+          />
+        )}
+      </StrataSection>
+
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
         WorkspaceFeature.TIME_PLANS,
       ) &&
         loaderData.timePlanActivities && (
-          <SectionCard
+          <StrataSection
+            items={loaderData.timePlanActivities.length}
+            split={{ size: 1 }}
             id="todo-time-plans"
             title="Time Plans"
             actions={
@@ -501,7 +539,7 @@ export default function TodoTask() {
               fullInfo={false}
               showTimePlanName={true}
             />
-          </SectionCard>
+          </StrataSection>
         )}
 
       {isWorkspaceFeatureAvailable(
@@ -516,34 +554,7 @@ export default function TodoTask() {
           entries={sortedTimeEventEntries}
         />
       )}
-
-      <SectionCard
-        title="Note"
-        actions={
-          <SectionActions
-            id="todo-create-note"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                id: "todo-create-note",
-                text: "Create Note",
-                value: "create-note",
-                highlight: false,
-                disabled: loaderData.note !== null,
-              }),
-            ]}
-          />
-        }
-      >
-        {loaderData.note && (
-          <EntityNoteEditor
-            initialNote={loaderData.note}
-            inputsEnabled={inputsEnabled}
-          />
-        )}
-      </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 
