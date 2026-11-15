@@ -470,6 +470,40 @@ def grant_todo_access(
     return _grant
 
 
+def test_api_todo_find_filter_finished_after_covers_shared_todos_and_only_them(
+    webapi_url: str,
+    create_finished_todo,
+    archive_todo,
+    grant_todo_access,
+    another_user_with_todos_enabled: AnotherUserAndWorkspace,
+) -> None:
+    # Todos of another workspace live in that workspace's inbox tasks, so finding
+    # them by finish date goes by a different road than finding one's own.
+    shared_live = create_finished_todo("Shared Finished: shared, live")
+    shared_archived = create_finished_todo("Shared Finished: shared, archived")
+    not_shared = create_finished_todo("Shared Finished: not shared")
+    grant_todo_access(shared_live, AccessLevel.READER)
+    grant_todo_access(shared_archived, AccessLevel.READER)
+    archive_todo(shared_archived.ref_id)
+    archive_todo(not_shared.ref_id)
+
+    sharee_client = AuthenticatedClient(
+        base_url=webapi_url,
+        token=another_user_with_todos_enabled.init_result.auth_token_ext,
+    )
+    an_hour_ago = _timestamp(datetime.now(UTC) - timedelta(hours=1))
+
+    found = _find_todos(
+        sharee_client, allow_archived=True, filter_finished_after=an_hour_ago
+    )
+    assert _names(found) == {shared_live.name, shared_archived.name}
+
+    found_archived = _find_todos(
+        sharee_client, only_archived=True, filter_finished_after=an_hour_ago
+    )
+    assert _names(found_archived) == {shared_archived.name}
+
+
 def _assert_other_user_cannot_access_todo(
     api_url: str,
     *,

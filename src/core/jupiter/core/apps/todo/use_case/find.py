@@ -7,6 +7,8 @@ from jupiter.core.apps.life_plan.sub.aspects.root import Aspect
 from jupiter.core.apps.life_plan.sub.chapters.root import Chapter
 from jupiter.core.apps.life_plan.sub.goals.root import Goal
 from jupiter.core.apps.todo.root import TodoTask
+from jupiter.core.common.sub.access.access_level import AccessLevel
+from jupiter.core.common.sub.access.sub.grant.root import AccessGrantRepository
 from jupiter.core.common.sub.access.sub.status.root import (
     AccessStatus,
     AccessStatusRepository,
@@ -16,6 +18,8 @@ from jupiter.core.common.sub.access.sub.status.service.owner_user_ref_ids_for_en
 )
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.parent_link_namespace import TODO_TASK
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.common.sub.locations.sub.link.root import LocationLink
 from jupiter.core.common.sub.locations.sub.location.root import Location
@@ -58,9 +62,10 @@ class TodoTaskFindArgs(JupiterFindCrownEntityArgs):
     # with the rest. Implies `allow_archived`.
     only_archived: bool | None
     # Return only the todo tasks whose inbox task was finished (done or not
-    # done) at or after this time. This is resolved in the database, so asking
-    # for the archived todo tasks finished recently does not load every archived
-    # todo task there ever was.
+    # done) at or after this time. What it costs follows the number of todo
+    # tasks finished since, not the number there are: asking for the archived
+    # ones finished in the last week does not load every archived todo task
+    # there ever was.
     filter_finished_after: Timestamp | None
     include_tags: bool | None
     include_contacts: bool | None
@@ -103,21 +108,57 @@ class TodoTaskFindUseCase(
     """The command for finding todo tasks."""
 
     # How many todo tasks are looked up at once. Keeps the number of query
-    # parameters well under what the databases accept, however many todo tasks
-    # a user has accumulated.
-    _OWNER_CHUNK_SIZE = 1000
+    # parameters well under what the databases accept.
+    _CHUNK_SIZE = 1000
 
-    async def _find_inbox_tasks_finished_after(
+    @staticmethod
+    def _chunks(items: list[EntityId], size: int) -> list[list[EntityId]]:
+        return [items[start : start + size] for start in range(0, len(items), size)]
+
+    async def _find_finished_inbox_tasks(
         self,
         uow: DomainUnitOfWork,
-        todo_task_ref_ids: list[EntityId],
+        context: JupiterLoggedInReadonlyContext,
         finished_after: Timestamp,
-    ) -> list[InboxTask]:
-        """Find the inbox tasks of these todo tasks that were finished at or after a time."""
+        filter_ref_ids: list[EntityId] | None,
+    ) -> dict[EntityId, InboxTask]:
+        """Find the inbox tasks of the todo tasks finished at or after a time, by todo task.
+
+        This must not cost more as a user accumulates todo tasks, so it never
+        goes through the list of all the todo tasks the user can access:
+
+        - the user's own todo tasks have their inbox tasks in the workspace's
+          inbox task collection, which is searched by finish time with the
+          (collection, completed time) index;
+        - todo tasks shared by others are found through the grants that were
+          made to the user, which, unlike owner grants, are few.
+
+        Access is then checked for just the todo tasks that were found.
+        """
+        user_ref_id = context.user.ref_id
         inbox_task_repository = uow.get(InboxTaskRepository)
-        inbox_tasks: list[InboxTask] = []
-        for start in range(0, len(todo_task_ref_ids), self._OWNER_CHUNK_SIZE):
-            chunk = todo_task_ref_ids[start : start + self._OWNER_CHUNK_SIZE]
+
+        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+            context.workspace.ref_id
+        )
+        inbox_tasks = await inbox_task_repository.find_all_for_parent_link_namespaces(
+            parent_ref_id=inbox_task_collection.ref_id,
+            parent_link_namespaces=[TODO_TASK],
+            allow_archived=True,
+            filter_completed_after=finished_after,
+        )
+
+        shared_grants = await uow.get(AccessGrantRepository).find_all_shared_with_user(
+            user_ref_id, allow_archived=True
+        )
+        shared_todo_ref_ids = list(
+            {
+                grant.entity.ref_id
+                for grant in shared_grants
+                if grant.entity.the_type == NamedEntityTag.TODO_TASK.value
+            }
+        )
+        for chunk in self._chunks(shared_todo_ref_ids, self._CHUNK_SIZE):
             inbox_tasks.extend(
                 await inbox_task_repository.find_all_for_owner_created_desc(
                     owner=[
@@ -128,7 +169,39 @@ class TodoTaskFindUseCase(
                     filter_completed_after=finished_after,
                 )
             )
-        return inbox_tasks
+
+        by_todo_ref_id = {
+            inbox_task.owner.ref_id: inbox_task for inbox_task in inbox_tasks
+        }
+        if filter_ref_ids is not None:
+            wanted = set(filter_ref_ids)
+            by_todo_ref_id = {
+                ref_id: inbox_task
+                for ref_id, inbox_task in by_todo_ref_id.items()
+                if ref_id in wanted
+            }
+
+        readable: set[EntityId] = set()
+        for chunk in self._chunks(list(by_todo_ref_id), self._CHUNK_SIZE):
+            statuses = await uow.get(
+                AccessStatusRepository
+            ).load_all_for_entities_and_user(
+                [
+                    EntityLink.std(NamedEntityTag.TODO_TASK.value, ref_id)
+                    for ref_id in chunk
+                ],
+                user_ref_id,
+            )
+            readable.update(
+                status.entity.ref_id
+                for status in statuses
+                if status.access_level.allows(AccessLevel.READER)
+            )
+        return {
+            ref_id: inbox_task
+            for ref_id, inbox_task in by_todo_ref_id.items()
+            if ref_id in readable
+        }
 
     async def _perform_transactional_read(
         self,
@@ -162,34 +235,30 @@ class TodoTaskFindUseCase(
                 allow_archived,
             )
 
-        filter_ref_ids = args.filter_ref_ids
         finished_inbox_tasks_by_todo_ref_id: dict[EntityId, InboxTask] | None = None
         if args.filter_finished_after is not None:
             # Finishing is a property of the inbox task, so that is where the
             # candidates come from. Only the todo tasks of those are loaded.
-            accessible_ref_ids = await self.find_accessible_ref_ids(
-                uow, context.user.ref_id, TodoTask, allow_archived
+            finished_inbox_tasks_by_todo_ref_id = await self._find_finished_inbox_tasks(
+                uow, context, args.filter_finished_after, args.filter_ref_ids
             )
-            if filter_ref_ids is not None:
-                accessible_set = set(accessible_ref_ids)
-                accessible_ref_ids = [
-                    ref_id for ref_id in filter_ref_ids if ref_id in accessible_set
-                ]
-            finished_inbox_tasks_by_todo_ref_id = {
-                inbox_task.owner.ref_id: inbox_task
-                for inbox_task in await self._find_inbox_tasks_finished_after(
-                    uow, accessible_ref_ids, args.filter_finished_after
+            todo_tasks = (
+                await uow.get_for(TodoTask).find_all_generic(
+                    parent_ref_id=None,
+                    allow_archived=allow_archived,
+                    ref_id=list(finished_inbox_tasks_by_todo_ref_id),
                 )
-            }
-            filter_ref_ids = list(finished_inbox_tasks_by_todo_ref_id)
-
-        todo_tasks = await self.find_all_entities(
-            uow,
-            context.user.ref_id,
-            TodoTask,
-            allow_archived=allow_archived,
-            filter_ref_ids=filter_ref_ids,
-        )
+                if finished_inbox_tasks_by_todo_ref_id
+                else []
+            )
+        else:
+            todo_tasks = await self.find_all_entities(
+                uow,
+                context.user.ref_id,
+                TodoTask,
+                allow_archived=allow_archived,
+                filter_ref_ids=args.filter_ref_ids,
+            )
         if only_archived:
             todo_tasks = [todo_task for todo_task in todo_tasks if todo_task.archived]
         if args.filter_aspect_ref_ids is not None:
