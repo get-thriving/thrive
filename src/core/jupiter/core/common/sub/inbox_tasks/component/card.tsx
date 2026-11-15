@@ -6,11 +6,10 @@ import type {
   EmailTask,
   Habit,
   InboxTask,
-  InboxTaskStatus,
   Metric,
   SlackTask,
 } from "@jupiter/webapi-client";
-import { WorkspaceFeature } from "@jupiter/webapi-client";
+import { InboxTaskStatus, WorkspaceFeature } from "@jupiter/webapi-client";
 import {
   CheckCircle as CheckCircleIcon,
   Delete as DeleteIcon,
@@ -40,7 +39,11 @@ import type {
   InboxTaskParent,
 } from "#/core/common/sub/inbox_tasks/root";
 import { ClientOnly } from "#/core/infra/component/client-only";
-import { CardCornerChipStack, CornerChip } from "#/core/infra/component/chips";
+import {
+  CardCornerChipStack,
+  CornerChip,
+  SlimChip,
+} from "#/core/infra/component/chips";
 import { OverdueThresholdsContext } from "#/core/infra/overdue-thresholds-context";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -64,7 +67,10 @@ import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { TodoTaskTag } from "#/core/apps/todo/components/tag";
 import { LocationTag } from "#/core/common/sub/locations/component/location-tag";
-import { UserLightChip } from "#/core/users/components/user-light-chip";
+import {
+  UserLightChip,
+  formatUserLightLabel,
+} from "#/core/users/components/user-light-chip";
 
 export interface InboxTaskShowOptions {
   showStatus?: boolean;
@@ -81,6 +87,12 @@ export interface InboxTaskShowOptions {
 export interface InboxTaskCardProps {
   topLevelInfo: TopLevelInfo;
   compact?: boolean;
+  /**
+   * As few pixels as it takes: one row with the name and short tags, which
+   * wrap below the name only if it is too long to leave them room. For boards
+   * where many cards must fit on screen. Implies `compact`.
+   */
+  dense?: boolean;
   allowSwipe?: boolean;
   allowSelect?: boolean;
   selected?: boolean;
@@ -174,6 +186,22 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
     !handlerInProgress &&
     writeAllowed;
   const linksEnabled = props.linksEnabled ?? true;
+  const dense = props.dense === true;
+  const compact = props.compact === true || dense;
+  const status = props.optimisticState?.status ?? props.inboxTask.status;
+  const finished = isCompleted(status);
+  const dueDate = props.inboxTask.due_date
+    ? aDateToDate(props.inboxTask.due_date)
+    : null;
+  const today = aDateToDate(props.topLevelInfo.today);
+  const dueColor =
+    dueDate === null || finished
+      ? undefined
+      : dueDate < today
+        ? "error"
+        : dueDate.hasSame(today, "day")
+          ? "warning"
+          : undefined;
   const targetLink = props.linkResolver
     ? props.linkResolver(props.inboxTask, props.parent)
     : `/app/workspace/core/inbox-tasks/${props.inboxTask.ref_id}`;
@@ -198,54 +226,93 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
         id={`inbox-task-${props.inboxTask.ref_id}`}
         isselected={((props.allowSelect && props.selected) || false).toString()}
         enabled={inputsEnabled.toString()}
+        sx={dense && props.inboxTask.archived ? { opacity: 0.7 } : undefined}
         onClick={() => props.onClick && props.onClick(props.inboxTask)}
       >
-        {props.parent?.owner && (
+        {!dense && props.parent?.owner && (
           <UserLightChip
             user={props.parent.owner}
             currentUserRefId={props.topLevelInfo.user.ref_id}
           />
         )}
-        <CardCornerChipStack>
-          <OverdueWarning
-            today={props.topLevelInfo.today}
-            status={props.inboxTask.status}
-            dueDate={props.inboxTask.due_date}
-          />
-        </CardCornerChipStack>
+        {!dense && (
+          <CardCornerChipStack>
+            <OverdueWarning
+              today={props.topLevelInfo.today}
+              status={props.inboxTask.status}
+              dueDate={props.inboxTask.due_date}
+            />
+          </CardCornerChipStack>
+        )}
         <CardContent
-          sx={{
-            paddingTop: isBigScreen ? "0.5rem" : "1rem",
-            paddingLeft: "0.5rem",
-            paddingBottom: "0.5rem",
-          }}
+          sx={
+            dense
+              ? {
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "baseline",
+                  columnGap: "0.4rem",
+                  minWidth: 0,
+                  flex: 1,
+                  padding: "0.2rem 0.5rem",
+                  // MUI pads the last CardContent more than the others.
+                  "&:last-child": { paddingBottom: "0.2rem" },
+                }
+              : {
+                  paddingTop: isBigScreen ? "0.5rem" : "1rem",
+                  paddingLeft: "0.5rem",
+                  paddingBottom: "0.5rem",
+                }
+          }
         >
-          {linksEnabled ? (
-            <EntityLink
-              to={targetLink}
-              block={props.onClick !== undefined}
-              inline
-            >
-              <IsKeyTag isKey={props.inboxTask.is_key} />
-              <EntityNameComponent
-                compact={props.compact}
-                name={props.inboxTask.name}
-              />
-            </EntityLink>
-          ) : (
-            <EntityFakeLink inline>
-              <IsKeyTag isKey={props.inboxTask.is_key} />
-              <EntityNameComponent
-                compact={props.compact}
-                name={props.inboxTask.name}
-              />
-            </EntityFakeLink>
-          )}
-          <TagsContained>
+          <Box sx={dense ? { flex: "1 1 8rem", minWidth: 0 } : undefined}>
+            {linksEnabled ? (
+              <EntityLink
+                to={targetLink}
+                block={props.onClick !== undefined}
+                inline
+              >
+                {!dense && <IsKeyTag isKey={props.inboxTask.is_key} />}
+                <EntityNameComponent
+                  compact={compact}
+                  name={props.inboxTask.name}
+                  color={dense && finished ? "text.secondary" : undefined}
+                  sx={dense ? denseNameSx(status) : undefined}
+                />
+              </EntityLink>
+            ) : (
+              <EntityFakeLink inline>
+                {!dense && <IsKeyTag isKey={props.inboxTask.is_key} />}
+                <EntityNameComponent
+                  compact={compact}
+                  name={props.inboxTask.name}
+                  color={dense && finished ? "text.secondary" : undefined}
+                  sx={dense ? denseNameSx(status) : undefined}
+                />
+              </EntityFakeLink>
+            )}
+          </Box>
+          <TagsContained
+            sx={
+              dense
+                ? {
+                    paddingTop: 0,
+                    marginLeft: "auto",
+                    justifyContent: "flex-end",
+                    gap: "0.2rem",
+                    // The tags are short here already: trim what a chip pads.
+                    "& .MuiChip-root": { minWidth: 0 },
+                    "& .MuiChip-label": {
+                      paddingLeft: "0.3rem",
+                      paddingRight: "0.3rem",
+                    },
+                  }
+                : undefined
+            }
+          >
+            {dense && <IsKeyTag isKey={props.inboxTask.is_key} />}
             {props.showOptions.showStatus && (
-              <InboxTaskStatusTag
-                status={props.optimisticState?.status ?? props.inboxTask.status}
-              />
+              <InboxTaskStatusTag status={status} />
             )}
             {props.showOptions.showSource && (
               <InboxTaskNamespaceTag
@@ -257,21 +324,40 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
             {props.showOptions.showEisen && (
               <EisenTag
                 eisen={props.optimisticState?.eisen ?? props.inboxTask.eisen}
+                compact={dense}
               />
             )}
             {props.showOptions.showDifficulty && (
-              <DifficultyTag difficulty={props.inboxTask.difficulty} />
+              <DifficultyTag
+                difficulty={props.inboxTask.difficulty}
+                compact={dense}
+              />
             )}
             {props.showOptions.showActionableDate &&
               props.inboxTask.actionable_date && (
                 <ADateTag
                   label="Actionable from"
                   date={props.inboxTask.actionable_date}
+                  compact={dense}
                 />
               )}
             {props.showOptions.showDueDate && props.inboxTask.due_date && (
-              <ADateTag label="Due at" date={props.inboxTask.due_date} />
+              <ADateTag
+                label="Due at"
+                date={props.inboxTask.due_date}
+                color={dueColor}
+                compact={dense}
+              />
             )}
+            {dense &&
+              props.parent?.owner &&
+              props.parent.owner.ref_id !== props.topLevelInfo.user.ref_id && (
+                <SlimChip
+                  label={`@${props.parent.owner.name}`}
+                  title={formatUserLightLabel(props.parent.owner)}
+                  color="secondary"
+                />
+              )}
             {props.parent?.location && (
               <LocationTag location={props.parent.location} />
             )}
@@ -426,6 +512,20 @@ const StyledCard = styled(Card)<StyledCardProps>(
       enabled === "true" ? "transparent" : theme.palette.action.hover,
   }),
 );
+
+/** The name in a dense card: at most two lines, struck through if it was not done. */
+function denseNameSx(status: InboxTaskStatus) {
+  return {
+    lineHeight: 1.25,
+    display: "-webkit-box",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+    wordBreak: "break-word",
+    textDecoration:
+      status === InboxTaskStatus.NOT_DONE ? "line-through" : undefined,
+  } as const;
+}
 
 const TagsContained = styled(Box)({
   display: "flex",
