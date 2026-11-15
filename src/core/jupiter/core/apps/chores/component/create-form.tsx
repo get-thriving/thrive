@@ -253,7 +253,7 @@ export function ChoreCreateForm(props: ChoreCreateFormProps) {
         </FormControl>
 
         {props.timePlan !== null && (
-          <Stack direction="row" useFlexGap spacing={2}>
+          <Stack direction="row" useFlexGap spacing={1.25}>
             <FormControl fullWidth>
               <InputLabel id="timePlanActivityKind">Activity Kind</InputLabel>
               <TimePlanActivitKindSelect

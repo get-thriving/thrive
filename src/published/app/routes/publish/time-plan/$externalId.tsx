@@ -22,10 +22,9 @@ import { parentActivitiesByTargetRefId } from "@jupiter/core/apps/time_plans/sub
 import { filterActivityByFeasabilityWithParents } from "@jupiter/core/apps/time_plans/sub/activity/root";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TimePlanEditor } from "@jupiter/core/apps/time_plans/component/editor";
 import { BigPlanProgressView } from "@jupiter/core/apps/time_plans/component/big-plan-progress-view";
@@ -195,14 +194,13 @@ export default function PublishedTimePlan() {
   });
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`published-time-plan-${timePlan.ref_id}`}
       fakeKey={`published-time-plan-${timePlan.ref_id}`}
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <TimePlanEditor
         timePlan={timePlan}
@@ -252,7 +250,7 @@ export default function PublishedTimePlan() {
           />
         </SectionCard>
       )}
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

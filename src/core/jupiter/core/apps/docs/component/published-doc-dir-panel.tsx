@@ -21,7 +21,7 @@ import { isDirRoot } from "#/core/apps/docs/sub/dir/root";
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-card";
 import { EntityStack } from "#/core/infra/component/entity-stack";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { SectionCard } from "#/core/infra/component/section-card";
@@ -31,8 +31,6 @@ import {
   SectionActions,
 } from "#/core/infra/component/section-actions";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import { useLeafNeedsToShowLeaflet } from "#/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
@@ -62,7 +60,6 @@ const FILTERS = z.object({
 });
 
 export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
   const compactDocCardLayout = !isBigScreen;
@@ -111,18 +108,16 @@ export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
     sortedFilteredSubdirs.length === 0 && sortedFilteredEntries.length === 0;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`published-docs-dir-${dirId}`}
       fakeKey={`published-docs-dir-${dirId}`}
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
       returnLocation={props.returnLocation}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
-      shouldShowALeaflet={shouldShowALeaflet}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+      <NestingAwareBlock>
         <SectionCard
           title={dirLoad.dir.name}
           actions={
@@ -298,7 +293,7 @@ export function PublishedDocDirPanel(props: PublishedDocDirPanelProps) {
         </SectionCard>
       </NestingAwareBlock>
       <NestedOutlet />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -37,13 +37,13 @@ import { MetricDirectionSelect } from "#/core/apps/metrics/component/direction-s
 import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { RecurringTaskGenParamsBlock } from "#/core/common/component/recurring-task-gen-params-block";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   SectionActions,
   ActionSingle,
@@ -111,6 +111,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "Details",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -331,7 +332,9 @@ export default function MetricDetails() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
+      sectionsPanelId="metric"
       key={`metric-${id}/details`}
       entityType={NamedEntityTag.METRIC}
       entityRefId={loaderData.metric.ref_id}
@@ -345,7 +348,9 @@ export default function MetricDetails() {
       accessStatus={loaderData.accessStatus}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        id="metric-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -369,7 +374,7 @@ export default function MetricDetails() {
           />
         }
       >
-        <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={1.25}>
           <FormControl fullWidth sx={{ flexGrow: 3 }}>
             <InputLabel id="name">Name</InputLabel>
             <OutlinedInput
@@ -453,24 +458,27 @@ export default function MetricDetails() {
           schedulingParams={loaderData.metric.scheduling_params}
           actionData={actionData}
         />
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="metric-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
-          <SectionActions
-            id="chore-note"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                text: "Create Note",
-                value: "create-note",
-                highlight: false,
-                disabled: loaderData.note !== null,
-              }),
-            ]}
-          />
+          loaderData.note !== null ? undefined : (
+            <SectionActions
+              id="chore-note"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  text: "Create Note",
+                  value: "create-note",
+                  highlight: false,
+                }),
+              ]}
+            />
+          )
         }
       >
         {loaderData.note && (
@@ -481,9 +489,14 @@ export default function MetricDetails() {
             />
           </>
         )}
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard title="Collection Tasks">
+      <StrataSection
+        id="metric-collection-tasks"
+        items={sortedCollectionTasks?.length ?? 0}
+        split={{ size: 2 }}
+        title="Collection Tasks"
+      >
         {sortedCollectionTasks && (
           <InboxTaskStack
             topLevelInfo={topLevelInfo}
@@ -503,8 +516,8 @@ export default function MetricDetails() {
             onCardMarkNotDone={handleCardMarkNotDone}
           />
         )}
-      </SectionCard>
-    </LeafPanel>
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

@@ -264,7 +264,12 @@ export function ViewAsCalendarDaysAndFullDaysContiner(
         flexDirection: "column",
         position: "sticky",
         minWidth: isBigScreen ? undefined : "fit-content",
-        top: isBigScreen ? "-0.5rem" : "0px",
+        // The panel the calendar is in pads its content at the top by 0.75rem
+        // (strata-column-frame.tsx). Pull the header up by as much, so it sits
+        // flush under the controls, and let it stick there as the calendar is
+        // scrolled, rather than leave a strip of the content showing above it.
+        marginTop: isBigScreen ? "-0.75rem" : undefined,
+        top: isBigScreen ? "-0.75rem" : "0px",
         backgroundColor: theme.palette.background.paper,
         // Above the hours column, so the day and timezone names it holds stay
         // readable once the calendar is scrolled past them.
@@ -372,10 +377,15 @@ export function ViewAsCalendarDateHeader(props: ViewAsCalendarDateHeaderProps) {
           borderRadius: "50%",
           width: "50%",
           margin: "auto",
-          backgroundColor:
-            props.date === props.today
-              ? theme.palette.info.light
-              : "transparent",
+          // Today is the amber of a selected item, with the text that goes on
+          // it. `info.light` is the strongest text color of the scheme, so
+          // the text on it vanished.
+          ...(props.date === props.today
+            ? {
+                backgroundColor: theme.palette.primary.main,
+                color: theme.palette.primary.contrastText,
+              }
+            : { backgroundColor: "transparent" }),
         }}
       >
         <Typography sx={{ fontSize: "1.1em" }}>

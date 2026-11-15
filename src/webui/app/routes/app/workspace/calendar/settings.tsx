@@ -34,7 +34,7 @@ import {
 } from "@jupiter/core/infra/component/entity-card";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { ScheduleStreamMultiSelect } from "@jupiter/core/apps/schedule/component/multi-select";
 import { AdditionalTimezonesSelect } from "@jupiter/core/common/component/additional-timezones-select";
 import { MAX_ADDITIONAL_TIMEZONES } from "@jupiter/core/common/timezone";
@@ -42,12 +42,11 @@ import { StandardDivider } from "@jupiter/core/infra/component/standard-divider"
 import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
 import { noErrorNoData } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { StrataSection } from "@jupiter/core/infra/component/strata-section";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   SectionActions,
   ActionSingle,
-  ActionsExpansion,
 } from "@jupiter/core/infra/component/section-actions";
 import { selectZod } from "@jupiter/core/common/select-form";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
@@ -71,6 +70,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  label: "Settings",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -139,20 +139,23 @@ export default function CalendarSettings() {
   );
 
   return (
-    <BranchPanel
+    <EntityPanel
+      kind="branch"
+      sectionsPanelId="calendar-settings"
       key="calendar-settings"
       returnLocation={`/app/workspace/calendar?${query}`}
     >
       <GlobalError actionResult={actionData} />
 
-      <SectionCard
+      <StrataSection
+        id="calendar-timezones-section"
         title="Timezones"
+        items={1}
         actions={
           <SectionActions
             id="calendar-timezones"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
-            expansion={ActionsExpansion.ALWAYS_SHOW}
             actions={[
               ActionSingle({
                 text: "Save",
@@ -181,16 +184,17 @@ export default function CalendarSettings() {
             fieldName="/additional_timezones"
           />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="calendar-external-sync-section"
         title="External Calendar Sync"
+        items={1}
         actions={
           <SectionActions
             id="calendar-external-sync"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
-            expansion={ActionsExpansion.ALWAYS_SHOW}
             actions={[
               ActionSingle({
                 text: "Sync",
@@ -235,72 +239,79 @@ export default function CalendarSettings() {
             fieldName="/sync_even_if_not_modified"
           />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
 
-      <StandardDivider title="Previous Runs" size="large" />
+      <StrataSection
+        id="calendar-previous-runs-section"
+        title="Previous Runs"
+        summary={`${loaderData.entries.length}`}
+        items={loaderData.entries.length}
+        split={{ size: 2, grow: true }}
+      >
+        {loaderData.entries.map((entry) => {
+          return (
+            <Accordion key={entry.ref_id}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <AccordionHeader>
+                  Run from <AppComponentTag source={entry.source} />
+                  on {entry.today} from {entry.start_of_window} to{" "}
+                  {entry.end_of_window}{" "}
+                  {entry.sync_even_if_not_modified ? "and sync forced " : " "}
+                  with {entry.entity_records.length}
+                  {entry.even_more_entity_records ? "+" : ""} entities synced
+                  <TimeDiffTag
+                    today={topLevelInfo.today}
+                    labelPrefix="from"
+                    collectionTime={entry.created_time}
+                  />
+                </AccordionHeader>
+              </AccordionSummary>
 
-      {loaderData.entries.map((entry) => {
-        return (
-          <Accordion key={entry.ref_id}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <AccordionHeader>
-                Run from <AppComponentTag source={entry.source} />
-                on {entry.today} from {entry.start_of_window} to{" "}
-                {entry.end_of_window}{" "}
-                {entry.sync_even_if_not_modified ? "and sync forced " : " "}
-                with {entry.entity_records.length}
-                {entry.even_more_entity_records ? "+" : ""} entities synced
-                <TimeDiffTag
-                  today={topLevelInfo.today}
-                  labelPrefix="from"
-                  collectionTime={entry.created_time}
-                />
-              </AccordionHeader>
-            </AccordionSummary>
-
-            <AccordionDetails>
-              <ExternalSyncTargetsSection>
-                Synced Streams
-                {entry.per_stream_results.map((stream) => (
-                  <EntityCard
-                    key={`calendar-streams-${entry.ref_id}-${stream.schedule_stream_ref_id}`}
-                  >
-                    <EntityLink
-                      to={`/app/workspace/calendar/schedule/stream/${stream.schedule_stream_ref_id}`}
-                    >
-                      {scheduleStreamsByRefId.get(stream.schedule_stream_ref_id)
-                        ?.name || "Archived Stream"}
-                    </EntityLink>
-
-                    {stream.error_msg && (
-                      <Box>
-                        <ErrorDisplay>{stream.error_msg}</ErrorDisplay>
-                      </Box>
-                    )}
-                  </EntityCard>
-                ))}
-              </ExternalSyncTargetsSection>
-
-              {entry.entity_records.length > 0 && (
-                <>
-                  <StandardDivider title="Entities" size="large" />
-                  {entry.entity_records.map((record) => (
+              <AccordionDetails>
+                <ExternalSyncTargetsSection>
+                  Synced Streams
+                  {entry.per_stream_results.map((stream) => (
                     <EntityCard
-                      key={`entities-${entry.ref_id}-${record.ref_id}`}
+                      key={`calendar-streams-${entry.ref_id}-${stream.schedule_stream_ref_id}`}
                     >
-                      <EntitySummaryLink
-                        today={topLevelInfo.today}
-                        summary={record}
-                      />
+                      <EntityLink
+                        to={`/app/workspace/calendar/schedule/stream/${stream.schedule_stream_ref_id}`}
+                      >
+                        {scheduleStreamsByRefId.get(
+                          stream.schedule_stream_ref_id,
+                        )?.name || "Archived Stream"}
+                      </EntityLink>
+
+                      {stream.error_msg && (
+                        <Box>
+                          <ErrorDisplay>{stream.error_msg}</ErrorDisplay>
+                        </Box>
+                      )}
                     </EntityCard>
                   ))}
-                </>
-              )}
-            </AccordionDetails>
-          </Accordion>
-        );
-      })}
-    </BranchPanel>
+                </ExternalSyncTargetsSection>
+
+                {entry.entity_records.length > 0 && (
+                  <>
+                    <StandardDivider title="Entities" size="large" />
+                    {entry.entity_records.map((record) => (
+                      <EntityCard
+                        key={`entities-${entry.ref_id}-${record.ref_id}`}
+                      >
+                        <EntitySummaryLink
+                          today={topLevelInfo.today}
+                          summary={record}
+                        />
+                      </EntityCard>
+                    ))}
+                  </>
+                )}
+              </AccordionDetails>
+            </Accordion>
+          );
+        })}
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

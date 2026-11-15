@@ -22,7 +22,7 @@ import { parseForm, parseParams } from "zodix";
 import { BirthdaySelect } from "#/core/common/component/birthday-select";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   SectionCard,
   ActionsPosition,
@@ -63,6 +63,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: "New occasion",
 };
 
 export async function action({ request, url, params }: ActionFunctionArgs) {
@@ -103,9 +104,9 @@ export default function OccasionNew() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key="occasions/new"
-      isLeaflet
       fakeKey="occasions/new"
       returnLocation={`/app/workspace/apps/prm/persons/${personId}`}
       inputsEnabled={inputsEnabled}
@@ -166,7 +167,7 @@ export default function OccasionNew() {
           actionData={actionData}
         />
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

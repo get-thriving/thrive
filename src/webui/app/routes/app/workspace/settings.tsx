@@ -13,7 +13,7 @@ import { WorkspaceFeatureFlagsEditor } from "@jupiter/core/workspaces/component/
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
-import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   SectionActions,
@@ -41,6 +41,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.TOOL,
+  label: "Settings",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -105,7 +106,7 @@ export default function Settings() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <TrunkPanel key={"settings"} returnLocation="/app/workspace">
+    <EntityPanel kind="trunk" key={"settings"} returnLocation="/app/workspace">
       <ToolPanel>
         <GlobalError intent="update" actionResult={actionData} />
         <SectionCard
@@ -166,7 +167,7 @@ export default function Settings() {
           />
         </SectionCard>
       </ToolPanel>
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

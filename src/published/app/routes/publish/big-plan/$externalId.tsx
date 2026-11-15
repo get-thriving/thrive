@@ -11,10 +11,9 @@ import { BigPlanPropertiesEditor } from "@jupiter/core/apps/big_plans/component/
 import { BigPlanMilestoneStack } from "@jupiter/core/apps/big_plans/sub/milestones/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
@@ -120,14 +119,13 @@ export default function PublishedBigPlan() {
   const allGoals = loaderData.goal ? [loaderData.goal] : [];
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`published-big-plan-${loaderData.bigPlan.ref_id}`}
       fakeKey={`published-big-plan-${loaderData.bigPlan.ref_id}`}
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <BigPlanPropertiesEditor
         title="Properties"
@@ -193,7 +191,7 @@ export default function PublishedBigPlan() {
           />
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

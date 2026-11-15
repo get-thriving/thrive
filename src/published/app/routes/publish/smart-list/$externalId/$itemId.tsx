@@ -10,7 +10,7 @@ import { z } from "zod";
 import { parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -80,10 +80,10 @@ export default function PublishedSmartListItemFromList() {
   const { item, genericTags, contacts, location, note } = loaderData;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key={`published-smart-list-item-${item.ref_id}`}
       fakeKey={`published-smart-list-item-${item.ref_id}`}
-      isLeaflet
       inputsEnabled={false}
       entityNotEditable={true}
       returnLocation={`/smart-list/${loaderData.externalId}`}
@@ -113,7 +113,7 @@ export default function PublishedSmartListItemFromList() {
           </Typography>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -23,7 +23,7 @@ import { PeriodSelect } from "#/core/common/component/period-select";
 import { HabitSelectMultiple } from "#/core/apps/habits/component/select-multiple";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionsPosition,
   SectionCard,
@@ -61,6 +61,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New habit stack",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -151,7 +152,8 @@ export default function NewHabitStack() {
   );
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="habits/stacks/new"
       fakeKey={"habits/stacks/new"}
       returnLocation="/app/workspace/apps/habits/stacks"
@@ -245,7 +247,7 @@ export default function NewHabitStack() {
           </FormControl>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

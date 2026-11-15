@@ -12,7 +12,7 @@ import { useContext } from "react";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { AspectSelect } from "#/core/apps/life_plan/sub/aspects/component/select";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
@@ -44,6 +44,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: "New aspect",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -92,9 +93,9 @@ export default function NewAspect() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key="aspects/new"
-      isLeaflet
       fakeKey={"aspects/new"}
       returnLocation="/app/workspace/apps/life-plan/aspects"
       inputsEnabled={inputsEnabled}
@@ -151,7 +152,7 @@ export default function NewAspect() {
           />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

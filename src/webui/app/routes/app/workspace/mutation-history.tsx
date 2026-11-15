@@ -19,17 +19,16 @@ import { useCallback, useState } from "react";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataTrunkLabel } from "@jupiter/core/infra/strata/strata-trunk-label";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  label: strataTrunkLabel,
 };
 
 export async function loader({ request, url }: LoaderFunctionArgs) {
@@ -88,7 +87,6 @@ export default function MutationHistory() {
   const { entries, users, totalCnt, pageSize } =
     useLoaderDataSafeForAnimation<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
   const usersById = Object.fromEntries(
     (users as InvocationUser[]).map((u) => [u.ref_id, u]),
@@ -112,9 +110,13 @@ export default function MutationHistory() {
   );
 
   return (
-    <TrunkPanel key="mutation-history" returnLocation="/app/workspace">
-      <NestingAwareBlock shouldHide={shouldShowALeafToo}>
-        <Stack spacing={2}>
+    <EntityPanel
+      kind="trunk"
+      key="mutation-history"
+      returnLocation="/app/workspace"
+    >
+      <NestingAwareBlock>
+        <Stack spacing={1.25}>
           <PaginationControls
             currentPage={currentPage}
             totalCnt={totalCnt}
@@ -155,7 +157,7 @@ export default function MutationHistory() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

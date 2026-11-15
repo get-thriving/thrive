@@ -13,6 +13,8 @@ operates at the level of **chapters**, **goals**, and **milestones** — the
 kind of things that take years to materialise, span many aspects, and define
 a life rather than a week.
 
+![The Life Plan: the vision, the months of your life, milestones on the timeline, and aspects with their goals](../../assets/life-plan-overview.png "The Life Plan: the vision, the months of your life, milestones on the timeline, and aspects with their goals")
+
 The Life Plan gives you:
 
 - A structured place to capture your long-term **vision**.

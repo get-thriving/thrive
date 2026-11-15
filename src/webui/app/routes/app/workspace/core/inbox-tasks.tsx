@@ -67,7 +67,7 @@ import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boun
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   FilterFewOptionsCompact,
   SectionActions,
@@ -80,16 +80,15 @@ import {
   actionableTimeToDateTime,
 } from "@jupiter/core/infra/actionable-time";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import type { TopLevelInfo } from "@jupiter/core/infra/top-level-context";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
 import { useSectionFilters } from "@jupiter/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataTrunkLabel } from "@jupiter/core/infra/strata/strata-trunk-label";
 
 import { useServiceProperties } from "~/logic/config";
 
@@ -109,6 +108,8 @@ const EISENS = [
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
+  label: strataTrunkLabel,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -138,7 +139,6 @@ export default function InboxTasks() {
   const serviceProperties = useServiceProperties();
 
   const isBigScreen = useBigScreen();
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
   const sortedInboxTasks = sortInboxTasksNaturally(
     entries.map((e) => e.inbox_task),
@@ -324,8 +324,10 @@ export default function InboxTasks() {
   );
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"inbox-tasks"}
+      count={filteredSortedInboxTasks.length}
       returnLocation="/app/workspace"
       actions={
         <SectionActions
@@ -382,7 +384,7 @@ export default function InboxTasks() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {shouldDoAGc && (
           <GCSection>
             There are quite a lot of finished inbox tasks. Consider doing a{" "}
@@ -491,7 +493,7 @@ export default function InboxTasks() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

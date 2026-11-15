@@ -9,7 +9,7 @@ import { z } from "zod";
 import { parseForm } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
@@ -35,6 +35,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New contact",
 };
 
 export async function action({ request, url }: ActionFunctionArgs) {
@@ -68,7 +69,8 @@ export default function NewContact() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="core/contacts/new"
       fakeKey={"core/contacts/new"}
       returnLocation="/app/workspace/core/contacts"
@@ -105,7 +107,7 @@ export default function NewContact() {
           <FieldError actionResult={actionData} fieldName="/name" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -20,10 +20,8 @@ import {
   isUserNotAllowedAccessToEntityError,
   USER_NOT_ALLOWED_ACCESS_TO_ENTITY_LABEL,
 } from "#/core/infra/errors";
-import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { ToolPanel } from "#/core/infra/component/layout/tool-panel";
-import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
 
 const UPGRADE_REQUIRED = 426;
 const REQUEST_ACCESS_ROUTE = "/app/workspace/core/access/request-access";
@@ -325,14 +323,15 @@ export function makeLeafErrorBoundary<K extends z.ZodRawShape>(
     );
 
     return (
-      <LeafPanel
+      <EntityPanel
+        kind="leaf"
         key="error"
         fakeKey="error"
         inputsEnabled={true}
         returnLocation={resolvedReturnLocation}
       >
         {content}
-      </LeafPanel>
+      </EntityPanel>
     );
   }
 
@@ -352,13 +351,14 @@ export function makeBranchErrorBoundary<K extends z.ZodRawShape>(
     );
 
     return (
-      <BranchPanel
+      <EntityPanel
+        kind="branch"
         key="error"
         inputsEnabled={true}
         returnLocation={resolvedReturnLocation}
       >
         {content}
-      </BranchPanel>
+      </EntityPanel>
     );
   }
 
@@ -396,9 +396,9 @@ export function makeTrunkErrorBoundary(
     }
 
     return (
-      <TrunkPanel key="error" returnLocation={returnLocation}>
+      <EntityPanel kind="trunk" key="error" returnLocation={returnLocation}>
         {content}
-      </TrunkPanel>
+      </EntityPanel>
     );
   }
 

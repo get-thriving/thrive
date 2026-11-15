@@ -19,8 +19,8 @@ import { parseForm, parseParams } from "zodix";
 import { BirthdaySelect } from "#/core/common/component/birthday-select";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -43,6 +43,7 @@ import { SchedulingParamsBlock } from "#/core/common/component/scheduling-params
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -67,6 +68,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: strataEntityLabel("Occasion"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -157,19 +159,20 @@ export default function OccasionView() {
   const inputsEnabled = navigation.state === "idle" && !occasion.archived;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key={`occasion-${occasion.ref_id}`}
       entityType={NamedEntityTag.OCCASION}
       entityRefId={occasion.ref_id}
       fakeKey={`occasion-${occasion.ref_id}`}
-      isLeaflet
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityArchived={occasion.archived}
       returnLocation={`/app/workspace/apps/prm/persons/${occasion.person_ref_id}`}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        fixed
         id="occasion-properties"
         title="Properties"
         actions={
@@ -238,8 +241,8 @@ export default function OccasionView() {
           schedulingParams={occasion.scheduling_params}
           actionData={actionData}
         />
-      </SectionCard>
-    </LeafPanel>
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

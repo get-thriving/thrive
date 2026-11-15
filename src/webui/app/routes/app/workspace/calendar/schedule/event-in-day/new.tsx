@@ -29,7 +29,7 @@ import {
 import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -81,6 +81,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New event",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -162,7 +163,8 @@ export default function ScheduleEventInDayNew() {
   }, [query]);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="schedule-event-in-day/new"
       fakeKey="schedule-event-in-day/new"
       returnLocation={calendarLeafReturnLocation(query)}
@@ -260,7 +262,7 @@ export default function ScheduleEventInDayNew() {
           />
         </FormControl>
 
-        <Stack spacing={2} direction="row">
+        <Stack spacing={1.25} direction="row">
           <ButtonGroup variant="outlined" disabled={!inputsEnabled}>
             <Button
               disabled={!inputsEnabled}
@@ -319,7 +321,7 @@ export default function ScheduleEventInDayNew() {
           actionResult={actionData}
         />
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

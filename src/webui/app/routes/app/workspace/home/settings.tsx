@@ -22,11 +22,7 @@ import {
   shiftTabUpInListOfTabs,
   sortTabsByOrder,
 } from "@jupiter/core/home/sub/tab/root";
-import {
-  DisplayType,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
@@ -37,7 +33,8 @@ import {
 } from "@jupiter/core/infra/component/entity-card";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
+import { PanelNewAction } from "@jupiter/core/infra/component/layout/panel-new-action";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import EntityIconComponent from "@jupiter/core/infra/component/entity-icon";
 import { handleActionApiError } from "@jupiter/core/infra/errors.server";
@@ -54,6 +51,7 @@ const UpdateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  label: "Home settings",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -118,9 +116,6 @@ export default function HomeSettings() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
-
   const bigScreenTabs = sortTabsByOrder(
     loaderData.tabs.filter((tab) => tab.target === HomeTabTarget.BIG_SCREEN),
     loaderData.homeConfig.order_of_tabs[HomeTabTarget.BIG_SCREEN],
@@ -131,15 +126,18 @@ export default function HomeSettings() {
   );
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"home/settings"}
       returnLocation="/app/workspace"
-      createLocation="/app/workspace/home/settings/tabs/new"
+      actions={
+        <PanelNewAction
+          kind="trunk"
+          link="/app/workspace/home/settings/tabs/new"
+        />
+      }
     >
-      <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeafToo}
-      >
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <Form method="post">
           <Stack spacing={2} useFlexGap>
@@ -178,7 +176,7 @@ export default function HomeSettings() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

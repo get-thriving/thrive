@@ -27,7 +27,7 @@ import { occasionTimeEventName } from "@jupiter/core/common/sub/time_events/time
 import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   ActionMultipleSpread,
   ActionSingle,
@@ -41,6 +41,7 @@ import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 import { getSession } from "~/sessions";
 
@@ -50,6 +51,7 @@ const ParamsSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Time event"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -132,7 +134,8 @@ export default function TimeEventFullDaysBlockViewOne() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`time-event-full-days-block-${loaderData.fullDaysBlock.ref_id}`}
       fakeKey={`time-event-full-days-block-${loaderData.fullDaysBlock.ref_id}`}
       showArchiveAndRemoveButton
@@ -202,7 +205,7 @@ export default function TimeEventFullDaysBlockViewOne() {
           <FieldError actionResult={actionData} fieldName="/start_date" />
         </FormControl>
 
-        <Stack spacing={2} direction="row">
+        <Stack spacing={1.25} direction="row">
           <ButtonGroup variant="outlined" disabled={!corePropertyEditable}>
             <Button
               disabled={!inputsEnabled}
@@ -244,7 +247,7 @@ export default function TimeEventFullDaysBlockViewOne() {
           </FormControl>
         </Stack>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

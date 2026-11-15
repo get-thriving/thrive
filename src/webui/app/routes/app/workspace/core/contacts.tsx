@@ -14,17 +14,17 @@ import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
+import { PanelNewAction } from "@jupiter/core/infra/component/layout/panel-new-action";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataTrunkLabel } from "@jupiter/core/infra/strata/strata-trunk-label";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  label: strataTrunkLabel,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -44,19 +44,21 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function Contacts() {
   const { contacts } = useLoaderDataSafeForAnimation<typeof loader>();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
   const sortedContacts = [...contacts].sort((a, b) =>
     a.name.localeCompare(b.name),
   );
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"core/contacts"}
-      createLocation="/app/workspace/core/contacts/new"
       returnLocation="/app/workspace"
+      actions={
+        <PanelNewAction kind="trunk" link="/app/workspace/core/contacts/new" />
+      }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeafToo}>
+      <NestingAwareBlock>
         {sortedContacts.length === 0 && (
           <EntityNoNothingCard
             title="No Contacts"
@@ -81,7 +83,7 @@ export default function Contacts() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

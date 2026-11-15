@@ -23,7 +23,7 @@ import { isCorePropertyEditable } from "@jupiter/core/apps/schedule/sub/stream/r
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -44,6 +44,7 @@ import {
 import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -83,6 +84,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Stream"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -237,7 +239,8 @@ export default function ScheduleStreamViewOne() {
   );
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`schedule-stream-${loaderData.scheduleStream.ref_id}`}
       entityType={NamedEntityTag.SCHEDULE_STREAM}
       entityRefId={loaderData.scheduleStream.ref_id}
@@ -295,7 +298,7 @@ export default function ScheduleStreamViewOne() {
 
         <Stack
           direction={isBigScreen ? "row" : "column"}
-          spacing={2}
+          spacing={1.25}
           useFlexGap
         >
           <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
@@ -365,7 +368,7 @@ export default function ScheduleStreamViewOne() {
           </>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

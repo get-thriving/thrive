@@ -48,7 +48,7 @@ import { EntityStack } from "#/core/infra/component/entity-stack";
 import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   FilterFewOptionsCompact,
@@ -58,7 +58,6 @@ import { SectionCard } from "#/core/infra/component/section-card";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TimePlanActivityFeasabilitySelect } from "#/core/apps/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "#/core/apps/time_plans/sub/activity/component/kind-select";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
@@ -71,6 +70,7 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -103,6 +103,8 @@ enum ShowFilter {
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "B" } satisfies StrataHandle,
+  label: "Add from current habits",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -461,20 +463,15 @@ export default function TimePlanAddFromCurrentHabits() {
     selectableStacks.length > 0 || selectableHabits.length > 0;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`time-plan-${id}/add-from-current-habits`}
       fakeKey={`time-plan-${id}/add-from-current-habits`}
       returnLocation={withTimePlanView(
         `/app/workspace/apps/time-plans/${id}`,
         timePlanViewParam,
       )}
-      returnLocationDiscriminator="add-from-current-habits"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.LARGE}
-      allowedExpansionStates={[
-        LeafPanelExpansionState.LARGE,
-        LeafPanelExpansionState.FULL,
-      ]}
     >
       <GlobalError actionResult={actionData} />
 
@@ -512,7 +509,7 @@ export default function TimePlanAddFromCurrentHabits() {
         }
       >
         <Stack
-          spacing={2}
+          spacing={1.25}
           useFlexGap
           direction={isBigScreen ? "row" : "column"}
         >
@@ -576,7 +573,7 @@ export default function TimePlanAddFromCurrentHabits() {
           );
         })}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

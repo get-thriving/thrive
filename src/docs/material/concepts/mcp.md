@@ -138,6 +138,8 @@ The **Access** page is where you take access back:
 * **MCP keys** lists your keys. Open one to rename it or archive it. An
   archived key stops working straight away.
 
+![The Access page, where connected apps and MCP keys are managed, with the MCP address to give to an assistant](../assets/access-keys.png "The Access page, where connected apps and MCP keys are managed, with the MCP address to give to an assistant")
+
 If you think a key has leaked, archive it and create a new one. If you stop
 using an assistant, revoke it or archive its key.
 

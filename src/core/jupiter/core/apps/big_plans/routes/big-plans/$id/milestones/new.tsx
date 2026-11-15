@@ -16,7 +16,7 @@ import { parseForm, parseParams } from "zodix";
 import { getSuggestedDatesForBigPlanMilestoneDate } from "#/core/common/suggested-date";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   SectionCard,
   ActionsPosition,
@@ -49,6 +49,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: "New milestone",
 };
 
 export async function action({ request, url, params }: ActionFunctionArgs) {
@@ -87,9 +88,9 @@ export default function BigPlanMilestoneNew() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key="big-plan-milestones/new"
-      isLeaflet
       fakeKey="big-plan-milestones/new"
       returnLocation={`/app/workspace/apps/big-plans/${bigPlanId}`}
       inputsEnabled={inputsEnabled}
@@ -140,7 +141,7 @@ export default function BigPlanMilestoneNew() {
           <FieldError actionResult={actionData} fieldName="/date" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

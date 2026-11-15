@@ -4,6 +4,9 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
+from jupiter.core.users.sub.web_ui_settings.color_scheme import ColorScheme
+from jupiter.core.users.sub.web_ui_settings.key_binding import KeyBinding
+from jupiter.core.users.sub.web_ui_settings.keyboard_action import KeyboardAction
 from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -23,7 +26,9 @@ from jupiter.framework.use_case_io import (
 class WebUiSettingsUpdateArgs(UseCaseArgsBase):
     """Web UI settings update args."""
 
-    use_night_mode: UpdateAction[bool]
+    color_scheme: UpdateAction[ColorScheme]
+    use_expanded_rail: UpdateAction[bool]
+    key_bindings: UpdateAction[dict[KeyboardAction, KeyBinding]]
 
 
 @use_case_result
@@ -54,7 +59,9 @@ class WebUiSettingsUpdateUseCase(
         )
         web_ui_settings = web_ui_settings.update(
             context.domain_context,
-            use_night_mode=args.use_night_mode,
+            color_scheme=args.color_scheme,
+            use_expanded_rail=args.use_expanded_rail,
+            key_bindings=args.key_bindings,
         )
         web_ui_settings = await uow.get_for(WebUiSettings).save(web_ui_settings)
 

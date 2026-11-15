@@ -34,14 +34,14 @@ import { periodName } from "#/core/common/recurring-task-period";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
-import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
 import { makeBranchErrorBoundary } from "#/core/infra/component/error-boundary";
 import { PeriodSelect } from "#/core/common/component/period-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -86,6 +86,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  label: "Settings",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -215,7 +216,9 @@ export default function JournalsSettings() {
   }, [loaderData]);
 
   return (
-    <BranchPanel
+    <EntityPanel
+      kind="branch"
+      sectionsPanelId="journals-settings"
       key={"journals/settings"}
       returnLocation="/app/workspace/apps/journals"
       inputsEnabled={inputsEnabled}
@@ -226,9 +229,10 @@ export default function JournalsSettings() {
         WorkspaceFeature.JOURNALS,
       ) && (
         <>
-          <SectionCard
-            id="journals-settings"
-            title="Settings"
+          <StrataSection
+            id="journals-settings-properties-section"
+            fixed
+            title="Properties"
             actions={
               <SectionActions
                 id="journals-settings-actions"
@@ -250,7 +254,7 @@ export default function JournalsSettings() {
               />
             }
           >
-            <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+            <Stack direction={isBigScreen ? "row" : "column"} spacing={1.25}>
               <FormControl fullWidth>
                 <FormLabel id="periods">Periods You Want To Journal</FormLabel>
                 <PeriodSelect
@@ -325,7 +329,10 @@ export default function JournalsSettings() {
                   <Typography variant="h6">Document Properties</Typography>
                 </Divider>
 
-                <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+                <Stack
+                  direction={isBigScreen ? "row" : "column"}
+                  spacing={1.25}
+                >
                   <FormControl fullWidth>
                     <FormControlLabel
                       control={
@@ -371,7 +378,10 @@ export default function JournalsSettings() {
                   <Typography variant="h6">Writing Task Properties</Typography>
                 </Divider>
 
-                <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+                <Stack
+                  direction={isBigScreen ? "row" : "column"}
+                  spacing={1.25}
+                >
                   <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
                     <FormLabel id="writingTaskEisen">
                       Writing Task Eisen
@@ -426,7 +436,10 @@ export default function JournalsSettings() {
                   </Typography>
                 </Divider>
 
-                <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+                <Stack
+                  direction={isBigScreen ? "row" : "column"}
+                  spacing={1.25}
+                >
                   {Object.values(RecurringTaskPeriod).map((period) => {
                     if (!periods.includes(period)) {
                       return null;
@@ -457,11 +470,14 @@ export default function JournalsSettings() {
                 </Stack>
               </>
             )}
-          </SectionCard>
+          </StrataSection>
 
-          <SectionCard
-            id="journals-generated-journals-and-writing-tasks"
+          <StrataSection
+            id="journals-generated-writing-tasks-section"
             title="Generated Writing Tasks"
+            summary={`${loaderData.writingTasks.length}`}
+            items={loaderData.writingTasks.length}
+            split={{ size: 2, grow: true }}
           >
             <InboxTaskStack
               topLevelInfo={topLevelInfo}
@@ -473,10 +489,10 @@ export default function JournalsSettings() {
               }}
               inboxTasks={loaderData.writingTasks}
             />
-          </SectionCard>
+          </StrataSection>
         </>
       )}
-    </BranchPanel>
+    </EntityPanel>
   );
 }
 

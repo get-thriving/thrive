@@ -38,7 +38,10 @@ import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useIsomorphicLayoutEffect } from "#/core/infra/component/use-isomorphic-layout-effect";
+import { useStrataBar } from "#/core/infra/component/layout/strata-bar-context";
+import { useStrataActionCommands } from "#/core/infra/component/layout/use-strata-action-commands";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
+import { strataSize, strataType } from "#/core/infra/component/strata-tokens";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
 interface NavSingleDesc {
@@ -70,6 +73,12 @@ interface ActionSingleDesc {
   text?: string;
   icon?: JSX.Element;
   value: string;
+  /**
+   * The id of the form the button submits, for actions drawn apart from it,
+   * such as a column's header with the form's fields in the body. Left out, it
+   * submits the form it is in.
+   */
+  form?: string;
   highlight?: boolean;
   gatedOn?: WorkspaceFeature;
   disabled?: boolean;
@@ -125,7 +134,7 @@ interface FilterManyOptionsDesc<K> {
   hideIfOneOption?: boolean;
 }
 
-type ActionDesc =
+export type ActionDesc =
   | NavSingleDesc // A single button, as a navigation
   | NavMultipleDesc // A group of buttons, as a navigation
   | ActionSingleDesc // A single button, as an action
@@ -280,18 +289,45 @@ interface SectionActionsProps {
 
 export function SectionActions(props: SectionActionsProps) {
   const isBigScreen = useBigScreen();
+  const bar = useStrataBar();
   const expansion = props.expansion ?? ActionsExpansion.ADAPT;
+  // In a bar it is the room that says how many of the actions fit; anywhere
+  // else it is the screen.
+  const narrow = bar === null && !isBigScreen;
+  // Every action is a command of the column (ADR 0021), however the section
+  // draws it: spread out, or behind a drop-down.
+  const ref = useRef<HTMLDivElement>(null);
+  const commands = useStrataActionCommands(
+    ref,
+    props.actions.concat(props.extraActions ?? []),
+    props.inputsEnabled,
+    props.topLevelInfo,
+  );
 
   let actions: Array<ActionDesc>;
   let extraActions: Array<ActionDesc>;
 
-  if (props.actions.length === 1 && props.extraActions?.length === 0) {
+  // A lone action has nothing to fold with, so it shows, unless even it does
+  // not fit the bar.
+  if (
+    props.actions.length === 1 &&
+    (props.extraActions?.length ?? 0) === 0 &&
+    (bar === null || bar.folded === 0)
+  ) {
     actions = props.actions;
     extraActions = [];
   } else if (expansion === ActionsExpansion.ALWAYS_COMPACT) {
     actions = [];
     extraActions = props.actions.concat(props.extraActions ?? []);
-  } else if (expansion === ActionsExpansion.ADAPT && !isBigScreen) {
+  } else if (expansion === ActionsExpansion.ADAPT && bar !== null) {
+    // As many as fit, from the first; the bar folds the rest, with the extra
+    // ones, into the button.
+    const folded = Math.min(bar.folded, props.actions.length);
+    actions = props.actions.slice(0, props.actions.length - folded);
+    extraActions = props.actions
+      .slice(props.actions.length - folded)
+      .concat(props.extraActions ?? []);
+  } else if (expansion === ActionsExpansion.ADAPT && narrow) {
     if (isSingleAction(props.actions[0])) {
       actions = props.actions.slice(0, 1);
       extraActions = props.actions.concat(props.extraActions ?? []);
@@ -307,9 +343,16 @@ export function SectionActions(props: SectionActionsProps) {
   return (
     <Stack
       id={props.id}
+      ref={ref}
+      data-strata-actions={commands.length > 0 ? "true" : undefined}
       direction="row"
-      spacing={1}
-      sx={{ padding: "0.25rem", height: "fit-content" }}
+      spacing={bar !== null ? 0.5 : 1}
+      sx={{
+        // A bar has its own padding and aligns what it holds.
+        padding: bar !== null ? 0 : "0.25rem",
+        alignItems: bar !== null ? "center" : undefined,
+        height: "fit-content",
+      }}
     >
       {actions.map((action, index) => (
         <ActionView
@@ -343,6 +386,7 @@ interface SectionActionsWithDialogProps {
 
 function SectionActionsWithDialog(props: SectionActionsWithDialogProps) {
   const [showExtraActionsDialog, setShowExtraActionsDialog] = useState(false);
+  const size = useBarSize(false);
 
   if (props.actions.length === 0) {
     return <></>;
@@ -353,12 +397,18 @@ function SectionActionsWithDialog(props: SectionActionsWithDialogProps) {
       <Button
         disabled={!props.inputsEnabled}
         variant="outlined"
-        size="medium"
+        size={size ?? "medium"}
         color="primary"
-        sx={{ margin: "0.25rem" }}
+        aria-label="More actions"
+        title="More actions"
+        sx={
+          size === undefined
+            ? { margin: "0.25rem", minWidth: 0 }
+            : { margin: 0, minWidth: 0, width: strataSize.controlSmall, p: 0 }
+        }
         onClick={() => setShowExtraActionsDialog(true)}
       >
-        <BoltIcon />
+        <BoltIcon fontSize={size === undefined ? "medium" : "small"} />
       </Button>
 
       <Dialog
@@ -487,7 +537,8 @@ interface NavSingleViewProps {
 }
 
 function NavSingleView(props: NavSingleViewProps) {
-  const isBigScreen = useBigScreen();
+  const isBigScreen = useShowsWholeText();
+  const size = useBarSize(props.isInDialog);
   const preserveFilters = useSectionFiltersPreserver();
 
   if (props.action.gatedOn) {
@@ -504,6 +555,7 @@ function NavSingleView(props: NavSingleViewProps) {
   return (
     <Button
       id={props.action.id}
+      size={size}
       variant="outlined"
       component={Link}
       disabled={!props.inputsEnabled || props.action.disabled}
@@ -533,7 +585,8 @@ function NavMultipleView(props: NavMultipleViewProps) {
 }
 
 function NavMultipleSpreadView(props: NavMultipleViewProps) {
-  const isBigScreen = useBigScreen();
+  const isBigScreen = useShowsWholeText();
+  const size = useBarSize(props.isInDialog);
   const preserveFilters = useSectionFiltersPreserver();
   const visibleNavs = visibleNavItems(
     props.action.navs,
@@ -541,7 +594,7 @@ function NavMultipleSpreadView(props: NavMultipleViewProps) {
   );
 
   return (
-    <ButtonGroup orientation={props.orientation}>
+    <ButtonGroup orientation={props.orientation} size={size}>
       {visibleNavs.map((nav, index) => {
         if (nav.kind === "nav-separator") {
           return <Fragment key={`nav-multiple-${index}`}></Fragment>;
@@ -711,6 +764,8 @@ function NavMultipleCompactView(props: NavMultipleViewProps) {
   );
   const theme = useTheme();
   const isBigScreen = useBigScreen();
+  const wholeText = useShowsWholeText();
+  const size = useBarSize(props.isInDialog);
   const preserveFilters = useSectionFiltersPreserver();
 
   const visibleNavs = visibleNavItems(
@@ -747,7 +802,7 @@ function NavMultipleCompactView(props: NavMultipleViewProps) {
 
   return (
     <>
-      <ButtonGroup ref={anchorRef}>
+      <ButtonGroup ref={anchorRef} size={size}>
         <Button
           sx={{ flexGrow: 10 }}
           disabled={!props.inputsEnabled || realActions[selectedIndex].disabled}
@@ -758,7 +813,7 @@ function NavMultipleCompactView(props: NavMultipleViewProps) {
           {getRealText(
             realActions[selectedIndex].text || "",
             props.isInDialog,
-            isBigScreen,
+            wholeText,
           )}
         </Button>
         <Button
@@ -819,7 +874,8 @@ interface ActionSingleViewProps {
 }
 
 function ActionSingleView(props: ActionSingleViewProps) {
-  const isBigScreen = useBigScreen();
+  const isBigScreen = useShowsWholeText();
+  const size = useBarSize(props.isInDialog);
 
   if (props.action.gatedOn) {
     const workspace = props.topLevelInfo.workspace;
@@ -834,10 +890,12 @@ function ActionSingleView(props: ActionSingleViewProps) {
 
   return (
     <Button
+      size={size}
       variant={props.action.highlight ? "contained" : "outlined"}
       disabled={!props.inputsEnabled || props.action.disabled}
       startIcon={props.action.icon}
       type="submit"
+      form={props.action.form}
       name="intent"
       value={props.action.value}
       id={props.action.id}
@@ -865,10 +923,11 @@ function ActionMultipleView(props: ActionMultipleViewProps) {
 }
 
 function ActionMultipleSpreadView(props: ActionMultipleViewProps) {
-  const isBigScreen = useBigScreen();
+  const isBigScreen = useShowsWholeText();
+  const size = useBarSize(props.isInDialog);
 
   return (
-    <ButtonGroup orientation={props.orientation}>
+    <ButtonGroup orientation={props.orientation} size={size}>
       {props.action.actions.map((action, index) => {
         if (action.gatedOn) {
           const workspace = props.topLevelInfo.workspace;
@@ -888,6 +947,7 @@ function ActionMultipleSpreadView(props: ActionMultipleViewProps) {
             disabled={!props.inputsEnabled || action.disabled}
             startIcon={action.icon}
             type="submit"
+            form={action.form}
             name="intent"
             value={action.value}
             id={action.id}
@@ -911,6 +971,8 @@ function ActionMultipleCompactView(props: ActionMultipleViewProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const theme = useTheme();
   const isBigScreen = useBigScreen();
+  const wholeText = useShowsWholeText();
+  const size = useBarSize(props.isInDialog);
 
   const realActions: ActionSingleDesc[] = [];
   for (const action of props.action.actions) {
@@ -945,11 +1007,12 @@ function ActionMultipleCompactView(props: ActionMultipleViewProps) {
 
   return (
     <>
-      <ButtonGroup ref={anchorRef}>
+      <ButtonGroup ref={anchorRef} size={size}>
         <Button
           disabled={!props.inputsEnabled || realActions[selectedIndex].disabled}
           startIcon={realActions[selectedIndex].icon}
           type="submit"
+          form={realActions[selectedIndex].form}
           name="intent"
           value={realActions[selectedIndex].value}
           id={realActions[selectedIndex].id}
@@ -957,7 +1020,7 @@ function ActionMultipleCompactView(props: ActionMultipleViewProps) {
           {getRealText(
             realActions[selectedIndex].text || "",
             props.isInDialog,
-            isBigScreen,
+            wholeText,
           )}
         </Button>
         <Button
@@ -1020,7 +1083,8 @@ interface ButtonSingleViewProps {
 }
 
 function ButtonSingleView(props: ButtonSingleViewProps) {
-  const isBigScreen = useBigScreen();
+  const isBigScreen = useShowsWholeText();
+  const size = useBarSize(props.isInDialog);
 
   if (props.action.gatedOn) {
     const workspace = props.topLevelInfo.workspace;
@@ -1031,6 +1095,7 @@ function ButtonSingleView(props: ButtonSingleViewProps) {
 
   return (
     <Button
+      size={size}
       variant={props.action.highlight ? "contained" : "outlined"}
       disabled={!props.inputsEnabled || props.action.disabled}
       startIcon={props.action.icon}
@@ -1059,7 +1124,8 @@ function FilterFewOptionsView<K>(props: FilterFewOptionsViewProps<K>) {
 }
 
 function FilterFewOptionsSpreadView<K>(props: FilterFewOptionsViewProps<K>) {
-  const isBigScreen = useBigScreen();
+  const isBigScreen = useShowsWholeText();
+  const size = useBarSize(props.isInDialog);
   // Whoever put these buttons here is the one keeping track of which one is
   // on - so a choice made elsewhere, like going back to a page that was left
   // on another one, shows up here too.
@@ -1085,7 +1151,7 @@ function FilterFewOptionsSpreadView<K>(props: FilterFewOptionsViewProps<K>) {
   }
 
   return (
-    <ButtonGroup orientation={props.orientation}>
+    <ButtonGroup orientation={props.orientation} size={size}>
       {props.action.options.map((option, index) => {
         if (option.gatedOn) {
           const workspace = props.topLevelInfo.workspace;
@@ -1131,6 +1197,9 @@ function FilterFewOptionsCompactView<K>(props: FilterFewOptionsViewProps<K>) {
     realOptions.findIndex((opt) => opt.value === props.action.defaultOption),
   );
   const selectId = `section-action-filter-few-compact-${props.action.title}`;
+  // In a bar the title is not a floating label, which would not fit: the
+  // control is as tall as a button and the title is its name and its tooltip.
+  const dense = useBarSize(props.isInDialog) !== undefined;
 
   if (realOptions.length === 0) {
     return <></>;
@@ -1141,19 +1210,40 @@ function FilterFewOptionsCompactView<K>(props: FilterFewOptionsViewProps<K>) {
   }
 
   return (
-    <FormControl size="small">
-      <InputLabel id={`${selectId}-label`}>{props.action.title}</InputLabel>
+    <FormControl
+      size="small"
+      title={
+        dense
+          ? `${props.action.title}: ${realOptions[selectedIndex].text}`
+          : undefined
+      }
+    >
+      {!dense && (
+        <InputLabel id={`${selectId}-label`}>{props.action.title}</InputLabel>
+      )}
       <Select
-        labelId={`${selectId}-label`}
+        labelId={dense ? undefined : `${selectId}-label`}
         id={selectId}
-        label={props.action.title}
+        label={dense ? undefined : props.action.title}
+        SelectDisplayProps={
+          dense ? { "aria-label": props.action.title } : undefined
+        }
+        sx={dense ? BAR_INPUT_SX : undefined}
         readOnly={!props.inputsEnabled}
         value={selectedIndex}
         onChange={(e) => {
           props.action.onSelect(realOptions[e.target.value as number].value);
         }}
         renderValue={() => (
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: dense ? "nowrap" : "wrap",
+              alignItems: "center",
+              gap: 0.5,
+              whiteSpace: "nowrap",
+            }}
+          >
             {realOptions[selectedIndex].icon} {realOptions[selectedIndex].text}
           </Box>
         )}
@@ -1181,6 +1271,7 @@ interface FilterManyOptionsViewProps<K> {
 }
 
 function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
+  const dense = useBarSize(props.isInDialog) !== undefined;
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -1325,10 +1416,11 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
       }}
       sx={[
         autocompleteSingleLineSx,
+        dense ? BAR_INPUT_SX : {},
         {
-          width: "9rem",
-          minWidth: "9rem",
-          maxWidth: "9rem",
+          width: dense ? "6.75rem" : "9rem",
+          minWidth: dense ? "6.75rem" : "9rem",
+          maxWidth: dense ? "6.75rem" : "9rem",
           "& .MuiAutocomplete-tag": {
             maxWidth: "4.25rem",
           },
@@ -1341,13 +1433,48 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
         <TextField
           {...params}
           multiline={false}
-          label={props.action.title}
+          label={dense ? undefined : props.action.title}
           placeholder={props.action.title}
+          title={dense ? props.action.title : undefined}
+          slotProps={
+            dense
+              ? {
+                  ...params.slotProps,
+                  htmlInput: {
+                    ...params.slotProps.htmlInput,
+                    "aria-label": props.action.title,
+                  },
+                }
+              : undefined
+          }
         />
       )}
     />
   );
 }
+
+// A select or an autocomplete in a bar is as tall as a small button.
+const BAR_INPUT_SX = {
+  minHeight: strataSize.controlSmall,
+  fontSize: strataType.path.size,
+  "& .MuiOutlinedInput-root": { minHeight: strataSize.controlSmall },
+  "& .MuiSelect-select.MuiSelect-select": {
+    paddingBlock: 0,
+    paddingLeft: "8px",
+    paddingRight: "22px",
+    display: "flex",
+  },
+  // The arrow of a select and of an autocomplete are as small as the text.
+  "& .MuiSelect-icon": { fontSize: 18, right: 2 },
+  "& .MuiAutocomplete-endAdornment": { right: 2 },
+  "& .MuiAutocomplete-popupIndicator, & .MuiAutocomplete-clearIndicator": {
+    width: 20,
+    height: 20,
+    minHeight: 0,
+    padding: 0,
+    "& .MuiSvgIcon-root": { fontSize: 16 },
+  },
+} as const;
 
 function isFilterOptionSeparator<K>(
   option: FilterManyOption<K>,
@@ -1418,6 +1545,22 @@ function visibleNavItems(
   }
 
   return collapsed;
+}
+
+/** Controls in a bar are small; those in a dialog opened from it are not. */
+function useBarSize(isInDialog: boolean): "small" | undefined {
+  const bar = useStrataBar();
+  return bar !== null && !isInDialog ? "small" : undefined;
+}
+
+/**
+ * Whether the text of a button is shown whole. A small screen shortens it, but
+ * a bar does not: it folds its controls when they do not fit.
+ */
+function useShowsWholeText(): boolean {
+  const isBigScreen = useBigScreen();
+  const bar = useStrataBar();
+  return isBigScreen || bar !== null;
 }
 
 function getRealText(text: string, isInDialog: boolean, isBigScreen: boolean) {

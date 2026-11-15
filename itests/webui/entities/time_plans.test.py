@@ -235,6 +235,9 @@ from playwright.sync_api import Page, expect
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from itests.helpers import (
+    click_entity_archive,
+    click_entity_remove,
+    expect_entity_archive_disabled,
     fill_after_hydration,
     get_parsed_from_response,
     open_branch_publish_panel,
@@ -917,7 +920,7 @@ def test_webui_time_plan_question_update_archive_and_remove(page: Page) -> None:
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value(updated_name)
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
     expect(page.locator("#leaf-entity-archive-confirm")).to_have_attribute(
         "value", "remove"
@@ -931,7 +934,7 @@ def test_webui_time_plan_question_update_archive_and_remove(page: Page) -> None:
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value(updated_name)
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_remove(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
     page.wait_for_url("/app/workspace/apps/time-plans/questions")
 
@@ -1114,7 +1117,7 @@ def test_webui_time_plan_archive(page: Page, create_time_plan) -> None:
     page.goto(f"/app/workspace/apps/time-plans/{time_plan.ref_id}")
     page.wait_for_selector("#branch-panel")
 
-    page.locator("#branch-entity-archive").click()
+    click_entity_archive(page, "branch")
     page.locator("#branch-entity-archive-confirm").click()
 
     page.wait_for_url("/app/workspace/apps/time-plans")
@@ -3237,7 +3240,7 @@ def test_webui_time_plan_activity_remove(
 
     page.goto(activity_url)
     wait_for_hydration(page)
-    page.locator("#leaf-entity-archive").click()
+    click_entity_archive(page, "leaf")
     with page.expect_response(
         lambda response: "mutations/archive-activity" in response.url
     ) as archive_info:
@@ -3252,7 +3255,7 @@ def test_webui_time_plan_activity_remove(
 
     page.goto(activity_url)
     wait_for_hydration(page)
-    page.locator("#leaf-entity-archive").click()
+    click_entity_remove(page, "leaf")
     with page.expect_response(
         lambda response: "mutations/remove-activity" in response.url
     ) as remove_info:
@@ -3426,7 +3429,7 @@ def test_webui_time_plan_activity_archive_inbox_task(
         f"/app/workspace/apps/time-plans/{time_plan.ref_id}/{inbox_task_activity.ref_id}"
     )
 
-    page.locator("#leaf-entity-archive").click()
+    click_entity_archive(page, "leaf")
     page.locator("#leaf-entity-archive-confirm").click()
 
     page.wait_for_url(f"/app/workspace/apps/time-plans/{time_plan.ref_id}")
@@ -3472,7 +3475,7 @@ def test_webui_time_plan_activity_archive_big_plan_with_inbox_task(
         f"/app/workspace/apps/time-plans/{time_plan.ref_id}/{big_plan_activity.ref_id}"
     )
 
-    page.locator("#leaf-entity-archive").click()
+    click_entity_archive(page, "leaf")
     page.locator("#leaf-entity-archive-confirm").click()
 
     page.wait_for_url(f"/app/workspace/apps/time-plans/{time_plan.ref_id}")
@@ -4234,7 +4237,7 @@ def test_webui_time_plan_acl_reader_can_read_but_not_update_or_archive(
 
     expect(page.locator('input[name="rightNow"]')).to_be_disabled()
     expect(page.locator("#time-plan-change-time-config")).to_be_disabled()
-    expect(page.locator("#branch-entity-archive")).to_be_disabled()
+    expect_entity_archive_disabled(page, "branch")
 
 
 def test_webui_time_plan_acl_writer_can_read_and_update(
@@ -4274,7 +4277,7 @@ def test_webui_time_plan_acl_writer_can_read_and_archive(
     page.goto(f"/app/workspace/apps/time-plans/{time_plan.ref_id}")
     page.wait_for_selector("#branch-panel")
 
-    page.locator("#branch-entity-archive").click()
+    click_entity_archive(page, "branch")
     page.locator("#branch-entity-archive-confirm").click()
 
     page.wait_for_url("/app/workspace/apps/time-plans")

@@ -42,10 +42,10 @@ Tasks also have a _source_, which can be one of:
 * _Person Birthday_: the task has been generated as a birthday task for a
   [person](../prm/persons.md).
 
-In the Inbox, you can see tasks in a sort of Kanban board, organised by status
-likethis:
+In the Inbox, you can see tasks in columns, grouped by where they come from,
+like this:
 
-![Inbox image](../../assets/index-inbox.png)
+![Inbox tasks in the swiftview, grouped by habits, chores and other tasks](../../assets/index-inbox.png "Inbox tasks in the swiftview, grouped by habits, chores and other tasks")
 
 The state evolution diagram is:
 
@@ -72,37 +72,28 @@ Tasks also have a notion of _difficulty_. They can be catalogued as `Easy`,
 `Medium` or `Hard`. These informthe way certain views are sorted. But there's no
 other semantic meaning attached to these categories though.
 
+![An inbox task open for editing: name, status, Eisenhower status, difficulty, dates and scheduling](../../assets/inbox-tasks-update.png "An inbox task open for editing: name, status, Eisenhower status, difficulty, dates and scheduling")
+
 ## The Inbox
 
 The inbox is a representation of your current work, as well as the work you
 recentlyfinished or will recently start. It's a collection of tasks organized in
 a particualr way.
 
-The inbox looks like a Kanban board usually, with the various states of a task
-ascolumns.
+![Inbox tasks in the swiftview, grouped by habits, chores and other tasks](../../assets/index-inbox.png "Inbox tasks in the swiftview, grouped by habits, chores and other tasks")
 
-![Inbox image](../../assets/index-inbox.png)
+The inbox lists your tasks in groups - habits, chores, and everything else -
+sorted by due date and Eisenhower status. Tasks that are completed are not
+shown. On a phone the same list fills the screen, which makes it handy for
+working through habits and chores.
 
-There are multiple views for the inbox though right now:
-
-* _Swiftview_: split tasks into three - habits, chores, and others. Tasks are
-  sorted by due date
-  and Eisenhower status. Tasks that are completed are not shown. Useful to focus
-  on habits and  chores, especially in the mobile view.
-* _Kanban With Eisen_: views all tasks in the inbox as a Kanban board, split by
-  the Eisenhower status.
-  Tasks are sorted by due date.
-* _Kanban_: views all tasks in the inbox as a unified Kanban board. Tasks are
-  sorted by due date.
-* _List_: views all tasks in the inbox as a long list of work, with limited
-  sorting.
-
-Here's a sneak peek at some views:
-
-![Swiftview](../../assets/inbox-tasks-swiftview.png)
+If you want to look at your own tasks by due date or on a Kanban board, the
+[Todos](../todos.md#todo-views) app has the views for it.
 
 Besides the obvious button interactions, you can also _swipe left_ to mark a
 task as _done_ and_swipe right_ to mark it as not done.
+
+![The inbox on a phone: tasks grouped by where they came from, one group at a time](../../assets/index-inbox-mobile.png "The inbox on a phone: tasks grouped by where they came from, one group at a time")
 
 ## Gamification
 

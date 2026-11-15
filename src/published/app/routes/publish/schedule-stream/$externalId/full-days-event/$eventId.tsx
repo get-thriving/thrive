@@ -7,7 +7,7 @@ import { z } from "zod";
 import { parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -75,10 +75,10 @@ export default function PublishedScheduleStreamFullDaysEvent() {
   const [query] = useSearchParams();
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key={`published-schedule-event-full-days-${loaderData.scheduleEventFullDays.ref_id}`}
       fakeKey={`published-schedule-event-full-days-${loaderData.scheduleEventFullDays.ref_id}`}
-      isLeaflet
       inputsEnabled={false}
       entityNotEditable={true}
       returnLocation={`/schedule-stream/${loaderData.externalId}?${query}`}
@@ -116,7 +116,7 @@ export default function PublishedScheduleStreamFullDaysEvent() {
           </Typography>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

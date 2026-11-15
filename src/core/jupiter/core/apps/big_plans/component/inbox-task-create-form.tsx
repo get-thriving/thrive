@@ -93,7 +93,7 @@ export function BigPlanInboxTaskCreateForm(
           />
         }
       >
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={1.25}>
           <FormControl fullWidth>
             <InputLabel id="name">Name</InputLabel>
             <OutlinedInput

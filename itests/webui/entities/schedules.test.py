@@ -122,7 +122,13 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from playwright.sync_api import Page, expect
 
-from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
+from itests.helpers import (
+    click_entity_archive,
+    expect_entity_archive_disabled,
+    get_parsed_from_response,
+    open_leaf_publish_panel,
+    wait_for_hydration,
+)
 from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 _ACCESS_DENIED_LABEL = "You do not have the right access for this entity"
@@ -424,6 +430,22 @@ def test_webui_calendar_shows_additional_timezones(page: Page) -> None:
     expect(page.locator("#calendar-hours-column-1")).to_have_count(0)
 
 
+def test_webui_calendar_period_and_view_are_filters(page: Page) -> None:
+    page.goto("/app/workspace/calendar?period=weekly&view=calendar")
+    wait_for_hydration(page)
+
+    # They are choices of the header, not rows of buttons: one control for each,
+    # naming what is chosen, which opens the others.
+    header = page.locator("#trunk-panel-controls")
+    expect(header.get_by_role("button", name="Weekly")).to_be_visible()
+    expect(header.get_by_role("button", name="Daily")).to_have_count(0)
+
+    header.get_by_role("button", name="Weekly").click()
+    page.get_by_role("option", name="Daily").click()
+    page.wait_for_url(re.compile(r"period=daily"))
+    expect(header.get_by_role("button", name="Daily")).to_be_visible()
+
+
 def test_webui_schedule_event_in_day_publish_and_view_public(
     page: Page, create_schedule_stream, create_schedule_event_in_day
 ) -> None:
@@ -708,7 +730,7 @@ def test_webui_schedule_stream_acl_reader_can_read_but_not_update_or_archive(
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Stream")
     expect(page.locator('input[name="name"]')).to_be_disabled()
     expect(page.locator("button[id='schedule-stream-update']")).to_be_disabled()
-    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+    expect_entity_archive_disabled(page, "leaf")
 
 
 def test_webui_schedule_stream_acl_writer_can_read_and_update(
@@ -752,7 +774,7 @@ def test_webui_schedule_stream_acl_writer_can_read_and_archive(
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Archive Stream")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_load_state("networkidle")
@@ -804,7 +826,7 @@ def test_webui_schedule_event_in_day_acl_reader_can_read_but_not_update_or_archi
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL In Day Event")
     expect(page.locator('input[name="name"]')).to_be_disabled()
     expect(page.locator("button[id='schedule-event-in-day-update']")).to_be_disabled()
-    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+    expect_entity_archive_disabled(page, "leaf")
 
 
 def test_webui_schedule_event_in_day_acl_writer_can_read_and_update(
@@ -864,7 +886,7 @@ def test_webui_schedule_event_in_day_acl_writer_can_read_and_archive(
     page.goto(f"/app/workspace/calendar/schedule/event-in-day/{event.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_url(re.compile(r"/app/workspace/calendar(\?|$)"))
@@ -930,7 +952,7 @@ def test_webui_schedule_event_full_days_acl_reader_can_read_but_not_update_or_ar
     expect(
         page.locator("button[id='schedule-event-full-days-update']")
     ).to_be_disabled()
-    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+    expect_entity_archive_disabled(page, "leaf")
 
 
 def test_webui_schedule_event_full_days_acl_writer_can_read_and_update(
@@ -988,7 +1010,7 @@ def test_webui_schedule_event_full_days_acl_writer_can_read_and_archive(
     page.goto(f"/app/workspace/calendar/schedule/event-full-days/{event.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_url(re.compile(r"/app/workspace/calendar(\?|$)"))

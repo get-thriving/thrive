@@ -25,7 +25,7 @@ interface TimeEventBufferFieldProps {
 // at all - which is what an empty box means here.
 function TimeEventBufferField(props: TimeEventBufferFieldProps) {
   return (
-    <Stack spacing={2} direction="row">
+    <Stack spacing={1.25} direction="row">
       <ButtonGroup variant="outlined" disabled={!props.inputsEnabled}>
         <Button
           disabled={!props.inputsEnabled}

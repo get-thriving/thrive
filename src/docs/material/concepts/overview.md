@@ -67,5 +67,7 @@ The rest of the document will cover each of these in greater detail.
 Thrive is _the tool_ that allows you to run your life by using the concepts
 above in certain ways.
 
+![The home page: tabs of widgets that bring together the things you want to see first](../assets/home-page.png "The home page: tabs of widgets that bring together the things you want to see first")
+
 You can interact with it via one of the [clients](clients.md) and in a variety
 of [hosted modes](hosting-options.md)

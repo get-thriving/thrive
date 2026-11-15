@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.color_scheme import ColorScheme
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.web_ui_settings_key_bindings import WebUiSettingsKeyBindings
+
 
 T = TypeVar("T", bound="WebUiSettings")
 
@@ -22,7 +27,9 @@ class WebUiSettings:
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
         user_ref_id (str):
-        use_night_mode (bool):
+        color_scheme (ColorScheme): The color scheme of the web app: light, dark, or the one the device uses.
+        use_expanded_rail (bool):
+        key_bindings (WebUiSettingsKeyBindings):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -33,7 +40,9 @@ class WebUiSettings:
     created_time: str
     last_modified_time: str
     user_ref_id: str
-    use_night_mode: bool
+    color_scheme: ColorScheme
+    use_expanded_rail: bool
+    key_bindings: WebUiSettingsKeyBindings
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -51,7 +60,11 @@ class WebUiSettings:
 
         user_ref_id = self.user_ref_id
 
-        use_night_mode = self.use_night_mode
+        color_scheme = self.color_scheme.value
+
+        use_expanded_rail = self.use_expanded_rail
+
+        key_bindings = self.key_bindings.to_dict()
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -75,7 +88,9 @@ class WebUiSettings:
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
                 "user_ref_id": user_ref_id,
-                "use_night_mode": use_night_mode,
+                "color_scheme": color_scheme,
+                "use_expanded_rail": use_expanded_rail,
+                "key_bindings": key_bindings,
             }
         )
         if archival_reason is not UNSET:
@@ -87,6 +102,8 @@ class WebUiSettings:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.web_ui_settings_key_bindings import WebUiSettingsKeyBindings  # noqa: PLC0415
+
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
@@ -100,7 +117,11 @@ class WebUiSettings:
 
         user_ref_id = d.pop("user_ref_id")
 
-        use_night_mode = d.pop("use_night_mode")
+        color_scheme = ColorScheme(d.pop("color_scheme"))
+
+        use_expanded_rail = d.pop("use_expanded_rail")
+
+        key_bindings = WebUiSettingsKeyBindings.from_dict(d.pop("key_bindings"))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -127,7 +148,9 @@ class WebUiSettings:
             created_time=created_time,
             last_modified_time=last_modified_time,
             user_ref_id=user_ref_id,
-            use_night_mode=use_night_mode,
+            color_scheme=color_scheme,
+            use_expanded_rail=use_expanded_rail,
+            key_bindings=key_bindings,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

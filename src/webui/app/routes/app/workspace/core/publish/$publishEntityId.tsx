@@ -12,7 +12,7 @@ import { parseEntityLinkStd } from "@jupiter/core/common/entity-link";
 import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
@@ -22,6 +22,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   publishEntityId: z.string(),
@@ -40,6 +41,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Published entity"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -106,7 +108,8 @@ export default function PublishEntityView() {
   const inputsEnabled = navigation.state === "idle" && !publishEntity.archived;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`publish-${publishEntity.ref_id}`}
       fakeKey={`publish-${publishEntity.ref_id}`}
       inputsEnabled={inputsEnabled}
@@ -120,7 +123,7 @@ export default function PublishEntityView() {
         inputsEnabled={inputsEnabled}
         publishEntity={publishEntity}
       />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -10,6 +10,7 @@ import type {
 import {
   redirect,
   useLocation,
+  useNavigate,
   useNavigation,
   useSearchParams,
 } from "react-router";
@@ -22,19 +23,16 @@ import { statsSubperiodForPeriod } from "@jupiter/core/common/sub/time_events/ti
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
+  FilterFewOptionsCompact,
   NavMultipleCompact,
   NavMultipleSpread,
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { inferPlatformAndDistribution } from "@jupiter/core/frontdoor.server";
-import {
-  DisplayType,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { View } from "@jupiter/core/calendar/component/shared";
 import { CalendarEventDragProvider } from "@jupiter/core/calendar/component/event-drag";
@@ -49,9 +47,13 @@ import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { newURLParams } from "@jupiter/core/infra/navigation";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataTrunkLabel } from "@jupiter/core/infra/strata/strata-trunk-label";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
+  label: strataTrunkLabel,
 };
 
 const QuerySchema = z.object({
@@ -117,10 +119,19 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 const REFRESH_RIGHT_NOW_MS = 1000 * 60 * 5; // 5 minutes
 
+const PERIODS = [
+  RecurringTaskPeriod.DAILY,
+  RecurringTaskPeriod.WEEKLY,
+  RecurringTaskPeriod.MONTHLY,
+  RecurringTaskPeriod.QUARTERLY,
+  RecurringTaskPeriod.YEARLY,
+];
+
 export default function CalendarView() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const navigation = useNavigation();
   const location = useLocation();
+  const navigate = useNavigate();
   const [query] = useSearchParams();
 
   const calendarLocation = location.pathname.replace(
@@ -132,9 +143,6 @@ export default function CalendarView() {
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const inputsEnabled = navigation.state === "idle";
-
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
   const [rightNow, setRightNow] = useState(
     DateTime.local({ zone: topLevelInfo.user.timezone }),
@@ -152,9 +160,9 @@ export default function CalendarView() {
   }, [topLevelInfo.user.timezone]);
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key="calendar"
-      createLocation={`/app/workspace/calendar/schedule/event-in-day/new?${query}`}
       actions={
         <SectionActions
           id="calendar"
@@ -223,78 +231,38 @@ export default function CalendarView() {
                 }),
               ],
             }),
-            NavMultipleCompact({
-              navs: [
-                NavSingle({
-                  text: periodName(RecurringTaskPeriod.DAILY),
-                  highlight: loaderData.period === RecurringTaskPeriod.DAILY,
-                  link: `/app/workspace/calendar${calendarLocation}?${newURLParams(
+            FilterFewOptionsCompact(
+              "Period",
+              loaderData.period,
+              PERIODS.map((period) => ({
+                value: period,
+                text: periodName(period),
+              })),
+              (period) =>
+                navigate(
+                  `/app/workspace/calendar${calendarLocation}?${newURLParams(
                     query,
                     "period",
-                    RecurringTaskPeriod.DAILY,
+                    period,
                   )}`,
-                }),
-                NavSingle({
-                  text: periodName(RecurringTaskPeriod.WEEKLY),
-                  highlight: loaderData.period === RecurringTaskPeriod.WEEKLY,
-                  link: `/app/workspace/calendar${calendarLocation}?${newURLParams(
-                    query,
-                    "period",
-                    RecurringTaskPeriod.WEEKLY,
-                  )}`,
-                }),
-                NavSingle({
-                  text: periodName(RecurringTaskPeriod.MONTHLY),
-                  highlight: loaderData.period === RecurringTaskPeriod.MONTHLY,
-                  link: `/app/workspace/calendar${calendarLocation}?${newURLParams(
-                    query,
-                    "period",
-                    RecurringTaskPeriod.MONTHLY,
-                  )}`,
-                }),
-                NavSingle({
-                  text: periodName(RecurringTaskPeriod.QUARTERLY),
-                  highlight:
-                    loaderData.period === RecurringTaskPeriod.QUARTERLY,
-                  link: `/app/workspace/calendar${calendarLocation}?${newURLParams(
-                    query,
-                    "period",
-                    RecurringTaskPeriod.QUARTERLY,
-                  )}`,
-                }),
-                NavSingle({
-                  text: periodName(RecurringTaskPeriod.YEARLY),
-                  highlight: loaderData.period === RecurringTaskPeriod.YEARLY,
-                  link: `/app/workspace/calendar${calendarLocation}?${newURLParams(
-                    query,
-                    "period",
-                    RecurringTaskPeriod.YEARLY,
-                  )}`,
-                }),
+                ),
+            ),
+            FilterFewOptionsCompact(
+              "View",
+              loaderData.view,
+              [
+                { value: View.CALENDAR, text: "Calendar" },
+                { value: View.SCHEDULE, text: "Schedule" },
               ],
-            }),
-            NavMultipleCompact({
-              navs: [
-                NavSingle({
-                  text: "Calendar",
-                  link: `/app/workspace/calendar${calendarLocation}?${newURLParams(
+              (view) =>
+                navigate(
+                  `/app/workspace/calendar${calendarLocation}?${newURLParams(
                     query,
                     "view",
-                    View.CALENDAR,
+                    view,
                   )}`,
-                  highlight: loaderData.view === View.CALENDAR,
-                }),
-                NavSingle({
-                  text: "Schedule",
-                  link: `/app/workspace/calendar${calendarLocation}?${newURLParams(
-                    query,
-                    "view",
-                    View.SCHEDULE,
-                  )}`,
-                  highlight: loaderData.view === View.SCHEDULE,
-                }),
-              ],
-            }),
+                ),
+            ),
             NavSingle({
               text: "Settings",
               link: `/app/workspace/calendar/settings`,
@@ -306,10 +274,7 @@ export default function CalendarView() {
       returnLocation="/app/workspace"
     >
       <CalendarEventDragProvider timezone={topLevelInfo.user.timezone}>
-        <NestingAwareBlock
-          branchForceHide={shouldShowABranch}
-          shouldHide={shouldShowABranch || shouldShowALeafToo}
-        >
+        <NestingAwareBlock>
           {loaderData.view === View.CALENDAR &&
             loaderData.period === RecurringTaskPeriod.DAILY && (
               <ViewAsCalendarDaily
@@ -430,7 +395,7 @@ export default function CalendarView() {
       </CalendarEventDragProvider>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

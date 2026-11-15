@@ -52,13 +52,8 @@ import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   NavMultipleCompact,
   NavMultipleSpread,
@@ -85,6 +80,8 @@ import { getIntent, makeIntent } from "#/core/infra/intent";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataTrunkLabel } from "#/core/infra/strata/strata-trunk-label";
 
 const UpdateFormSchema = z.object({
   intent: z.string(),
@@ -92,6 +89,8 @@ const UpdateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
+  label: strataTrunkLabel,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -184,9 +183,6 @@ export default function LifePlanView() {
   const navigation = useNavigation();
   const isBigScreen = useBigScreen();
   const actionData = useActionData<typeof action>();
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const inputsEnabled = navigation.state === "idle";
   const [hoveredMilestoneRefId, setHoveredMilestoneRefId] = useState<
     string | null
@@ -238,7 +234,8 @@ export default function LifePlanView() {
   );
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"aspects"}
       returnLocation="/app/workspace"
       actions={
@@ -319,10 +316,7 @@ export default function LifePlanView() {
         />
       }
     >
-      <NestingAwareBlock
-        shouldHide={shouldShowALeaf || shouldShowALeaflet}
-        branchForceHide={shouldShowABranch}
-      >
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <EntityStack>
           <Form method="post" style={{ position: "relative" }}>
@@ -653,7 +647,7 @@ export default function LifePlanView() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 
@@ -1180,6 +1174,7 @@ interface LifeMonthsGridProps {
 }
 
 function LifeMonthsGrid({ birthday, today, isBigScreen }: LifeMonthsGridProps) {
+  const theme = useTheme();
   const todayMillis = today.toMillis();
 
   const ageMs = todayMillis - birthday.toMillis();
@@ -1231,10 +1226,10 @@ function LifeMonthsGrid({ birthday, today, isBigScreen }: LifeMonthsGridProps) {
               const isPast = monthEndMillis <= todayMillis;
 
               const backgroundColor = isCurrent
-                ? "#ffd700"
+                ? theme.palette.primary.main
                 : isPast
-                  ? "#cccccc"
-                  : "#f0f0f0";
+                  ? theme.palette.grey[400]
+                  : theme.palette.divider;
 
               return (
                 <Tooltip

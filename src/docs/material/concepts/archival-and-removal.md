@@ -2,6 +2,8 @@
 
 All entities can be _archived_ and _removed_.
 
+![Archiving or deleting from the entity menu in the panel's corner](../assets/archival-entity-menu.png "Archiving or deleting from the entity menu in the panel's corner")
+
 Being _archived_ is simply a state of that entity that it can enter,but cannot
 exit. The entity cannot change in any way after archival.
 

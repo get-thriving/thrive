@@ -1,9 +1,32 @@
 """Helpers for the tests."""
 
-from typing import Type, TypeVar, cast
+from typing import Literal, Type, TypeVar, cast
 
+from jupiter_webapi_client.api.users.web_ui_settings_reset_key_bindings import (
+    sync_detailed as web_ui_settings_reset_key_bindings_sync,
+)
+from jupiter_webapi_client.api.users.web_ui_settings_update import (
+    sync_detailed as web_ui_settings_update_sync,
+)
+from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.color_scheme import ColorScheme
+from jupiter_webapi_client.models.web_ui_settings_reset_key_bindings_args import (
+    WebUiSettingsResetKeyBindingsArgs,
+)
+from jupiter_webapi_client.models.web_ui_settings_update_args import (
+    WebUiSettingsUpdateArgs,
+)
+from jupiter_webapi_client.models.web_ui_settings_update_args_color_scheme import (
+    WebUiSettingsUpdateArgsColorScheme,
+)
+from jupiter_webapi_client.models.web_ui_settings_update_args_key_bindings import (
+    WebUiSettingsUpdateArgsKeyBindings,
+)
+from jupiter_webapi_client.models.web_ui_settings_update_args_use_expanded_rail import (
+    WebUiSettingsUpdateArgsUseExpandedRail,
+)
 from jupiter_webapi_client.types import Response
-from playwright.sync_api import Locator, Page
+from playwright.sync_api import Locator, Page, expect
 from playwright.sync_api import Response as PlaywrightResponse
 
 T = TypeVar("T")
@@ -134,12 +157,21 @@ def open_trunk_publish_panel(page: Page, publish_section_id: str) -> None:
 def open_entity_publish_panel(
     page: Page, publish_section_id: str, publish_button_id: str
 ) -> None:
-    """Open the publish panel in a leaf or branch entity view."""
+    """Open the publish panel of a trunk, branch or leaf (ADR 0021).
+
+    It is a view in a column of its own, opened from the ``⋯`` menu of the
+    panel, where it is the entry with the id of the phone's button and
+    ``-entry`` after it.
+    """
     publish_panel = page.locator(f"#{publish_section_id}")
     if publish_panel.is_visible():
         return
 
-    page.locator(f"button[id='{publish_button_id}']").click()
+    wait_for_hydration(page)
+    panel = publish_button_id.split("-")[0]
+    click_column_menu_entry(
+        page, f"{panel}-panel-controls", f"{publish_button_id}-entry"
+    )
     publish_panel.wait_for(state="visible")
 
 
@@ -155,3 +187,107 @@ def get_parsed_from_response(clazz: Type[T], response: Response[S]) -> T:
             f"Expected {clazz.__name__}, got {type(response.parsed).__name__}"
         )
     return cast(T, response.parsed)
+
+
+def set_expanded_rail(client: AuthenticatedClient, use_expanded_rail: bool) -> None:
+    """Set whether the user has the rail with labels."""
+    response = web_ui_settings_update_sync(
+        client=client,
+        body=WebUiSettingsUpdateArgs(
+            color_scheme=WebUiSettingsUpdateArgsColorScheme(should_change=False),
+            use_expanded_rail=WebUiSettingsUpdateArgsUseExpandedRail(
+                should_change=True, value=use_expanded_rail
+            ),
+            key_bindings=WebUiSettingsUpdateArgsKeyBindings(should_change=False),
+        ),
+    )
+    assert response.status_code == 200, response.content
+
+
+def set_color_scheme(client: AuthenticatedClient, color_scheme: ColorScheme) -> None:
+    """Set the color scheme the user picked, or that they follow the device."""
+    response = web_ui_settings_update_sync(
+        client=client,
+        body=WebUiSettingsUpdateArgs(
+            color_scheme=WebUiSettingsUpdateArgsColorScheme(
+                should_change=True, value=color_scheme
+            ),
+            use_expanded_rail=WebUiSettingsUpdateArgsUseExpandedRail(
+                should_change=False
+            ),
+            key_bindings=WebUiSettingsUpdateArgsKeyBindings(should_change=False),
+        ),
+    )
+    assert response.status_code == 200, response.content
+
+
+def reset_key_bindings(client: AuthenticatedClient) -> None:
+    """Put the keys of the user back to the defaults."""
+    response = web_ui_settings_reset_key_bindings_sync(
+        client=client,
+        body=WebUiSettingsResetKeyBindingsArgs(),
+    )
+    assert response.status_code == 200, response.content
+
+
+def open_column_menu(page: Page, header_id: str) -> None:
+    """Open the ``⋯`` menu in the header of a column (ADR 0021).
+
+    The menu is only in the header of the focused column, or of the one that
+    is alone on the screen, so a test that opens a deeper column's menu has to
+    open that column first.
+    """
+    page.locator(f"#{header_id}-menu").click()
+    expect(page.locator(f"#{header_id}-menu-list")).to_be_visible()
+
+
+def click_column_menu_entry(page: Page, header_id: str, entry_id: str) -> None:
+    """Choose an entry of the ``⋯`` menu in the header of a column."""
+    open_column_menu(page, header_id)
+    page.locator(f"li[id='{entry_id}']").click()
+
+
+def expect_column_menu_entry_disabled(
+    page: Page, header_id: str, entry_id: str
+) -> None:
+    """Check an entry of the ``⋯`` menu is there and disabled, then close it."""
+    open_column_menu(page, header_id)
+    expect(page.locator(f"li[id='{entry_id}']")).to_have_attribute(
+        "aria-disabled", "true"
+    )
+    page.keyboard.press("Escape")
+    expect(page.locator(f"#{header_id}-menu-list")).to_be_hidden()
+
+
+def click_entity_archive(page: Page, panel: Literal["leaf", "branch"]) -> None:
+    """Choose "Archive…" in a panel's ``⋯`` menu.
+
+    This only opens the dialog. The test confirms it with the
+    ``<panel>-entity-archive-confirm`` button, as before.
+    """
+    click_column_menu_entry(page, f"{panel}-panel-controls", f"{panel}-entity-archive")
+
+
+def click_entity_remove(page: Page, panel: Literal["leaf", "branch"]) -> None:
+    """Choose "Delete permanently…" in the ``⋯`` menu of a panel of an archived entity.
+
+    This only opens the dialog, which the test confirms with the same
+    ``<panel>-entity-archive-confirm`` button.
+    """
+    click_column_menu_entry(page, f"{panel}-panel-controls", f"{panel}-entity-remove")
+
+
+def expect_entity_archive_disabled(
+    page: Page, panel: Literal["leaf", "branch"]
+) -> None:
+    """Check "Archive…" in a panel's ``⋯`` menu is disabled."""
+    expect_column_menu_entry_disabled(
+        page, f"{panel}-panel-controls", f"{panel}-entity-archive"
+    )
+
+
+def expect_entity_remove_disabled(page: Page, panel: Literal["leaf", "branch"]) -> None:
+    """Check "Delete permanently…" in a panel's ``⋯`` menu is disabled."""
+    expect_column_menu_entry_disabled(
+        page, f"{panel}-panel-controls", f"{panel}-entity-remove"
+    )

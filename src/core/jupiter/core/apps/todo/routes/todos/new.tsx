@@ -21,7 +21,7 @@ import {
   todoTaskCreateArgs,
 } from "#/core/apps/todo/create-form";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { handleActionApiError } from "#/core/infra/errors.server";
@@ -41,6 +41,7 @@ const QuerySchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New todo",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -97,7 +98,8 @@ export default function NewTodo() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="todos/new"
       fakeKey="todos/new"
       returnLocation="/app/workspace/apps/todos"
@@ -109,7 +111,7 @@ export default function NewTodo() {
         inputsEnabled={inputsEnabled}
         actionResult={actionData}
       />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -1,0 +1,358 @@
+import {
+  Group as GroupIcon,
+  History as HistoryIcon,
+  Public as PublicIcon,
+} from "@mui/icons-material";
+import { Box, IconButton, Stack } from "@mui/material";
+import { Fragment, useContext, useEffect, useRef } from "react";
+import type { JSX } from "react";
+import { createPortal } from "react-dom";
+import { z } from "zod";
+import type {
+  AccessStatus,
+  EntityId,
+  NamedEntityTag,
+  PublishEntity,
+  UserLight,
+} from "@jupiter/webapi-client";
+
+import { AccessPanel } from "#/core/common/sub/access/components/access-panel";
+import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel";
+import type { ColumnChip } from "#/core/infra/component/layout/column-chip";
+import type { ColumnMenuEntry } from "#/core/infra/component/layout/column-menu-entry";
+import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
+import { StrataColumnsContext } from "#/core/infra/component/layout/strata-columns-context";
+import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import { strataSplitKey } from "#/core/infra/strata/strata-columns-with-splits";
+import type { UnitSize } from "#/core/infra/strata/layout";
+import {
+  STRATA_PANEL_VIEWS,
+  type StrataPanelView,
+} from "#/core/infra/strata/strata-panel-view";
+import {
+  strataPanelViewId,
+  strataPanelViewsPanelId,
+  type StrataPanelViewHome,
+} from "#/core/infra/strata/strata-panel-view-id";
+import { strataPanelViewsToggle } from "#/core/infra/strata/strata-panel-views-toggle";
+import {
+  strataSharingChips,
+  strataSharingState,
+} from "#/core/infra/strata/strata-sharing-state";
+
+const FILTERS = z.object({
+  split: z.array(z.string()).default([]),
+});
+
+const TITLES: Record<StrataPanelView, string> = {
+  history: "History",
+  publish: "Publish",
+  access: "Access",
+};
+
+// The views in the order of the menu.
+const MENU_VIEWS: readonly StrataPanelView[] = ["history", "publish", "access"];
+
+// Every view is M: a column beside the panel it is about.
+const VIEW_SIZE: UnitSize = 2;
+
+interface EntityViewsConfig {
+  /** Where the panel is on the open path, which says which views are its. */
+  home: StrataPanelViewHome;
+  /** The buttons' ids start with it: `leaf` gives `leaf-entity-publish`. */
+  idPrefix: string;
+  /** Key of the route column the panel is in; null until it is laid out. */
+  parentKey: string | null;
+  entityType?: NamedEntityTag;
+  entityRefId?: EntityId;
+  inputsEnabled: boolean;
+  /** Whether the panel offers the history of the entity. */
+  history: boolean;
+  publishable?: boolean;
+  publishEntity?: PublishEntity;
+  accessable?: boolean;
+  accessOwner?: UserLight;
+  accessStatus?: AccessStatus | null;
+  /** Where the panel closes to; the access view needs it, and is not offered without. */
+  returnLocation?: string;
+  forgetReturnLocation?: string;
+}
+
+interface EntityViews {
+  /**
+   * The buttons that open and close the views, where there are
+   * no columns; null if there are none.
+   */
+  buttons: JSX.Element | null;
+  /**
+   * The same as commands for the `⋯` menu, in the order History, Publish,
+   * Access: always there for an entity, disabled if the panel does not offer it.
+   */
+  entries: ColumnMenuEntry[];
+  /** `● published` and `shared`, which open what says more about them. */
+  chips: ColumnChip[];
+  /** The open views, each where it belongs: in a column, or in the panel. */
+  bodies: JSX.Element;
+  /** Whether a view stands in place of the panel's content. */
+  replacesContent: boolean;
+  /** Whether the panel offers any view at all. */
+  any: boolean;
+}
+
+/**
+ * The views of an entity a panel can show beside its content: what published
+ * it, who has access, and its history (ADR 0021). Each is a column of its own
+ * while there is room, a split like a section's, so the entity stays in view
+ * next to it. Without room, and on a phone, it stands in place of the panel's
+ * content as it always did. Which are open is kept in the URL, as the splits
+ * of sections are, so it survives a reload and a link.
+ *
+ * Returns the buttons for the panel's header, the views to put in its content,
+ * and whether the content is replaced.
+ */
+export function useEntityViews(config: EntityViewsConfig): EntityViews {
+  const { home, parentKey, entityType, entityRefId } = config;
+  const columns = useContext(StrataColumnsContext);
+  const topLevelInfo = useContext(TopLevelInfoContext);
+  const [filters, setFilters] = useSectionFilters(
+    strataPanelViewsPanelId(home),
+    FILTERS,
+  );
+
+  const hasEntity = entityType !== undefined && entityRefId !== undefined;
+
+  // Wherever there are columns, on a phone too, the views are commands of the
+  // `⋯` menu; where there are none, they have buttons, as they always did.
+  const hasColumns = columns !== null;
+  // What the panel offers about its entity, which is also what its menu lists
+  // as enabled.
+  function offers(view: StrataPanelView): boolean {
+    if (!hasEntity) {
+      return false;
+    }
+    switch (view) {
+      case "history":
+        return config.history;
+      case "publish":
+        return config.publishable === true;
+      case "access":
+        return (
+          config.accessable === true && config.returnLocation !== undefined
+        );
+    }
+  }
+  const available = STRATA_PANEL_VIEWS.filter(offers);
+  const availableKey = available.join("|");
+  const open = available.filter((view) =>
+    filters.split.includes(strataPanelViewId(home, view)),
+  );
+
+  // Columns exist on a screen with room, once the panel has been placed.
+  const phone = columns?.phone ?? false;
+  const canSplit = columns !== null && !phone && parentKey !== null;
+
+  function setOpen(view: StrataPanelView, on: boolean) {
+    const id = strataPanelViewId(home, view);
+    if (on === filters.split.includes(id)) {
+      return;
+    }
+    setFilters({ split: strataPanelViewsToggle(filters.split, id, phone) });
+    // The view's column takes the focus; closing it gives the focus back to
+    // the panel.
+    if (columns !== null && canSplit && parentKey !== null) {
+      columns.focusColumn(on ? strataSplitKey(id) : parentKey);
+    }
+  }
+
+  // Offer the views as columns while the panel is on screen. The control of the
+  // column calls the latest `setOpen`, not the one of the render it left.
+  const setOpenRef = useRef(setOpen);
+  setOpenRef.current = setOpen;
+  const registerSplit = columns?.registerSplit;
+  useEffect(() => {
+    if (registerSplit === undefined || parentKey === null || phone) {
+      return;
+    }
+    const views = (
+      availableKey === "" ? [] : availableKey.split("|")
+    ) as StrataPanelView[];
+    const undo = views.map((view) =>
+      registerSplit(
+        {
+          id: strataPanelViewId(home, view),
+          parentKey,
+          title: TITLES[view],
+          size: VIEW_SIZE,
+          view: true,
+        },
+        () => setOpenRef.current(view, false),
+      ),
+    );
+    return () => {
+      for (const forget of undo) {
+        forget();
+      }
+    };
+  }, [registerSplit, parentKey, phone, availableKey, home]);
+
+  // A view asked for is a column once the layout has made room for it, and
+  // until then, or if it never does, it stands in the panel.
+  function inColumn(view: StrataPanelView): boolean {
+    const id = strataPanelViewId(home, view);
+    return columns?.splits.some((split) => split.id === id) ?? false;
+  }
+  const replacesContent = open.some((view) => !inColumn(view));
+
+  function contentOf(view: StrataPanelView): JSX.Element | null {
+    if (entityType === undefined || entityRefId === undefined) {
+      return null;
+    }
+    switch (view) {
+      case "history":
+        return (
+          <EntityMutationHistoryPanel
+            entityType={entityType}
+            entityRefId={entityRefId}
+          />
+        );
+      case "publish":
+        return (
+          <>
+            <Stack spacing={2}>
+              <PublishPanel
+                entityType={entityType}
+                entityRefId={entityRefId}
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={config.inputsEnabled}
+                publishEntity={config.publishEntity ?? null}
+                accessStatus={config.accessStatus}
+              />
+            </Stack>
+            <Box sx={{ height: "4rem" }}></Box>
+          </>
+        );
+      case "access":
+        if (config.returnLocation === undefined) {
+          return null;
+        }
+        return (
+          <>
+            <Stack spacing={2}>
+              <AccessPanel
+                entityType={entityType}
+                entityRefId={entityRefId}
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={config.inputsEnabled}
+                returnLocation={config.returnLocation}
+                forgetReturnLocation={config.forgetReturnLocation}
+                owner={config.accessOwner}
+                accessStatus={config.accessStatus}
+              />
+            </Stack>
+            <Box sx={{ height: "4rem" }}></Box>
+          </>
+        );
+    }
+  }
+
+  const bodies = (
+    <>
+      {open.map((view) => {
+        const content = contentOf(view);
+        if (!inColumn(view)) {
+          return <Fragment key={view}>{content}</Fragment>;
+        }
+        // The column is there but its host not yet, for a moment: nothing is
+        // drawn, rather than drawn in the panel and moved a moment later.
+        const host = columns?.splitHost(strataPanelViewId(home, view)) ?? null;
+        return (
+          <Fragment key={view}>
+            {host !== null && createPortal(content, host)}
+          </Fragment>
+        );
+      })}
+    </>
+  );
+
+  const buttons =
+    available.length === 0 || hasColumns ? null : (
+      <Box sx={{ marginLeft: "auto", display: "flex" }}>
+        {available.map((view) => {
+          const isOpen = open.includes(view);
+          const color = isOpen ? "primary" : undefined;
+          return (
+            <IconButton
+              key={view}
+              id={`${config.idPrefix}-entity-${view}`}
+              aria-label={TITLES[view]}
+              title={TITLES[view]}
+              aria-pressed={isOpen}
+              onClick={() => setOpen(view, !isOpen)}
+            >
+              {view === "publish" && <PublicIcon color={color} />}
+              {view === "access" && <GroupIcon color={color} />}
+              {view === "history" && <HistoryIcon color={color} />}
+            </IconButton>
+          );
+        })}
+      </Box>
+    );
+
+  // The same as commands of the `⋯` menu, always there for an entity, in the
+  // order History, Publish, Access, and disabled where the panel does not offer
+  // it. Each opens its view, and choosing it again closes it. The ids end in
+  // `-entry` so they do not clash with the buttons of a page with no columns.
+  const entries: ColumnMenuEntry[] = hasEntity
+    ? MENU_VIEWS.map((view) => {
+        const isOpen = open.includes(view);
+        return {
+          id: `${config.idPrefix}-entity-${view}-entry`,
+          label: isOpen ? `Close ${TITLES[view]}` : TITLES[view],
+          disabled: !offers(view),
+          onSelect: () => setOpen(view, !isOpen),
+        };
+      })
+    : [];
+
+  // What is so about how the entity is shared, as chips. Each opens the view
+  // that says more: Publish for `published`, Access for `shared`, or Publish
+  // when the panel offers no Access.
+  const chips: ColumnChip[] = [];
+  if (hasEntity && available.length > 0) {
+    const sharing = strataSharingState(
+      config.publishEntity,
+      config.accessStatus,
+    );
+    for (const chip of strataSharingChips(sharing)) {
+      const wanted: StrataPanelView =
+        chip.id === "published" ? "publish" : "access";
+      const view: StrataPanelView = available.includes(wanted)
+        ? wanted
+        : "publish";
+      chips.push({
+        id: chip.id,
+        label: chip.label,
+        live: chip.id === "published",
+        title:
+          chip.id === "published"
+            ? "Published: open Publish"
+            : "Shared with you: open Access",
+        onClick: () => {
+          if (available.includes(view) && !open.includes(view)) {
+            setOpen(view, true);
+          }
+        },
+      });
+    }
+  }
+
+  return {
+    buttons,
+    entries,
+    chips,
+    bodies,
+    replacesContent,
+    any: available.length > 0,
+  };
+}

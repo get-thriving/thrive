@@ -1,20 +1,16 @@
 import type { ShouldRevalidateFunction } from "react-router";
-import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
-import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 
+// Not a panel: a tool page stands where a trunk would (ADR 0020), so this route
+// only groups the tools, and gives their crumb its name.
 export const handle = {
-  displayType: DisplayType.TRUNK,
+  label: "Tools",
 };
 
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 export default function Tools() {
-  return (
-    <TrunkPanel key={"tools"} returnLocation="/app/workspace">
-      <NestedOutlet />
-    </TrunkPanel>
-  );
+  return <NestedOutlet />;
 }

@@ -6,10 +6,9 @@ import { z } from "zod";
 import { parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TodoTaskPropertiesEditor } from "@jupiter/core/apps/todo/components/properties-editor";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
@@ -69,14 +68,13 @@ export default function PublishedTodoTask() {
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`published-todo-task-${loaderData.todoTask.ref_id}`}
       fakeKey={`published-todo-task-${loaderData.todoTask.ref_id}`}
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <TodoTaskPropertiesEditor
         title="Properties"
@@ -113,7 +111,7 @@ export default function PublishedTodoTask() {
           </Typography>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

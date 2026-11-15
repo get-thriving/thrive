@@ -15,7 +15,7 @@ import { z } from "zod";
 import { parseForm } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
@@ -40,6 +40,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New MCP key",
 };
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -78,7 +79,8 @@ export default function NewMcpKey() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="account/mcp-key/new"
       fakeKey="account/mcp-key/new"
       returnLocation="/app/workspace/account"
@@ -135,7 +137,7 @@ export default function NewMcpKey() {
           </>
         ) : null}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -9,7 +9,7 @@ _widgets_ in themin very many ways.
 
 A typical example of a home page might look like:
 
-![Home Page](../assets/home-page.png)
+![The home page, made of widgets arranged in a tab](../assets/home-page.png "The home page, made of widgets arranged in a tab")
 
 The top-level things to define are _tabs_. You can have _big screen_ or_small
 screen_ tabs, to account for the various ways of viewing information.
@@ -18,7 +18,7 @@ Within a tab you can add _widgets_. Big screen tabs have a grid-likeplacement of
 `3` columns and many rows. Small screen tabs have a singlecolumn-like placement
 with many rows.
 
-![Tab Editor](../assets/home-screen-tab-editor.png)
+![Home settings: the list of home tabs, which can be reordered](../assets/home-screen-tab-editor.png "Home settings: the list of home tabs, which can be reordered")
 
 There are many types of widgets, and more are constantly added. Some
 examplesare:

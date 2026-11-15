@@ -66,15 +66,13 @@ import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { countSummary } from "#/core/infra/component/count-summary";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { TimePlanActivityList } from "#/core/apps/time_plans/sub/activity/component/list";
 import { saveScoreAction } from "#/core/gamification/scores.server";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   SectionActions,
@@ -84,7 +82,6 @@ import {
 } from "#/core/infra/component/section-actions";
 import { BigPlanMilestoneStack } from "#/core/apps/big_plans/sub/milestones/component/stack";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 import {
   handleActionApiError,
@@ -100,6 +97,8 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 enum InboxTasksView {
   KANBAN_BY_EISEN = "kanban-by-eisen",
@@ -194,6 +193,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "M" } satisfies StrataHandle,
+  label: strataEntityLabel("Big plan"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -473,7 +474,6 @@ export default function BigPlan() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
@@ -678,7 +678,9 @@ export default function BigPlan() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
+      sectionsPanelId="big-plan"
       key={`big-plan-${loaderData.bigPlan.ref_id}`}
       entityType={NamedEntityTag.BIG_PLAN}
       entityRefId={loaderData.bigPlan.ref_id}
@@ -687,15 +689,13 @@ export default function BigPlan() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.bigPlan.archived}
       returnLocation={"/app/workspace/apps/big-plans"}
-      shouldShowALeaflet={shouldShowALeaflet}
-      initialExpansionState={LeafPanelExpansionState.MEDIUM}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
       accessable
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <BigPlanPropertiesEditor
           title="Properties"
@@ -719,22 +719,26 @@ export default function BigPlan() {
           actionData={actionData}
         />
 
-        <SectionCard
+        <StrataSection
+          id="big-plan-note-section"
+          items={loaderData.note ? 1 : 0}
           title="Note"
+          summary={loaderData.note ? "written" : "none yet"}
           actions={
-            <SectionActions
-              id="person-note"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                ActionSingle({
-                  text: "Create Note",
-                  value: "create-note",
-                  highlight: false,
-                  disabled: loaderData.note !== null,
-                }),
-              ]}
-            />
+            loaderData.note !== null ? undefined : (
+              <SectionActions
+                id="person-note"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  ActionSingle({
+                    text: "Create Note",
+                    value: "create-note",
+                    highlight: false,
+                  }),
+                ]}
+              />
+            )
           }
         >
           {loaderData.note && (
@@ -745,11 +749,18 @@ export default function BigPlan() {
               />
             </>
           )}
-        </SectionCard>
+        </StrataSection>
 
-        <SectionCard
+        <StrataSection
           id="big-plan-milestones"
+          items={loaderData.milestones.length}
+          split={{ size: 1 }}
           title="Milestones"
+          summary={countSummary(
+            loaderData.milestones.length,
+            "milestone",
+            "milestones",
+          )}
           actions={
             <SectionActions
               id="big-plan-milestones"
@@ -765,11 +776,13 @@ export default function BigPlan() {
           }
         >
           <BigPlanMilestoneStack milestones={loaderData.milestones} />
-        </SectionCard>
+        </StrataSection>
 
-        <SectionCard
+        <StrataSection
           id="big-plan-inbox-tasks"
+          items={sortedInboxTasks.length}
           title="Inbox Tasks"
+          summary={countSummary(sortedInboxTasks.length, "task", "tasks")}
           actions={
             <SectionActions
               id="big-plan-inbox-tasks"
@@ -929,7 +942,7 @@ export default function BigPlan() {
               }
             />
           )}
-        </SectionCard>
+        </StrataSection>
 
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
@@ -949,9 +962,16 @@ export default function BigPlan() {
           WorkspaceFeature.TIME_PLANS,
         ) &&
           timePlanActivities && (
-            <SectionCard
+            <StrataSection
               id="big-plan-time-plans"
+              items={timePlanActivities.length}
+              split={{ size: 1 }}
               title="Time Plans"
+              summary={countSummary(
+                timePlanActivities.length,
+                "activity",
+                "activities",
+              )}
               actions={
                 <SectionActions
                   id="big-plan-time-plans-actions"
@@ -981,12 +1001,12 @@ export default function BigPlan() {
                 fullInfo={false}
                 showTimePlanName={true}
               />
-            </SectionCard>
+            </StrataSection>
           )}
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

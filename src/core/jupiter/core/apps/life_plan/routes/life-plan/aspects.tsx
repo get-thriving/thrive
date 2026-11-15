@@ -1,3 +1,4 @@
+import { Stack } from "@mui/material";
 import type { LifePlan, Tag } from "@jupiter/webapi-client";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import AddIcon from "@mui/icons-material/Add";
@@ -16,13 +17,8 @@ import { EntityStack } from "#/core/infra/component/entity-stack";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   FilterManyOptions,
   NavSingle,
@@ -39,6 +35,7 @@ import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "Aspects",
 };
 
 const ParamsSchema = z.object({});
@@ -78,8 +75,6 @@ const FILTERS = z.object({
 export default function Aspects() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
@@ -105,41 +100,39 @@ export default function Aspects() {
   });
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="life-plan-aspects"
       fakeKey="life-plan-aspects"
       returnLocation="/app/workspace/apps/life-plan"
-      shouldShowALeaflet={shouldShowALeaflet}
       inputsEnabled={inputsEnabled}
+      actions={
+        <SectionActions
+          id="life-plan-aspects"
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          actions={[
+            NavSingle({
+              text: "New Aspect",
+              link: `/app/workspace/apps/life-plan/aspects/new`,
+              icon: <AddIcon />,
+              id: "new-aspect",
+            }),
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              selectedTagsRefId,
+              (tags) => setFilters({ tags }),
+            ),
+          ]}
+        />
+      }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
-        <SectionCard
-          title="Aspects"
-          actions={
-            <SectionActions
-              id="life-plan-aspects"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                NavSingle({
-                  text: "New Aspect",
-                  link: `/app/workspace/apps/life-plan/aspects/new`,
-                  icon: <AddIcon />,
-                  id: "new-aspect",
-                }),
-                FilterManyOptions(
-                  "Tags",
-                  loaderData.allTags.map((tag) => ({
-                    value: tag.ref_id,
-                    text: tag.name,
-                  })),
-                  selectedTagsRefId,
-                  (tags) => setFilters({ tags }),
-                ),
-              ]}
-            />
-          }
-        >
+      <NestingAwareBlock>
+        <Stack spacing={1.25}>
           {sortedAspects.length === 0 && (
             <EntityNoNothingCard
               title="You Have To Start Somewhere"
@@ -167,11 +160,11 @@ export default function Aspects() {
               </EntityCard>
             ))}
           </EntityStack>
-        </SectionCard>
+        </Stack>
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

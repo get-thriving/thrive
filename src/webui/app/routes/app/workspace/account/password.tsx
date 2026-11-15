@@ -10,7 +10,7 @@ import { z } from "zod";
 import { parseForm } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { Password } from "@jupiter/core/auth/component/password";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
@@ -41,6 +41,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "Password",
 };
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -93,7 +94,8 @@ export default function AccountPassword() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="account/password"
       fakeKey="account/password"
       returnLocation="/app/workspace/account"
@@ -165,7 +167,7 @@ export default function AccountPassword() {
           />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -46,10 +46,11 @@ import { ChorePropertiesEditor } from "#/core/apps/chores/component/properties-e
 import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { countSummary } from "#/core/infra/component/count-summary";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   NavSingle,
@@ -69,6 +70,8 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -131,6 +134,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "M" } satisfies StrataHandle,
+  label: strataEntityLabel("Chore"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -501,7 +506,9 @@ export default function Chore() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
+      sectionsPanelId="chore"
       key={`chore-${loaderData.chore.ref_id}`}
       entityType={NamedEntityTag.CHORE}
       entityRefId={loaderData.chore.ref_id}
@@ -540,22 +547,26 @@ export default function Chore() {
         actionData={actionData}
       />
 
-      <SectionCard
+      <StrataSection
+        id="chore-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
+        summary={loaderData.note ? "written" : "none yet"}
         actions={
-          <SectionActions
-            id="chore-note"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                text: "Create Note",
-                value: "create-note",
-                highlight: false,
-                disabled: loaderData.note !== null,
-              }),
-            ]}
-          />
+          loaderData.note !== null ? undefined : (
+            <SectionActions
+              id="chore-note"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  text: "Create Note",
+                  value: "create-note",
+                  highlight: false,
+                }),
+              ]}
+            />
+          )
         }
       >
         {loaderData.note && (
@@ -566,7 +577,7 @@ export default function Chore() {
             />
           </>
         )}
-      </SectionCard>
+      </StrataSection>
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
@@ -586,9 +597,16 @@ export default function Chore() {
         WorkspaceFeature.TIME_PLANS,
       ) &&
         loaderData.timePlanActivities && (
-          <SectionCard
+          <StrataSection
             id="chore-time-plans"
+            items={loaderData.timePlanActivities.length}
+            split={{ size: 1 }}
             title="Time Plans"
+            summary={countSummary(
+              loaderData.timePlanActivities.length,
+              "activity",
+              "activities",
+            )}
             actions={
               <SectionActions
                 id="chore-time-plans-actions"
@@ -629,10 +647,15 @@ export default function Chore() {
               fullInfo={false}
               showTimePlanName={true}
             />
-          </SectionCard>
+          </StrataSection>
         )}
 
-      <SectionCard title="Inbox Tasks">
+      <StrataSection
+        id="chore-inbox-tasks"
+        items={loaderData.inboxTasksTotalCnt}
+        title="Inbox Tasks"
+        summary={countSummary(loaderData.inboxTasksTotalCnt, "task", "tasks")}
+      >
         {sortedInboxTasks.length > 0 && (
           <InboxTaskStack
             topLevelInfo={topLevelInfo}
@@ -655,8 +678,8 @@ export default function Chore() {
             }
           />
         )}
-      </SectionCard>
-    </LeafPanel>
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

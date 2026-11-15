@@ -12,7 +12,7 @@ import { parseForm } from "zodix";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   SectionCard,
@@ -46,6 +46,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: "New goal",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -99,9 +100,9 @@ export default function NewGoal() {
   );
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key="goals/new"
-      isLeaflet
       fakeKey={"goals/new"}
       returnLocation="/app/workspace/apps/life-plan/goals"
       inputsEnabled={inputsEnabled}
@@ -172,7 +173,7 @@ export default function NewGoal() {
           />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -9,7 +9,7 @@ import { LocationsEditor } from "@jupiter/core/common/sub/locations/component/lo
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { DocEditor } from "@jupiter/core/apps/docs/component/editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
@@ -70,10 +70,10 @@ export default function PublishedDocFromDir() {
   const { doc, note, tags, location, externalId, dirId } = loaderData;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key={`published-doc-${doc.ref_id}`}
       fakeKey={`published-doc-${doc.ref_id}`}
-      isLeaflet
       inputsEnabled={false}
       entityNotEditable={true}
       returnLocation={`/doc/dirtree/${externalId}/${dirId}`}
@@ -109,7 +109,7 @@ export default function PublishedDocFromDir() {
         />
       </SectionCard>
       <EntityLocationMapSection location={location} />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

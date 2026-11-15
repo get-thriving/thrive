@@ -207,7 +207,7 @@ export function RecurringTaskSkipRuleBlock(
   const everyBlock = (
     <>
       {editingInfo.theType === SkipRuleType.EVERY && (
-        <Stack spacing={2} useFlexGap direction="row">
+        <Stack spacing={1.25} useFlexGap direction="row">
           <FormControl fullWidth>
             <InputLabel>Every N</InputLabel>
             <OutlinedInput
@@ -416,7 +416,7 @@ export function RecurringTaskSkipRuleBlock(
   switch (props.period) {
     case RecurringTaskPeriod.DAILY:
       return (
-        <Stack spacing={2} useFlexGap>
+        <Stack spacing={1.25} useFlexGap>
           <FormLabel id="period">Skip Rule</FormLabel>
           <ToggleButtonGroup
             value={editingInfo.theType}
@@ -485,7 +485,7 @@ export function RecurringTaskSkipRuleBlock(
       );
     case RecurringTaskPeriod.WEEKLY:
       return (
-        <Stack spacing={2} useFlexGap>
+        <Stack spacing={1.25} useFlexGap>
           <FormLabel id="period">Skip Rule</FormLabel>
           <ToggleButtonGroup
             value={editingInfo.theType}
@@ -543,7 +543,7 @@ export function RecurringTaskSkipRuleBlock(
       );
     case RecurringTaskPeriod.MONTHLY:
       return (
-        <Stack spacing={2} useFlexGap>
+        <Stack spacing={1.25} useFlexGap>
           <FormLabel id="period">Skip Rule</FormLabel>
           <ToggleButtonGroup
             value={editingInfo.theType}
@@ -601,7 +601,7 @@ export function RecurringTaskSkipRuleBlock(
       );
     case RecurringTaskPeriod.QUARTERLY:
       return (
-        <Stack spacing={2} useFlexGap>
+        <Stack spacing={1.25} useFlexGap>
           <FormLabel id="period">Skip Rule</FormLabel>
           <ToggleButtonGroup
             value={editingInfo.theType}
@@ -659,7 +659,7 @@ export function RecurringTaskSkipRuleBlock(
       );
     case RecurringTaskPeriod.YEARLY:
       return (
-        <Stack spacing={2} useFlexGap>
+        <Stack spacing={1.25} useFlexGap>
           <FormLabel id="period">Skip Rule</FormLabel>
           <ToggleButtonGroup
             value={editingInfo.theType}

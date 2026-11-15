@@ -1,79 +1,71 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
+import { ColorScheme } from "@jupiter/webapi-client";
 import type {
   LoaderFunctionArgs,
+  MiddlewareFunction,
   ShouldRevalidateFunction,
 } from "react-router";
-import {
-  data,
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  useLoaderData,
-} from "react-router";
+import { Links, Meta, Outlet, Scripts, useLoaderData } from "react-router";
 import { SnackbarProvider } from "notistack";
-import { StrictMode, useEffect, useMemo } from "react";
+import { StrictMode, useEffect } from "react";
 import { EnvBanner } from "@jupiter/core/infra/component/env-banner";
 import { serverToClientGlobalProperties } from "@jupiter/core/config-client";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { getPublicName } from "#/core/utils";
 import {
-  ApplyColorSchemeScript,
-  htmlColorSchemeStyle,
-  useSystemNightMode,
-} from "@jupiter/core/infra/component/color-scheme";
-import { buildTheme } from "@jupiter/core/infra/component/theme";
-import { OS_NIGHT_MODE_COOKIE_NAME } from "@jupiter/core/infra/names";
-import { readBooleanCookie } from "@jupiter/core/infra/night-mode";
-import {
-  loadNightModePreference,
-  saveNightModePreference,
-} from "@jupiter/core/infra/night-mode.server";
+  buildStrataTheme,
+  STRATA_APP_BACKGROUND,
+} from "@jupiter/core/infra/component/strata-theme";
+import { ApplyColorSchemeScript } from "@jupiter/core/infra/component/apply-color-scheme-script";
+import { StrataColorVariables } from "@jupiter/core/infra/component/strata-color-variables";
+import { useColorScheme } from "@jupiter/core/infra/component/use-color-scheme";
+import { readOsColorScheme } from "@jupiter/core/infra/os-color-scheme";
 import { isWorkspacePath } from "@jupiter/core/infra/routes";
-import interFontCss from "@fontsource-variable/inter/wght.css?url";
-import interItalicFontCss from "@fontsource-variable/inter/wght-italic.css?url";
-import frauncesFontCss from "@fontsource-variable/fraunces/wght.css?url";
+import plexSans400Css from "@fontsource/ibm-plex-sans/400.css?url";
+import plexSans400ItalicCss from "@fontsource/ibm-plex-sans/400-italic.css?url";
+import plexSans500Css from "@fontsource/ibm-plex-sans/500.css?url";
+import plexSans600Css from "@fontsource/ibm-plex-sans/600.css?url";
+import plexMono400Css from "@fontsource/ibm-plex-mono/400.css?url";
+import plexMono500Css from "@fontsource/ibm-plex-mono/500.css?url";
+import plexSerif400Css from "@fontsource/ibm-plex-serif/400.css?url";
+import plexSerif500Css from "@fontsource/ibm-plex-serif/500.css?url";
 import type { LoaderDataOf } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getGuestApiClient } from "@jupiter/core/infra/api-clients.server";
+import { carrySectionFiltersThroughRedirects } from "@jupiter/core/infra/carry-section-filters-through-redirects";
 
-import { SERVICE_PROPERTIES } from "~/logic/config.server";
+const THEMES = {
+  dark: buildStrataTheme("dark"),
+  light: buildStrataTheme("light"),
+};
+
+export const middleware: MiddlewareFunction<Response>[] = [
+  carrySectionFiltersThroughRedirects,
+];
 
 export async function loader({ request, url }: LoaderFunctionArgs) {
-  const cookieHeader = request.headers.get("Cookie");
-  const inWorkspace = isWorkspacePath(url.pathname);
+  let colorScheme: ColorScheme = ColorScheme.SYSTEM;
+  let useExpandedRail = false;
+  let keyBindings: Record<string, string> | undefined = undefined;
 
-  let userNightMode: boolean | null = null;
-  const headers = new Headers();
-
-  if (inWorkspace) {
+  if (isWorkspacePath(url.pathname)) {
     try {
       const apiClient = await getGuestApiClient(request);
       const result = await apiClient.users.webUiSettingsLoad({});
-      userNightMode = result.web_ui_settings.use_night_mode;
-      headers.append(
-        "Set-Cookie",
-        await saveNightModePreference(
-          userNightMode,
-          SERVICE_PROPERTIES.sessionCookieSecure,
-        ),
-      );
+      colorScheme = result.web_ui_settings.color_scheme;
+      useExpandedRail = result.web_ui_settings.use_expanded_rail;
+      keyBindings = result.web_ui_settings.key_bindings;
     } catch {
-      // Not authenticated or settings missing — last stored preference, then OS.
-      userNightMode = loadNightModePreference(cookieHeader);
+      // Not authenticated or settings missing: the default.
     }
   }
 
-  return data(
-    {
-      globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
-      userNightMode,
-      osNightModeHint: readBooleanCookie(
-        cookieHeader,
-        OS_NIGHT_MODE_COOKIE_NAME,
-      ),
-    },
-    headers.has("Set-Cookie") ? { headers } : undefined,
-  );
+  return {
+    globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
+    colorScheme,
+    osColorScheme: readOsColorScheme(request.headers.get("Cookie")),
+    useExpandedRail,
+    keyBindings,
+  };
 }
 
 export function meta({
@@ -86,9 +78,14 @@ export function meta({
 
 export function links() {
   return [
-    { rel: "stylesheet", href: interFontCss },
-    { rel: "stylesheet", href: interItalicFontCss },
-    { rel: "stylesheet", href: frauncesFontCss },
+    { rel: "stylesheet", href: plexSans400Css },
+    { rel: "stylesheet", href: plexSans400ItalicCss },
+    { rel: "stylesheet", href: plexSans500Css },
+    { rel: "stylesheet", href: plexSans600Css },
+    { rel: "stylesheet", href: plexMono400Css },
+    { rel: "stylesheet", href: plexMono500Css },
+    { rel: "stylesheet", href: plexSerif400Css },
+    { rel: "stylesheet", href: plexSerif500Css },
     { rel: "manifest", href: "/pwa-manifest" },
   ];
 }
@@ -100,7 +97,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   if (nextUrl.searchParams.has("invalidateTopLevel")) {
     return true;
   }
-  // Cross the workspace boundary (login ↔ workspace) so theme source switches.
+  // Cross the workspace boundary (login ↔ workspace) so the user's settings load.
   return (
     isWorkspacePath(currentUrl.pathname) !== isWorkspacePath(nextUrl.pathname)
   );
@@ -108,12 +105,9 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 
 export default function Root() {
   const loaderData = useLoaderData<typeof loader>();
-
-  const systemNightMode = useSystemNightMode(loaderData.osNightModeHint);
-  const effectiveNightMode = loaderData.userNightMode ?? systemNightMode;
-  const theme = useMemo(
-    () => buildTheme(effectiveNightMode),
-    [effectiveNightMode],
+  const scheme = useColorScheme(
+    loaderData.colorScheme,
+    loaderData.osColorScheme,
   );
 
   // Effects only run once hydration has committed, so this tells the itests
@@ -126,7 +120,8 @@ export default function Root() {
     <html
       lang="en"
       suppressHydrationWarning
-      style={htmlColorSchemeStyle(effectiveNightMode)}
+      data-color-scheme={scheme}
+      style={{ backgroundColor: STRATA_APP_BACKGROUND }}
     >
       <head>
         {/* In the document rather than in `meta`: a route's `meta` replaces
@@ -142,13 +137,16 @@ export default function Root() {
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
         />
-        <ApplyColorSchemeScript />
+        <StrataColorVariables />
+        <ApplyColorSchemeScript
+          followDevice={loaderData.colorScheme === ColorScheme.SYSTEM}
+        />
         <Meta />
         <Links />
       </head>
       <body>
         <StrictMode>
-          <ThemeProvider theme={theme}>
+          <ThemeProvider theme={THEMES[scheme]}>
             <SnackbarProvider>
               <CssBaseline enableColorScheme />
               <EnvBanner env={loaderData.globalProperties.env} />

@@ -15,22 +15,20 @@ import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { ToolPanel } from "#/core/infra/component/layout/tool-panel";
-import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   SectionActions,
   NavSingle,
 } from "#/core/infra/component/section-actions";
 import { SectionCard } from "#/core/infra/component/section-card";
-import {
-  DisplayType,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { handleActionApiError } from "#/core/infra/errors.server";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataTrunkLabel } from "#/core/infra/strata/strata-trunk-label";
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
@@ -49,6 +47,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "FULL" } satisfies StrataHandle,
+  label: strataTrunkLabel,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -103,13 +103,12 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 export default function WorkingMem() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const navigation = useNavigation();
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"working-mem"}
       returnLocation="/app/workspace"
       entityType={NamedEntityTag.WORKING_MEM}
@@ -132,10 +131,7 @@ export default function WorkingMem() {
         />
       }
     >
-      <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeafToo}
-      >
+      <NestingAwareBlock>
         <ToolPanel>
           <SectionCard title="Working Mem">
             <EntityNoteEditor
@@ -147,7 +143,7 @@ export default function WorkingMem() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

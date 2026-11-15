@@ -25,23 +25,23 @@ atwhat it can do.
 
 Here's a picture of a typical "home" view:
 
-![Home Page](assets/showcase/home-page.png)
+![The home page: a quote, habit streaks, tasks due, big plans progress and upcoming birthdays](assets/showcase/home-page.png "The home page: a quote, habit streaks, tasks due, big plans progress and upcoming birthdays")
 
 And a picture from the "inbox" view:
 
-![Inbox Tasks](assets/showcase/showcase-desktop-inbox-tasks.png)
+![Inbox tasks grouped by where they come from: habits, chores and other tasks](assets/showcase/showcase-desktop-inbox-tasks.png "Inbox tasks grouped by where they come from: habits, chores and other tasks")
 
 And the calendar view:
 
-![Calendars](assets/showcase/showcase-desktop-calendar.png)
+![The calendar in its weekly view, with each event a block in its stream's colour](assets/showcase/showcase-desktop-calendar.png "The calendar in its weekly view, with each event a block in its stream's colour")
 
 And a metric feature:
 
-![Metrics](assets/showcase/showcase-desktop-metrics.png)
+![A metric with its chart over time and the list of its entries](assets/showcase/showcase-desktop-metrics.png "A metric with its chart over time and the list of its entries")
 
 And finally, a timeplan feature:
 
-![Time Plans](assets/showcase/showcase-desktop-timeplan.png)
+![A time plan with its properties, notes, progress and activities](assets/showcase/showcase-desktop-timeplan.png "A time plan with its properties, notes, progress and activities")
 
 ## Further Reading
 

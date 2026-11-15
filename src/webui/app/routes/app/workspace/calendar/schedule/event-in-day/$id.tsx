@@ -24,7 +24,7 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -43,6 +43,8 @@ import {
 import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -88,6 +90,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "M" } satisfies StrataHandle,
+  label: strataEntityLabel("Event"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -331,7 +335,8 @@ export default function ScheduleEventInDayViewOne() {
   }, [query, debounceForeign]);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`schedule-event-in-day-${loaderData.scheduleEventInDay.ref_id}`}
       entityType={NamedEntityTag.SCHEDULE_EVENT_IN_DAY}
       entityRefId={loaderData.scheduleEventInDay.ref_id}
@@ -406,7 +411,7 @@ export default function ScheduleEventInDayViewOne() {
           </>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

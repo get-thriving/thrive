@@ -6,7 +6,7 @@ These are essentially chores that do not have the _must do_ attribute set.
 Vacations are attached to the workspace. You can see them in the `Vacations`
 left-hand menu tab. An example:
 
-![Vacations Overview](../assets/vacations-overview.png)
+![Vacations: a year heatmap of the days away, and the list of vacations](../assets/vacations-overview.png "Vacations: a year heatmap of the days away, and the list of vacations")
 
 The Vacations app has two views:
 
@@ -33,6 +33,8 @@ Each vacation shows up on the [calendar](calendar.md) as a full day event
 covering the whole trip. Vacations can be
 [shared](collaboration.md) with other Thrive users, and
 [published](publish.md) as a public read-only page.
+
+![A vacation open for editing: its name and the dates it starts and ends](../assets/vacations-update.png "A vacation open for editing: its name and the dates it starts and ends")
 
 ## Travel Wishes
 

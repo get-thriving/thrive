@@ -23,6 +23,7 @@ const DEFAULT_STEP_MS = 1000;
 
 export const handle = {
   displayType: DisplayType.TOOL,
+  label: "Pomodoro timer",
 };
 
 export const shouldRevalidate: ShouldRevalidateFunction =

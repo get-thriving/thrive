@@ -36,6 +36,8 @@ All API endpoints start with `/v1/` to account for this.
 In order to access any API method, you need an API key. This can be
 generated from the accounts page in the application.
 
+![The Access page: connected apps, MCP keys and API keys, with the address of the API and a link to its documentation](../assets/access-keys.png "The Access page: connected apps, MCP keys and API keys, with the address of the API and a link to its documentation")
+
 You can have as many keys as you want, and you can retire/archive
 keys as well.
 

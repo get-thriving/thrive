@@ -116,7 +116,7 @@ export function BirthdaySelect(props: BirthdaySelectProps) {
 
   return (
     <>
-      <Stack spacing={2} useFlexGap direction="row" sx={{ width: "100%" }}>
+      <Stack spacing={1.25} useFlexGap direction="row" sx={{ width: "100%" }}>
         <FormControl fullWidth>
           <InputLabel id={dayLabelId} htmlFor={dayLabelId}>
             Birthday Day

@@ -11,13 +11,12 @@ import {
 } from "@jupiter/core/infra/component/entity-card";
 import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
+import { PanelNewAction } from "@jupiter/core/infra/component/layout/panel-new-action";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import type { StrataHandle } from "@jupiter/core/infra/strata/strata-handle";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
@@ -26,6 +25,8 @@ const ParamsSchema = z.object({});
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "S" } satisfies StrataHandle,
+  label: "Exports",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -47,15 +48,20 @@ export default function ScheduleExportViewAll() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const [query] = useSearchParams();
 
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
-
   return (
-    <BranchPanel
+    <EntityPanel
+      kind="branch"
+      title="Calendar exports"
       key="calendar-schedule-export"
-      createLocation={`/app/workspace/calendar/schedule/export/new?${query}`}
       returnLocation={`/app/workspace/calendar?${query}`}
+      actions={
+        <PanelNewAction
+          kind="branch"
+          link={`/app/workspace/calendar/schedule/export/new?${query}`}
+        />
+      }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <EntityStack>
           {loaderData.entries.map((entry) => (
             <EntityCard
@@ -73,7 +79,7 @@ export default function ScheduleExportViewAll() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </BranchPanel>
+    </EntityPanel>
   );
 }
 

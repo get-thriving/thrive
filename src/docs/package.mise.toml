@@ -2,6 +2,18 @@
 hide = true
 run = "true"
 
+["package:src:docs:fix:black"]
+hide = true
+sources = ["src/docs/screenshots/**/*.py"]
+outputs = { auto = true }
+run = "uv run black src/docs/screenshots"
+
+["package:src:docs:fix:ruff"]
+hide = true
+sources = ["src/docs/screenshots/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/docs/screenshots --fix"
+
 ["package:src:docs:fix:markdownlint"]
 hide = true
 sources = ["src/docs/**/*.md"]
@@ -27,6 +39,30 @@ hide = true
 sources = ["src/docs/package.mise.toml"]
 outputs = { auto = true }
 run = "npx eslint src/docs/package.mise.toml"
+
+["package:src:docs:lint:ruff"]
+hide = true
+sources = ["src/docs/screenshots/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/docs/screenshots"
+
+["package:src:docs:lint:pyflakes"]
+hide = true
+sources = ["src/docs/screenshots/**/*.py"]
+outputs = { auto = true }
+run = "uv run pyflakes src/docs/screenshots"
+
+["package:src:docs:lint:bandit"]
+hide = true
+sources = ["src/docs/screenshots/**/*.py"]
+outputs = { auto = true }
+run = "uv run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.test.ini -r src/docs/screenshots"
+
+["package:src:docs:lint:pydocstyle"]
+hide = true
+sources = ["src/docs/screenshots/**/*.py"]
+outputs = { auto = true }
+run = "uv run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/docs/screenshots"
 
 ["package:src:docs:lint:yamllint"]
 hide = true

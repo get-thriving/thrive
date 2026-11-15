@@ -21,7 +21,7 @@ import { parseForm } from "zodix";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   SectionCard,
@@ -56,6 +56,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: "New chapter",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -109,10 +110,10 @@ export default function NewChapter() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key="chapters/new"
       fakeKey={"chapters/new"}
-      isLeaflet
       returnLocation="/app/workspace/apps/life-plan/chapters"
       inputsEnabled={inputsEnabled}
     >
@@ -188,7 +189,7 @@ export default function NewChapter() {
           <FieldError actionResult={actionData} fieldName="/end_date" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

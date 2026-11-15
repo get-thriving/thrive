@@ -11,6 +11,8 @@ and workspace's data on infrastructure run by theThrive organisation. This is
 the prefferedway to use the system, both for ergonomic and ease of access
 reasons.
 
+![The web app on a desktop browser, with the apps in the sidebar and the Todos open](../assets/todos-swiftview.png "The web app on a desktop browser, with the apps in the sidebar and the Todos open")
+
 ## The Desktop App (macOS)
 
 This is an app that you can download an run like a local native app.
@@ -22,6 +24,8 @@ It currently works on MacOS in global hosted and self hosted mode.
 Thrive is also available as a mobile app for both iOS and Android devices.The
 mobile app works in global hosted and self hosted modes, providingaccess to your
 workspaceon the go. You can download it from the respective app stores.
+
+![The inbox on a phone: habits, chores and the rest as tabs, with the due tasks under each](../assets/clients-mobile-inbox.png "The inbox on a phone: habits, chores and the rest as tabs, with the due tasks under each")
 
 Only works in the global hosted mode.
 

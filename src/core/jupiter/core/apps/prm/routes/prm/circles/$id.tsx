@@ -12,9 +12,9 @@ import { useContext } from "react";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -27,6 +27,8 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -47,6 +49,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "M" } satisfies StrataHandle,
+  label: strataEntityLabel("Circle"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -117,7 +121,8 @@ export default function Circle() {
   const inputsEnabled = navigation.state === "idle" && !circle.archived;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`circle-${circle.ref_id}`}
       entityType={NamedEntityTag.CIRCLE}
       entityRefId={circle.ref_id}
@@ -128,7 +133,9 @@ export default function Circle() {
       returnLocation="/app/workspace/apps/prm/circles"
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        id="circle-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -155,8 +162,8 @@ export default function Circle() {
           />
           <FieldError actionResult={actionData} fieldName="/name" />
         </FormControl>
-      </SectionCard>
-    </LeafPanel>
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

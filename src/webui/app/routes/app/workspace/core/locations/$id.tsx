@@ -22,7 +22,7 @@ import { LocationDedupedBanner } from "@jupiter/core/common/sub/locations/compon
 import { locationGps } from "@jupiter/core/common/sub/locations/sub/location/root";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
@@ -36,6 +36,7 @@ import {
 } from "@jupiter/core/infra/errors.server";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -81,6 +82,7 @@ function gpsFromForm(
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Location"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -177,7 +179,8 @@ export default function LocationDetail() {
   const wasDeduped = searchParams.get("deduped") === "true";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`core/locations/${location.ref_id}`}
       fakeKey={`core/locations/${location.ref_id}`}
       returnLocation="/app/workspace/core/locations"
@@ -206,7 +209,7 @@ export default function LocationDetail() {
           />
         }
       >
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={1.25}>
           <FormControl fullWidth sx={{ flexGrow: 3 }}>
             <InputLabel id="name">Name</InputLabel>
             <OutlinedInput
@@ -252,7 +255,7 @@ export default function LocationDetail() {
           />
           <FieldError actionResult={actionData} fieldName="/country/value" />
         </FormControl>
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={1.25}>
           <FormControl fullWidth>
             <InputLabel id="latitude">Latitude</InputLabel>
             <OutlinedInput
@@ -282,7 +285,7 @@ export default function LocationDetail() {
       </SectionCard>
 
       <EntityLocationMapSection locations={[location]} />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

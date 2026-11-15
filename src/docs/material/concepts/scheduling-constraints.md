@@ -21,6 +21,8 @@ The first constraint is whether the work can be scheduled at all:
   is something you keep to over the whole day, not something you sit down and
   do, so it never becomes a calendar block.
 
+![The scheduling section of a habit: schedulable or not, the time hint and how many events a period gets](../assets/scheduling-constraints-habit.png "The scheduling section of a habit: schedulable or not, the time hint and how many events a period gets")
+
 Everything is schedulable unless you say otherwise.
 
 ## Time Hints

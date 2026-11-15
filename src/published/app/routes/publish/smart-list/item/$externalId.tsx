@@ -6,10 +6,9 @@ import { z } from "zod";
 import { parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { SmartListItemEditor } from "@jupiter/core/apps/smart_lists/sub/item/component/editor";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
@@ -66,14 +65,13 @@ export default function PublishedSmartListItem() {
   const { item, genericTags, contacts, location, note } = loaderData;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`published-smart-list-item-${item.ref_id}`}
       fakeKey={`published-smart-list-item-${item.ref_id}`}
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <SmartListItemEditor
         item={item}
@@ -100,7 +98,7 @@ export default function PublishedSmartListItem() {
           </Typography>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -21,6 +21,8 @@ an Entity](collaborate-on-an-entity.md) instead.
 5. Copy the **public URL** and send it to whoever should view the entity.
 6. Optional: open **View** to check the public page in a new tab.
 
+![The entity menu, opened with the dots in the panel's corner: History, Publish, Access, Archive and Delete](../assets/archival-entity-menu.png "The entity menu, opened with the dots in the panel's corner: History, Publish, Access, Archive and Delete")
+
 To stop sharing, open the publish section again and click **Move to Draft**.
 The link stops working immediately.
 
@@ -41,6 +43,8 @@ docs included.
    entity first (steps above) and return here to manage many links in one place.
 3. Use the publish panel to move between draft and active, or copy the public
    URL.
+
+![The Publish list under Core: every shared entity, with its link and a View button](../assets/publish-list.png "The Publish list under Core: every shared entity, with its link and a View button")
 
 ## What Recipients Do
 

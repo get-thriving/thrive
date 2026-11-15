@@ -50,6 +50,7 @@ import { Fragment, useCallback, useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 
+import { noErrorNoData } from "#/core/infra/action-result";
 import { useRevalidateOnReturn } from "#/core/apps/time_plans/store/revalidate-on-return";
 import { useTimePlanMutation } from "#/core/apps/time_plans/store/mutation";
 import {
@@ -122,7 +123,7 @@ import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
 import { makeBranchErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
-import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
@@ -142,14 +143,12 @@ import {
 } from "#/core/infra/component/section-actions";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 import { sectionFilterBoolean } from "#/core/infra/section-filters";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { countSummary } from "#/core/infra/component/count-summary";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { JournalStack } from "#/core/apps/journals/component/stack";
 import { TimePlanEditor } from "#/core/apps/time_plans/component/editor";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { TimePlanListMergedActivities } from "#/core/apps/time_plans/component/list-merged-activities";
 import { TimePlanListByAspectActivities } from "#/core/apps/time_plans/component/list-by-aspect-activities";
@@ -185,6 +184,8 @@ import type { loader as timePlanActivityLoader } from "#/core/apps/time_plans/ro
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import type { LoaderDataOf } from "#/core/infra/component/use-loader-data-for-animation";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const EISENS = [
   Eisen.IMPORTANT_AND_URGENT,
@@ -260,6 +261,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
+  label: strataEntityLabel("Time plan"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -431,16 +434,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 }
 
-export async function action({ request, url, params }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, UpdateFormSchema);
-  // The form posts to this very page, so the way the plan is being looked at
-  // comes along with it and can be handed back on the way out.
-  const timePlanLocation = withTimePlanDisplay(
-    `/app/workspace/apps/time-plans/${id}`,
-    url.searchParams,
-  );
 
   try {
     switch (form.intent) {
@@ -477,7 +474,8 @@ export async function action({ request, url, params }: ActionFunctionArgs) {
                 }
               : { should_change: false },
         });
-        return redirect(timePlanLocation);
+        // Stays on the page: the way the plan is looked at is in its URL.
+        return noErrorNoData();
       }
 
       case "change-time-config-for-generated": {
@@ -511,7 +509,8 @@ export async function action({ request, url, params }: ActionFunctionArgs) {
                 }
               : { should_change: false },
         });
-        return redirect(timePlanLocation);
+        // Stays on the page: the way the plan is looked at is in its URL.
+        return noErrorNoData();
       }
 
       case "archive": {
@@ -535,7 +534,8 @@ export async function action({ request, url, params }: ActionFunctionArgs) {
           owner: form.publishOwner,
         });
 
-        return redirect(timePlanLocation);
+        // Stays on the page: the way the plan is looked at is in its URL.
+        return noErrorNoData();
       }
 
       case "activate-publish": {
@@ -543,7 +543,8 @@ export async function action({ request, url, params }: ActionFunctionArgs) {
           ref_id: form.publishEntityRefId,
         });
 
-        return redirect(timePlanLocation);
+        // Stays on the page: the way the plan is looked at is in its URL.
+        return noErrorNoData();
       }
 
       case "to-draft-publish": {
@@ -551,7 +552,8 @@ export async function action({ request, url, params }: ActionFunctionArgs) {
           ref_id: form.publishEntityRefId,
         });
 
-        return redirect(timePlanLocation);
+        // Stays on the page: the way the plan is looked at is in its URL.
+        return noErrorNoData();
       }
 
       default:
@@ -655,8 +657,6 @@ function TimePlanViewContent() {
   const isBigScreen = useBigScreen();
   const [query] = useSearchParams();
   const location = useLocation();
-
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
 
@@ -1007,7 +1007,9 @@ function TimePlanViewContent() {
   })();
 
   return (
-    <BranchPanel
+    <EntityPanel
+      kind="branch"
+      sectionsPanelId="time-plan"
       key={`time-plan-${loaderData.timePlan.ref_id}`}
       entityType={NamedEntityTag.TIME_PLAN}
       entityRefId={loaderData.timePlan.ref_id}
@@ -1021,7 +1023,7 @@ function TimePlanViewContent() {
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <TimePlanEditor
           timePlan={loaderData.timePlan}
@@ -1040,15 +1042,20 @@ function TimePlanViewContent() {
           topLevelInfo={topLevelInfo}
           actionResult={actionData}
         />
-        <SectionCard title="Notes">
+        <StrataSection
+          id="time-plan-notes"
+          items={loaderData.note ? 1 : 0}
+          title="Notes"
+          summary={loaderData.note ? "written" : "none yet"}
+        >
           <EntityNoteEditor
             initialNote={loaderData.note}
             inputsEnabled={inputsEnabled}
           />
-        </SectionCard>
+        </StrataSection>
 
         {timePlanShowsTimeAndEffort(loaderData.timePlan) && (
-          <SectionCard id="time-plan-effort" title="Time & Effort">
+          <StrataSection id="time-plan-effort" title="Time & Effort">
             <TimeAndEffortView
               topLevelInfo={topLevelInfo}
               timePlan={loaderData.timePlan}
@@ -1059,7 +1066,7 @@ function TimePlanViewContent() {
               timePlan={loaderData.timePlan}
               timeAndEffortSummary={timeAndEffortSummary}
             />
-          </SectionCard>
+          </StrataSection>
         )}
 
         {timePlanShowsBigPlanProgress(loaderData.timePlan) &&
@@ -1067,14 +1074,21 @@ function TimePlanViewContent() {
             topLevelInfo.workspace,
             WorkspaceFeature.BIG_PLANS,
           ) && (
-            <SectionCard id="time-plan-progress" title="Progress">
+            <StrataSection id="time-plan-progress" title="Progress">
               <BigPlanProgressView summary={bigPlanProgressSummary} />
-            </SectionCard>
+            </StrataSection>
           )}
 
-        <SectionCard
+        <StrataSection
           id="time-plan-activities"
+          items={loaderData.activities.length}
+          split={{ size: 3, grow: true, parentSize: 2 }}
           title="Activities"
+          summary={countSummary(
+            loaderData.activities.length,
+            "activity",
+            "activities",
+          )}
           actions={
             <SectionActions
               id="activities"
@@ -1634,11 +1648,12 @@ function TimePlanViewContent() {
                 }
               />
             )}
-        </SectionCard>
+        </StrataSection>
 
         {loaderData.completedNontargetInboxTasks.length > 0 && (
-          <SectionCard
+          <StrataSection
             id="time-plan-untracked-inbox-tasks"
+            items={loaderData.completedNontargetInboxTasks.length}
             title="Completed & Untracked Inbox Tasks"
           >
             <InboxTaskStack
@@ -1650,13 +1665,14 @@ function TimePlanViewContent() {
               }}
               inboxTasks={loaderData.completedNontargetInboxTasks}
             />
-          </SectionCard>
+          </StrataSection>
         )}
 
         {loaderData.completedNontargetBigPlans &&
           loaderData.completedNontargetBigPlans.length > 0 && (
-            <SectionCard
+            <StrataSection
               id="time-plan-untracked-big-plans"
+              items={loaderData.completedNontargetBigPlans?.length ?? 0}
               title="Completed & Untracked Big Plans"
             >
               <BigPlanStack
@@ -1675,34 +1691,40 @@ function TimePlanViewContent() {
                 bigPlans={loaderData.completedNontargetBigPlans}
                 bigPlanStatsByRefId={bigPlanStatsByRefId}
               />
-            </SectionCard>
+            </StrataSection>
           )}
 
         {sortedSubTimePlans.length > 0 && (
-          <SectionCard id="time-plan-lower" title="Lower Time Plans">
+          <StrataSection
+            id="time-plan-lower"
+            items={sortedSubTimePlans.length}
+            split={{ size: 1 }}
+            title="Lower Time Plans"
+            summary={countSummary(sortedSubTimePlans.length, "plan", "plans")}
+          >
             <TimePlanStack
               topLevelInfo={topLevelInfo}
               timePlans={sortedSubTimePlans}
             />
-          </SectionCard>
+          </StrataSection>
         )}
 
         {loaderData.higherTimePlan && (
-          <SectionCard id="time-plan-higher" title="Higher Time Plan">
+          <StrataSection id="time-plan-higher" title="Higher Time Plan">
             <TimePlanStack
               topLevelInfo={topLevelInfo}
               timePlans={[loaderData.higherTimePlan]}
             />
-          </SectionCard>
+          </StrataSection>
         )}
 
         {loaderData.previousTimePlan && (
-          <SectionCard id="time-plan-previous" title="Previous Time Plan">
+          <StrataSection id="time-plan-previous" title="Previous Time Plan">
             <TimePlanStack
               topLevelInfo={topLevelInfo}
               timePlans={[loaderData.previousTimePlan]}
             />
-          </SectionCard>
+          </StrataSection>
         )}
 
         {isWorkspaceFeatureAvailable(
@@ -1710,7 +1732,11 @@ function TimePlanViewContent() {
           WorkspaceFeature.JOURNALS,
         ) &&
           (loaderData.journal || sortedSubJournals.length > 0) && (
-            <SectionCard id="time-plan-journal" title="Journal For This Plan">
+            <StrataSection
+              id="time-plan-journal"
+              items={(loaderData.journal ? 1 : 0) + sortedSubJournals.length}
+              title="Journal For This Plan"
+            >
               {loaderData.journal && (
                 <JournalStack
                   topLevelInfo={topLevelInfo}
@@ -1724,12 +1750,12 @@ function TimePlanViewContent() {
                   journals={sortedSubJournals}
                 />
               )}
-            </SectionCard>
+            </StrataSection>
           )}
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </BranchPanel>
+    </EntityPanel>
   );
 }
 

@@ -25,9 +25,9 @@ import { parseForm, parseParams } from "zodix";
 import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   SectionActions,
   ActionSingle,
@@ -46,6 +46,7 @@ import {
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -72,6 +73,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: strataEntityLabel("Chapter"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -187,11 +189,12 @@ export default function Chapter() {
     navigation.state === "idle" && !loaderData.chapter.archived;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
+      sectionsPanelId="life-plan-chapter"
       key={`chapter-${loaderData.chapter.ref_id}`}
       entityType={NamedEntityTag.CHAPTER}
       entityRefId={loaderData.chapter.ref_id}
-      isLeaflet
       fakeKey={`chapters-${loaderData.chapter.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
@@ -199,7 +202,9 @@ export default function Chapter() {
       returnLocation="/app/workspace/apps/life-plan/chapters"
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        id="chapter-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -279,24 +284,27 @@ export default function Chapter() {
           />
           <FieldError actionResult={actionData} fieldName="/end_date" />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="chapter-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
-          <SectionActions
-            id="chapter-note"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                text: "Create Note",
-                value: "create-note",
-                highlight: false,
-                disabled: loaderData.note !== null,
-              }),
-            ]}
-          />
+          loaderData.note !== null ? undefined : (
+            <SectionActions
+              id="chapter-note"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  text: "Create Note",
+                  value: "create-note",
+                  highlight: false,
+                }),
+              ]}
+            />
+          )
         }
       >
         {loaderData.note && (
@@ -305,8 +313,8 @@ export default function Chapter() {
             inputsEnabled={inputsEnabled}
           />
         )}
-      </SectionCard>
-    </LeafPanel>
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

@@ -15,12 +15,12 @@ create one.
 On accessing Thrive you should just see a basic button which you _need to
 click_.
 
-![Go To Workspace](assets/tutorial-go-to-workspace.png)
+![The Thrive front door, with the "Go To The Workspace" button to press first](assets/tutorial-go-to-workspace.png "The Thrive front door, with the Go To The Workspace button to press first")
 
 You'll see a login form. You need to press `New Workspace` and you'll be
 prompted with the following:
 
-![Init](assets/tutorial-init.png)
+![The new account form: email, name, password and the Create button](assets/tutorial-init.png "The new account form: email, name, password and the Create button")
 
 You can check what the advanced and [feature
 flags](concepts/feature-flags.md)accordions if you're curious.
@@ -29,26 +29,31 @@ Press `Create` and you will be shown an [account recovery
 token](how-tos/recover-your-account.md) thatyou need to store in a safe space.
 Once you do that, you can proceed to _your newly created workspace_.
 
-This will be empty and minimalistic from a features point of view:
+This is where everything lives. The left sidebar lists the apps; open the
+`Todos` one. Todos are the simplest way to capture work, and they are the best
+place to start:
 
-![Empty Workspace](assets/tutorial-empty-workspace.png)
+![The Todos app, with todos grouped by when they are due and the New button at the top](assets/tutorial-todos.png "The Todos app, with todos grouped by when they are due and the New button at the top")
 
-## Create An Inbox Task
+## Create A Todo
 
-Let's create an inbox task. Press `Create` and you'll be prompted with something
-like this:
+Let's create a todo. Press `New` and a form opens on the right:
 
-![New Inbox Task](assets/tutorial-new-inbox-task.png)
+![The new todo form, with the name filled in and the Create button below](assets/tutorial-new-todo.png "The new todo form, with the name filled in and the Create button below")
 
-Name the task `My fist task` and press `Create`. Things should look like this
-now:
+Name it `My first task` and press `Create`. It shows up in the list, grouped by
+its due date:
 
-![Created Inbox Task](assets/tutorial-after-new-task-creation.png)
+![The new todo in the Todos list, ready to be worked on](assets/tutorial-created-todo.png "The new todo in the Todos list, ready to be worked on")
 
-Switch over to the `Kanban By Eisen` view and drag and drop the task to the
-`Done` column. Things shouldlook like this now:
+Switch over to the `Kanban by Eisen` view, using the view picker at the top of
+the list. Open the task and press `Mark Done`. The task moves to the `Done`
+column of its Eisenhower row:
 
-![Done Task](assets/tutorial-task-kanban.png)
+![The Kanban by Eisen view, with the finished task in the Done column](assets/tutorial-todo-kanban.png "The Kanban by Eisen view, with the finished task in the Done column")
+
+You can do all of this from the keyboard too: see [Work With The
+Keyboard](how-tos/work-with-the-keyboard.md).
 
 ## Congrats
 

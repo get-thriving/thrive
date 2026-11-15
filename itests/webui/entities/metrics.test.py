@@ -42,6 +42,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 from playwright.sync_api import Page, expect
 
 from itests.helpers import (
+    click_entity_archive,
+    expect_entity_archive_disabled,
     get_parsed_from_response,
     open_branch_publish_panel,
     open_leaf_publish_panel,
@@ -370,7 +372,7 @@ def test_webui_metric_acl_reader_can_read_but_not_update_or_archive(
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Metric")
     expect(page.locator('input[name="name"]')).to_be_disabled()
     expect(page.locator("button[id='metric-update']")).to_be_disabled()
-    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+    expect_entity_archive_disabled(page, "leaf")
 
 
 def test_webui_metric_acl_writer_can_read_and_update(
@@ -413,7 +415,7 @@ def test_webui_metric_acl_writer_can_read_and_archive(
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Archive Metric")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_url(f"/app/workspace/apps/metrics/{metric.ref_id}")

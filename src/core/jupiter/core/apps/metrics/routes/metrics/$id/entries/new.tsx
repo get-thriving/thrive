@@ -17,7 +17,7 @@ import { parseForm, parseParams } from "zodix";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -50,6 +50,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New entry",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -104,7 +105,8 @@ export default function NewMetricEntry() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`metric-${id}/entries/new`}
       fakeKey={`metric-${id}/entries/new`}
       returnLocation={`/app/workspace/apps/metrics/${loaderData.metric.ref_id}`}
@@ -166,7 +168,7 @@ export default function NewMetricEntry() {
           <FieldError actionResult={actionData} fieldName="/value" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

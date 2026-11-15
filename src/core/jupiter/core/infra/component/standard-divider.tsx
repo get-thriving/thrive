@@ -1,38 +1,25 @@
-import { Divider, Typography } from "@mui/material";
+import { Box } from "@mui/material";
+
+import { StrataSectionLabel } from "#/core/infra/component/strata/strata-section-label";
 
 interface StandardDividerProps {
   title: string;
   size: "small" | "medium" | "large";
 }
 
+/** A section is a mono label, a group a plain bold line (ADR 0019). */
 export function StandardDivider(props: StandardDividerProps) {
-  return (
-    <Divider
-      variant="fullWidth"
+  return props.size === "medium" ? (
+    <Box
       sx={{
-        "& .MuiDivider-wrapper": {
-          width: "100%",
-        },
-        ...(props.size !== "small"
-          ? { marginTop: "0.75rem", marginBottom: "0.75rem" }
-          : {}),
+        padding: "8px 4px 4px",
+        fontWeight: 600,
+        color: "text.primary",
       }}
     >
-      <Typography
-        variant={
-          props.size === "small"
-            ? "subtitle2"
-            : props.size === "medium"
-              ? "subtitle2"
-              : "h6"
-        }
-        sx={{
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-        }}
-      >
-        {props.title}
-      </Typography>
-    </Divider>
+      {props.title}
+    </Box>
+  ) : (
+    <StrataSectionLabel>{props.title}</StrataSectionLabel>
   );
 }

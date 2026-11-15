@@ -14,7 +14,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
@@ -36,7 +36,9 @@ export function VacationEditor(props: VacationEditorProps) {
 
   return (
     <>
-      <SectionCard
+      <StrataSection
+        id="vacation-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -145,7 +147,7 @@ export function VacationEditor(props: VacationEditorProps) {
 
           <FieldError actionResult={props.actionResult} fieldName="/end_date" />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
       <EntityLocationMapSection locations={locations} />
     </>
   );
