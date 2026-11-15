@@ -1314,6 +1314,7 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
         ) = False,
         filter_ref_ids: Iterable[EntityId] | None = None,
         filter_status: Iterable[InboxTaskStatus] | NoFilter = NO_FILTER,
+        filter_completed_after: Timestamp | NoFilter = NO_FILTER,
     ) -> list[InboxTask]:
         """Find inbox tasks whose owner matches any of the given type:purpose prefixes."""
 
