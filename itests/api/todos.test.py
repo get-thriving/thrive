@@ -1,11 +1,16 @@
 """Tests for the API for todo tasks."""
 
+import time
 from collections.abc import Iterator
+from datetime import UTC, datetime, timedelta
 
 import pytest
 import requests
 from jupiter_webapi_client.api.application.invite_users_to_entity import (
     sync_detailed as invite_users_to_entity_sync,
+)
+from jupiter_webapi_client.api.inbox_tasks.inbox_task_update import (
+    sync_detailed as inbox_task_update_sync,
 )
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
@@ -16,10 +21,36 @@ from jupiter_webapi_client.api.todo.todo_task_archive import (
 from jupiter_webapi_client.api.todo.todo_task_create import (
     sync_detailed as todo_task_create_sync,
 )
+from jupiter_webapi_client.api.todo.todo_task_find import (
+    sync_detailed as todo_task_find_sync,
+)
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
+from jupiter_webapi_client.models.inbox_task_status import InboxTaskStatus
+from jupiter_webapi_client.models.inbox_task_update_args import InboxTaskUpdateArgs
+from jupiter_webapi_client.models.inbox_task_update_args_actionable_date import (
+    InboxTaskUpdateArgsActionableDate,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_difficulty import (
+    InboxTaskUpdateArgsDifficulty,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_due_date import (
+    InboxTaskUpdateArgsDueDate,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_eisen import (
+    InboxTaskUpdateArgsEisen,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_is_key import (
+    InboxTaskUpdateArgsIsKey,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_name import (
+    InboxTaskUpdateArgsName,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_status import (
+    InboxTaskUpdateArgsStatus,
+)
 from jupiter_webapi_client.models.invite_users_to_entity_args import (
     InviteUsersToEntityArgs,
 )
@@ -28,6 +59,8 @@ from jupiter_webapi_client.models.todo_task import TodoTask
 from jupiter_webapi_client.models.todo_task_archive_args import TodoTaskArchiveArgs
 from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
 from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
+from jupiter_webapi_client.models.todo_task_find_args import TodoTaskFindArgs
+from jupiter_webapi_client.models.todo_task_find_result import TodoTaskFindResult
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
@@ -178,6 +211,127 @@ def test_api_todo_find(api_url: str, api_key: str, create_todo) -> None:
     names = [e["todo_task"]["name"] for e in response.json()["entries"]]
     assert "Todo Alpha" in names
     assert "Todo Beta" in names
+
+
+@pytest.fixture()
+def create_finished_todo(logged_in_client: AuthenticatedClient, create_todo):
+    """Create a todo and finish it, which stamps the completion time of its inbox task."""
+
+    def _create(name: str) -> TodoTask:
+        todo = create_todo(name)
+        todo_entry = _find_todos(logged_in_client, include_inbox_tasks=True)
+        inbox_task = next(
+            e.inbox_task for e in todo_entry if e.todo_task.ref_id == todo.ref_id
+        )
+        inbox_task_update_sync(
+            client=logged_in_client,
+            body=InboxTaskUpdateArgs(
+                ref_id=inbox_task.ref_id,
+                name=InboxTaskUpdateArgsName(should_change=False),
+                status=InboxTaskUpdateArgsStatus(
+                    should_change=True, value=InboxTaskStatus.DONE
+                ),
+                eisen=InboxTaskUpdateArgsEisen(should_change=False),
+                difficulty=InboxTaskUpdateArgsDifficulty(should_change=False),
+                actionable_date=InboxTaskUpdateArgsActionableDate(should_change=False),
+                due_date=InboxTaskUpdateArgsDueDate(should_change=False),
+                is_key=InboxTaskUpdateArgsIsKey(should_change=False),
+            ),
+        )
+        return todo
+
+    return _create
+
+
+def _find_todos(client: AuthenticatedClient, **kwargs):
+    result = todo_task_find_sync(client=client, body=TodoTaskFindArgs(**kwargs))
+    return get_parsed_from_response(TodoTaskFindResult, result).entries
+
+
+def _names(entries) -> set[str]:
+    return {e.todo_task.name for e in entries}
+
+
+def _timestamp(value: datetime) -> str:
+    return value.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
+
+
+def test_api_todo_find_only_archived(
+    logged_in_client: AuthenticatedClient, create_todo, archive_todo
+) -> None:
+    open_todo = create_todo("Only Archived: still open")
+    archived_todo = create_todo("Only Archived: archived")
+    archive_todo(archived_todo.ref_id)
+
+    # Archived ones stay out unless asked for, and then they come with the rest...
+    assert _names(_find_todos(logged_in_client)) >= {open_todo.name}
+    assert archived_todo.name not in _names(_find_todos(logged_in_client))
+    with_archived = _names(_find_todos(logged_in_client, allow_archived=True))
+    assert {open_todo.name, archived_todo.name} <= with_archived
+
+    # ...unless only the archived ones are wanted.
+    only_archived = _find_todos(logged_in_client, only_archived=True)
+    assert archived_todo.name in _names(only_archived)
+    assert open_todo.name not in _names(only_archived)
+    assert all(e.todo_task.archived for e in only_archived)
+
+
+def test_api_todo_find_filter_finished_after(
+    logged_in_client: AuthenticatedClient,
+    create_todo,
+    create_finished_todo,
+    archive_todo,
+) -> None:
+    still_open = create_todo("Finished After: still open")
+    finished = create_finished_todo("Finished After: finished")
+    finished_then_archived = create_finished_todo("Finished After: finished, archived")
+    archive_todo(finished_then_archived.ref_id)
+
+    an_hour_ago = _timestamp(datetime.now(UTC) - timedelta(hours=1))
+
+    # What was finished, and only that, whether or not it is archived now.
+    both = _find_todos(
+        logged_in_client,
+        allow_archived=True,
+        filter_finished_after=an_hour_ago,
+        include_inbox_tasks=True,
+    )
+    assert _names(both) == {finished.name, finished_then_archived.name}
+    assert all(e.inbox_task.status == InboxTaskStatus.DONE for e in both)
+    assert still_open.name not in _names(both)
+
+    # Without asking for archived ones, the archived ones are not there.
+    live = _find_todos(logged_in_client, filter_finished_after=an_hour_ago)
+    assert _names(live) == {finished.name}
+
+    # Just the archived ones, which is what a recent-history view wants.
+    archived = _find_todos(
+        logged_in_client, only_archived=True, filter_finished_after=an_hour_ago
+    )
+    assert _names(archived) == {finished_then_archived.name}
+
+
+def test_api_todo_find_filter_finished_after_is_a_real_cut(
+    logged_in_client: AuthenticatedClient, create_finished_todo, archive_todo
+) -> None:
+    earlier = create_finished_todo("Finished Cut: earlier")
+    archive_todo(earlier.ref_id)
+    time.sleep(1.5)
+    cut = _timestamp(datetime.now(UTC))
+    time.sleep(1.5)
+    later = create_finished_todo("Finished Cut: later")
+    archive_todo(later.ref_id)
+
+    found = _find_todos(logged_in_client, only_archived=True, filter_finished_after=cut)
+    assert _names(found) == {later.name}
+
+    in_the_future = _timestamp(datetime.now(UTC) + timedelta(days=1))
+    assert (
+        _find_todos(
+            logged_in_client, allow_archived=True, filter_finished_after=in_the_future
+        )
+        == []
+    )
 
 
 def test_api_todo_update(api_url: str, api_key: str, create_todo) -> None:
