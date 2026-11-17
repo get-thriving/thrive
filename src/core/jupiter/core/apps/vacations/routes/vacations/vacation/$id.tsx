@@ -18,7 +18,7 @@ import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { TimeEventFullDaysBlockStack } from "#/core/common/sub/time_events/sub/full_days_block/component/stack";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
@@ -26,7 +26,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { VacationEditor } from "#/core/apps/vacations/sub/vacation/component/editor";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
@@ -37,6 +37,8 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -74,6 +76,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "M" } satisfies StrataHandle,
+  label: strataEntityLabel("Vacation"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -217,7 +221,9 @@ export default function Vacation() {
   };
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
+      sectionsPanelId="vacation"
       key={`vacation-${loaderData.vacation.ref_id}`}
       entityType={NamedEntityTag.VACATION}
       entityRefId={loaderData.vacation.ref_id}
@@ -245,6 +251,36 @@ export default function Vacation() {
         actionResult={actionData}
       />
 
+      <StrataSection
+        id="vacation-note-section"
+        items={loaderData.note ? 1 : 0}
+        title="Note"
+        actions={
+          loaderData.note !== null ? undefined : (
+            <SectionActions
+              id="vacation-create-note"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  id: "vacation-create-note",
+                  text: "Create Note",
+                  value: "create-note",
+                  highlight: false,
+                }),
+              ]}
+            />
+          )
+        }
+      >
+        {loaderData.note && (
+          <EntityNoteEditor
+            initialNote={loaderData.note}
+            inputsEnabled={inputsEnabled}
+          />
+        )}
+      </StrataSection>
+
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
         WorkspaceFeature.SCHEDULE,
@@ -256,34 +292,7 @@ export default function Vacation() {
           entries={[timeEventBlockEntry]}
         />
       )}
-
-      <SectionCard
-        title="Note"
-        actions={
-          <SectionActions
-            id="vacation-create-note"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                id: "vacation-create-note",
-                text: "Create Note",
-                value: "create-note",
-                highlight: false,
-                disabled: loaderData.note !== null,
-              }),
-            ]}
-          />
-        }
-      >
-        {loaderData.note && (
-          <EntityNoteEditor
-            initialNote={loaderData.note}
-            inputsEnabled={inputsEnabled}
-          />
-        )}
-      </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

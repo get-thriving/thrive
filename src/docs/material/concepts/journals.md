@@ -3,7 +3,7 @@
 A journal is a brief recounting of how a particular day, week, month, or other
 time period went.Journals live in the "journals" view.
 
-![Journals](../assets/journals-overview.png)
+![Journals: the list of journals, each with its period and score](../assets/journals-overview.png "Journals: the list of journals, each with its period and score")
 
 ## Auto-Generation
 
@@ -47,6 +47,8 @@ Journals are mainly a written artifact, so they're essentially one big
 document.But they do have a recording ot the work activitythat happened during
 that period (scores achieved, tasks done, etc),much like in the [report
 functionality](reporting.md).
+
+![A journal open for editing: its period, its questions and what was written](../assets/journal-update.png "A journal open for editing: its period, its questions and what was written")
 
 ## Standard Questions
 

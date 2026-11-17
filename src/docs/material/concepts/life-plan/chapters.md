@@ -10,6 +10,8 @@ Life is not uniform. There are periods of study, of career building, of
 raising children, of retirement, of adventure. Chapters let you carve your
 life into these distinct phases and reflect on them in a structured way.
 
+![The chapters list: each chapter is tied to an aspect, like getting fit or settling into a new role](../../assets/life-plan-chapters.png "The chapters list: each chapter is tied to an aspect, like getting fit or settling into a new role")
+
 A chapter might be something like:
 
 - _"University years"_ — from age 18 to age 22.

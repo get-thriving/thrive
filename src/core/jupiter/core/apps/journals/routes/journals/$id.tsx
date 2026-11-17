@@ -21,13 +21,12 @@ import { sortTimePlansNaturally } from "#/core/apps/time_plans/root";
 import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { JournalStack } from "#/core/apps/journals/component/stack";
 import { JournalEditor } from "#/core/apps/journals/component/editor";
 import { ShowReport } from "#/core/report/component/show-report";
 import { TimePlanStack } from "#/core/apps/time_plans/component/stack";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
@@ -38,6 +37,8 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -74,6 +75,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
+  label: strataEntityLabel("Journal"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -235,7 +238,9 @@ export default function Journal() {
   const sortedTimePlans = sortTimePlansNaturally(loaderData.subTimePlans);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
+      sectionsPanelId="journal"
       key={`journal-${loaderData.journal.ref_id}`}
       entityType={NamedEntityTag.JOURNAL}
       entityRefId={loaderData.journal.ref_id}
@@ -244,7 +249,6 @@ export default function Journal() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.journal.archived}
       returnLocation="/app/workspace/apps/journals"
-      initialExpansionState={LeafPanelExpansionState.FULL}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
       accessable
@@ -263,28 +267,42 @@ export default function Journal() {
         actionResult={actionData}
       />
 
-      <SectionCard id="journal-note" title="Note">
+      <StrataSection
+        items={loaderData.note ? 1 : 0}
+        id="journal-note"
+        title="Note"
+      >
         <EntityNoteEditor
           initialNote={loaderData.note}
           inputsEnabled={inputsEnabled}
         />
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard id="journal-report" title="Report">
+      <StrataSection
+        id="journal-report"
+        title="Report"
+        items={1}
+        split={{ size: 2, grow: true }}
+      >
         <ShowReport
           topLevelInfo={topLevelInfo}
           allAspects={loaderData.allAspects || []}
           allGoals={loaderData.allGoals || []}
           report={loaderData.journalStats.report}
         />
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard id="sub-journals" title="Other Journals in this Period">
+      <StrataSection
+        items={sortedSubJournals.length}
+        split={{ size: 1 }}
+        id="sub-journals"
+        title="Other Journals in this Period"
+      >
         <JournalStack
           topLevelInfo={topLevelInfo}
           journals={sortedSubJournals}
         />
-      </SectionCard>
+      </StrataSection>
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
@@ -292,7 +310,12 @@ export default function Journal() {
       ) &&
         loaderData.timePlan &&
         sortedTimePlans.length > 0 && (
-          <SectionCard id="sub-time-plans" title="Time Plans in this Period">
+          <StrataSection
+            items={1}
+            split={{ size: 1 }}
+            id="sub-time-plans"
+            title="Time Plans in this Period"
+          >
             {loaderData.timePlan && (
               <TimePlanStack
                 topLevelInfo={topLevelInfo}
@@ -305,9 +328,9 @@ export default function Journal() {
                 timePlans={sortedTimePlans}
               />
             )}
-          </SectionCard>
+          </StrataSection>
         )}
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

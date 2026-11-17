@@ -20,9 +20,11 @@ A person can have multiple [occasions](occasions.md) - birthdays, anniversaries,
 holidays,  and other recurring events. Inbox tasks are generated
 yearly for each occasion, with markers in the calendar too.
 
-## Person Settings
+## Catch Up Settings
 
-In the web app you can change the global catch up aspect via the `Settings`
-button:
+In the web app you set the catch up of a person from their own page, in the
+`Catch Up` section: the period, the Eisenhower status and difficulty of the
+generated tasks, and when they can be started and are due. Pick `None` as the
+period to turn the generation off for that person.
 
-![Persons Settings](../../assets/persons-settings.png)
+![A person's page, with the Catch Up section for period, Eisenhower status and difficulty, and their upcoming catch up tasks](../../assets/persons-update.png "A person's page, with the Catch Up section for period, Eisenhower status and difficulty, and their upcoming catch up tasks")

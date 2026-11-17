@@ -13,7 +13,6 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { Outlet } from "react-router";
-import { AnimatePresence } from "framer-motion";
 import { useContext, useMemo } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
@@ -27,21 +26,17 @@ import {
 } from "@jupiter/core/infra/component/entity-card";
 import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import {
   FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TagTag } from "@jupiter/core/common/sub/tags/component/tag-tag";
 import { ContactTag } from "@jupiter/core/common/sub/contacts/component/contact-tag";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
@@ -137,7 +132,6 @@ const FILTERS = z.object({
 export default function PublishedMetric() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const [
     { tags: selectedTagsRefId, contacts: selectedContactsRefId },
@@ -217,17 +211,15 @@ export default function PublishedMetric() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`published-metric-${loaderData.metric.ref_id}`}
       fakeKey={`published-metric-${loaderData.metric.ref_id}`}
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
-      shouldShowALeaflet={shouldShowALeaflet}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+      <NestingAwareBlock>
         <SectionCard
           title={loaderData.metric.name}
           actions={
@@ -315,10 +307,8 @@ export default function PublishedMetric() {
         </SectionCard>
       </NestingAwareBlock>
 
-      <AnimatePresence mode="wait" initial={false}>
-        <Outlet />
-      </AnimatePresence>
-    </LeafPanel>
+      <Outlet />
+    </EntityPanel>
   );
 }
 

@@ -10,6 +10,8 @@ Goals live between the abstract [vision](vision.md) and the concrete work of
 tasks and big plans. They give structure to your aspirations and connect
 them to the aspects that organise your day-to-day activity.
 
+![The goals list: each goal belongs to an aspect and may sit under a bigger goal](../../assets/life-plan-goals.png "The goals list: each goal belongs to an aspect and may sit under a bigger goal")
+
 Examples of goals:
 
 - _"Run a marathon"_

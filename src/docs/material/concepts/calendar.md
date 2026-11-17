@@ -8,7 +8,7 @@ streams_.
 
 Here's how a calendar might look like:
 
-![Calendar View](../assets/showcase/showcase-desktop-calendar.png)
+![The calendar in its weekly view, with each event a block in its stream's colour](../assets/showcase/showcase-desktop-calendar.png "The calendar in its weekly view, with each event a block in its stream's colour")
 
 ## Calendar Events
 
@@ -27,7 +27,7 @@ optional number of minutes, for the logistics around the event. See
 
 Editing a calendar looks like this:
 
-![Event](../assets/calendar-event-view.png)
+![An in-day event open next to the weekly calendar, with its stream, start, duration and buffers](../assets/calendar-event-view.png "An in-day event open next to the weekly calendar, with its stream, start, duration and buffers")
 
 ### Sources Of Calendar Events
 
@@ -101,11 +101,11 @@ resolutionThrive has: day, week, month, quarter, and year.
 
 Here's a peek at some views:
 
-![Weekly Schedule](../assets/calendar-view-schedule-weekly.png)
+![The weekly view of the calendar](../assets/calendar-view-calendar-weekly.png "The weekly view of the calendar")
 
-![Monthly Calendar](../assets/calendar-view-calendar-monthly.png)
+![The monthly view of the calendar](../assets/calendar-view-calendar-monthly.png "The monthly view of the calendar")
 
-![Yearly Schedule](../assets/calendar-view-schedule-yearly.png)
+![The yearly view of the calendar](../assets/calendar-view-calendar-yearly.png "The yearly view of the calendar")
 
 ### Other Timezones
 

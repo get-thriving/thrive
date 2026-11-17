@@ -6,7 +6,7 @@ import {
   locationToMapMarker,
 } from "#/core/common/sub/locations/component/locations-map";
 import { GlobalPropertiesContext } from "#/core/config-client";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { GoogleMapsApiKeyContext } from "#/core/infra/google-maps-api-key-context";
 
 interface EntityLocationMapSectionProps {
@@ -42,13 +42,13 @@ export function EntityLocationMapSection({
   }
 
   return (
-    <SectionCard id="entity-location-map" title="Map">
+    <StrataSection id="entity-location-map" title="Map">
       <LocationsMap
         title=""
         markers={markers}
         height={240}
         cacheKey={cacheKey}
       />
-    </SectionCard>
+    </StrataSection>
   );
 }

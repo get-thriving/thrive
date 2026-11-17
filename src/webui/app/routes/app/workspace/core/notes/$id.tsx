@@ -9,7 +9,7 @@ import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
@@ -26,6 +26,7 @@ import { entityOwnedByCurrentUser } from "#/core/common/sub/access/access-level"
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -42,6 +43,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Note"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -113,7 +115,8 @@ export default function NoteDetail() {
     ownedByCurrentUser;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`core/notes/${loaderData.note.ref_id}`}
       fakeKey={`core/notes/${loaderData.note.ref_id}`}
       returnLocation="/app/workspace/core/notes"
@@ -147,7 +150,7 @@ export default function NoteDetail() {
           inputsEnabled={inputsEnabled}
         />
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

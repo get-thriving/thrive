@@ -27,7 +27,7 @@ import {
 } from "@jupiter/core/common/sub/time_events/time-event";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -66,6 +66,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New time event for chore",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -176,7 +177,8 @@ export default function TimeEventInDayBlockCreateForChore() {
   }, [query]);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="time-event-in-day-block/new"
       fakeKey="time-event-in-day-block/new"
       returnLocation={`/app/workspace/calendar?${query}`}
@@ -259,7 +261,7 @@ export default function TimeEventInDayBlockCreateForChore() {
           />
         </FormControl>
 
-        <Stack spacing={2} direction="row">
+        <Stack spacing={1.25} direction="row">
           <ButtonGroup variant="outlined" disabled={!inputsEnabled}>
             <Button
               disabled={!inputsEnabled}
@@ -318,7 +320,7 @@ export default function TimeEventInDayBlockCreateForChore() {
           actionResult={actionData}
         />
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -10,10 +10,9 @@ import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
 import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { HabitPropertiesEditor } from "@jupiter/core/apps/habits/component/properties-editor";
 import { HabitStreakCalendar } from "@jupiter/core/apps/habits/component/streak-calendar";
@@ -114,14 +113,13 @@ export default function PublishedHabit() {
   const allGoals = loaderData.goal ? [loaderData.goal] : [];
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`published-habit-${loaderData.habit.ref_id}`}
       fakeKey={`published-habit-${loaderData.habit.ref_id}`}
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <HabitPropertiesEditor
         title="Properties"
@@ -193,7 +191,7 @@ export default function PublishedHabit() {
           />
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -51,7 +51,7 @@ import { EntityStack } from "#/core/infra/component/entity-stack";
 import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
 import {
   FilterFewOptionsCompact,
@@ -66,10 +66,7 @@ import {
   computeAspectHierarchicalNameFromRoot,
   sortAspectsByTreeOrder,
 } from "#/core/apps/life_plan/sub/aspects/root";
-import {
-  DisplayType,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { IsSuspendedTag } from "#/core/common/component/is-suspended-tag";
@@ -86,9 +83,13 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataTrunkLabel } from "#/core/infra/strata/strata-trunk-label";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
+  label: strataTrunkLabel,
 };
 
 enum Grouping {
@@ -169,8 +170,6 @@ export default function Chores() {
 
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
-
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
   const entriesByRefId = new Map<string, ChoreFindResultEntry>();
   for (const entry of loaderData.chores) {
@@ -323,9 +322,10 @@ export default function Chores() {
   );
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"chores"}
-      createLocation="/app/workspace/apps/chores/chores/new"
+      count={sortedChores.length}
       returnLocation="/app/workspace"
       actions={
         <SectionActions
@@ -333,6 +333,11 @@ export default function Chores() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
+            NavSingle({
+              id: "trunk-new-leaf-entity",
+              text: "New",
+              link: "/app/workspace/apps/chores/chores/new",
+            }),
             FilterFewOptionsCompact(
               "Grouping",
               selectedGrouping,
@@ -423,7 +428,7 @@ export default function Chores() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {isBigScreen ? (
           <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
             <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -584,7 +589,7 @@ export default function Chores() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

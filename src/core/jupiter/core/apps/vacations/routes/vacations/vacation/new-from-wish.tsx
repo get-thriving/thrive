@@ -12,7 +12,7 @@ import { parseForm, parseQuery } from "zodix";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionsPosition,
   SectionCard,
@@ -46,6 +46,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New vacation from wish",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -95,7 +96,8 @@ export default function NewVacationFromWish() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`vacations/vacation/new-from-wish-${loaderData.travelWish.ref_id}`}
       fakeKey={`vacations/vacation/new-from-wish-${loaderData.travelWish.ref_id}`}
       returnLocation="/app/workspace/apps/vacations/wish-list"
@@ -191,7 +193,7 @@ export default function NewVacationFromWish() {
         </FormControl>
       </SectionCard>
       <EntityLocationMapSection locations={loaderData.locations} />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

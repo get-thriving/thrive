@@ -25,7 +25,7 @@ import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -49,6 +49,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -89,6 +90,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Widget"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -239,7 +241,8 @@ export default function Widget() {
   }, [searchParams]);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`home-tab-widgets-${loaderData.widget.ref_id}`}
       entityType={NamedEntityTag.HOME_WIDGET}
       entityRefId={loaderData.widget.ref_id}
@@ -347,7 +350,7 @@ export default function Widget() {
           <FieldError actionResult={actionData} fieldName="/properties" />
         </SectionCard>
       )}
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

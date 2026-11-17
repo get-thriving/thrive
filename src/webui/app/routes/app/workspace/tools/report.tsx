@@ -57,6 +57,7 @@ const QuerySchema = z.object({
 
 export const handle = {
   displayType: DisplayType.TOOL,
+  label: "Report",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -191,7 +192,7 @@ export default function Report() {
         </FormControl>
 
         <Stack
-          spacing={2}
+          spacing={1.25}
           useFlexGap
           direction={isBigScreen ? "row" : "column"}
         >

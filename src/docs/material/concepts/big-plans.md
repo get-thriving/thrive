@@ -31,7 +31,7 @@ Big plans have a _status_, which can be one of:
 In the big plan page, you can see big plans in a sort of timeline board,
 organised by aspect.
 
-![Big plans image](../assets/index-big-plans-timeline.png)
+![Big plans on a timeline by aspect, with their state, importance, difficulty and range](../assets/index-big-plans-timeline.png "Big plans on a timeline by aspect, with their state, importance, difficulty and range")
 
 The state evolution diagram is:
 
@@ -54,6 +54,8 @@ from the bigplan, if it has any.
 Between them, the actionable and due dates allow you to schedule the big plans
 in time ina more organized manner. There is a special view which allows for
 this.
+
+![A big plan open for editing: dates, Eisenhower status, difficulty, scheduling and the note with the plan](../assets/big-plans-update.png "A big plan open for editing: dates, Eisenhower status, difficulty, scheduling and the note with the plan")
 
 ## Milestones
 

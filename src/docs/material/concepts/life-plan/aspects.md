@@ -25,6 +25,8 @@ more concrete pieces of work, use [big plans](../big-plans.md) instead.
 Aspects also support a **note** for additional context and **tags** for
 organisation.
 
+![An aspect open for editing: its name and where it sits in the hierarchy](../../assets/aspects-update.png "An aspect open for editing: its name and where it sits in the hierarchy")
+
 ## Aspect Hierarchy
 
 Aspects can be nested within other aspects, forming a tree. The maximum
@@ -56,4 +58,4 @@ from the menu. You can also see aspects via `aspect-show` in the CLI.
 
 An example:
 
-![Aspects Overview](../../assets/aspects-overview.png)
+![Life plan aspects: the life weeks, the timeline and the aspects of a workspace](../../assets/aspects-overview.png "Life plan aspects: the life weeks, the timeline and the aspects of a workspace")

@@ -37,7 +37,7 @@ import {
   NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
 import {
   constructFieldErrorName,
@@ -64,7 +64,9 @@ export function InboxTaskPropertiesEditor(
   const corePropertyEditable = isInboxTaskCoreFieldEditable(ownerPln);
 
   return (
-    <SectionCard
+    <StrataSection
+      id="inbox-task-properties-section"
+      fixed
       title={props.title}
       actions={
         <SectionActions
@@ -98,7 +100,7 @@ export function InboxTaskPropertiesEditor(
         />
       }
     >
-      <Stack spacing={2} useFlexGap>
+      <Stack spacing={1.25} useFlexGap>
         <Box sx={{ display: "flex", flexDirection: "row", gap: "0.25rem" }}>
           <input
             type="hidden"
@@ -439,7 +441,7 @@ export function InboxTaskPropertiesEditor(
           )}
         </Stack>
       </CardActions>
-    </SectionCard>
+    </StrataSection>
   );
 }
 

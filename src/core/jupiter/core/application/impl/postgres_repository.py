@@ -479,8 +479,9 @@ class PostgresFastInfoRepository(PostgresRepository, FastInfoRepository):
                     {
                         "parent_ref_id": parent_ref_id.as_int(),
                         "user_ref_id": user_ref_id.as_int(),
-                        "filter_start_date": filter_start_date.the_date.to_date_string(),
-                        "filter_end_date": filter_end_date.the_date.to_date_string(),
+                        # The column is a date, which asyncpg won't take a string for.
+                        "filter_start_date": filter_start_date.the_date,
+                        "filter_end_date": filter_end_date.the_date,
                     },
                 )
             )

@@ -24,7 +24,7 @@ import { parseForm, parseParams } from "zodix";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -48,6 +48,7 @@ import {
 import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 import { useServiceProperties } from "~/logic/config";
 
@@ -74,6 +75,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Export"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -196,7 +198,8 @@ export default function ScheduleExportViewOne() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`schedule-export-${loaderData.scheduleExport.ref_id}`}
       entityType={NamedEntityTag.SCHEDULE_EXPORT}
       entityRefId={loaderData.scheduleExport.ref_id}
@@ -227,7 +230,7 @@ export default function ScheduleExportViewOne() {
       >
         <Stack
           direction={isBigScreen ? "row" : "column"}
-          spacing={2}
+          spacing={1.25}
           useFlexGap
         >
           <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
@@ -320,7 +323,7 @@ export default function ScheduleExportViewOne() {
           />
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

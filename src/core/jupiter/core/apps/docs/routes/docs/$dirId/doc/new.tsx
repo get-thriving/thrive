@@ -9,12 +9,11 @@ import { parseParams } from "zodix";
 
 import { DocEditor } from "#/core/apps/docs/component/editor";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionsPosition,
   SectionCard,
 } from "#/core/infra/component/section-card";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { handleLoaderApiError } from "#/core/infra/errors.server";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
@@ -43,6 +42,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New doc",
 };
 
 export const shouldRevalidate: ShouldRevalidateFunction =
@@ -55,12 +55,12 @@ export default function NewDoc() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`docs-${dirId}-doc-new`}
       fakeKey={`docs-${dirId}-doc-new`}
       returnLocation={`/app/workspace/apps/docs/${dirId}`}
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.FULL}
     >
       <SectionCard title="New Doc" actionsPosition={ActionsPosition.BELOW}>
         <FormControl fullWidth>
@@ -70,7 +70,7 @@ export default function NewDoc() {
           />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

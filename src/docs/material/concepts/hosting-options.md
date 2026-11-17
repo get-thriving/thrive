@@ -16,6 +16,8 @@ fromeverywhere, and from many devices. Follow the [self
 hosting](../how-tos/self-hosting.md)guide to learn more about how to achieve
 this and the tradeoffs you'll make.
 
+![The login page, where Pick Server is how you point the app at a self hosted install](../assets/recover-account-login.png "The login page, where Pick Server is how you point the app at a self hosted install")
+
 _Local mode_ is what you get when you [download](../how-tos/install.md) the CLI
 app and run it on yourown computer. Your workspace lives on your machine, and is
 not accessible from anywhere else.Nobody else has access to your data, and you

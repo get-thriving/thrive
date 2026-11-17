@@ -10,7 +10,7 @@ import { useContext } from "react";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionsPosition,
   SectionCard,
@@ -41,6 +41,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New vacation",
 };
 
 export async function action({ request, url }: ActionFunctionArgs) {
@@ -76,7 +77,8 @@ export default function NewVacation() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="vacations/new"
       fakeKey={"vacations/new"}
       returnLocation="/app/workspace/apps/vacations/vacation"
@@ -143,7 +145,7 @@ export default function NewVacation() {
           <FieldError actionResult={actionData} fieldName="/end_date" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

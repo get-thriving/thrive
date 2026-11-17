@@ -10,6 +10,7 @@ import {
   useActionData,
   useNavigation,
 } from "react-router";
+import { useContext } from "react";
 import { parseForm } from "zodix";
 import { IconButton, Stack } from "@mui/material";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -22,10 +23,7 @@ import {
   sortQuestionsByOrder,
 } from "#/core/apps/time_plans/sub/question/root";
 import { periodName } from "#/core/common/recurring-task-period";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { GlobalError } from "#/core/infra/component/errors";
 import { makeBranchErrorBoundary } from "#/core/infra/component/error-boundary";
 import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-card";
@@ -33,7 +31,12 @@ import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import {
+  NavSingle,
+  SectionActions,
+} from "#/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { handleActionApiError } from "#/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
@@ -49,6 +52,7 @@ const UpdateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  label: "Questions",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -104,20 +108,34 @@ export default function TimePlanQuestions() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
+  const topLevelInfo = useContext(TopLevelInfoContext);
 
   const periods = TIME_PLAN_QUESTION_PERIOD_DISPLAY_ORDER.filter((period) =>
     loaderData.questions.some((question) => question.period === period),
   );
 
   return (
-    <BranchPanel
+    <EntityPanel
+      kind="branch"
       key={"time-plans/questions"}
-      createLocation="/app/workspace/apps/time-plans/questions/new"
       returnLocation="/app/workspace/apps/time-plans"
       inputsEnabled={inputsEnabled}
+      actions={
+        <SectionActions
+          id="time-plan-questions-actions"
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          actions={[
+            NavSingle({
+              id: "branch-new-leaf-entity",
+              text: "New",
+              link: "/app/workspace/apps/time-plans/questions/new",
+            }),
+          ]}
+        />
+      }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <Form method="post">
           <Stack spacing={2} useFlexGap>
@@ -146,7 +164,7 @@ export default function TimePlanQuestions() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </BranchPanel>
+    </EntityPanel>
   );
 }
 

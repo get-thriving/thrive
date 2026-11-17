@@ -18,7 +18,7 @@ import { z } from "zod";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -27,7 +27,6 @@ import { SectionCard } from "#/core/infra/component/section-card";
 import { TimeEventBuffersEditor } from "#/core/common/sub/time_events/component/buffers-editor";
 import { TimeEventParamsSource } from "#/core/common/sub/time_events/component/params-source";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { timePlanActivityTargetNameForEvent } from "#/core/apps/time_plans/sub/activity/root";
 import { habitActivitiesForStackMembers } from "#/core/apps/time_plans/sub/activity/habit-chore-group";
@@ -45,6 +44,7 @@ const DATE_PATTERN = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New activity time event",
 };
 
 // The activity and what it targets are already in the plan's store, so this
@@ -163,7 +163,8 @@ export default function TimePlanActivityTimeEventNew() {
     !activity.timePlanActivity.archived;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="time-plan-activity-time-event/new"
       fakeKey="time-plan-activity-time-event/new"
       returnLocation={withTimePlanView(
@@ -171,7 +172,6 @@ export default function TimePlanActivityTimeEventNew() {
         timePlanView,
       )}
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.SMALL}
       intentHandlers={intentHandlers}
     >
       <TimeEventParamsSource
@@ -262,7 +262,7 @@ export default function TimePlanActivityTimeEventNew() {
           />
         </FormControl>
 
-        <Stack spacing={2} direction="row">
+        <Stack spacing={1.25} direction="row">
           <ButtonGroup variant="outlined" disabled={!inputsEnabled}>
             <Button
               disabled={!inputsEnabled}
@@ -324,7 +324,7 @@ export default function TimePlanActivityTimeEventNew() {
           actionResult={error ?? undefined}
         />
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

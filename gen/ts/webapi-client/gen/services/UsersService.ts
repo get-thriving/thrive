@@ -13,6 +13,8 @@ import type { UserUpdateArgs } from '../models/UserUpdateArgs';
 import type { UserUpdateResult } from '../models/UserUpdateResult';
 import type { WebUiSettingsLoadArgs } from '../models/WebUiSettingsLoadArgs';
 import type { WebUiSettingsLoadResult } from '../models/WebUiSettingsLoadResult';
+import type { WebUiSettingsResetKeyBindingsArgs } from '../models/WebUiSettingsResetKeyBindingsArgs';
+import type { WebUiSettingsResetKeyBindingsResult } from '../models/WebUiSettingsResetKeyBindingsResult';
 import type { WebUiSettingsUpdateArgs } from '../models/WebUiSettingsUpdateArgs';
 import type { WebUiSettingsUpdateResult } from '../models/WebUiSettingsUpdateResult';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -31,6 +33,34 @@ export class UsersService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/web-ui-settings-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError, InvalidOAuthRequestError, InvalidOAuthGrantError`,
+                401: `Error response for ExpiredAuthTokenError, UserNotAllowedAccessToEntityError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for UserAlreadyExistsButIsArchivedError, TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError, EntityIsAlreadyActiveError, EntityIsAlreadyDraftError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, WorkspaceAlreadyExistsError, InvalidLoginCredentialsError, InvalidLoginMethodError, AuthLinkError, InvalidAPIKeyError, AspectInSignificantUseError, UserEmailAlreadyVerifiedError, ContactInSignificantUseError, InvalidEmailAttemptVerificationStateError, EmailAttemptVerificationExpiredError, NoActiveEmailVerificationAttemptError`,
+                426: `Error response for InvalidAuthTokenError`,
+                429: `Error response for TooManyEmailVerificationAttemptsError`,
+                502: `Error response for EmailSendError`,
+            },
+        });
+    }
+    /**
+     * The command for putting the keys of the current user back to the defaults.
+     * @param requestBody The input data
+     * @returns WebUiSettingsResetKeyBindingsResult Successful response
+     * @throws ApiError
+     */
+    public webUiSettingsResetKeyBindings(
+        requestBody?: WebUiSettingsResetKeyBindingsArgs,
+    ): CancelablePromise<WebUiSettingsResetKeyBindingsResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/web-ui-settings-reset-key-bindings',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

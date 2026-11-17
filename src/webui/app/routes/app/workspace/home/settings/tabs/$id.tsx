@@ -30,13 +30,10 @@ import {
   widgetTypeName,
 } from "@jupiter/core/home/sub/widget/root";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { EntityLink } from "@jupiter/core/infra/component/entity-card";
 import {
@@ -52,6 +49,8 @@ import { newURLParams } from "@jupiter/core/infra/navigation";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 enum Action {
   ADD_WIDGET = "add",
@@ -80,6 +79,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "M" } satisfies StrataHandle,
+  label: strataEntityLabel("Tab"),
 };
 
 export async function loader({ request, url, params }: LoaderFunctionArgs) {
@@ -145,7 +146,6 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function HomeTab() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
   const [queryRaw] = useSearchParams();
@@ -153,14 +153,14 @@ export default function HomeTab() {
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   return (
-    <BranchPanel
+    <EntityPanel
+      kind="branch"
       key={`home-tab-${loaderData.tab.ref_id}`}
       entityType={NamedEntityTag.HOME_TAB}
       entityRefId={loaderData.tab.ref_id}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.tab.archived}
-      createLocation={`/app/workspace/home/settings/tabs/${loaderData.tab.ref_id}/widgets/new`}
       returnLocation="/app/workspace/home/settings"
       actions={
         <SectionActions
@@ -168,6 +168,12 @@ export default function HomeTab() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={inputsEnabled}
           actions={[
+            NavSingle({
+              id: "branch-new-leaf-entity",
+              text: "New",
+              link: `/app/workspace/home/settings/tabs/${loaderData.tab.ref_id}/widgets/new`,
+              disabled: loaderData.tab.archived,
+            }),
             NavSingle({
               text: "Details",
               link: `/app/workspace/home/settings/tabs/${loaderData.tab.ref_id}/details`,
@@ -177,7 +183,7 @@ export default function HomeTab() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <Stack sx={{ alignItems: "center" }}>
           {loaderData.tab.target === HomeTabTarget.BIG_SCREEN && (
             <BigScreenWidgetPlacement
@@ -198,7 +204,7 @@ export default function HomeTab() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </BranchPanel>
+    </EntityPanel>
   );
 }
 

@@ -284,19 +284,22 @@ function OneCell(props: OneCellProps) {
         margin: "1px",
         backgroundColor:
           props.kind === "today"
-            ? "#ffd700"
+            ? theme.palette.primary.main
             : props.kind === "future"
               ? theme.palette.info.light
               : props.kind === "inactive"
                 ? theme.palette.grey[700]
-                : bucketedColorScale(props.doneness),
+                : bucketedColorScale(props.doneness, theme.palette.divider),
       }}
     ></Box>
   );
 }
 
-function bucketedColorScale(value: number | undefined): string {
-  if (value === undefined || value === null) return "#eeeeee";
+function bucketedColorScale(
+  value: number | undefined,
+  emptyColor: string,
+): string {
+  if (value === undefined || value === null) return emptyColor;
   if (value <= 15) return "#e57373"; // reddish
   if (value <= 30) return "#ef9a9a"; // lighter red
   if (value <= 45) return "#ffb74d"; // orange

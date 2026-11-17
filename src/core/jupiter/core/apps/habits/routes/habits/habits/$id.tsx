@@ -33,6 +33,7 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
 import { DateTime } from "luxon";
 
+import { noErrorNoData } from "#/core/infra/action-result";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import {
   sortInboxTaskTimeEventsNaturally,
@@ -50,21 +51,18 @@ import { StreakInactivePeriodStack } from "#/core/apps/habits/sub/streak_inactiv
 import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   SectionActions,
   ActionSingle,
   NavSingle,
 } from "#/core/infra/component/section-actions";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { countSummary } from "#/core/infra/component/count-summary";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import { TimePlanActivityList } from "#/core/apps/time_plans/sub/activity/component/list";
 import { noteStdOwner } from "#/core/common/sub/notes/note-std-owner";
 import {
@@ -80,6 +78,8 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { newURLParams } from "#/core/infra/navigation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -146,6 +146,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "M" } satisfies StrataHandle,
+  label: strataEntityLabel("Habit"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -387,7 +389,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/apps/habits/habits/${id}`);
+        // Stays on the page: the layout in its URL is left as it is.
+        return noErrorNoData();
       }
 
       case "create-note": {
@@ -396,7 +399,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           content: [],
         });
 
-        return redirect(`/app/workspace/apps/habits/habits/${id}`);
+        // Stays on the page: the layout in its URL is left as it is.
+        return noErrorNoData();
       }
 
       case "archive": {
@@ -420,7 +424,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           owner: form.publishOwner,
         });
 
-        return redirect(`/app/workspace/apps/habits/habits/${id}`);
+        // Stays on the page: the layout in its URL is left as it is.
+        return noErrorNoData();
       }
 
       case "activate-publish": {
@@ -428,7 +433,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.publishEntityRefId,
         });
 
-        return redirect(`/app/workspace/apps/habits/habits/${id}`);
+        // Stays on the page: the layout in its URL is left as it is.
+        return noErrorNoData();
       }
 
       case "to-draft-publish": {
@@ -436,7 +442,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.publishEntityRefId,
         });
 
-        return redirect(`/app/workspace/apps/habits/habits/${id}`);
+        // Stays on the page: the layout in its URL is left as it is.
+        return noErrorNoData();
       }
 
       default:
@@ -456,7 +463,6 @@ export default function Habit() {
   const [query] = useSearchParams();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const streakSearch = query.toString();
   const habitRefId = loaderData.habit.ref_id;
 
@@ -529,7 +535,9 @@ export default function Habit() {
   }
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
+      sectionsPanelId="habit"
       key={`habit-${loaderData.habit.ref_id}`}
       entityType={NamedEntityTag.HABIT}
       entityRefId={loaderData.habit.ref_id}
@@ -538,15 +546,13 @@ export default function Habit() {
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.habit.archived}
       returnLocation="/app/workspace/apps/habits/habits"
-      initialExpansionState={LeafPanelExpansionState.MEDIUM}
-      shouldShowALeaflet={shouldShowALeaflet}
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
       accessable
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+      <NestingAwareBlock>
         <GlobalError actionResult={actionData} />
         <HabitPropertiesEditor
           title="Properties"
@@ -568,12 +574,25 @@ export default function Habit() {
           aspect={loaderData.aspect}
           chapter={loaderData.chapter}
           goal={loaderData.goal}
-          actionData={actionData}
+          actionData={
+            actionData?.theType === "some-error-no-data"
+              ? actionData
+              : undefined
+          }
         />
 
-        <SectionCard
+        <StrataSection
           id="habit-streak"
           title="Streak"
+          summary={
+            loaderData.streakInactivePeriods.length === 0
+              ? undefined
+              : countSummary(
+                  loaderData.streakInactivePeriods.length,
+                  "inactive range",
+                  "inactive ranges",
+                )
+          }
           actions={
             <SectionActions
               id="habit-streak"
@@ -615,24 +634,28 @@ export default function Habit() {
             periods={loaderData.streakInactivePeriods}
             search={streakSearch}
           />
-        </SectionCard>
+        </StrataSection>
 
-        <SectionCard
+        <StrataSection
+          id="habit-note-section"
+          items={loaderData.note ? 1 : 0}
           title="Note"
+          summary={loaderData.note ? "written" : "none yet"}
           actions={
-            <SectionActions
-              id="habit-note"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                ActionSingle({
-                  text: "Create Note",
-                  value: "create-note",
-                  highlight: false,
-                  disabled: loaderData.note !== null,
-                }),
-              ]}
-            />
+            loaderData.note !== null ? undefined : (
+              <SectionActions
+                id="habit-note"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  ActionSingle({
+                    text: "Create Note",
+                    value: "create-note",
+                    highlight: false,
+                  }),
+                ]}
+              />
+            )
           }
         >
           {loaderData.note && (
@@ -643,7 +666,7 @@ export default function Habit() {
               />
             </>
           )}
-        </SectionCard>
+        </StrataSection>
 
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
@@ -663,9 +686,16 @@ export default function Habit() {
           WorkspaceFeature.TIME_PLANS,
         ) &&
           loaderData.timePlanActivities && (
-            <SectionCard
+            <StrataSection
               id="habit-time-plans"
+              items={loaderData.timePlanActivities.length}
+              split={{ size: 1 }}
               title="Time Plans"
+              summary={countSummary(
+                loaderData.timePlanActivities.length,
+                "activity",
+                "activities",
+              )}
               actions={
                 <SectionActions
                   id="habit-time-plans-actions"
@@ -706,10 +736,15 @@ export default function Habit() {
                 fullInfo={false}
                 showTimePlanName={true}
               />
-            </SectionCard>
+            </StrataSection>
           )}
 
-        <SectionCard title="Inbox Tasks">
+        <StrataSection
+          id="habit-inbox-tasks"
+          items={loaderData.inboxTasksTotalCnt}
+          title="Inbox Tasks"
+          summary={countSummary(loaderData.inboxTasksTotalCnt, "task", "tasks")}
+        >
           {sortedInboxTasks.length > 0 && (
             <InboxTaskStack
               topLevelInfo={topLevelInfo}
@@ -732,10 +767,10 @@ export default function Habit() {
               }
             />
           )}
-        </SectionCard>
+        </StrataSection>
       </NestingAwareBlock>
       <NestedOutlet />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

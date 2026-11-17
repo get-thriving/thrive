@@ -18,8 +18,8 @@ import { parseForm, parseParams } from "zodix";
 import type { loader as habitLoader } from "#/core/apps/habits/routes/habits/habits/$id";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -31,6 +31,7 @@ import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { habitLocation } from "#/core/apps/habits/sub/streak_inactive_period/routes";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -54,6 +55,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: strataEntityLabel("Inactive period"),
 };
 
 export async function action({ request, url, params }: ActionFunctionArgs) {
@@ -113,18 +115,22 @@ export default function StreakInactivePeriodView() {
 
   if (habit === undefined || period === undefined) {
     return (
-      <LeafPanel
+      <EntityPanel
+        kind="leaflet"
         key="streak-inactive-period-missing"
         fakeKey="streak-inactive-period-missing"
-        isLeaflet
         inputsEnabled={false}
         returnLocation={habitLocation(habitId!, query.toString())}
       >
         <GlobalError actionResult={actionData} />
-        <SectionCard title="Inactive Period">
+        <StrataSection
+          id="streak-inactive-period-missing-section"
+          fixed
+          title="Inactive Period"
+        >
           This inactive period is not in the current streak calendar dates.
-        </SectionCard>
-      </LeafPanel>
+        </StrataSection>
+      </EntityPanel>
     );
   }
 
@@ -135,10 +141,10 @@ export default function StreakInactivePeriodView() {
     navigation.state === "idle" && canWrite && !period.archived;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key={`streak-inactive-period-${period.ref_id}`}
       fakeKey={`streak-inactive-period-${period.ref_id}`}
-      isLeaflet
       showArchiveAndRemoveButton
       entityArchived={period.archived}
       entityNotEditable={!canWrite}
@@ -146,7 +152,8 @@ export default function StreakInactivePeriodView() {
       returnLocation={habitLocation(habitId!, query.toString())}
     >
       <GlobalError actionResult={actionData} />
-      <SectionCard
+      <StrataSection
+        fixed
         id="streak-inactive-period-properties"
         title="Inactive Period"
         actions={
@@ -210,8 +217,8 @@ export default function StreakInactivePeriodView() {
           />
           <FieldError actionResult={actionData} fieldName="/end_date" />
         </FormControl>
-      </SectionCard>
-    </LeafPanel>
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

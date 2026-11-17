@@ -17,16 +17,13 @@ import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-ca
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 import { EntityStack } from "#/core/infra/component/entity-stack";
 import { makeBranchErrorBoundary } from "#/core/infra/component/error-boundary";
-import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   NavMultipleSpread,
   NavSingle,
@@ -44,6 +41,8 @@ import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 import { sectionFilterBoolean } from "#/core/infra/section-filters";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -72,6 +71,8 @@ const UpdateSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "M", grow: true } satisfies StrataHandle,
+  label: strataEntityLabel("Smart list"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -193,8 +194,6 @@ export default function SmartListViewItems() {
     !loaderData.smartList.archived &&
     accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
-
   const [
     {
       done: selectedDoneness,
@@ -224,14 +223,15 @@ export default function SmartListViewItems() {
   });
 
   return (
-    <BranchPanel
+    <EntityPanel
+      kind="branch"
       key={`smart-list-${loaderData.smartList.ref_id}`}
+      count={filteredSmartListItems.length}
       entityType={NamedEntityTag.SMART_LIST}
       entityRefId={loaderData.smartList.ref_id}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.smartList.archived}
-      createLocation={`/app/workspace/apps/smart-lists/${loaderData.smartList.ref_id}/new`}
       returnLocation="/app/workspace/apps/smart-lists"
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
@@ -244,6 +244,12 @@ export default function SmartListViewItems() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={inputsEnabled}
           actions={[
+            NavSingle({
+              id: "branch-new-leaf-entity",
+              text: "New",
+              link: `/app/workspace/apps/smart-lists/${loaderData.smartList.ref_id}/new`,
+              disabled: loaderData.smartList.archived,
+            }),
             NavSingle({
               text: isBigScreen ? "Details" : "",
               icon: <TuneIcon />,
@@ -290,7 +296,7 @@ export default function SmartListViewItems() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         {filteredSmartListItems.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"
@@ -328,7 +334,7 @@ export default function SmartListViewItems() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </BranchPanel>
+    </EntityPanel>
   );
 }
 

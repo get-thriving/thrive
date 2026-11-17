@@ -11,7 +11,7 @@ import { parseForm, parseParams } from "zodix";
 
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { TravelWishEditor } from "#/core/apps/vacations/sub/travel_wish/component/editor";
@@ -23,6 +23,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -43,6 +44,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Travel wish"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -134,7 +136,8 @@ export default function TravelWish() {
     accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`travel-wish-${loaderData.travelWish.ref_id}`}
       entityType={NamedEntityTag.TRAVEL_WISH}
       entityRefId={loaderData.travelWish.ref_id}
@@ -159,7 +162,7 @@ export default function TravelWish() {
         topLevelInfo={topLevelInfo}
         actionResult={actionData}
       />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

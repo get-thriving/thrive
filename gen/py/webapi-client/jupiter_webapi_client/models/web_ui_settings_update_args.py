@@ -7,7 +7,9 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.web_ui_settings_update_args_use_night_mode import WebUiSettingsUpdateArgsUseNightMode
+    from ..models.web_ui_settings_update_args_color_scheme import WebUiSettingsUpdateArgsColorScheme
+    from ..models.web_ui_settings_update_args_key_bindings import WebUiSettingsUpdateArgsKeyBindings
+    from ..models.web_ui_settings_update_args_use_expanded_rail import WebUiSettingsUpdateArgsUseExpandedRail
 
 
 T = TypeVar("T", bound="WebUiSettingsUpdateArgs")
@@ -18,20 +20,30 @@ class WebUiSettingsUpdateArgs:
     """Web UI settings update args.
 
     Attributes:
-        use_night_mode (WebUiSettingsUpdateArgsUseNightMode):
+        color_scheme (WebUiSettingsUpdateArgsColorScheme):
+        use_expanded_rail (WebUiSettingsUpdateArgsUseExpandedRail):
+        key_bindings (WebUiSettingsUpdateArgsKeyBindings):
     """
 
-    use_night_mode: WebUiSettingsUpdateArgsUseNightMode
+    color_scheme: WebUiSettingsUpdateArgsColorScheme
+    use_expanded_rail: WebUiSettingsUpdateArgsUseExpandedRail
+    key_bindings: WebUiSettingsUpdateArgsKeyBindings
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        use_night_mode = self.use_night_mode.to_dict()
+        color_scheme = self.color_scheme.to_dict()
+
+        use_expanded_rail = self.use_expanded_rail.to_dict()
+
+        key_bindings = self.key_bindings.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "use_night_mode": use_night_mode,
+                "color_scheme": color_scheme,
+                "use_expanded_rail": use_expanded_rail,
+                "key_bindings": key_bindings,
             }
         )
 
@@ -39,13 +51,21 @@ class WebUiSettingsUpdateArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.web_ui_settings_update_args_use_night_mode import WebUiSettingsUpdateArgsUseNightMode  # noqa: PLC0415
+        from ..models.web_ui_settings_update_args_color_scheme import WebUiSettingsUpdateArgsColorScheme  # noqa: PLC0415
+        from ..models.web_ui_settings_update_args_key_bindings import WebUiSettingsUpdateArgsKeyBindings  # noqa: PLC0415
+        from ..models.web_ui_settings_update_args_use_expanded_rail import WebUiSettingsUpdateArgsUseExpandedRail  # noqa: PLC0415
 
         d = dict(src_dict)
-        use_night_mode = WebUiSettingsUpdateArgsUseNightMode.from_dict(d.pop("use_night_mode"))
+        color_scheme = WebUiSettingsUpdateArgsColorScheme.from_dict(d.pop("color_scheme"))
+
+        use_expanded_rail = WebUiSettingsUpdateArgsUseExpandedRail.from_dict(d.pop("use_expanded_rail"))
+
+        key_bindings = WebUiSettingsUpdateArgsKeyBindings.from_dict(d.pop("key_bindings"))
 
         web_ui_settings_update_args = cls(
-            use_night_mode=use_night_mode,
+            color_scheme=color_scheme,
+            use_expanded_rail=use_expanded_rail,
+            key_bindings=key_bindings,
         )
 
         web_ui_settings_update_args.additional_properties = d

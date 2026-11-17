@@ -41,7 +41,12 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from playwright.sync_api import Page, expect
 
-from itests.helpers import fill_after_hydration, get_parsed_from_response
+from itests.helpers import (
+    click_entity_archive,
+    click_entity_remove,
+    fill_after_hydration,
+    get_parsed_from_response,
+)
 
 _LOCATIONS_PATH = "/app/workspace/core/locations"
 
@@ -325,7 +330,7 @@ def test_webui_location_archive(page: Page, create_location) -> None:
     page.goto(f"{_LOCATIONS_PATH}/{location.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     with page.expect_response(
         lambda resp: resp.request.method == "POST"
         and f"{_LOCATIONS_PATH}/{location.ref_id}" in resp.url
@@ -347,7 +352,7 @@ def test_webui_location_remove(page: Page, create_location) -> None:
     page.goto(f"{_LOCATIONS_PATH}/{location.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     with page.expect_response(
         lambda resp: resp.request.method == "POST"
         and f"{_LOCATIONS_PATH}/{location.ref_id}" in resp.url
@@ -358,7 +363,7 @@ def test_webui_location_remove(page: Page, create_location) -> None:
     page.goto(f"{_LOCATIONS_PATH}/{location.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_remove(page, "leaf")
     with page.expect_response(
         lambda resp: resp.request.method == "POST"
         and f"{_LOCATIONS_PATH}/{location.ref_id}" in resp.url

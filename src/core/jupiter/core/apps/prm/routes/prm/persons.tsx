@@ -33,15 +33,11 @@ import { EntityStack } from "#/core/infra/component/entity-stack";
 import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { PeriodTag } from "#/core/common/component/period-tag";
 import { CircleTag } from "#/core/apps/prm/sub/circle/components/tag";
 import { UserLightChip } from "#/core/users/components/user-light-chip";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import {
@@ -66,9 +62,13 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataTrunkLabel } from "#/core/infra/strata/strata-trunk-label";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
+  label: strataTrunkLabel,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -107,8 +107,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
   };
 }
 
-export const shouldRevalidate: ShouldRevalidateFunction =
-  standardShouldRevalidate;
+// The list is the whole of the trunk, and a person's column opens beside it, so
+// stepping from one person to another would otherwise reload every person
+// (hundreds) just to show the same list. A plain move between views leaves it
+// alone; anything that submits something reloads it as usual.
+export const shouldRevalidate: ShouldRevalidateFunction = (args) => {
+  if (
+    args.formMethod === undefined &&
+    args.currentUrl.pathname !== args.nextUrl.pathname
+  ) {
+    return false;
+  }
+  return standardShouldRevalidate(args);
+};
 
 const PANEL_ID = "persons";
 
@@ -227,12 +238,11 @@ export default function Persons() {
 
   const [smallScreenTab, setSmallScreenTab] = useState(0);
 
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"persons"}
-      createLocation="/app/workspace/apps/prm/persons/new"
+      count={filteredEntries.length}
       returnLocation="/app/workspace"
       actions={
         <SectionActions
@@ -240,6 +250,11 @@ export default function Persons() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
+            NavSingle({
+              id: "trunk-new-leaf-entity",
+              text: "New",
+              link: "/app/workspace/apps/prm/persons/new",
+            }),
             NavMultipleSpread({
               navs: [
                 NavSingle({
@@ -271,7 +286,7 @@ export default function Persons() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+      <NestingAwareBlock>
         {/* Big screen: two-column layout with sidebar */}
         {isBigScreen && (
           <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
@@ -422,7 +437,7 @@ export default function Persons() {
         )}
       </NestingAwareBlock>
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

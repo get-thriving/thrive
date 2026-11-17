@@ -60,7 +60,7 @@ export function InboxTaskStack(props: InboxTaskStackProps) {
           exit={{ opacity: 0, height: "0px" }}
           transition={{ duration: 1 }}
         >
-          <Stack spacing={2}>
+          <Stack spacing={1.25}>
             {props.label && (
               <StandardDivider title={props.label} size="large" />
             )}

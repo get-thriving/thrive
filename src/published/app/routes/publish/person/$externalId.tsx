@@ -7,10 +7,9 @@ import { parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { EntityLocationMapSection } from "@jupiter/core/common/sub/locations/component/entity-location-map-section";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { PersonEditor } from "@jupiter/core/apps/prm/sub/person/component/editor";
 import { OccasionStack } from "@jupiter/core/apps/prm/sub/person/sub/occasion/components/stack";
@@ -82,14 +81,13 @@ export default function PublishedPerson() {
   } = loaderData;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`published-person-${person.ref_id}`}
       fakeKey={`published-person-${person.ref_id}`}
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <SectionCard title="Properties">
         <PersonEditor
@@ -131,7 +129,7 @@ export default function PublishedPerson() {
           </Typography>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -19,7 +19,7 @@ import { useTimePlanCreateIntents } from "#/core/apps/time_plans/store/create-in
 import { CREATE_TODO_TASK } from "#/core/apps/time_plans/store/mutations/create-entities";
 import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
@@ -32,6 +32,7 @@ const ParamsSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New todo task",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -85,7 +86,8 @@ export default function TimePlanNewTodoTask() {
   const inputsEnabled = navigation.state === "idle" && !inFlight;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`time-plan-${id}/new-todo-task`}
       fakeKey={`time-plan-${id}/new-todo-task`}
       returnLocation={withTimePlanView(
@@ -102,7 +104,7 @@ export default function TimePlanNewTodoTask() {
         inputsEnabled={inputsEnabled}
         actionResult={error ?? undefined}
       />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -35,7 +35,7 @@ import { InboxTaskCard } from "#/core/common/sub/inbox_tasks/component/card";
 import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionMultipleSpread,
   ActionSingle,
@@ -49,7 +49,6 @@ import {
   ActionableTime,
   actionableTimeToDateTime,
 } from "#/core/infra/actionable-time";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -62,6 +61,7 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -93,6 +93,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "B" } satisfies StrataHandle,
+  label: "Add from big plan inbox tasks",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -250,17 +252,12 @@ export default function TimePlanAddFromBigPlanInboxTasks() {
   );
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`time-plan-${id}/add-from-big-plan-inbox-tasks`}
       fakeKey={`time-plan-${id}/add-from-big-plan-inbox-tasks`}
       returnLocation={returnLocation}
-      returnLocationDiscriminator="add-from-big-plan-inbox-tasks"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.LARGE}
-      allowedExpansionStates={[
-        LeafPanelExpansionState.LARGE,
-        LeafPanelExpansionState.FULL,
-      ]}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -309,7 +306,7 @@ export default function TimePlanAddFromBigPlanInboxTasks() {
         }
       >
         <Stack
-          spacing={2}
+          spacing={1.25}
           useFlexGap
           direction={isBigScreen ? "row" : "column"}
         >
@@ -360,7 +357,7 @@ export default function TimePlanAddFromBigPlanInboxTasks() {
           value={Array.from(targetInboxTaskRefIds).join(",")}
         />
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 
@@ -388,7 +385,7 @@ interface InboxTaskListProps {
 
 function InboxTaskList(props: InboxTaskListProps) {
   return (
-    <Stack spacing={2} useFlexGap>
+    <Stack spacing={1.25} useFlexGap>
       {props.inboxTasks.map((inboxTask) => (
         <InboxTaskCard
           key={`inbox-task-${inboxTask.ref_id}`}

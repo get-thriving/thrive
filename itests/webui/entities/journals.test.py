@@ -43,6 +43,9 @@ from playwright.sync_api import Page, expect
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from itests.helpers import (
+    click_entity_archive,
+    click_entity_remove,
+    expect_entity_archive_disabled,
     fill_after_hydration,
     get_parsed_from_response,
     open_leaf_publish_panel,
@@ -258,7 +261,7 @@ def test_webui_journal_acl_reader_can_read_but_not_update_or_archive(
     expect(page.locator('input[name="rightNow"]')).to_have_value("2024-10-07")
     expect(page.locator('input[name="rightNow"]')).to_be_disabled()
     expect(page.locator("button[id='journal-change-time-config']")).to_be_disabled()
-    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+    expect_entity_archive_disabled(page, "leaf")
 
 
 def test_webui_journal_acl_writer_can_read_and_update(
@@ -304,7 +307,7 @@ def test_webui_journal_acl_writer_can_read_and_archive(
     page.goto(f"/app/workspace/apps/journals/{journal.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/apps/journals/{journal.ref_id}"))
@@ -514,7 +517,7 @@ def test_webui_journal_archive(page: Page, create_journal) -> None:
     page.goto(f"/app/workspace/apps/journals/{journal.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/apps/journals/{journal.ref_id}"))
@@ -536,14 +539,14 @@ def test_webui_journal_remove(page: Page, create_journal) -> None:
     page.goto(f"/app/workspace/apps/journals/{journal.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="rightNow"]')).to_be_disabled()
 
     page.goto(f"/app/workspace/apps/journals/{journal.ref_id}")
     page.wait_for_selector("#leaf-panel")
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_remove(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
     page.wait_for_url("/app/workspace/apps/journals")
 
@@ -610,7 +613,7 @@ def test_webui_journal_question_update_archive_and_remove(page: Page) -> None:
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value(updated_name)
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
     expect(page.locator("#leaf-entity-archive-confirm")).to_have_attribute(
         "value", "remove"
@@ -624,7 +627,7 @@ def test_webui_journal_question_update_archive_and_remove(page: Page) -> None:
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value(updated_name)
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_remove(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
     page.wait_for_url("/app/workspace/apps/journals/questions")
 

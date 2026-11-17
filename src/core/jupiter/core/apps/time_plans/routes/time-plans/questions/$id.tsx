@@ -24,8 +24,8 @@ import { parseForm, parseParams } from "zodix";
 import { periodName } from "#/core/common/recurring-task-period";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -38,6 +38,7 @@ import {
 } from "#/core/infra/errors.server";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -58,6 +59,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("Question"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -135,7 +137,8 @@ export default function TimePlanQuestionDetail() {
   const timePlanQuestion = loaderData.timePlanQuestion;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`time-plans/questions/${timePlanQuestion.ref_id}`}
       fakeKey={`time-plans/questions/${timePlanQuestion.ref_id}`}
       returnLocation="/app/workspace/apps/time-plans/questions"
@@ -145,7 +148,9 @@ export default function TimePlanQuestionDetail() {
     >
       <GlobalError actionResult={actionData} />
 
-      <SectionCard
+      <StrataSection
+        id="time-plan-question-section"
+        fixed
         title={`Question #${timePlanQuestion.name}`}
         actions={
           <SectionActions
@@ -181,8 +186,8 @@ export default function TimePlanQuestionDetail() {
         </FormControl>
 
         <input name="id" type="hidden" value={id ?? timePlanQuestion.ref_id} />
-      </SectionCard>
-    </LeafPanel>
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

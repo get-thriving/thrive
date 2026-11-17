@@ -46,6 +46,7 @@ import {
 } from "#/core/infra/component/chips";
 import { OverdueThresholdsContext } from "#/core/infra/overdue-thresholds-context";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { strataColors } from "#/core/infra/component/strata-tokens";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
 import { BigPlanTag } from "#/core/apps/big_plans/component/tag";
@@ -224,6 +225,9 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
     >
       <StyledCard
         id={`inbox-task-${props.inboxTask.ref_id}`}
+        // An item of a list, for `e`, `j`, `k` and `↵` (ADR 0021).
+        data-strata-item=""
+        tabIndex={-1}
         isselected={((props.allowSelect && props.selected) || false).toString()}
         enabled={inputsEnabled.toString()}
         sx={dense && props.inboxTask.archived ? { opacity: 0.7 } : undefined}
@@ -508,6 +512,11 @@ const StyledCard = styled(Card)<StyledCardProps>(
       isselected === "true"
         ? `inset 0 0 4px ${theme.palette.primary.main};`
         : undefined,
+    // The one with the keyboard focus is marked by a line on its left.
+    "&:focus": {
+      outline: "none",
+      boxShadow: `inset 2px 0 0 ${strataColors.amber}`,
+    },
     backgroundColor:
       enabled === "true" ? "transparent" : theme.palette.action.hover,
   }),

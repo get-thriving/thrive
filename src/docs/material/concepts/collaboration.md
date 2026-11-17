@@ -42,6 +42,8 @@ Each collaborator has an **access level** on the shared entity:
   is not transferred by inviting someone else. Only the owner can invite
   others, change grants, or remove collaborators.
 
+![The Access panel of a todo: its owner and the people who can read, comment on or write to it](../assets/collaboration-access.png "The Access panel of a todo: its owner and the people who can read, comment on or write to it")
+
 When you invite someone or they ask for access, you choose reader, commenter,
 or writer—not owner.
 
@@ -54,6 +56,8 @@ As the **owner**, open the entity and use the **Access** section:
 1. Search for the Thrive user you want to invite.
 2. Choose an access level.
 3. Send the invite.
+
+![The Invite Users dialog: pick someone by name or email, and choose reader, commenter or writer](../assets/collaboration-invite.png "The Invite Users dialog: pick someone by name or email, and choose reader, commenter or writer")
 
 Thrive creates a grant immediately and records an **invite** for the
 recipient. They see it under **Core → Collaboration → Invites** (and on the
@@ -106,6 +110,8 @@ Open **Core → Collaboration** in the left sidebar for a workspace-wide view:
 | **Asking** | Access requests you sent |
 | **Shared with you** | Entities others have granted you |
 | **Shared by you** | Entities you have shared with others |
+
+![The Collaboration hub, with tabs for invites, requests, and what is shared with you and by you](../assets/collaboration-page.png "The Collaboration hub, with tabs for invites, requests, and what is shared with you and by you")
 
 You can filter by person. Opening an entry shows details and actions (acknowledge,
 accept/reject, forget, and so on).

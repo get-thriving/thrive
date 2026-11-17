@@ -40,6 +40,8 @@ Every todo has:
   * optionally a _goal_,
 * optional notes for context/checklists/links.
 
+![A todo open for editing: name, tags, Eisenhower status, difficulty, dates and scheduling](../assets/todos-update.png "A todo open for editing: name, tags, Eisenhower status, difficulty, dates and scheduling")
+
 Because a todo is backed by an inbox task, it also has status, dates, Eisen,
 difficulty, and key.
 
@@ -53,8 +55,12 @@ The Todos page supports multiple views so you can choose planning style:
 * _Kanban by Eisen_: grouped by Eisenhower quadrant.
 * _List_: compact linear view.
 
+![The Todos app in SwiftView: todos grouped into due today, this week, this month and later](../assets/todos-swiftview.png "The Todos app in SwiftView: todos grouped into due today, this week, this month and later")
+
 These views are available on desktop and mobile, with mobile-optimized
 presentations where needed.
+
+![The same Todos on a phone: the groups become tabs, one list at a time](../assets/clients-mobile-todos.png "The same Todos on a phone: the groups become tabs, one list at a time")
 
 ## Lifecycle
 

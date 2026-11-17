@@ -5,6 +5,10 @@ There are many ways to run Thrive, as detailed in
 be availabe in all modes, due to manyof them requiring specialized
 infrastructure, or some level of centralised control.
 
+![The calendar, one of the surfaces on top of the core features](assets/showcase/showcase-desktop-calendar.png "The calendar, one of the surfaces on top of the core features")
+
+![Metrics, tracking a number over time](assets/showcase/showcase-desktop-metrics.png "Metrics, tracking a number over time")
+
 Thrive has a set of _core features_ that basically describe the
 various _things_ you can do with it.
 

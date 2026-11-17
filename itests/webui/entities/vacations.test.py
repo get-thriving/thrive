@@ -44,6 +44,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 from playwright.sync_api import Browser, Page, expect
 
 from itests.helpers import (
+    click_entity_archive,
+    expect_entity_archive_disabled,
     get_parsed_from_response,
     open_leaf_publish_panel,
     type_entity_note_editor_and_wait_for_save,
@@ -230,7 +232,7 @@ def test_webui_vacations_vacation_archive(page: Page, create_vacation) -> None:
     page.goto(f"/app/workspace/apps/vacations/vacation/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_url("/app/workspace/apps/vacations/vacation")
@@ -405,7 +407,7 @@ def test_webui_vacations_vacation_acl_reader_can_read_but_not_update_or_archive(
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Vacation")
     expect(page.locator('input[name="name"]')).to_be_disabled()
     expect(page.locator("button[id='vacation-update']")).to_be_disabled()
-    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+    expect_entity_archive_disabled(page, "leaf")
 
 
 def test_webui_vacations_vacation_acl_writer_can_read_and_update(
@@ -448,7 +450,7 @@ def test_webui_vacations_vacation_acl_writer_can_read_and_archive(
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Archive Vacation")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_url("/app/workspace/apps/vacations/vacation")
@@ -680,7 +682,7 @@ def test_webui_vacations_travel_wish_acl_reader_can_read_but_not_update_or_archi
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Wish")
     expect(page.locator('input[name="name"]')).to_be_disabled()
     expect(page.locator("button[id='travel-wish-update']")).to_be_disabled()
-    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+    expect_entity_archive_disabled(page, "leaf")
     expect(page.locator("#travel-wish-create-vacation")).to_be_disabled()
 
 
@@ -724,7 +726,7 @@ def test_webui_vacations_travel_wish_acl_writer_can_read_and_archive(
     page.wait_for_selector("#leaf-panel")
     expect(page.locator('input[name="name"]')).to_have_value("Writer Archive Wish")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_url("/app/workspace/apps/vacations/wish-list")

@@ -122,7 +122,7 @@ export function SchedulingParamsBlock(props: SchedulingParamsBlockProps) {
       </FormControl>
 
       {isSchedulable && (
-        <Stack spacing={2} useFlexGap direction="row">
+        <Stack spacing={1.25} useFlexGap direction="row">
           <DurationMinsSelect
             name={constructFieldName(
               props.namePrefix,

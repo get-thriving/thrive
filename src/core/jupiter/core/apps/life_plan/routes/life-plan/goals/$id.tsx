@@ -18,9 +18,9 @@ import { parseForm, parseParams } from "zodix";
 import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { SectionCard } from "#/core/infra/component/section-card";
+import { StrataSection } from "#/core/infra/component/strata-section";
 import {
   ActionSingle,
   SectionActions,
@@ -39,6 +39,7 @@ import {
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -64,6 +65,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: strataEntityLabel("Goal"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -192,11 +194,12 @@ export default function GoalView() {
   );
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
+      sectionsPanelId="life-plan-goal"
       key={`goal-${loaderData.goal.ref_id}`}
       entityType={NamedEntityTag.GOAL}
       entityRefId={loaderData.goal.ref_id}
-      isLeaflet
       fakeKey={`goals-${loaderData.goal.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
@@ -205,7 +208,9 @@ export default function GoalView() {
     >
       <GlobalError actionResult={actionData} />
 
-      <SectionCard
+      <StrataSection
+        id="goal-properties-section"
+        fixed
         title="Properties"
         actions={
           <SectionActions
@@ -280,24 +285,27 @@ export default function GoalView() {
             fieldName="/parent_goal_ref_id"
           />
         </FormControl>
-      </SectionCard>
+      </StrataSection>
 
-      <SectionCard
+      <StrataSection
+        id="goal-note-section"
+        items={loaderData.note ? 1 : 0}
         title="Note"
         actions={
-          <SectionActions
-            id="goal-note"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                text: "Create Note",
-                value: "create-note",
-                highlight: false,
-                disabled: loaderData.note !== null,
-              }),
-            ]}
-          />
+          loaderData.note !== null ? undefined : (
+            <SectionActions
+              id="goal-note"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  text: "Create Note",
+                  value: "create-note",
+                  highlight: false,
+                }),
+              ]}
+            />
+          )
         }
       >
         {loaderData.note && (
@@ -306,8 +314,8 @@ export default function GoalView() {
             inputsEnabled={inputsEnabled}
           />
         )}
-      </SectionCard>
-    </LeafPanel>
+      </StrataSection>
+    </EntityPanel>
   );
 }
 

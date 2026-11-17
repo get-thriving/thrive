@@ -76,6 +76,7 @@ const StatsFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.TOOL,
+  label: "Compute stats",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -187,7 +188,7 @@ export default function Stats() {
           </AccordionSummary>
 
           <AccordionDetails>
-            <Stack spacing={2} useFlexGap>
+            <Stack spacing={1.25} useFlexGap>
               {isWorkspaceFeatureAvailable(
                 topLevelInfo.workspace,
                 WorkspaceFeature.HABITS,

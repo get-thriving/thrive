@@ -21,7 +21,7 @@ import { z } from "zod";
 import { parseForm } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -43,6 +43,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New external stream",
 };
 
 export async function action({ request, url }: ActionFunctionArgs) {
@@ -76,7 +77,8 @@ export default function ScheduleStreamNew() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="schedule-stream/new"
       fakeKey="schedule-stream/new"
       returnLocation={`/app/workspace/calendar/schedule/stream?${query}`}
@@ -127,7 +129,7 @@ export default function ScheduleStreamNew() {
           <FieldError actionResult={actionData} fieldName="/color" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

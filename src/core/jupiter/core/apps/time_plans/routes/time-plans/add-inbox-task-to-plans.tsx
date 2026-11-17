@@ -20,7 +20,7 @@ import {
 } from "#/core/apps/time_plans/root";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -28,7 +28,6 @@ import {
 import { SectionCard } from "#/core/infra/component/section-card";
 import { TimePlanActivityFeasabilitySelect } from "#/core/apps/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "#/core/apps/time_plans/sub/activity/component/kind-select";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
@@ -56,6 +55,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "Add inbox task to plans",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -145,13 +145,12 @@ export default function AddInboxTaskToPlans() {
   );
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="add-inbox-task-to-plans"
       fakeKey={`add-inbox-task-to-plans/${searchParams.get("inboxTaskRefId")}`}
       returnLocation={`/app/workspace/core/inbox-tasks/${searchParams.get("inboxTaskRefId")}`}
-      returnLocationDiscriminator="add-inbox-task-to-plans"
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.MEDIUM}
     >
       <GlobalError actionResult={actionData} />
 
@@ -174,7 +173,7 @@ export default function AddInboxTaskToPlans() {
         }
       >
         <Stack
-          spacing={2}
+          spacing={1.25}
           useFlexGap
           direction={isBigScreen ? "row" : "column"}
         >
@@ -245,7 +244,7 @@ export default function AddInboxTaskToPlans() {
           value={Array.from(targetTimePlanRefIds).join(",")}
         />
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

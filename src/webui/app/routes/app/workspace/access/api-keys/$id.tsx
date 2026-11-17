@@ -15,7 +15,7 @@ import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
@@ -29,6 +29,7 @@ import {
 } from "@jupiter/core/infra/errors.server";
 import { standardShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -46,6 +47,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: strataEntityLabel("API key"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -112,7 +114,8 @@ export default function ApiKeyEdit() {
   const apiKey = loaderData.apiKey;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`access/api-keys/${apiKey.ref_id}`}
       fakeKey={`access/api-keys/${apiKey.ref_id}`}
       returnLocation="/app/workspace/access"
@@ -151,7 +154,7 @@ export default function ApiKeyEdit() {
           <FieldError actionResult={actionData} fieldName="/name" />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

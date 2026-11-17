@@ -53,6 +53,9 @@ from jupiter_webapi_client.types import Unset
 from playwright.sync_api import Page, expect
 
 from itests.helpers import (
+    click_entity_archive,
+    click_entity_remove,
+    expect_entity_archive_disabled,
     get_parsed_from_response,
     open_leaf_publish_panel,
     open_trunk_publish_panel,
@@ -251,7 +254,7 @@ def test_webui_docs_doc_archive_via_leaf_panel(page: Page, create_doc) -> None:
     doc = create_doc("Archive Me UI", "x")
     page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
 
-    page.locator("#leaf-entity-archive").click()
+    click_entity_archive(page, "leaf")
     page.locator("#leaf-entity-archive-confirm").click()
     page.wait_for_url(re.compile(rf".*/docs/{doc.parent_dir_ref_id}$"))
 
@@ -263,12 +266,12 @@ def test_webui_docs_doc_remove_via_leaf_panel(page: Page, create_doc) -> None:
     doc = create_doc("Remove Me UI", "x")
     page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
 
-    page.locator("#leaf-entity-archive").click()
+    click_entity_archive(page, "leaf")
     page.locator("#leaf-entity-archive-confirm").click()
     page.wait_for_url(re.compile(rf".*/docs/{doc.parent_dir_ref_id}$"))
 
     page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
-    page.locator("#leaf-entity-archive").click()
+    click_entity_remove(page, "leaf")
     page.locator("#leaf-entity-archive-confirm").click()
     page.wait_for_url(re.compile(rf".*/docs/{doc.parent_dir_ref_id}$"))
 
@@ -604,7 +607,7 @@ def test_webui_docs_doc_acl_reader_can_read_but_not_update_or_archive(
         "Reader ACL Doc"
     )
     expect(page.locator('#leaf-panel input[name="name"]')).to_be_disabled()
-    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+    expect_entity_archive_disabled(page, "leaf")
 
 
 def test_webui_docs_shared_section_lists_granted_dirs_and_docs(
@@ -706,7 +709,7 @@ def test_webui_docs_doc_acl_writer_can_read_and_archive(
 
     page.goto(f"/app/workspace/apps/docs/{doc.parent_dir_ref_id}/doc/{doc.ref_id}")
     page.wait_for_selector("#leaf-panel")
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
     page.wait_for_url(re.compile(rf"/app/workspace/apps/docs/{doc.parent_dir_ref_id}$"))
 

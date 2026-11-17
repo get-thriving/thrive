@@ -21,7 +21,7 @@ import { WidgetTypeSelector } from "@jupiter/core/home/component/widget-type-sel
 import { RowAndColSelector } from "@jupiter/core/home/component/row-and-col-selector";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -57,6 +57,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New widget",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -125,7 +126,8 @@ export default function NewWidget() {
   }, [searchParams]);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="home-tab-widgets/new"
       fakeKey={`home/settings/tabs/${id}/widgets/new`}
       returnLocation={`/app/workspace/home/settings/tabs/${id}`}
@@ -195,7 +197,7 @@ export default function NewWidget() {
           />
         </FormControl>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

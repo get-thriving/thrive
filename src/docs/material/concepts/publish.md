@@ -59,11 +59,15 @@ How you open the publish controls depends on what you are sharing:
   lists every publish entity in the workspace and lets you open one to see its
   status and public URL.
 
+![The Publish panel on a todo: status, the public link, Copy and View, and a button to move it back to draft](../assets/publish-panel.png "The Publish panel on a todo: status, the public link, Copy and View, and a button to move it back to draft")
+
 ## The Public Link
 
 When a publish record exists, Thrive shows a **public URL**. That URL always
 starts with your site’s public published path and a unique id. You can **copy**
 it or **view** it in a new tab (when the publish is active).
+
+![Core, Publish: every entity shared by link, with its type, status and URL](../assets/publish-list.png "Core, Publish: every entity shared by link, with its type, status and URL")
 
 Guests do not sign in. They only see what you published, in read-only form.
 They cannot browse the rest of your workspace.

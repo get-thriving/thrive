@@ -1,26 +1,8 @@
 import { Box, Stack } from "@mui/material";
 import type { PropsWithChildren } from "react";
 
-import { useBigScreen } from "#/core/infra/component/use-big-screen";
-
-interface NestingAwarePanelProps {
-  shouldHide: boolean;
-  branchForceHide?: boolean;
-}
-
-export function NestingAwareBlock(
-  props: PropsWithChildren<NestingAwarePanelProps>,
-) {
-  const isBigScreen = useBigScreen();
-
-  if (!isBigScreen && props.shouldHide) {
-    return null;
-  }
-
-  if (props.branchForceHide) {
-    return null;
-  }
-
+/** A panel's body: a stack with room under it for the last row to scroll clear. */
+export function NestingAwareBlock(props: PropsWithChildren) {
   return (
     <Stack spacing={2}>
       {props.children}

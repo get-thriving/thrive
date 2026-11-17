@@ -7,7 +7,9 @@ import {
 import { Settings } from "@mui/icons-material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Logout from "@mui/icons-material/Logout";
-import MenuIcon from "@mui/icons-material/Menu";
+import HandshakeOutlinedIcon from "@mui/icons-material/HandshakeOutlined";
+import HelpCenterIcon from "@mui/icons-material/HelpCenter";
+import SearchIcon from "@mui/icons-material/Search";
 import PolicyIcon from "@mui/icons-material/Policy";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
@@ -21,15 +23,16 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  useMediaQuery,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import type {
   LinksFunction,
   LoaderFunctionArgs,
   ShouldRevalidateFunction,
 } from "react-router";
 import { Link, useOutlet } from "react-router";
-import { AnimatePresence, useAnimate } from "framer-motion";
+import { useAnimate } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
 import { isUserFeatureAvailable } from "@jupiter/core/users/root";
 import { CollaborationLink } from "@jupiter/core/infra/component/collaboration-link";
@@ -44,7 +47,17 @@ import { WorkspaceContainer } from "@jupiter/core/infra/component/layout/workspa
 import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { ReleaseUpdateWidget } from "@jupiter/core/infra/component/release-update-widget";
 import { SearchWidget } from "@jupiter/core/common/search/components/search-widget";
-import Sidebar from "@jupiter/core/infra/component/sidebar";
+import { StrataColumnsShell } from "@jupiter/core/infra/component/layout/strata-columns-shell";
+import { StrataRail } from "@jupiter/core/infra/component/shell/strata-rail";
+import { StrataDrawer } from "@jupiter/core/infra/component/shell/strata-drawer";
+import { StrataPhoneLead } from "@jupiter/core/infra/component/shell/strata-phone-lead";
+import { DiscordMenuIcon } from "@jupiter/core/infra/component/discord-menu-icon";
+import { ServiceLinksContext } from "@jupiter/core/infra/service-links-context";
+import { StrataCommandBar } from "@jupiter/core/infra/component/shell/strata-command-bar";
+import { StrataBreadcrumb } from "@jupiter/core/infra/component/shell/strata-breadcrumb";
+import { StrataColumnMap } from "@jupiter/core/infra/component/shell/strata-column-map";
+import { strataSize } from "@jupiter/core/infra/component/strata-tokens";
+import { useExpandedRail } from "@jupiter/core/infra/component/use-expanded-rail";
 import { Title } from "@jupiter/core/infra/component/title";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -133,9 +146,28 @@ export default function Workspace() {
   const outlet = useOutlet();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const isBigScreen = useBigScreen();
-  const [showSidebar, setShowSidebar] = useState(isBigScreen);
+  // The phone's drawer starts closed whatever the first render took the screen
+  // to be: a desktop browser is assumed wide until it is measured.
+  const [showDrawer, setShowDrawer] = useState(false);
+  // Big screens have an icon rail (ADR 0019), and the panels lay themselves
+  // out as columns beside it.
+  const theme = useTheme();
+  // The wider rail is the user's choice, but it takes room the columns would
+  // otherwise have, so it is only offered from the `lg` breakpoint up.
+  const roomForExpandedRail = useMediaQuery(
+    `(min-width: ${theme.breakpoints.values.lg}px)`,
+  );
+  const showRail = isBigScreen;
+  // On a small screen there is one panel at a time, with its own top bar and a
+  // drawer in place of the rail (ADR 0020).
+  const strataPhone = !isBigScreen;
+  const [railExpandedPreference, toggleRailExpanded] = useExpandedRail();
+  const railExpanded = railExpandedPreference && roomForExpandedRail;
+  const railWidth = railExpanded ? strataSize.railExpanded : strataSize.rail;
+  const [searchOpen, setSearchOpen] = useState(false);
   const scoreAction = useScoreActionSingleton();
   const globalProperties = useContext(GlobalPropertiesContext);
+  const serviceLinks = useContext(ServiceLinksContext);
 
   const [accountMenuAnchorEl, setAccountMenuAnchorEl] =
     useState<null | HTMLElement>(null);
@@ -188,182 +220,261 @@ export default function Workspace() {
       userScoreOverview={loaderData.userScoreOverview}
     >
       <WorkspaceContainer>
-        <SmartAppBar>
-          <IconButton
-            id="show-sidebar"
-            size="large"
-            edge="start"
-            color="inherit"
-            onClick={() => setShowSidebar((s) => !s)}
-          >
-            <MenuIcon />
-          </IconButton>
+        <StrataColumnsShell
+          offsetLeft={showRail ? railWidth : 0}
+          phone={strataPhone}
+        >
+          <SmartAppBar compact={strataPhone}>
+            {strataPhone && (
+              <StrataPhoneLead onOpenDrawer={() => setShowDrawer(true)} />
+            )}
 
-          <Title hideOnSmallScreen />
+            {showRail && (
+              <>
+                <Box sx={{ width: "9rem", flexShrink: 0, display: "flex" }}>
+                  <Title hideOnSmallScreen />
+                </Box>
+                <StrataCommandBar onOpen={() => setSearchOpen(true)} />
+                <Box sx={{ flex: 1, minWidth: 0, display: "flex", ml: 2 }}>
+                  <StrataBreadcrumb />
+                </Box>
+                <StrataColumnMap />
+              </>
+            )}
 
-          <WorkspaceAppBarTrailing>
-            <SearchWidget
-              allTags={loaderData.allTags}
-              allContacts={loaderData.allContacts}
-            />
+            <WorkspaceAppBarTrailing>
+              <SearchWidget
+                allTags={loaderData.allTags}
+                allContacts={loaderData.allContacts}
+                open={searchOpen}
+                onOpenChange={setSearchOpen}
+                hideTrigger
+              />
 
-            {/* <ProgressReporter token={loaderData.progressReporterToken} /> */}
+              {/* <ProgressReporter token={loaderData.progressReporterToken} /> */}
 
-            <CollaborationLink count={loaderData.collaborationCount} />
+              {strataPhone && (
+                <IconButton
+                  id="strata-phone-search"
+                  size="large"
+                  color="inherit"
+                  aria-label="Search"
+                  onClick={() => setSearchOpen(true)}
+                >
+                  <SearchIcon />
+                </IconButton>
+              )}
 
-            <CommunityLink />
+              {/* On a phone these three are in the account menu instead. */}
+              {!strataPhone && (
+                <>
+                  <CollaborationLink count={loaderData.collaborationCount} />
 
-            <DocsHelp
-              size="medium"
-              subject={DocsHelpSubject.ROOT}
-              theId="docs-help"
-            />
+                  <CommunityLink />
 
-            <IconButton
-              id="account-menu"
-              onClick={handleAccountMenuClick}
-              size="large"
-              color="inherit"
-            >
-              <Badge
-                ref={badgeRef}
-                badgeContent={
-                  scoreAction
-                    ? scoreAction.daily_total_score
-                    : loaderData.userScoreOverview?.daily_score.total_score
-                }
-                color="success"
+                  <DocsHelp
+                    size="medium"
+                    subject={DocsHelpSubject.ROOT}
+                    theId="docs-help"
+                  />
+                </>
+              )}
+
+              <IconButton
+                id="account-menu"
+                onClick={handleAccountMenuClick}
+                size="large"
+                color="inherit"
               >
-                <Avatar
-                  sx={{ width: "1.75rem", height: "1.75rem" }}
-                  alt={loaderData.user.name}
-                  src={loaderData.userAvatarUrl}
-                />
-              </Badge>
-            </IconButton>
-          </WorkspaceAppBarTrailing>
+                <Badge
+                  ref={badgeRef}
+                  badgeContent={
+                    scoreAction
+                      ? scoreAction.daily_total_score
+                      : loaderData.userScoreOverview?.daily_score.total_score
+                  }
+                  color="success"
+                >
+                  <Avatar
+                    sx={{ width: "1.75rem", height: "1.75rem" }}
+                    alt={loaderData.user.name}
+                    src={loaderData.userAvatarUrl}
+                  />
+                </Badge>
+              </IconButton>
+            </WorkspaceAppBarTrailing>
 
-          <Menu
-            id="basic-menu"
-            anchorEl={accountMenuAnchorEl}
-            open={accountMenuOpen}
-            onClose={handleAccountMenuClose}
-            slotProps={{
-              list: {
-                "aria-labelledby": "basic-button",
-              },
-            }}
-          >
-            {isUserFeatureAvailable(
-              loaderData.user,
-              UserFeature.GAMIFICATION,
-            ) && (
+            <Menu
+              id="basic-menu"
+              anchorEl={accountMenuAnchorEl}
+              open={accountMenuOpen}
+              onClose={handleAccountMenuClose}
+              slotProps={{
+                list: {
+                  "aria-labelledby": "basic-button",
+                },
+              }}
+            >
+              {isUserFeatureAvailable(
+                loaderData.user,
+                UserFeature.GAMIFICATION,
+              ) && (
+                <MenuItem
+                  to="/app/workspace/gamification"
+                  component={Link}
+                  onClick={handleAccountMenuClose}
+                >
+                  <ListItemIcon>
+                    <SportsEsportsIcon />
+                  </ListItemIcon>
+                  <ListItemText>
+                    Today:{" "}
+                    {scoreAction
+                      ? scoreAction.daily_total_score
+                      : loaderData.userScoreOverview?.daily_score.total_score}
+                    <Divider orientation="vertical" flexItem />
+                    Week:{" "}
+                    {scoreAction
+                      ? scoreAction.weekly_total_score
+                      : loaderData.userScoreOverview?.weekly_score.total_score}
+                  </ListItemText>
+                  <Divider />
+                </MenuItem>
+              )}
+              {strataPhone && [
+                <MenuItem
+                  key="collaboration"
+                  id="collaboration-link"
+                  to="/app/workspace/core/collaboration"
+                  component={Link}
+                  onClick={handleAccountMenuClose}
+                >
+                  <ListItemIcon>
+                    <Badge
+                      badgeContent={loaderData.collaborationCount}
+                      color="error"
+                      max={99}
+                    >
+                      <HandshakeOutlinedIcon />
+                    </Badge>
+                  </ListItemIcon>
+                  <ListItemText>Collaboration</ListItemText>
+                </MenuItem>,
+                <MenuItem
+                  key="community"
+                  component={"a"}
+                  href={globalProperties.communityUrl}
+                  target="_blank"
+                >
+                  <ListItemIcon>
+                    <DiscordMenuIcon />
+                  </ListItemIcon>
+                  <ListItemText>Community</ListItemText>
+                </MenuItem>,
+                <MenuItem
+                  key="help"
+                  id="docs-help"
+                  component={"a"}
+                  href={serviceLinks.docsUrl}
+                  target="_blank"
+                >
+                  <ListItemIcon>
+                    <HelpCenterIcon />
+                  </ListItemIcon>
+                  <ListItemText>Help</ListItemText>
+                </MenuItem>,
+                <Divider key="phone-links-divider" />,
+              ]}
               <MenuItem
-                to="/app/workspace/gamification"
+                id="account"
+                to="/app/workspace/account"
                 component={Link}
                 onClick={handleAccountMenuClose}
               >
                 <ListItemIcon>
-                  <SportsEsportsIcon />
+                  <AccountCircleIcon />
                 </ListItemIcon>
-                <ListItemText>
-                  Today:{" "}
-                  {scoreAction
-                    ? scoreAction.daily_total_score
-                    : loaderData.userScoreOverview?.daily_score.total_score}
-                  <Divider orientation="vertical" flexItem />
-                  Week:{" "}
-                  {scoreAction
-                    ? scoreAction.weekly_total_score
-                    : loaderData.userScoreOverview?.weekly_score.total_score}
-                </ListItemText>
-                <Divider />
+                <ListItemText>Account</ListItemText>
               </MenuItem>
-            )}
-            <MenuItem
-              id="account"
-              to="/app/workspace/account"
-              component={Link}
-              onClick={handleAccountMenuClose}
-            >
-              <ListItemIcon>
-                <AccountCircleIcon />
-              </ListItemIcon>
-              <ListItemText>Account</ListItemText>
-            </MenuItem>
-            <MenuItem
-              id="access"
-              to="/app/workspace/access"
-              component={Link}
-              onClick={handleAccountMenuClose}
-            >
-              <ListItemIcon>
-                <VpnKeyIcon />
-              </ListItemIcon>
-              <ListItemText>Access</ListItemText>
-            </MenuItem>
-            <MenuItem
-              id="settings"
-              to="/app/workspace/settings"
-              component={Link}
-              onClick={handleAccountMenuClose}
-            >
-              <ListItemIcon>
-                <Settings />
-              </ListItemIcon>
-              <ListItemText>Settings</ListItemText>
-            </MenuItem>
-            <Divider />
-            <MenuItem
-              component={"a"}
-              href={globalProperties.termsOfServiceUrl}
-              target="_blank"
-            >
-              <ListItemIcon>
-                <PolicyIcon />
-              </ListItemIcon>
-              <ListItemText>Terms of Service</ListItemText>
-            </MenuItem>
-            <MenuItem
-              component={"a"}
-              href={globalProperties.privacyPolicyUrl}
-              target="_blank"
-            >
-              <ListItemIcon>
-                <PolicyIcon />
-              </ListItemIcon>
-              <ListItemText>Privacy Policy</ListItemText>
-            </MenuItem>
-            <Divider />
-            <MenuItem
-              id="logout"
-              component={Link}
-              to="/app/lifecycle/logout"
-              reloadDocument
-              onClick={handleAccountMenuClose}
-            >
-              <ListItemIcon>
-                <Logout />
-              </ListItemIcon>
-              <ListItemText>Logout</ListItemText>
-            </MenuItem>
-          </Menu>
-        </SmartAppBar>
+              <MenuItem
+                id="access"
+                to="/app/workspace/access"
+                component={Link}
+                onClick={handleAccountMenuClose}
+              >
+                <ListItemIcon>
+                  <VpnKeyIcon />
+                </ListItemIcon>
+                <ListItemText>Access</ListItemText>
+              </MenuItem>
+              <MenuItem
+                id="settings"
+                to="/app/workspace/settings"
+                component={Link}
+                onClick={handleAccountMenuClose}
+              >
+                <ListItemIcon>
+                  <Settings />
+                </ListItemIcon>
+                <ListItemText>Settings</ListItemText>
+              </MenuItem>
+              <Divider />
+              <MenuItem
+                component={"a"}
+                href={globalProperties.termsOfServiceUrl}
+                target="_blank"
+              >
+                <ListItemIcon>
+                  <PolicyIcon />
+                </ListItemIcon>
+                <ListItemText>Terms of Service</ListItemText>
+              </MenuItem>
+              <MenuItem
+                component={"a"}
+                href={globalProperties.privacyPolicyUrl}
+                target="_blank"
+              >
+                <ListItemIcon>
+                  <PolicyIcon />
+                </ListItemIcon>
+                <ListItemText>Privacy Policy</ListItemText>
+              </MenuItem>
+              <Divider />
+              <MenuItem
+                id="logout"
+                component={Link}
+                to="/app/lifecycle/logout"
+                reloadDocument
+                onClick={handleAccountMenuClose}
+              >
+                <ListItemIcon>
+                  <Logout />
+                </ListItemIcon>
+                <ListItemText>Logout</ListItemText>
+              </MenuItem>
+            </Menu>
+          </SmartAppBar>
 
-        <Sidebar
-          showSidebar={showSidebar}
-          onClickForNavigation={() => {
-            if (isBigScreen) return;
-            setShowSidebar(false);
-          }}
-        />
+          {showRail && (
+            <StrataRail
+              expanded={railExpanded}
+              canExpand={roomForExpandedRail}
+              onToggleExpanded={toggleRailExpanded}
+            />
+          )}
 
-        <AnimatePresence mode="wait" initial={false}>
+          {strataPhone && (
+            <StrataDrawer
+              open={showDrawer}
+              onClose={() => setShowDrawer(false)}
+            />
+          )}
+
           {outlet}
-        </AnimatePresence>
 
-        <ScoreSnackbarManager scoreAction={scoreAction} />
-        <ReleaseUpdateWidget />
+          <ScoreSnackbarManager scoreAction={scoreAction} />
+          <ReleaseUpdateWidget />
+        </StrataColumnsShell>
       </WorkspaceContainer>
     </TopLevelInfoProvider>
   );

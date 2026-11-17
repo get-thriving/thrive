@@ -9,10 +9,9 @@ import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
 import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { ChorePropertiesEditor } from "@jupiter/core/apps/chores/component/properties-editor";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
@@ -95,14 +94,13 @@ export default function PublishedChore() {
   const allGoals = loaderData.goal ? [loaderData.goal] : [];
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`published-chore-${loaderData.chore.ref_id}`}
       fakeKey={`published-chore-${loaderData.chore.ref_id}`}
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <ChorePropertiesEditor
         title="Properties"
@@ -162,7 +160,7 @@ export default function PublishedChore() {
           />
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

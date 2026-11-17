@@ -128,7 +128,7 @@ const inputsEnabled =
   accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 ```
 
-3. Pass to `LeafPanel` (note spelling `accessable`):
+3. Pass to `EntityPanel` (note spelling `accessable`):
 
 ```tsx
 accessable
@@ -204,7 +204,7 @@ Invite via `invite_users_to_entity_sync` with
 | Forget then stump list stale | Do not `shouldRevalidate=false` for forget-grant |
 | Shared todo AspectSelect crash | Merge foreign aspect; disable life-plan edits |
 | Update ACL on unchanged aspect | Only `load_entity` related crowns when value changes |
-| Prop spelling | LeafPanel uses `accessable` (not `accessible`) |
+| Prop spelling | EntityPanel uses `accessable` (not `accessible`) |
 
 ## Out of scope
 

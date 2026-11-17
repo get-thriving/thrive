@@ -8,7 +8,7 @@ import { parseParams } from "zodix";
 import { timeEventInDayBlockParamsToTimezone } from "@jupiter/core/common/sub/time_events/time-event";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -86,10 +86,10 @@ export default function PublishedScheduleStreamInDayEvent() {
   );
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key={`published-schedule-event-in-day-${loaderData.scheduleEventInDay.ref_id}`}
       fakeKey={`published-schedule-event-in-day-${loaderData.scheduleEventInDay.ref_id}`}
-      isLeaflet
       inputsEnabled={false}
       entityNotEditable={true}
       returnLocation={`/schedule-stream/${loaderData.externalId}?${query}`}
@@ -136,7 +136,7 @@ export default function PublishedScheduleStreamInDayEvent() {
           </Typography>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

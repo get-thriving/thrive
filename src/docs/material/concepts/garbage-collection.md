@@ -13,7 +13,7 @@ There is a log of all the runs, which shows you which entities werearchived too.
 In the web app you can find reporting in the `Garbage Collect` left-hand side
 tab, under _tools_. It lookssomething like this:
 
-![Gen](../assets/gc.png)
+![Garbage collection: choose targets, run it, and see how many entities each run archived](../assets/gc.png "Garbage collection: choose targets, run it, and see how many entities each run archived")
 
 You can trigger a manual by pressing the `Garbage Collect` button.
 

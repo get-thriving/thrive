@@ -12,14 +12,12 @@ import {
 } from "@jupiter/core/infra/component/entity-card";
 import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { ScheduleStreamColorTag } from "@jupiter/core/apps/schedule/component/color-tag";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import type { StrataHandle } from "@jupiter/core/infra/strata/strata-handle";
 import {
   FilterManyOptions,
   NavSingle,
@@ -38,6 +36,8 @@ const ParamsSchema = z.object({});
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "M" } satisfies StrataHandle,
+  label: "Streams",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -73,7 +73,6 @@ export default function ScheduleStreamViewAll() {
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
   const [{ tags: selectedTagsRefId }, setFilters] = useSectionFilters(
     PANEL_ID,
     FILTERS,
@@ -89,9 +88,10 @@ export default function ScheduleStreamViewAll() {
   });
 
   return (
-    <BranchPanel
+    <EntityPanel
+      kind="branch"
+      title="Calendar streams"
       key="calendar-schedule-stream"
-      createLocation={`/app/workspace/calendar/schedule/stream/new?${query}`}
       returnLocation={`/app/workspace/calendar?${query}`}
       actions={
         <SectionActions
@@ -99,6 +99,11 @@ export default function ScheduleStreamViewAll() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={inputsEnabled}
           actions={[
+            NavSingle({
+              id: "branch-new-leaf-entity",
+              text: "New",
+              link: `/app/workspace/calendar/schedule/stream/new?${query}`,
+            }),
             NavSingle({
               text: "New External",
               link: `/app/workspace/calendar/schedule/stream/new-external?${query}`,
@@ -116,7 +121,7 @@ export default function ScheduleStreamViewAll() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <EntityStack>
           {filteredEntries.map((entry) => (
             <EntityCard
@@ -142,7 +147,7 @@ export default function ScheduleStreamViewAll() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </BranchPanel>
+    </EntityPanel>
   );
 }
 

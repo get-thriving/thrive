@@ -39,7 +39,12 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from playwright.sync_api import Page, expect
 
-from itests.helpers import get_parsed_from_response, open_leaf_publish_panel
+from itests.helpers import (
+    click_entity_archive,
+    expect_entity_archive_disabled,
+    get_parsed_from_response,
+    open_leaf_publish_panel,
+)
 from itests.webui.entities.conftest import AnotherUserAndWorkspace
 
 _ACCESS_DENIED_LABEL = "You do not have the right access for this entity"
@@ -353,7 +358,7 @@ def test_webui_big_plan_acl_reader_can_read_but_not_update_or_archive(
     expect(page.locator('input[name="name"]')).to_have_value("Reader ACL Plan")
     expect(page.locator('input[name="name"]')).to_be_disabled()
     expect(page.locator("button[id='big-plan-editor-save']")).to_be_disabled()
-    expect(page.locator("button[id='leaf-entity-archive']")).to_be_disabled()
+    expect_entity_archive_disabled(page, "leaf")
 
 
 def test_webui_big_plan_acl_writer_can_read_and_update(
@@ -394,7 +399,7 @@ def test_webui_big_plan_acl_writer_can_read_and_archive(
     page.goto(f"/app/workspace/apps/big-plans/{big_plan.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("button[id='leaf-entity-archive']").click()
+    click_entity_archive(page, "leaf")
     page.locator("button[id='leaf-entity-archive-confirm']").click()
 
     page.wait_for_url("/app/workspace/apps/big-plans")

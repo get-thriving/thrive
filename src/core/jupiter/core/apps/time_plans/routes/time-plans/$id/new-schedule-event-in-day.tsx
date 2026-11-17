@@ -30,7 +30,7 @@ import {
 } from "#/core/common/sub/time_events/time-event";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -43,7 +43,6 @@ import { ScheduleStreamSelect } from "#/core/apps/schedule/component/select";
 import { TimeEventBuffersEditor } from "#/core/common/sub/time_events/component/buffers-editor";
 import { TimeEventParamsSource } from "#/core/common/sub/time_events/component/params-source";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { handleActionApiError } from "#/core/infra/errors.server";
 import { withTimePlanView } from "#/core/apps/time_plans/view-mode";
@@ -75,6 +74,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New schedule event in day",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -161,7 +161,8 @@ export default function TimePlanScheduleEventInDayNew() {
   }, [query]);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="time-plan-schedule-event-in-day/new"
       fakeKey="time-plan-schedule-event-in-day/new"
       returnLocation={withTimePlanView(
@@ -169,7 +170,6 @@ export default function TimePlanScheduleEventInDayNew() {
         timePlanView,
       )}
       inputsEnabled={inputsEnabled}
-      initialExpansionState={LeafPanelExpansionState.SMALL}
     >
       <TimeEventParamsSource
         startDate={startDate}
@@ -259,7 +259,7 @@ export default function TimePlanScheduleEventInDayNew() {
           />
         </FormControl>
 
-        <Stack spacing={2} direction="row">
+        <Stack spacing={1.25} direction="row">
           <ButtonGroup variant="outlined" disabled={!inputsEnabled}>
             <Button
               disabled={!inputsEnabled}
@@ -318,7 +318,7 @@ export default function TimePlanScheduleEventInDayNew() {
           actionResult={actionData}
         />
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

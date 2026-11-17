@@ -8,10 +8,9 @@ import { EntityLocationMapSection } from "@jupiter/core/common/sub/locations/com
 import { LocationsEditor } from "@jupiter/core/common/sub/locations/component/locations-editor";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { DocEditor } from "@jupiter/core/apps/docs/component/editor";
 import { handleLoaderApiError } from "@jupiter/core/infra/errors.server";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
@@ -65,14 +64,13 @@ export default function PublishedDoc() {
   const { doc, note, tags, location } = loaderData;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`published-doc-${doc.ref_id}`}
       fakeKey={`published-doc-${doc.ref_id}`}
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <SectionCard title="Doc">
         <DocEditor
@@ -105,7 +103,7 @@ export default function PublishedDoc() {
         />
       </SectionCard>
       <EntityLocationMapSection location={location} />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

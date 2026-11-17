@@ -30,7 +30,7 @@ import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 import { EntityStack } from "#/core/infra/component/entity-stack";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -83,6 +83,7 @@ const CreateFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "New time plan",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -172,7 +173,8 @@ export default function NewTimePlan() {
   >(() => new Set(questionsForPeriod.map((question) => question.ref_id)));
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="time-plans/new"
       fakeKey={`time-plans-${initialToday}-${initialPeriod}/new`}
       returnLocation="/app/workspace/apps/time-plans"
@@ -394,7 +396,7 @@ export default function NewTimePlan() {
             </>
           )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

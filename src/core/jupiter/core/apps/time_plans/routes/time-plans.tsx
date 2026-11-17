@@ -30,7 +30,7 @@ import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-ca
 import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   FilterManyOptions,
   NavSingle,
@@ -39,11 +39,7 @@ import {
 import { TimePlanCard } from "#/core/apps/time_plans/component/card";
 import { TimePlanStack } from "#/core/apps/time_plans/component/stack";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import {
-  DisplayType,
-  useTrunkNeedsToShowBranch,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import {
   TopLevelInfo,
   TopLevelInfoContext,
@@ -56,9 +52,13 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataTrunkLabel } from "#/core/infra/strata/strata-trunk-label";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "S", grow: true } satisfies StrataHandle,
+  label: strataTrunkLabel,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -117,9 +117,6 @@ export default function TimePlans() {
 
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
-
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
   const activeTimePlans = findTimePlansThatAreActive(
     loaderData.entries.map((e) => e.time_plan),
@@ -199,9 +196,10 @@ export default function TimePlans() {
   }
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"time-plans"}
-      createLocation="/app/workspace/apps/time-plans/new"
+      count={filteredSortedTimePlans.length}
       returnLocation="/app/workspace"
       actions={
         <SectionActions
@@ -209,6 +207,11 @@ export default function TimePlans() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={inputsEnabled}
           actions={[
+            NavSingle({
+              id: "trunk-new-leaf-entity",
+              text: "New",
+              link: "/app/workspace/apps/time-plans/new",
+            }),
             NavSingle({
               id: "time-plans-questions",
               text: "Questions",
@@ -233,10 +236,7 @@ export default function TimePlans() {
         />
       }
     >
-      <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeafToo}
-      >
+      <NestingAwareBlock>
         {filteredSortedTimePlans.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"
@@ -377,7 +377,7 @@ export default function TimePlans() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 
@@ -407,6 +407,8 @@ function CurrentTimePlan(props: CurrentTimePlanProps) {
   return (
     <TimePlanCard
       key={`time-plan-${props.timePlan.ref_id}`}
+      // The same plan is in the list of all of them below, with its id.
+      entityId={`current-time-plan-${props.timePlan.ref_id}`}
       topLevelInfo={props.topLevelInfo}
       timePlan={props.timePlan}
       tags={props.tags}

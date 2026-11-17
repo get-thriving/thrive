@@ -31,7 +31,7 @@ export function RowAndColSelector(props: RowAndColSelectorProps) {
   }, [props.row, props.col]);
 
   return (
-    <Stack direction="row" spacing={2}>
+    <Stack direction="row" spacing={1.25}>
       <TextField
         label="Row"
         type="number"

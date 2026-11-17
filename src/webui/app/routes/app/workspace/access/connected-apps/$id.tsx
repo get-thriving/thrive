@@ -16,7 +16,7 @@ import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
@@ -34,6 +34,7 @@ import {
   formatOAuthTimestamp,
   oauthGrantStatusLabel,
 } from "@jupiter/core/auth/sub/oauth_grant/components/oauth-grant-view";
+import type { StrataLabelInput } from "@jupiter/core/infra/strata/strata-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -47,6 +48,13 @@ const FormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  // A grant has no name of its own: the app it is for is what the page shows.
+  label: ({ loaderData }: StrataLabelInput) => {
+    const grant = (
+      loaderData as { oauthGrant?: { client_id?: string } } | undefined
+    )?.oauthGrant;
+    return grant?.client_id ?? "Connected app";
+  },
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -102,7 +110,8 @@ export default function ConnectedApp() {
   const revoked = oauthGrant.status === OAuthGrantStatus.REVOKED;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`access/connected-apps/${oauthGrant.ref_id}`}
       fakeKey={`access/connected-apps/${oauthGrant.ref_id}`}
       returnLocation="/app/workspace/access"
@@ -159,7 +168,7 @@ export default function ConnectedApp() {
           </Typography>
         </Stack>
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

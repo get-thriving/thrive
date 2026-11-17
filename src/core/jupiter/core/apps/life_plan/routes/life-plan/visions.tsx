@@ -1,3 +1,4 @@
+import { Stack } from "@mui/material";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import type {
   LoaderFunctionArgs,
@@ -15,25 +16,21 @@ import { EntityStack } from "#/core/infra/component/entity-stack";
 import { makeBranchErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { sortVisionsNaturally } from "#/core/apps/life_plan/sub/visions/root";
 import { VisionStatusTag } from "#/core/apps/life_plan/sub/visions/components/status-tag";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
-import { SectionCard } from "#/core/infra/component/section-card";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  label: "Visions",
 };
 
 const ParamsSchema = z.object({});
@@ -57,8 +54,6 @@ export const shouldRevalidate: ShouldRevalidateFunction = () => {
 export default function Visions() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
@@ -67,32 +62,30 @@ export default function Visions() {
   );
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key="visions"
       fakeKey="visions"
       returnLocation="/app/workspace/apps/life-plan"
-      shouldShowALeaflet={shouldShowALeaflet}
       inputsEnabled={inputsEnabled}
+      actions={
+        <SectionActions
+          id="visions"
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          actions={[
+            NavSingle({
+              id: "new-vision",
+              text: "New Vision",
+              link: `/app/workspace/apps/life-plan/visions/new-draft`,
+              icon: <AddIcon />,
+            }),
+          ]}
+        />
+      }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
-        <SectionCard
-          title="Visions"
-          actions={
-            <SectionActions
-              id="visions"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                NavSingle({
-                  id: "new-vision",
-                  text: "New Vision",
-                  link: `/app/workspace/apps/life-plan/visions/new-draft`,
-                  icon: <AddIcon />,
-                }),
-              ]}
-            />
-          }
-        >
+      <NestingAwareBlock>
+        <Stack spacing={1.25}>
           {sortedEntries.length === 0 && (
             <EntityNoNothingCard
               title="You Have To Start Somewhere"
@@ -117,11 +110,11 @@ export default function Visions() {
               </EntityCard>
             ))}
           </EntityStack>
-        </SectionCard>
+        </Stack>
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

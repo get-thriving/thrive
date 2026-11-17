@@ -19,7 +19,7 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { calendarLeafReturnLocation } from "@jupiter/core/calendar/component/calendar-navigation";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import {
   ActionSingle,
   SectionActions,
@@ -37,6 +37,8 @@ import {
 import { basicShouldRevalidate } from "@jupiter/core/infra/should-revalidate";
 import { useLoaderDataSafeForAnimation } from "@jupiter/core/infra/component/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "@jupiter/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "@jupiter/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -78,6 +80,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAF,
+  strata: { size: "M" } satisfies StrataHandle,
+  label: strataEntityLabel("Event"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -257,7 +261,8 @@ export default function ScheduleEventFullDaysViewOne() {
   }, [loaderData.timeEventFullDaysBlock.duration_days]);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`schedule-event-full-days-${loaderData.scheduleEventFullDays.ref_id}`}
       entityType={NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS}
       entityRefId={loaderData.scheduleEventFullDays.ref_id}
@@ -319,7 +324,7 @@ export default function ScheduleEventFullDaysViewOne() {
           </>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

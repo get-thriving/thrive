@@ -2,6 +2,8 @@
 
 Occasions are recurring events associated with [people](persons.md) in your life.
 
+![A person's page with an occasions section listing the birthday and its date](../../assets/occasions-person.png "A person's page with an occasions section listing the birthday and its date")
+
 Each person can have multiple occasions. An occasion has a _name_,
 a _date_ (like `12 Apr`), and a _kind_.
 

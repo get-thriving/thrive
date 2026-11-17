@@ -36,27 +36,28 @@ import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-ca
 import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   FilterFewOptionsCompact,
   FilterManyOptions,
+  NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
-import {
-  DisplayType,
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataTrunkLabel } from "#/core/infra/strata/strata-trunk-label";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
+  label: strataTrunkLabel,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -111,9 +112,6 @@ export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 export default function BigPlans() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const isBigScreen = useBigScreen();
-
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
 
@@ -208,9 +206,10 @@ export default function BigPlans() {
   );
 
   return (
-    <TrunkPanel
+    <EntityPanel
+      kind="trunk"
       key={"big-plans"}
-      createLocation="/app/workspace/apps/big-plans/new"
+      count={sortedBigPlans.length}
       returnLocation="/app/workspace"
       actions={
         <SectionActions
@@ -218,6 +217,11 @@ export default function BigPlans() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
+            NavSingle({
+              id: "trunk-new-leaf-entity",
+              text: "New",
+              link: "/app/workspace/apps/big-plans/new",
+            }),
             FilterFewOptionsCompact(
               "View",
               selectedView,
@@ -277,7 +281,7 @@ export default function BigPlans() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+      <NestingAwareBlock>
         {sortedBigPlans.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"
@@ -705,7 +709,7 @@ export default function BigPlans() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 

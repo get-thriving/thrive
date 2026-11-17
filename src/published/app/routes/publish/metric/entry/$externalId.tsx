@@ -6,10 +6,9 @@ import { z } from "zod";
 import { parseParams } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { MetricEntryEditor } from "@jupiter/core/apps/metrics/sub/entry/component/editor";
 import { metricEntryName } from "@jupiter/core/apps/metrics/sub/entry/root";
@@ -66,14 +65,13 @@ export default function PublishedMetricEntry() {
   const { metricEntry, tags, contacts, note } = loaderData;
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaf"
       key={`published-metric-entry-${metricEntry.ref_id}`}
       fakeKey={`published-metric-entry-${metricEntry.ref_id}`}
       inputsEnabled={false}
       entityNotEditable={true}
       disabled={true}
-      initialExpansionState={LeafPanelExpansionState.FULL}
-      allowedExpansionStates={[LeafPanelExpansionState.FULL]}
     >
       <MetricEntryEditor
         metricEntry={metricEntry}
@@ -99,7 +97,7 @@ export default function PublishedMetricEntry() {
           </Typography>
         )}
       </SectionCard>
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

@@ -10,11 +10,11 @@ time.
 
 In the workspace overview, you can view the set of metrics:
 
-![Metrics](../assets/metrics-overview.png)
+![Metrics: the list of metrics, each with its icon](../assets/metrics-overview.png "Metrics: the list of metrics, each with its icon")
 
 Each metric contains many entries or records, for example:
 
-![Metric entries](../assets/metrics-list.png)
+![A metric open next to the list of metrics, with its chart and its entries](../assets/metrics-list.png "A metric open next to the list of metrics, with its chart and its entries")
 
 ## Properties
 
@@ -50,6 +50,8 @@ time.
 Metric entries can also have some notes attached to them, for any extra info you
 might want to add.
 
+![The details of a metric: unit, direction and how often it is collected](../assets/metrics-update.png "The details of a metric: unit, direction and how often it is collected")
+
 ## Metric Direction
 
 Each metric can define a _direction_ that tells Thrive how to interpret change:
@@ -62,6 +64,8 @@ In the metric entries list, Thrive compares each entry to the previous one and
 shows a small delta indicator (arrow + value change), rounded to two decimals.
 The indicator is colored to reflect whether the change is good or bad according
 to the chosen direction.
+
+![A single metric entry: its value and the date it was collected for](../assets/metrics-entry-update.png "A single metric entry: its value and the date it was collected for")
 
 ## Metrics Settings
 

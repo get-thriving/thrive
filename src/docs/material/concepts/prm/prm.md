@@ -10,7 +10,7 @@ to catch up regularly, or evencall for specific holidays.
 
 In the workspace, you can see the PRM:
 
-![PRM in Workspace](../../assets/persons-overview.png)
+![People in the personal relationship manager, with their catch-up periods and upcoming catch-ups](../../assets/persons-overview.png "People in the personal relationship manager, with their catch-up periods and upcoming catch-ups")
 
 ## Properties
 

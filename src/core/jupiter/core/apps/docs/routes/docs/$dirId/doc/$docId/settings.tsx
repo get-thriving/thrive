@@ -24,14 +24,13 @@ import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { DirSelect } from "#/core/apps/docs/sub/dir/component/select";
 import { makeLeafErrorBoundary } from "#/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "#/core/infra/component/errors";
-import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { SectionCard } from "#/core/infra/component/section-card";
 import {
   ActionSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { accessStatusAllowsWriterOrAbove } from "#/core/common/sub/access/access-level";
 import {
@@ -57,6 +56,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.LEAFLET,
+  label: "Settings",
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -180,6 +180,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
+const DOC_SETTINGS_FORM_ID = "docs-doc-settings-form";
+
 export default function DocSettings() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
@@ -191,11 +193,11 @@ export default function DocSettings() {
     accessStatusAllowsWriterOrAbove(loaderData.accessStatus);
 
   return (
-    <LeafPanel
+    <EntityPanel
+      kind="leaflet"
       key={`docs-doc-settings-${loaderData.doc.ref_id}`}
       entityType={NamedEntityTag.DOC}
       entityRefId={loaderData.doc.ref_id}
-      isLeaflet
       fakeKey={`docs-doc-settings-${loaderData.doc.ref_id}`}
       returnLocation={`/app/workspace/apps/docs/${loaderData.dirId}/doc/${loaderData.doc.ref_id}`}
       forgetReturnLocation="/app/workspace/apps/docs/root-redirect"
@@ -204,31 +206,30 @@ export default function DocSettings() {
       accessable
       accessOwner={loaderData.owner}
       accessStatus={loaderData.accessStatus}
-      initialExpansionState={LeafPanelExpansionState.FULL}
+      // Save is in the header; the fields are in the body's form.
+      actions={
+        !loaderData.doc.archived ? (
+          <SectionActions
+            id="docs-doc-settings-save"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                id: "docs-doc-settings-save",
+                text: "Save",
+                value: "update",
+                highlight: true,
+                form: DOC_SETTINGS_FORM_ID,
+              }),
+            ]}
+          />
+        ) : undefined
+      }
     >
       <GlobalError actionResult={actionData} />
 
-      <SectionCard
-        title="Doc"
-        actions={
-          !loaderData.doc.archived ? (
-            <SectionActions
-              id="docs-doc-settings-save"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                ActionSingle({
-                  id: "docs-doc-settings-save",
-                  text: "Save",
-                  value: "update",
-                  highlight: true,
-                }),
-              ]}
-            />
-          ) : undefined
-        }
-      >
-        <Stack spacing={2}>
+      <SectionCard title="Doc" formId={DOC_SETTINGS_FORM_ID}>
+        <Stack spacing={1.25}>
           {loaderData.doc.archived && (
             <Typography
               variant="body2"
@@ -291,7 +292,7 @@ export default function DocSettings() {
         location={loaderData.location}
         cacheKey="entity-location-map-leaflet"
       />
-    </LeafPanel>
+    </EntityPanel>
   );
 }
 

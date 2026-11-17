@@ -34,15 +34,22 @@ space](../how-tos/recover-your-account.md).
 In the Web app you can access account and security controls in the right-hand
 menu.
 
-![Accounts Where To](../assets/accounts-where-to.png)
+![The account menu in the top bar: scores, Account, Access, Settings and Logout](../assets/accounts-where-to.png "The account menu in the top bar: scores, Account, Access, Settings and Logout")
 
 You can update some properties, but not your email.
 
-![Accounts Account](../assets/accounts-account.png)
+![The account page: picture, name, timezone, sign-in methods, feature flags and appearance](../assets/accounts-account.png "The account page: picture, name, timezone, sign-in methods, feature flags and appearance")
 
 Your password can be changed from the sign-in methods section.
 
-![Change Password](../assets/accounts-change-password.png)
+![Changing the password from the sign-in methods section of the account](../assets/accounts-change-password.png "Changing the password from the sign-in methods section of the account")
+
+## Keyboard
+
+The Account page has a Keys section where you can change the key of every
+keyboard action, or put them all back to the defaults. See [Keyboard
+Shortcuts](../tools/keyboard-shortcuts.md#changing-the-keys) for the keys and
+[Work With The Keyboard](../how-tos/work-with-the-keyboard.md) for a guided tour.
 
 ## Picture
 

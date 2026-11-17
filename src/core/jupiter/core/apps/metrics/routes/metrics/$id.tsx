@@ -24,14 +24,11 @@ import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-ca
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 import { EntityStack } from "#/core/infra/component/entity-stack";
 import { makeBranchErrorBoundary } from "#/core/infra/component/error-boundary";
-import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
+import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { TimeDiffTag } from "#/core/common/component/time-diff-tag";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "#/core/infra/component/use-nested-entities";
+import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
   NavSingle,
@@ -49,6 +46,8 @@ import { useLoaderDataSafeForAnimation } from "#/core/infra/component/use-loader
 import { standardShouldRevalidate } from "#/core/infra/should-revalidate";
 import { getLoggedInApiClient } from "#/core/infra/api-clients.server";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
+import type { StrataHandle } from "#/core/infra/strata/strata-handle";
+import { strataEntityLabel } from "#/core/infra/strata/strata-entity-label";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -77,6 +76,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.BRANCH,
+  strata: { size: "M", grow: true } satisfies StrataHandle,
+  label: strataEntityLabel("Metric"),
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -184,7 +185,6 @@ const FILTERS = z.object({
 
 export default function Metric() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
-  const shouldShowALeaf = useBranchNeedsToShowLeaf();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
   const inputsEnabled =
@@ -259,14 +259,14 @@ export default function Metric() {
   }
 
   return (
-    <BranchPanel
+    <EntityPanel
+      kind="branch"
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.metric.archived}
       key={`metric-${loaderData.metric.ref_id}`}
       entityType={NamedEntityTag.METRIC}
       entityRefId={loaderData.metric.ref_id}
-      createLocation={`/app/workspace/apps/metrics/${loaderData.metric.ref_id}/entries/new`}
       returnLocation="/app/workspace/apps/metrics"
       publishable
       publishEntity={loaderData.publishEntity ?? undefined}
@@ -279,6 +279,12 @@ export default function Metric() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={inputsEnabled}
           actions={[
+            NavSingle({
+              id: "branch-new-leaf-entity",
+              text: "New",
+              link: `/app/workspace/apps/metrics/${loaderData.metric.ref_id}/entries/new`,
+              disabled: loaderData.metric.archived,
+            }),
             NavSingle({
               text: "Details",
               icon: <TuneIcon />,
@@ -306,7 +312,7 @@ export default function Metric() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock>
         <MetricGraph sortedMetricEntries={sortedEntries} />
 
         {sortedEntries.length === 0 && (
@@ -365,7 +371,7 @@ export default function Metric() {
       </NestingAwareBlock>
 
       <NestedOutlet />
-    </BranchPanel>
+    </EntityPanel>
   );
 }
 

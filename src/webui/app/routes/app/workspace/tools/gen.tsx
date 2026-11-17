@@ -99,6 +99,7 @@ const GenFormSchema = z.object({
 
 export const handle = {
   displayType: DisplayType.TOOL,
+  label: "Generate tasks",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -236,7 +237,7 @@ export default function Gen() {
           </AccordionSummary>
 
           <AccordionDetails>
-            <Stack spacing={2} useFlexGap>
+            <Stack spacing={1.25} useFlexGap>
               <FormControl fullWidth>
                 <FormControlLabel
                   control={

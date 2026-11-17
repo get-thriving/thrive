@@ -4,21 +4,15 @@ import type {
 } from "react-router";
 import { useContext } from "react";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "@jupiter/core/infra/component/layout/nested-outlet";
-import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
-import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
-import {
-  useLeafNeedsToShowLeaflet,
-  useTrunkNeedsToShowLeaf,
-  DisplayType,
-} from "@jupiter/core/infra/component/use-nested-entities";
+import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { StrataSection } from "@jupiter/core/infra/component/strata-section";
 import {
   EntityCard,
   EntityLink,
@@ -39,6 +33,7 @@ import { useServiceProperties } from "~/logic/config";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
+  label: "Access",
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -64,9 +59,6 @@ export default function Access() {
   const serviceProperties = useServiceProperties();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
-  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
-
   const apiDocsUrl = `${serviceProperties.apiUrl}/redoc`;
   // The configured address is the bare server in some setups and ends in /mcp in
   // others. An assistant that signs in needs the endpoint, which always ends in
@@ -75,161 +67,173 @@ export default function Access() {
   const mcpKeyAddress = `${serviceProperties.mcpUrl.replace(/\/$/, "")}/v1/YOUR_KEY_HERE/mcp`;
 
   return (
-    <TrunkPanel key="access" returnLocation="/app/workspace">
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
-        <ToolPanel>
-          <SectionCard title="Connected apps">
-            <Typography variant="body1">
-              Apps you have approved to use Thrive in your name, such as an AI
-              assistant connecting through MCP. Revoke one to stop it getting
-              new access.
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              To connect an assistant that can sign in, give it this MCP server
-              address <DocsHelp size="small" subject={DocsHelpSubject.MCP} />:{" "}
-              <Typography
-                component="span"
-                variant="body2"
-                sx={{ fontFamily: "monospace", wordBreak: "break-all" }}
-              >
-                {mcpServerAddress}
-              </Typography>
-            </Typography>
-            {loaderData.oauthGrants.length === 0 ? (
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                No apps are connected.
-              </Typography>
-            ) : (
-              <EntityStack>
-                {loaderData.oauthGrants.map((oauthGrant) => (
-                  <EntityCard
-                    entityId={`oauth-grant-${oauthGrant.ref_id}`}
-                    key={`oauth-grant-${oauthGrant.ref_id}`}
-                  >
-                    <EntityLink
-                      to={`/app/workspace/access/connected-apps/${oauthGrant.ref_id}`}
-                    >
-                      <OAuthGrantView oauthGrant={oauthGrant} />
-                    </EntityLink>
-                  </EntityCard>
-                ))}
-              </EntityStack>
-            )}
-          </SectionCard>
-
-          <SectionCard
-            title="MCP keys"
-            actions={
-              <SectionActions
-                id="mcp-keys-actions"
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={true}
-                actions={[
-                  NavSingle({
-                    text: "Add",
-                    link: "/app/workspace/access/mcp-keys/new",
-                    highlight: true,
-                  }),
-                ]}
-              />
-            }
+    <EntityPanel
+      kind="trunk"
+      sectionsPanelId="access"
+      key="access"
+      returnLocation="/app/workspace"
+    >
+      <StrataSection
+        id="connected-apps-section"
+        fixed
+        title="Connected apps"
+        summary={`${loaderData.oauthGrants.length}`}
+        items={loaderData.oauthGrants.length}
+      >
+        <Typography variant="body1">
+          Apps you have approved to use Thrive in your name, such as an AI
+          assistant connecting through MCP. Revoke one to stop it getting new
+          access.
+        </Typography>
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          To connect an assistant that can sign in, give it this MCP server
+          address <DocsHelp size="small" subject={DocsHelpSubject.MCP} />:{" "}
+          <Typography
+            component="span"
+            variant="body2"
+            sx={{ fontFamily: "monospace", wordBreak: "break-all" }}
           >
-            <Typography variant="body1">
-              For an assistant that cannot sign in, create an MCP key and give
-              it the MCP key address, following the instructions in the docs{" "}
-              <DocsHelp size="small" subject={DocsHelpSubject.MCP} />. The key
-              is part of the address, so keep both secret.
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              MCP key address{" "}
-              <Typography
-                component="span"
-                variant="body2"
-                sx={{ fontFamily: "monospace", wordBreak: "break-all" }}
+            {mcpServerAddress}
+          </Typography>
+        </Typography>
+        {loaderData.oauthGrants.length === 0 ? (
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            No apps are connected.
+          </Typography>
+        ) : (
+          <EntityStack>
+            {loaderData.oauthGrants.map((oauthGrant) => (
+              <EntityCard
+                entityId={`oauth-grant-${oauthGrant.ref_id}`}
+                key={`oauth-grant-${oauthGrant.ref_id}`}
               >
-                {mcpKeyAddress}
-              </Typography>
-            </Typography>
-            <EntityStack>
-              {loaderData.mcpKeys.map((mcpKey) => (
-                <EntityCard
-                  entityId={`mcp-key-${mcpKey.ref_id}`}
-                  key={`mcp-key-${mcpKey.ref_id}`}
+                <EntityLink
+                  to={`/app/workspace/access/connected-apps/${oauthGrant.ref_id}`}
                 >
-                  <EntityLink
-                    to={`/app/workspace/access/mcp-keys/${mcpKey.ref_id}`}
-                  >
-                    <McpKeyView mcpKey={mcpKey} />
-                  </EntityLink>
-                </EntityCard>
-              ))}
-            </EntityStack>
-          </SectionCard>
+                  <OAuthGrantView oauthGrant={oauthGrant} />
+                </EntityLink>
+              </EntityCard>
+            ))}
+          </EntityStack>
+        )}
+      </StrataSection>
 
-          <SectionCard
-            title="API keys"
-            actions={
-              <SectionActions
-                id="api-keys-actions"
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={true}
-                actions={[
-                  NavSingle({
-                    text: "Add",
-                    link: "/app/workspace/access/api-keys/new",
-                    highlight: true,
-                  }),
-                ]}
-              />
-            }
+      <StrataSection
+        id="mcp-keys-section"
+        title="MCP keys"
+        summary={`${loaderData.mcpKeys.length}`}
+        items={loaderData.mcpKeys.length}
+        actions={
+          <SectionActions
+            id="mcp-keys-actions"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={true}
+            actions={[
+              NavSingle({
+                text: "Add",
+                link: "/app/workspace/access/mcp-keys/new",
+                highlight: true,
+              }),
+            ]}
+          />
+        }
+      >
+        <Typography variant="body1">
+          For an assistant that cannot sign in, create an MCP key and give it
+          the MCP key address, following the instructions in the docs{" "}
+          <DocsHelp size="small" subject={DocsHelpSubject.MCP} />. The key is
+          part of the address, so keep both secret.
+        </Typography>
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          MCP key address{" "}
+          <Typography
+            component="span"
+            variant="body2"
+            sx={{ fontFamily: "monospace", wordBreak: "break-all" }}
           >
-            <Typography variant="body1">
-              Use the REST API to integrate Thrive with your own applications
-              and scripts. Create an API key below, and follow the instructions
-              in the docs{" "}
-              <DocsHelp size="small" subject={DocsHelpSubject.API} />.
-            </Typography>
-            <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
-              <Typography variant="body2" sx={{ alignSelf: "center" }}>
-                API available at{" "}
-                <Typography
-                  component="span"
-                  variant="body2"
-                  sx={{ fontFamily: "monospace" }}
-                >
-                  {serviceProperties.apiUrl}
-                </Typography>
-              </Typography>
-              <Button
-                variant="outlined"
-                size="small"
-                href={apiDocsUrl}
-                target="_blank"
-                endIcon={<OpenInNewIcon />}
+            {mcpKeyAddress}
+          </Typography>
+        </Typography>
+        <EntityStack>
+          {loaderData.mcpKeys.map((mcpKey) => (
+            <EntityCard
+              entityId={`mcp-key-${mcpKey.ref_id}`}
+              key={`mcp-key-${mcpKey.ref_id}`}
+            >
+              <EntityLink
+                to={`/app/workspace/access/mcp-keys/${mcpKey.ref_id}`}
               >
-                API Documentation
-              </Button>
-            </Stack>
-            <EntityStack>
-              {loaderData.apiKeys.map((apiKey) => (
-                <EntityCard
-                  entityId={`api-key-${apiKey.ref_id}`}
-                  key={`api-key-${apiKey.ref_id}`}
-                >
-                  <EntityLink
-                    to={`/app/workspace/access/api-keys/${apiKey.ref_id}`}
-                  >
-                    <ApiKeyView apiKey={apiKey} />
-                  </EntityLink>
-                </EntityCard>
-              ))}
-            </EntityStack>
-          </SectionCard>
-        </ToolPanel>
-      </NestingAwareBlock>
+                <McpKeyView mcpKey={mcpKey} />
+              </EntityLink>
+            </EntityCard>
+          ))}
+        </EntityStack>
+      </StrataSection>
+
+      <StrataSection
+        id="api-keys-section"
+        title="API keys"
+        summary={`${loaderData.apiKeys.length}`}
+        items={loaderData.apiKeys.length}
+        actions={
+          <SectionActions
+            id="api-keys-actions"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={true}
+            actions={[
+              NavSingle({
+                text: "Add",
+                link: "/app/workspace/access/api-keys/new",
+                highlight: true,
+              }),
+            ]}
+          />
+        }
+      >
+        <Typography variant="body1">
+          Use the REST API to integrate Thrive with your own applications and
+          scripts. Create an API key below, and follow the instructions in the
+          docs <DocsHelp size="small" subject={DocsHelpSubject.API} />.
+        </Typography>
+        <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+          <Typography variant="body2" sx={{ alignSelf: "center" }}>
+            API available at{" "}
+            <Typography
+              component="span"
+              variant="body2"
+              sx={{ fontFamily: "monospace" }}
+            >
+              {serviceProperties.apiUrl}
+            </Typography>
+          </Typography>
+          <Button
+            variant="outlined"
+            size="small"
+            href={apiDocsUrl}
+            target="_blank"
+            endIcon={<OpenInNewIcon />}
+          >
+            API Documentation
+          </Button>
+        </Stack>
+        <EntityStack>
+          {loaderData.apiKeys.map((apiKey) => (
+            <EntityCard
+              entityId={`api-key-${apiKey.ref_id}`}
+              key={`api-key-${apiKey.ref_id}`}
+            >
+              <EntityLink
+                to={`/app/workspace/access/api-keys/${apiKey.ref_id}`}
+              >
+                <ApiKeyView apiKey={apiKey} />
+              </EntityLink>
+            </EntityCard>
+          ))}
+        </EntityStack>
+      </StrataSection>
 
       <NestedOutlet />
-    </TrunkPanel>
+    </EntityPanel>
   );
 }
 
