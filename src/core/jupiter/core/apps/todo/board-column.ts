@@ -27,17 +27,6 @@ export function todoBoardColumnName(column: TodoBoardColumn): string {
   }
 }
 
-export function todoBoardColumnIcon(column: TodoBoardColumn): string {
-  switch (column) {
-    case TodoBoardColumn.TODO:
-      return "📥";
-    case TodoBoardColumn.DOING:
-      return "🚧";
-    case TodoBoardColumn.DONE:
-      return "✅";
-  }
-}
-
 /** The column a task with this status sits in. */
 export function todoBoardColumnForStatus(
   status: InboxTaskStatus,

@@ -9,6 +9,8 @@ import {
 interface Props {
   status: InboxTaskStatus;
   format?: "name" | "icon";
+  /** Outlined, with the colour as the text, for where chips are many. */
+  outlined?: boolean;
 }
 
 export function InboxTaskStatusTag(props: Props) {
@@ -24,7 +26,13 @@ export function InboxTaskStatusTag(props: Props) {
 
   const tagName = inboxTaskStatusName(props.status);
   const tagClass = statusToClass(props.status);
-  return <SlimChip label={tagName} color={tagClass} />;
+  return (
+    <SlimChip
+      label={tagName}
+      color={tagClass}
+      variant={props.outlined ? "outlined" : "filled"}
+    />
+  );
 }
 
 function statusToClass(
