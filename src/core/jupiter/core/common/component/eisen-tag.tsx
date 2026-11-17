@@ -5,7 +5,7 @@ import { eisenIcon, eisenName } from "#/core/common/eisen";
 
 interface Props {
   eisen: Eisen;
-  /** Just the icon, with the name as a tooltip, for where room is tight. */
+  /** Just the icon, outlined, with the name as a tooltip, for where room is tight. */
   compact?: boolean;
 }
 
@@ -17,6 +17,7 @@ export function EisenTag(props: Props) {
       <SlimChip
         label={eisenIcon(props.eisen)}
         title={tagName}
+        variant="outlined"
         color={tagClass}
       />
     );

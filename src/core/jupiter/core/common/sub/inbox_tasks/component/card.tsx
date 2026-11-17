@@ -46,7 +46,7 @@ import {
 } from "#/core/infra/component/chips";
 import { OverdueThresholdsContext } from "#/core/infra/overdue-thresholds-context";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import { strataColors } from "#/core/infra/component/strata-tokens";
+import { strataColors, strataType } from "#/core/infra/component/strata-tokens";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
 import { BigPlanTag } from "#/core/apps/big_plans/component/tag";
@@ -216,7 +216,9 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
       onDragEnd={onDragEnd}
       style={{
         x,
-        background,
+        // A dense row paints nothing of its own, so what is behind a list of
+        // them (a column being dropped on, say) shows through.
+        background: dense && !props.allowSwipe ? undefined : background,
         marginLeft: props.indent ? `${props.indent}rem` : "0",
       }}
       animate={{ opacity: 1 }}
@@ -230,7 +232,7 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
         tabIndex={-1}
         isselected={((props.allowSelect && props.selected) || false).toString()}
         enabled={inputsEnabled.toString()}
-        sx={dense && props.inboxTask.archived ? { opacity: 0.7 } : undefined}
+        sx={dense ? denseRowSx(props.inboxTask.archived) : undefined}
         onClick={() => props.onClick && props.onClick(props.inboxTask)}
       >
         {!dense && props.parent?.owner && (
@@ -306,6 +308,12 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
                     gap: "0.2rem",
                     // The tags are short here already: trim what a chip pads.
                     "& .MuiChip-root": { minWidth: 0 },
+                    // Outlined chips take their text from the colour they are
+                    // given; the neutral ones are muted, so what is not
+                    // special does not shout.
+                    "& .MuiChip-colorDefault": {
+                      color: strataColors.textMuted,
+                    },
                     "& .MuiChip-label": {
                       paddingLeft: "0.3rem",
                       paddingRight: "0.3rem",
@@ -314,9 +322,9 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
                 : undefined
             }
           >
-            {dense && <IsKeyTag isKey={props.inboxTask.is_key} />}
+            {dense && <IsKeyTag isKey={props.inboxTask.is_key} outlined />}
             {props.showOptions.showStatus && (
-              <InboxTaskStatusTag status={status} />
+              <InboxTaskStatusTag status={status} outlined={dense} />
             )}
             {props.showOptions.showSource && (
               <InboxTaskNamespaceTag
@@ -359,7 +367,8 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
                 <SlimChip
                   label={`@${props.parent.owner.name}`}
                   title={formatUserLightLabel(props.parent.owner)}
-                  color="secondary"
+                  variant="outlined"
+                  color="default"
                 />
               )}
             {props.parent?.location && (
@@ -522,10 +531,29 @@ const StyledCard = styled(Card)<StyledCardProps>(
   }),
 );
 
+/**
+ * A dense card is a row of a list, not a card: no box of its own, just a
+ * hairline under it, and the card's focus line and hover tint. Strata's rows
+ * are as high as the body text and a little air (`strataSize.row`).
+ */
+function denseRowSx(archived: boolean) {
+  return {
+    border: 0,
+    borderBottom: `1px solid ${strataColors.rowDivider}`,
+    borderRadius: 0,
+    backgroundColor: "transparent",
+    opacity: archived ? 0.65 : 1,
+    "&:hover": {
+      backgroundColor: `color-mix(in srgb, ${strataColors.text} 5%, transparent)`,
+    },
+  } as const;
+}
+
 /** The name in a dense card: at most two lines, struck through if it was not done. */
 function denseNameSx(status: InboxTaskStatus) {
   return {
-    lineHeight: 1.25,
+    fontSize: `${strataType.body.size}px`,
+    lineHeight: `${strataType.body.lineHeight}px`,
     display: "-webkit-box",
     WebkitLineClamp: 2,
     WebkitBoxOrient: "vertical",

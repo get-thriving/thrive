@@ -2,7 +2,7 @@ import type { DragStart, DropResult } from "@hello-pangea/dnd";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import type { InboxTask } from "@jupiter/webapi-client";
 import { InboxTaskStatus } from "@jupiter/webapi-client";
-import { Box, Tab, Tabs, Typography, alpha } from "@mui/material";
+import { Box, Tab, Tabs, Typography } from "@mui/material";
 import { DateTime } from "luxon";
 import { Fragment, useState } from "react";
 
@@ -10,7 +10,6 @@ import {
   TODO_BOARD_COLUMNS,
   TodoBoardColumn,
   todoBoardColumnForStatus,
-  todoBoardColumnIcon,
   todoBoardColumnName,
   todoBoardStatusForColumn,
 } from "#/core/apps/todo/board-column";
@@ -29,6 +28,7 @@ import type {
 } from "#/core/common/sub/inbox_tasks/root";
 import type { ActionableTime } from "#/core/infra/actionable-time";
 import { actionableTimeToDateTime } from "#/core/infra/actionable-time";
+import { strataColors } from "#/core/infra/component/strata-tokens";
 import { TabPanel } from "#/core/infra/component/tab-panel";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -227,17 +227,13 @@ export function TodoBoard(props: TodoBoardProps) {
           {columns.map((content) => (
             <Tab
               key={content.column}
-              icon={<span>{todoBoardColumnIcon(content.column)}</span>}
-              iconPosition="top"
               label={`${todoBoardColumnName(content.column)} ${content.inboxTasks.length}`}
             />
           ))}
         </Tabs>
         {columns.map((content, index) => (
           <TabPanel key={content.column} value={smallScreenTab} index={index}>
-            <Box
-              sx={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
-            >
+            <Box sx={boardListSx}>
               {content.doneGroups
                 ? content.doneGroups.map((group) => (
                     <Fragment key={group.label}>
@@ -289,20 +285,21 @@ export function TodoBoard(props: TodoBoardProps) {
                 sx={{
                   display: "flex",
                   alignItems: "baseline",
-                  gap: "0.4rem",
-                  px: "0.25rem",
-                  pb: "0.35rem",
+                  gap: "0.5rem",
+                  padding: "0 4px 6px",
                 }}
               >
                 <Typography
                   component="h3"
-                  sx={{ fontSize: "0.9rem", fontWeight: 600 }}
+                  variant="overline"
+                  sx={{ color: strataColors.textFaint }}
                 >
-                  {todoBoardColumnIcon(column)} {todoBoardColumnName(column)}
+                  {todoBoardColumnName(column)}
                 </Typography>
                 <Typography
                   component="span"
-                  sx={{ fontSize: "0.75rem", color: "text.secondary" }}
+                  variant="caption"
+                  sx={{ color: strataColors.textFaintest }}
                 >
                   {content.inboxTasks.length}
                 </Typography>
@@ -319,25 +316,23 @@ export function TodoBoard(props: TodoBoardProps) {
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     data-testid={`todo-board-column-${column}`}
-                    sx={(theme) => ({
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.25rem",
-                      padding: "0.35rem",
+                    sx={{
+                      ...boardListSx,
                       minHeight: "8rem",
                       maxHeight: "calc(100vh - 12rem)",
                       overflowY: "auto",
-                      borderRadius: "6px",
-                      border: "1px dashed",
+                      // A column that can take the card is outlined in amber, and
+                      // the one it is over is tinted as well.
+                      borderStyle: isTarget ? "dashed" : "solid",
                       borderColor: snapshot.isDraggingOver
-                        ? theme.palette.primary.main
+                        ? strataColors.amber
                         : isTarget
-                          ? alpha(theme.palette.primary.main, 0.5)
-                          : "transparent",
+                          ? strataColors.amberLine
+                          : strataColors.line,
                       backgroundColor: snapshot.isDraggingOver
-                        ? alpha(theme.palette.primary.main, 0.12)
-                        : theme.palette.action.hover,
-                    })}
+                        ? strataColors.amberTint
+                        : strataColors.panel,
+                    }}
                   >
                     {content.doneGroups === undefined &&
                       content.inboxTasks.map((inboxTask) => {
@@ -404,11 +399,22 @@ function DraggableCard(props: DraggableCardProps) {
       index={props.index}
       isDragDisabled={!props.movable}
     >
-      {(provided) => (
+      {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
+          style={{
+            ...provided.draggableProps.style,
+            // Rows have no surface, so one being carried needs its own.
+            ...(snapshot.isDragging
+              ? {
+                  backgroundColor: strataColors.raised,
+                  border: `1px solid ${strataColors.lineStrong}`,
+                  borderRadius: 4,
+                }
+              : {}),
+          }}
         >
           {props.children}
         </div>
@@ -417,29 +423,46 @@ function DraggableCard(props: DraggableCardProps) {
   );
 }
 
+/** The list of rows of a column: one hairline box, the rows divided by lines. */
+const boardListSx = {
+  display: "flex",
+  flexDirection: "column",
+  border: `1px solid ${strataColors.line}`,
+  borderRadius: "4px",
+  backgroundColor: strataColors.panel,
+} as const;
+
+/** A day of the done column: a mono label, with the count of what was finished. */
 function DayHeader(props: { label: string; count: number }) {
   return (
     <Box
-      sx={(theme) => ({
+      sx={{
         position: "sticky",
-        top: "-0.35rem",
+        top: 0,
         zIndex: 1,
         display: "flex",
         alignItems: "baseline",
-        gap: "0.4rem",
-        padding: "0.2rem 0.25rem",
-        fontSize: "0.7rem",
-        fontWeight: 600,
-        letterSpacing: "0.04em",
-        textTransform: "uppercase",
-        color: "text.secondary",
-        // Opaque, so cards scroll under it instead of showing through.
-        backgroundColor: theme.palette.background.paper,
-        borderRadius: "4px",
-      })}
+        gap: "0.5rem",
+        padding: "2px 8px",
+        // Opaque, so rows scroll under it instead of showing through.
+        backgroundColor: strataColors.column,
+        borderBottom: `1px solid ${strataColors.rowDivider}`,
+      }}
     >
-      <span>{props.label}</span>
-      <span style={{ fontWeight: 400 }}>{props.count}</span>
+      <Typography
+        component="span"
+        variant="overline"
+        sx={{ color: strataColors.textFaint }}
+      >
+        {props.label}
+      </Typography>
+      <Typography
+        component="span"
+        variant="caption"
+        sx={{ color: strataColors.textFaintest }}
+      >
+        {props.count}
+      </Typography>
     </Box>
   );
 }
@@ -447,11 +470,11 @@ function DayHeader(props: { label: string; count: number }) {
 function EmptyColumn() {
   return (
     <Typography
+      variant="caption"
       sx={{
-        fontSize: "0.75rem",
-        color: "text.secondary",
+        color: strataColors.textFaintest,
         textAlign: "center",
-        py: "1rem",
+        py: "16px",
       }}
     >
       Nothing here

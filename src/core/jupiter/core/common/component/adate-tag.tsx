@@ -14,7 +14,7 @@ interface Props {
     | "info"
     | "success"
     | "warning";
-  /** Just a short date, with the full label and date as a tooltip, for where room is tight. */
+  /** Just a short date, outlined, with the full label and date as a tooltip, for where room is tight. */
   compact?: boolean;
 }
 
@@ -25,6 +25,7 @@ export function ADateTag(props: Props) {
       <SlimChip
         label={date.toFormat("d LLL")}
         title={`${props.label} ${date.toLocaleString()}`}
+        variant="outlined"
         color={props.color ?? "info"}
       />
     );

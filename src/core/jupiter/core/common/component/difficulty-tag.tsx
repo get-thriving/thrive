@@ -5,7 +5,7 @@ import { difficultyName } from "#/core/common/difficulty";
 
 interface Props {
   difficulty: Difficulty;
-  /** Just the first letter, with the name as a tooltip, for where room is tight. */
+  /** Just the first letter, outlined, with the name as a tooltip, for where room is tight. */
   compact?: boolean;
 }
 
@@ -13,7 +13,14 @@ export function DifficultyTag(props: Props) {
   const tagName = difficultyName(props.difficulty);
   const tagClass = difficultyToClass(props.difficulty);
   if (props.compact) {
-    return <SlimChip label={tagName[0]} title={tagName} color={tagClass} />;
+    return (
+      <SlimChip
+        label={tagName[0]}
+        title={tagName}
+        variant="outlined"
+        color={tagClass}
+      />
+    );
   }
   return <SlimChip label={tagName} color={tagClass} />;
 }
