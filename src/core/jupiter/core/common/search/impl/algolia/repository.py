@@ -22,6 +22,7 @@ from jupiter.core.common.search.repository import (
     SearchMatchesPage,
     SearchRepository,
 )
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.instance import Instance
@@ -65,6 +66,7 @@ class AlgoliaSearchRepository(SearchRepository):
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
         locations: list[Location],
+        contacts: list[Contact],
         visible_to: Iterable[EntityId],
     ) -> str:
         """Create or replace an entity in the index."""
@@ -77,6 +79,7 @@ class AlgoliaSearchRepository(SearchRepository):
             tag_ref_ids,
             contact_ref_ids,
             locations,
+            contacts,
             visible_to,
         )
         await self._client.save_objects(self._index_name, [record], wait_for_tasks=True)
@@ -290,11 +293,12 @@ class AlgoliaSearchRepository(SearchRepository):
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
         locations: list[Location],
+        contacts: list[Contact],
         visible_to: Iterable[EntityId],
     ) -> dict[str, RealmThing]:
         enc = self._realm_codec_registry.get_encoder
         entity_tag = str(NamedEntityTag.from_entity(entity).value)
-        index_name = indexed_entity_name(entity)
+        index_name = indexed_entity_name(entity, contacts)
         location_fields = IndexedLocation.from_locations(locations)
         archived_time = (
             enc(Timestamp, DatabaseRealm).encode(entity.archived_time)
