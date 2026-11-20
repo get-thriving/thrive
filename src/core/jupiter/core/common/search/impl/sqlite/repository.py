@@ -14,6 +14,7 @@ from jupiter.core.common.search.repository import (
     SearchMatchesPage,
     SearchRepository,
 )
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -188,17 +189,19 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
         locations: list[Location],
+        contacts: list[Contact],
         visible_to: Iterable[EntityId],
     ) -> str:
         """Create an entity in the index."""
         note_text = note.flatten_contents() if note is not None else ""
-        index_name = indexed_entity_name(entity)
+        index_name = indexed_entity_name(entity, contacts)
         location_fields = IndexedLocation.from_locations(locations)
         try:
             await self._update(
                 workspace_ref_id,
                 search_domain_ref_id,
                 entity,
+                index_name,
                 note_text,
                 location_fields,
             )
@@ -274,11 +277,11 @@ class SqliteSearchRepository(SqliteRepository, SearchRepository):
         workspace_ref_id: EntityId,
         search_domain_ref_id: EntityId,
         entity: AboveGroundEntity,
+        index_name: EntityName,
         note_text: str,
         location_fields: IndexedLocation,
     ) -> None:
         """Update an entity in the index."""
-        index_name = indexed_entity_name(entity)
         query = (
             update(self._search_index_table)
             .where(

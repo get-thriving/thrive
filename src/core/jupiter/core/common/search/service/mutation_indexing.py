@@ -15,6 +15,7 @@ from jupiter.core.common.sub.access.sub.status.service.affected_entities_for_acc
 from jupiter.core.common.sub.access.sub.status.service.reader_user_ref_ids_for_entity import (
     ReaderUserRefIdsForEntityService,
 )
+from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.locations.root import LocationDomain
 from jupiter.core.common.sub.locations.sub.link.root import (
@@ -62,6 +63,7 @@ def mutation_produces_search_indexing_work(
             "ContactLink",
             "LocationLink",
             "Location",
+            "Contact",
         ):
             continue
         if event.kind.is_removed:
@@ -278,6 +280,41 @@ class SearchIndexingForMutationService:
                     search_domain.ref_id,
                     location_link.owner.the_type,
                     location_link.owner.ref_id,
+                    visible_to,
+                )
+
+        # A person is indexed under the name of its contact, so renaming a contact
+        # must refresh the persons that link to it.
+        for event in all_events:
+            if event.entity_type != "Contact":
+                continue
+            if event.kind.is_removed:
+                continue
+
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+                    workspace_ref_id
+                )
+                contact_links = await uow.get_for(ContactLink).find_all_generic(
+                    parent_ref_id=contact_domain.ref_id,
+                    allow_archived=True,
+                )
+
+            for contact_link in contact_links:
+                if contact_link.owner.the_type != NamedEntityTag.PERSON.value:
+                    continue
+                if event.entity_ref_id not in contact_link.contacts_ref_ids:
+                    continue
+                async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                    visible_to = await reader_user_ref_ids_service.do_it(
+                        uow,
+                        contact_link.owner,
+                    )
+                await index_service.index(
+                    workspace_ref_id,
+                    search_domain.ref_id,
+                    contact_link.owner.the_type,
+                    contact_link.owner.ref_id,
                     visible_to,
                 )
 

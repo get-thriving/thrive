@@ -7,6 +7,7 @@ from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.common.search.limit import SearchLimit
 from jupiter.core.common.search.offset import SearchOffset
 from jupiter.core.common.search.query import SearchQuery
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.locations.sub.location.root import Location
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.named_entity_tag import NamedEntityTag
@@ -48,6 +49,7 @@ class SearchRepository(Repository, abc.ABC):
         tag_ref_ids: Iterable[EntityId],
         contact_ref_ids: Iterable[EntityId],
         locations: list[Location],
+        contacts: list[Contact],
         visible_to: Iterable[EntityId],
     ) -> str:
         """Add an entity and make it available for searching.
@@ -58,6 +60,10 @@ class SearchRepository(Repository, abc.ABC):
         ``locations`` are the linked locations whose name, address, country, and GPS
         are denormalized into the search document; pass an empty list when there
         are no locations.
+
+        ``contacts`` are the linked contacts; a person is indexed under the name of
+        its contact, since the person itself only has a placeholder name. Pass an
+        empty list when there are no contacts.
 
         Returns a provider-specific object id (Algolia object id, or a composite id
         for the SQLite implementation).

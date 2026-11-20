@@ -8,6 +8,7 @@ from jupiter.core.common.search.indexing_storage_engine import (
     SearchIndexingStorageEngine,
 )
 from jupiter.core.common.search.storage_engine import SearchStorageEngine
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.locations.sub.link.root import LocationLinkRepository
 from jupiter.core.common.sub.locations.sub.location.root import Location
@@ -36,7 +37,7 @@ ENTITY_TYPES_SKIPPED_BY_SEARCH_INDEXER: Final[frozenset[str]] = frozenset(
     )
 )
 
-INDEX_METHOD_VERSION: Final[int] = 5
+INDEX_METHOD_VERSION: Final[int] = 6
 
 
 class SupportsSearchEntityIndexing(Protocol):
@@ -130,6 +131,12 @@ class SearchEntityIndexService:
             contact_ref_ids = (
                 contact_link.contacts_ref_ids if contact_link is not None else []
             )
+            contacts: list[Contact] = []
+            if contact_link is not None and contact_link.contacts_ref_ids:
+                contacts = await uow.get_for(Contact).find_all_generic(
+                    allow_archived=True,
+                    ref_id=contact_link.contacts_ref_ids,
+                )
             locations: list[Location] = []
             if location_link is not None and location_link.locations_ref_ids:
                 locations = await uow.get_for(Location).find_all_generic(
@@ -146,6 +153,7 @@ class SearchEntityIndexService:
                 tag_ref_ids=tag_ref_ids,
                 contact_ref_ids=contact_ref_ids,
                 locations=locations,
+                contacts=contacts,
                 visible_to=visible_to,
             )
         indexed_at = self._time_provider.get_current_time()
