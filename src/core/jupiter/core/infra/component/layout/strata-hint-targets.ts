@@ -38,6 +38,12 @@ const EXCLUDED =
 // is the way to pick it.
 const IN_SELECTABLE = "[data-strata-selectable]";
 
+// What the drag library puts around a draggable thing, to pick it up with the
+// keyboard. It is a button as far as the page can tell, but pressing it does
+// nothing the user means by it; the way to open the card is the link in it. So
+// it is not offered when there is something in it to offer instead.
+const DRAG_HANDLE = "[data-rfd-drag-handle-draggable-id]";
+
 // Three letters is as many as a label gets.
 const MAX_TARGETS = STRATA_HINT_ALPHABET.length ** 3;
 
@@ -81,6 +87,13 @@ function isReachable(element: HTMLElement): boolean {
   });
 }
 
+/** A drag handle with a link or a button in it: the target is what is in it. */
+function isHandleOfSomethingPressable(element: HTMLElement): boolean {
+  return (
+    element.matches(DRAG_HANDLE) && element.querySelector(INTERACTIVE) !== null
+  );
+}
+
 /**
  * The things on screen that hint mode offers, in the order they are in the
  * page: what a person could click or type in, in a column, that is shown, not
@@ -93,6 +106,7 @@ export function strataHintTargets(): HTMLElement[] {
         element.closest(COLUMN) !== null &&
         element.closest(EXCLUDED) === null &&
         !(element.matches("a[href]") && element.closest(IN_SELECTABLE)) &&
+        !isHandleOfSomethingPressable(element) &&
         isShown(element) &&
         isReachable(element),
     )
