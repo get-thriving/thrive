@@ -14,28 +14,18 @@ interface Props {
     | "info"
     | "success"
     | "warning";
-  /** Just a short date, outlined, with the full label and date as a tooltip, for where room is tight. */
-  compact?: boolean;
+  /** Outlined, with the colour as the text, for where chips are many. */
+  outlined?: boolean;
 }
 
 export function ADateTag(props: Props) {
-  if (props.compact) {
-    const date = aDateToDate(props.date).setLocale("en-gb");
-    return (
-      <SlimChip
-        label={date.toFormat("d LLL")}
-        title={`${props.label} ${date.toLocaleString()}`}
-        variant="outlined"
-        color={props.color ?? "info"}
-      />
-    );
-  }
   return (
     <SlimChip
       label={`${props.label} ${aDateToDate(props.date)
         .setLocale("en-gb")
         .toLocaleString()}`}
       color={props.color ?? "info"}
+      variant={props.outlined ? "outlined" : "filled"}
     />
   );
 }
