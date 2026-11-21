@@ -14,6 +14,8 @@ interface Props {
     | "info"
     | "success"
     | "warning";
+  /** Outlined, with the colour as the text, for where chips are many. */
+  outlined?: boolean;
 }
 
 export function ADateTag(props: Props) {
@@ -23,6 +25,7 @@ export function ADateTag(props: Props) {
         .setLocale("en-gb")
         .toLocaleString()}`}
       color={props.color ?? "info"}
+      variant={props.outlined ? "outlined" : "filled"}
     />
   );
 }

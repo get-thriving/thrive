@@ -8,10 +8,15 @@ import { withSectionFiltersAfterAction } from "#/core/infra/section-filters-afte
  * section filters in the URL of the request, such as the sections that are
  * collapsed or split out, are added to the redirect's `Location`. This is here
  * once so that no action has to remember to do it.
+ *
+ * It goes by `url`, the application location, and not by `request.url`: a
+ * form posts to the page's data request (`/habits/new.data?...`), and the
+ * `.data` on it would make the page the action was posted from look like some
+ * other page than the one it redirects to.
  */
 export const carrySectionFiltersThroughRedirects: MiddlewareFunction<
   Response
-> = async ({ request }, next) => {
+> = async ({ request, url }, next) => {
   const response = await next();
   const location = response.headers.get("Location");
   if (
@@ -23,7 +28,7 @@ export const carrySectionFiltersThroughRedirects: MiddlewareFunction<
   ) {
     return response;
   }
-  const carried = withSectionFiltersAfterAction(location, new URL(request.url));
+  const carried = withSectionFiltersAfterAction(location, url);
   if (carried === location) {
     return response;
   }
