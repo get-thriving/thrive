@@ -291,6 +291,7 @@ export default function LifePlanSettings() {
           </SectionCard>
 
           <SectionCard
+            lends={false}
             id="life-plan-eval-settings"
             title="Eval Settings"
             actions={
@@ -467,7 +468,11 @@ export default function LifePlanSettings() {
             )}
           </SectionCard>
 
-          <SectionCard id="life-plan-eval-tasks" title="Generated Eval Tasks">
+          <SectionCard
+            lends={false}
+            id="life-plan-eval-tasks"
+            title="Generated Eval Tasks"
+          >
             <InboxTaskStack
               topLevelInfo={topLevelInfo}
               showOptions={{

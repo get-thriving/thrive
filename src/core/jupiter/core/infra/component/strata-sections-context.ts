@@ -5,6 +5,13 @@ export interface StrataSectionsContextValue {
   panelId: string;
   /** Key of the route column the sections are in; null before it is laid out. */
   parentKey: string | null;
+  /**
+   * The header of the column has room for the controls of the first section,
+   * which is then the column's header: it has no row of its own (ADR 0021).
+   * Known before anything is on the page, so the server draws what the browser
+   * does and nothing moves when the page comes alive.
+   */
+  lendsToHeader: boolean;
   /** Whether a section is collapsed now; some start collapsed, some open. */
   isCollapsed: (sectionId: string, startsCollapsed: boolean) => boolean;
   toggle: (sectionId: string, startsCollapsed: boolean) => void;

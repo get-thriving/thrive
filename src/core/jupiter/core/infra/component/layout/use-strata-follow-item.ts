@@ -17,7 +17,8 @@ import {
  * The item replaces the open one in the history, so a walk through a list is
  * not a walk through the browser's back. The query string stays as it is. Only
  * items of the open one's own collection are followed, not those of another
- * kind in the same list.
+ * kind in the same list. An item that says it is not to be followed
+ * (`data-strata-follow="false"`) is only selected.
  */
 export function useStrataFollowItem(): (
   items: readonly HTMLElement[],
@@ -29,7 +30,7 @@ export function useStrataFollowItem(): (
   return useCallback(
     (items, target) => {
       const targetPath = strataItemPath(target);
-      if (targetPath === null) {
+      if (targetPath === null || target.dataset.strataFollow === "false") {
         return;
       }
       const paths = items

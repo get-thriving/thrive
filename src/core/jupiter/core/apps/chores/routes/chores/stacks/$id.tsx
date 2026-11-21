@@ -424,7 +424,6 @@ export default function ChoreStackView() {
         loaderData.timePlanActivities && (
           <StrataSection
             items={loaderData.timePlanActivities.length}
-            split={{ size: 1 }}
             id="chore-stack-time-plans"
             title="Time Plans"
             actions={

@@ -3,6 +3,7 @@ import { useCallback } from "react";
 
 import { ColumnHeader } from "#/core/infra/component/layout/column-header";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
+import { strataSplitKey } from "#/core/infra/strata/strata-columns-with-splits";
 import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
 
 interface StrataSplitColumnProps {
@@ -49,6 +50,7 @@ export function StrataSplitColumn(props: StrataSplitColumnProps) {
         id={`split-panel-controls-${id}`}
         title={props.title}
         kind="split"
+        slot={props.view ? undefined : strataSplitKey(id)}
         close={{
           onClick: props.onFold,
           label: props.view

@@ -50,6 +50,7 @@ export function SearchToolFilterFields(props: SearchToolFilterFieldsProps) {
         <FormControl fullWidth>
           <InputLabel id="limit">Limit</InputLabel>
           <OutlinedInput
+            autoComplete="off"
             label="Limit"
             name="limit"
             type="number"
@@ -111,6 +112,7 @@ export function SearchToolFilterFields(props: SearchToolFilterFieldsProps) {
               Created After
             </InputLabel>
             <OutlinedInput
+              autoComplete="off"
               type="date"
               notched
               label="Created After"
@@ -134,6 +136,7 @@ export function SearchToolFilterFields(props: SearchToolFilterFieldsProps) {
               Created Before
             </InputLabel>
             <OutlinedInput
+              autoComplete="off"
               type="date"
               notched
               label="Created Before"
@@ -159,6 +162,7 @@ export function SearchToolFilterFields(props: SearchToolFilterFieldsProps) {
               Last Modified After
             </InputLabel>
             <OutlinedInput
+              autoComplete="off"
               type="date"
               notched
               label="Last Modified After"
@@ -182,6 +186,7 @@ export function SearchToolFilterFields(props: SearchToolFilterFieldsProps) {
               Last Modified Before
             </InputLabel>
             <OutlinedInput
+              autoComplete="off"
               type="date"
               notched
               label="Last Modified Before"
@@ -207,6 +212,7 @@ export function SearchToolFilterFields(props: SearchToolFilterFieldsProps) {
               Archived After
             </InputLabel>
             <OutlinedInput
+              autoComplete="off"
               type="date"
               notched
               label="Archived After"
@@ -230,6 +236,7 @@ export function SearchToolFilterFields(props: SearchToolFilterFieldsProps) {
               Archived Before
             </InputLabel>
             <OutlinedInput
+              autoComplete="off"
               type="date"
               notched
               label="Archived Before"

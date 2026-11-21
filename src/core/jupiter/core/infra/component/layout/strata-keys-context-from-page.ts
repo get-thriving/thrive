@@ -56,6 +56,14 @@ function strataColumnHasCommands(frame: HTMLElement): boolean {
 }
 
 function overlayOnPage(): StrataKeysContext["overlay"] {
+  // The search dialog is modal, so nothing else is up while it is.
+  if (document.querySelector("[data-strata-search]") !== null) {
+    const active = document.activeElement;
+    return active instanceof Element &&
+      active.closest("[data-strata-search-results]") !== null
+      ? "search-results"
+      : "search";
+  }
   if (document.querySelector("[data-strata-hints]") !== null) {
     return "hints";
   }

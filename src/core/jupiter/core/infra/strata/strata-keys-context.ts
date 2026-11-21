@@ -8,7 +8,8 @@ export interface StrataKeysContext {
   /**
    * What took the keys, if something did: hint mode, the map, the menu of apps,
    * the menu of new items, the menu of commands (which is searching a filter's many choices, or not),
-   * or the find field.
+   * the find field, or the search dialog (with the focus in its query, or on
+   * one of its results).
    */
   overlay:
     | "hints"
@@ -18,6 +19,8 @@ export interface StrataKeysContext {
     | "new"
     | "commands"
     | "commands-search"
+    | "search"
+    | "search-results"
     | null;
   /**
    * Where the user is typing: in a field, which `Escape` leaves, or in a dialog

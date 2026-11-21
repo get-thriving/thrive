@@ -1,10 +1,10 @@
 import { Box } from "@mui/material";
+import type { Theme } from "@mui/material";
 import type { JSX } from "react";
 
 import { BarControls } from "#/core/infra/component/layout/bar-controls";
 import {
   strataColors,
-  strataFonts,
   strataSize,
   strataType,
 } from "#/core/infra/component/strata-tokens";
@@ -59,13 +59,20 @@ export function SectionHeader(props: SectionHeaderProps) {
   return (
     <Box
       data-strata-section-header
-      sx={{
+      sx={(theme) => ({
         display: "flex",
         alignItems: "center",
-        gap: 1,
-        minHeight: strataSize.sectionHeader,
-        px: 1,
-      }}
+        // The row of a column's header (`ColumnHeader`), so a section reads as
+        // a column that has not been split out yet.
+        gap: 1.5,
+        height: strataSize.columnHeader,
+        boxSizing: "border-box",
+        px: 1.5,
+        borderBottom:
+          props.collapsed === true
+            ? "none"
+            : `1px solid ${theme.palette.divider}`,
+      })}
     >
       {props.hideTitle === true ? null : collapsible ? (
         <Box
@@ -87,16 +94,16 @@ export function SectionHeader(props: SectionHeaderProps) {
       {props.summary !== undefined && props.summary !== "" && (
         <Box
           component="span"
-          sx={{
-            fontFamily: strataFonts.mono,
+          sx={(theme) => ({
+            fontFamily: theme.typography.caption.fontFamily,
             fontSize: strataType.meta.size,
-            color: strataColors.textFaint,
+            color: theme.palette.text.secondary,
             flex: "0 1 auto",
             minWidth: 0,
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
-          }}
+          })}
         >
           {props.summary}
         </Box>
@@ -114,17 +121,23 @@ export function SectionHeader(props: SectionHeaderProps) {
           aria-label={props.splitAction.label}
           title={props.splitAction.label}
           onClick={props.splitAction.onClick}
-          sx={{
+          sx={(theme) => ({
             flex: "none",
-            p: "0 4px",
+            width: strataSize.controlSmall,
+            height: strataSize.controlSmall,
+            p: 0,
             border: 0,
             background: "none",
             cursor: "pointer",
-            fontFamily: strataFonts.mono,
-            fontSize: strataType.sectionLabel.size,
-            color: strataColors.textFaint,
+            fontFamily: theme.typography.caption.fontFamily,
+            fontSize: 16,
+            color: theme.palette.text.secondary,
             "&:hover": { color: strataColors.amber },
-          }}
+            "&:focus-visible": {
+              outline: `1px solid ${theme.palette.primary.main}`,
+              outlineOffset: 2,
+            },
+          })}
         >
           ⇥
         </Box>
@@ -133,22 +146,34 @@ export function SectionHeader(props: SectionHeaderProps) {
   );
 }
 
-const labelSx = {
+// The name of the section, as the name of a column is in its header: mono
+// capitals, small and quiet, `▾` in front of it where it can be collapsed.
+const labelSx = (theme: Theme) => ({
   display: "inline-flex",
   alignItems: "center",
   gap: 0.5,
-  flex: "none",
+  flex: "0 1 auto",
+  minWidth: 0,
   p: 0,
   border: 0,
   background: "none",
   cursor: "inherit",
-  fontFamily: strataFonts.mono,
-  fontSize: strataType.sectionLabel.size,
-  letterSpacing: strataType.sectionLabel.letterSpacing,
-  textTransform: "uppercase",
-  color: strataColors.textFaint,
+  whiteSpace: "nowrap",
+  fontFamily: theme.typography.caption.fontFamily,
+  fontSize: strataType.label.size,
+  letterSpacing: strataType.label.letterSpacing,
+  textTransform: strataType.label.textTransform,
+  color: theme.palette.text.secondary,
+  // Amber while the section is the one the keyboard is on, as a column's name
+  // is while the column is.
+  "[data-strata-section]:focus > [data-strata-section-form] > [data-strata-section-header] &":
+    { color: theme.palette.primary.main },
   "button&": {
     cursor: "pointer",
-    "&:hover": { color: strataColors.text },
+    "&:hover": { color: theme.palette.text.primary },
+    "&:focus-visible": {
+      outline: `1px solid ${theme.palette.primary.main}`,
+      outlineOffset: 2,
+    },
   },
-} as const;
+});

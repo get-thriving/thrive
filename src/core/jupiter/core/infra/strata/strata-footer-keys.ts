@@ -76,6 +76,22 @@ export function strataFooterKeys(
         { keys: ["↵"], label: "go to it" },
         { keys: ESCAPE, label: "cancel" },
       ];
+    case "search":
+      return [
+        { keys: [], label: "type to search" },
+        { keys: ["↓", "↵"], label: "results" },
+        { keys: ESCAPE, label: "close" },
+      ];
+    case "search-results":
+      return [
+        {
+          keys: [key(KeyboardAction.NEXT), key(KeyboardAction.PREVIOUS)],
+          label: "results",
+        },
+        { keys: [key(KeyboardAction.OPEN)], label: "open" },
+        { keys: [key(KeyboardAction.FIND)], label: "query" },
+        { keys: ESCAPE, label: "close" },
+      ];
     case null:
       break;
   }

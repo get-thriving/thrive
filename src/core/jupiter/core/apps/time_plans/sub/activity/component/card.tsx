@@ -298,6 +298,12 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                   : "normal"
                 : "lighter"
             }
+            fontStyle={
+              props.activityDoneness[props.activity.ref_id] ===
+              TimePlanActivityDoneness.WORKING
+                ? "italic"
+                : "normal"
+            }
           >
             {props.showTimePlanName && timePlan
               ? timePlan.name
@@ -393,6 +399,12 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                   : "normal"
                 : "lighter"
             }
+            fontStyle={
+              props.activityDoneness[props.activity.ref_id] ===
+              TimePlanActivityDoneness.WORKING
+                ? "italic"
+                : "normal"
+            }
           >
             {props.showTimePlanName && timePlan
               ? timePlan.name
@@ -487,6 +499,12 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                   ? "bold"
                   : "normal"
                 : "lighter"
+            }
+            fontStyle={
+              props.activityDoneness[props.activity.ref_id] ===
+              TimePlanActivityDoneness.WORKING
+                ? "italic"
+                : "normal"
             }
           >
             {props.showTimePlanName && timePlan
@@ -587,6 +605,12 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                   : "normal"
                 : "lighter"
             }
+            fontStyle={
+              props.activityDoneness[props.activity.ref_id] ===
+              TimePlanActivityDoneness.WORKING
+                ? "italic"
+                : "normal"
+            }
           >
             {props.showTimePlanName && timePlan
               ? timePlan.name
@@ -686,6 +710,12 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                   ? "bold"
                   : "normal"
                 : "lighter"
+            }
+            fontStyle={
+              props.activityDoneness[props.activity.ref_id] ===
+              TimePlanActivityDoneness.WORKING
+                ? "italic"
+                : "normal"
             }
           >
             {props.showTimePlanName && timePlan
@@ -788,6 +818,12 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                   ? "bold"
                   : "normal"
                 : "lighter"
+            }
+            fontStyle={
+              props.activityDoneness[props.activity.ref_id] ===
+              TimePlanActivityDoneness.WORKING
+                ? "italic"
+                : "normal"
             }
           >
             {props.showTimePlanName && timePlan
@@ -892,6 +928,12 @@ function TimePlanActivityCardBody(props: TimePlanActivityCardProps) {
                   ? "bold"
                   : "normal"
                 : "lighter"
+            }
+            fontStyle={
+              props.activityDoneness[props.activity.ref_id] ===
+              TimePlanActivityDoneness.WORKING
+                ? "italic"
+                : "normal"
             }
           >
             {props.showTimePlanName && timePlan
@@ -1046,6 +1088,8 @@ function TimePlanActivityDueDateTag(props: {
 function ActivityCardName(props: {
   compact?: boolean;
   fontWeight: "bold" | "normal" | "lighter";
+  /** Italic for what has been started and is not done, as bold is for done. */
+  fontStyle: "italic" | "normal";
   children: ReactNode;
 }) {
   const isBigScreen = useBigScreen();
@@ -1056,6 +1100,7 @@ function ActivityCardName(props: {
       noWrap
       sx={{
         fontWeight: props.fontWeight,
+        fontStyle: props.fontStyle,
         minWidth: 0,
         flex: "0 1 auto",
         overflow: "hidden",

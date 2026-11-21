@@ -5,6 +5,8 @@ import { useStrataColumnKey } from "#/core/infra/component/layout/strata-column-
 import { StrataColumnsContext } from "#/core/infra/component/layout/strata-columns-context";
 import { StrataSectionsContext } from "#/core/infra/component/strata-sections-context";
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
+import { strataScrollColumn } from "#/core/infra/component/layout/strata-scroll-column";
+import { strataEnterName } from "#/core/infra/component/layout/strata-enter-name";
 import { strataEnterEditable } from "#/core/infra/component/layout/strata-enter-editable";
 import { strataItemKey } from "#/core/infra/component/layout/strata-item-key";
 import {
@@ -32,6 +34,8 @@ import {
 interface StrataSectionStackProps {
   /** The panel id of the column the sections are in (ADR 0014). */
   panelId: string;
+  /** The header of the column has room for the first section's controls. */
+  lendsToHeader?: boolean;
 }
 
 /**
@@ -49,6 +53,7 @@ export function StrataSectionStack(
   props: PropsWithChildren<StrataSectionStackProps>,
 ) {
   const { panelId } = props;
+  const lendsToHeader = props.lendsToHeader === true;
   const [filters, setFilters] = useSectionFilters(
     panelId,
     STRATA_SECTION_FILTERS,
@@ -133,8 +138,17 @@ export function StrataSectionStack(
       if (stackAction !== null) {
         // The sections themselves, not the split placeholders, in the order
         // they are on the page.
-        const sections = mine.filter(
+        // The first section, when its header is the column's, is not one of
+        // them: the column is what is selected then, and it is the stop ahead
+        // of the first of the others.
+        const all = mine.filter(
           (el) => el.dataset.strataSectionSplit === undefined,
+        );
+        const sections = all.filter(
+          (el) => el.dataset.strataSectionLent === undefined,
+        );
+        const lent = all.find(
+          (el) => el.dataset.strataSectionLent !== undefined,
         );
         const current = sections.findIndex(
           (el) => active !== null && el.contains(active),
@@ -146,7 +160,25 @@ export function StrataSectionStack(
           column.dataset.strataSplit === undefined
             ? undefined
             : mine.find((el) => el.dataset.strataSectionSplit === "column");
-        const scope = inSplit ?? (current >= 0 ? sections[current] : undefined);
+        const scope =
+          inSplit ??
+          (current >= 0
+            ? sections[current]
+            : lent !== undefined && active !== null && lent.contains(active)
+              ? lent
+              : undefined);
+
+        // With the focus on the column and not in a section, `e` goes into the
+        // name of the entity, which is in the first section that has one.
+        if (
+          stackAction === "items" &&
+          scope === undefined &&
+          active === column &&
+          all.some((section) => strataEnterName(section))
+        ) {
+          event.preventDefault();
+          return;
+        }
 
         // The items: on one, `j` and `k` move between them and `↵` opens it;
         // `e` goes into the list of the section that has the focus itself, and
@@ -198,6 +230,20 @@ export function StrataSectionStack(
           link.click();
           return;
         }
+        // Up from the first of the others goes back to the column, whose header
+        // is the first section's.
+        if (stackAction === "previous" && current === 0 && lent !== undefined) {
+          event.preventDefault();
+          column.focus({ preventScroll: true });
+          strataScrollColumn(column, "top");
+          return;
+        }
+        // The column, or the first section when its header is the column's, is
+        // the top of the list, so up from there goes nowhere rather than round
+        // to the last section. Down stops at the last as well.
+        if (stackAction === "previous" && current < 0) {
+          return;
+        }
         const next = strataNextSection(stackAction, sections.length, current);
         if (next === null) {
           return;
@@ -213,7 +259,14 @@ export function StrataSectionStack(
       // Only the section the focus is in: when it is one that cannot be
       // collapsed or split out, or when none has the focus, the key does
       // nothing, rather than act on another section.
-      const focused = mine.find((el) => active !== null && el.contains(active));
+      // With the focus on the column itself, it is its first section that has
+      // a header there, so it is the one that acts, if its header is the
+      // column's.
+      const focused =
+        mine.find((el) => active !== null && el.contains(active)) ??
+        (active === column
+          ? mine.find((el) => el.dataset.strataSectionLent !== undefined)
+          : undefined);
       let target: HTMLElement | undefined;
       if (collapse) {
         target =
@@ -249,8 +302,16 @@ export function StrataSectionStack(
   }, [panelId, toggle, setSplit, follow, keyBindings]);
 
   const value = useMemo(
-    () => ({ panelId, parentKey, isCollapsed, toggle, split, setSplit }),
-    [panelId, parentKey, isCollapsed, toggle, split, setSplit],
+    () => ({
+      panelId,
+      parentKey,
+      lendsToHeader,
+      isCollapsed,
+      toggle,
+      split,
+      setSplit,
+    }),
+    [panelId, parentKey, lendsToHeader, isCollapsed, toggle, split, setSplit],
   );
 
   return (

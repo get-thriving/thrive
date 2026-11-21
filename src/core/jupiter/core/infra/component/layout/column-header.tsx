@@ -8,6 +8,7 @@ import { useRef } from "react";
 import type { MouseEvent, ReactNode } from "react";
 
 import { BarControls } from "#/core/infra/component/layout/bar-controls";
+import { StrataHeaderSlotOutlet } from "#/core/infra/component/layout/strata-header-slot-outlet";
 import { ColumnClose } from "#/core/infra/component/layout/column-close";
 import type { ColumnChip } from "#/core/infra/component/layout/column-chip";
 import { ColumnMenu } from "#/core/infra/component/layout/column-menu";
@@ -61,6 +62,13 @@ interface ColumnHeaderProps {
    * button when the column is too narrow for them.
    */
   controls?: ReactNode;
+  /**
+   * The key of the column, when its first section draws its own controls
+   * into this header: the header of the column is that section's header, so
+   * its Save and the like sit among the controls, with the menu and the close
+   * control, and the section has no row of its own.
+   */
+  slot?: string;
   /** The commands of the column, behind `⋯`. */
   menu?: readonly ColumnMenuEntry[];
   /** Left out where the column cannot be closed. */
@@ -73,10 +81,14 @@ interface ColumnHeaderProps {
  *
  * `[title] [count or position] [chips] ── [controls] [views] [⋯] [× or ⇤]`
  *
- * Clicking the title scrolls the column to its top. The count is for the
- * focused column (or the only one); the position and the menu are in every
- * column, so a mouse user can reach them, and close a column, whichever one is
- * focused. What else a panel offers goes in the controls, which are small and
+ * It is also the header of the first section of its column, when the column is
+ * a stack of sections: that section's own controls are drawn among the
+ * `controls`, and it has no header row of its own (the `slot`).
+ *
+ * Clicking the title scrolls the column to its top. The count, the position
+ * and the menu are in every column, whichever one is focused, so the header
+ * keeps its width as the focus moves, and a mouse user can reach them and close
+ * a column. What else a panel offers goes in the controls, which are small and
  * fold away when there is no room for them.
  */
 export function ColumnHeader(props: ColumnHeaderProps) {
@@ -141,6 +153,9 @@ export function ColumnHeader(props: ColumnHeaderProps) {
 
   return (
     <Header id={props.id} ref={header} data-strata-header>
+      {props.slot !== undefined && (
+        <StrataHeaderSlotOutlet columnKey={props.slot} lead />
+      )}
       <Title
         type="button"
         data-strata-title
@@ -150,7 +165,7 @@ export function ColumnHeader(props: ColumnHeaderProps) {
         {props.kind === "split" && <span aria-hidden>↳ </span>}
         {props.title}
       </Title>
-      {focused && props.count !== undefined && (
+      {props.count !== undefined && (
         <Count data-strata-count>{props.count}</Count>
       )}
       {props.position !== undefined && props.position !== null && (
@@ -196,10 +211,15 @@ export function ColumnHeader(props: ColumnHeaderProps) {
           {chip.label}
         </Chip>
       ))}
-      {props.controls !== undefined && (
-        <BarControls>{props.controls}</BarControls>
+      {(props.controls !== undefined || props.slot !== undefined) && (
+        <BarControls>
+          {props.controls}
+          {props.slot !== undefined && (
+            <StrataHeaderSlotOutlet columnKey={props.slot} />
+          )}
+        </BarControls>
       )}
-      <Actions grow={props.controls === undefined}>
+      <Actions grow={props.controls === undefined && props.slot === undefined}>
         {props.views}
         {menu.length > 0 && <ColumnMenu headerId={props.id} entries={menu} />}
         {props.close !== undefined && <ColumnClose {...props.close} />}
@@ -224,7 +244,11 @@ const Header = styled("div")(({ theme }) => ({
 const Title = styled(ButtonBase)(({ theme }) => ({
   flex: "0 1 auto",
   minWidth: 0,
-  justifyContent: "flex-start",
+  // A block, not the button's own flex row, so that a title that is too long is
+  // cut with an ellipsis instead of running on.
+  display: "block",
+  textAlign: "left",
+  maxWidth: "100%",
   overflow: "hidden",
   whiteSpace: "nowrap",
   textOverflow: "ellipsis",

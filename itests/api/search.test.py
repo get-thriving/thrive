@@ -226,6 +226,29 @@ def link_location(logged_in_client: AuthenticatedClient):
     return _link
 
 
+def test_api_search_finds_entities_seeded_at_sign_up(
+    api_url: str,
+    api_key: str,
+    drain_search_mutation_log,
+) -> None:
+    # Sign-up does not index what it seeds itself: it queues its mutation for the
+    # drain of the search mutation log, which does it after the answer.
+    drain_search_mutation_log()
+
+    status, data = _search(
+        api_url,
+        api_key,
+        {
+            "query": "Acquaintance",
+            "limit": 20,
+            "include_archived": False,
+            "filter_entity_tags": ["Circle"],
+        },
+    )
+    assert status == 200
+    assert len(data.get("matches", [])) > 0  # type: ignore
+
+
 def test_api_search_todo_by_name(
     api_url: str,
     api_key: str,

@@ -4,6 +4,11 @@ import { useContext, useEffect, useRef, useState } from "react";
 import type { JSX, PropsWithChildren } from "react";
 import { createPortal } from "react-dom";
 
+import { StrataBarContext } from "#/core/infra/component/layout/strata-bar-context";
+import {
+  strataHeaderLeadKey,
+  useStrataHeaderSlot,
+} from "#/core/infra/component/layout/strata-header-slot";
 import { StrataColumnsContext } from "#/core/infra/component/layout/strata-columns-context";
 import { StrataCommandKind } from "#/core/infra/component/layout/strata-command-kind";
 import type { StrataCommand } from "#/core/infra/component/layout/strata-command";
@@ -13,7 +18,12 @@ import { useInterceptedSubmit } from "#/core/infra/component/intent-interceptor"
 import { SectionHeader } from "#/core/infra/component/section-header";
 import { ActionsPosition } from "#/core/infra/component/section-card";
 import { StrataSectionPlaceholder } from "#/core/infra/component/strata-section-placeholder";
-import { strataColors } from "#/core/infra/component/strata-tokens";
+import {
+  strataColors,
+  strataSize,
+  strataType,
+} from "#/core/infra/component/strata-tokens";
+import { StrataSectionFormContext } from "#/core/infra/component/strata-section-form-context";
 import { useStrataSections } from "#/core/infra/component/strata-sections-context";
 import { strataSplitKey } from "#/core/infra/strata/strata-columns-with-splits";
 
@@ -67,6 +77,8 @@ interface StrataSectionProps {
 }
 
 interface SectionFormProps {
+  /** The id of the form, which controls drawn apart from it name. */
+  id: string;
   bare?: boolean;
   method: "get" | "post";
   onSubmit: ReturnType<typeof useInterceptedSubmit>;
@@ -79,6 +91,7 @@ function SectionForm(props: PropsWithChildren<SectionFormProps>) {
   }
   return (
     <Form
+      id={props.id}
       method={props.method}
       onSubmit={props.onSubmit}
       data-strata-section-form
@@ -87,6 +100,11 @@ function SectionForm(props: PropsWithChildren<SectionFormProps>) {
     </Form>
   );
 }
+
+// The gap above the body of a section whose header is the column's. The panel
+// already pads its content under the header, so the body asks for little more,
+// where it is a whole row (of 14px) under a section's own header.
+const BODY_UNDER_COLUMN_HEADER = 0.25;
 
 // A section's column is M unless it says otherwise.
 const DEFAULT_SPLIT_SIZE = 2;
@@ -156,9 +174,99 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
     parentSize,
   ]);
 
+  // The header of the column the section is in is its header, when it is the
+  // first of the stack (the fixed one) or the one in a column of its own: its
+  // controls are drawn there, among the column's own, and it has no row.
+  const formId = `${props.id}-form`;
+  const slot = useStrataHeaderSlot(
+    inColumn
+      ? strataSplitKey(props.id)
+      : props.fixed === true && stack !== null
+        ? stack.parentKey
+        : null,
+  );
+  const lends =
+    (inColumn || (props.fixed === true && stack?.lendsToHeader === true)) &&
+    actionsPosition === ActionsPosition.ABOVE;
+  const hasSummary = props.summary !== undefined && props.summary !== "";
+  const lent =
+    lends && slot !== null && (props.actions !== undefined || hasSummary)
+      ? createPortal(
+          <StrataBarContext.Provider value={slot.bar}>
+            <StrataSectionFormContext.Provider
+              value={props.bare === true ? null : formId}
+            >
+              {hasSummary && (
+                <Box
+                  component="span"
+                  data-strata-section-summary
+                  sx={(theme) => ({
+                    flex: "none",
+                    fontFamily: theme.typography.caption.fontFamily,
+                    fontSize: strataType.meta.size,
+                    color: theme.palette.text.secondary,
+                    whiteSpace: "nowrap",
+                  })}
+                >
+                  {props.summary}
+                </Box>
+              )}
+              {props.actions}
+            </StrataSectionFormContext.Provider>
+          </StrataBarContext.Provider>,
+          slot.element,
+        )
+      : null;
+
   const startsCollapsed = props.startsCollapsed === true;
-  const collapsible = stack !== null && props.fixed !== true;
+  // The first section of a stack has no row of its own, so it is collapsed with
+  // a `▾` in the header of the column, ahead of its name.
+  const lentFixed = lends && !inColumn;
+  const collapsible = stack !== null && (props.fixed !== true || lentFixed);
   const collapsed = collapsible && stack.isCollapsed(props.id, startsCollapsed);
+  const leadSlot = useStrataHeaderSlot(
+    lentFixed && stack?.parentKey != null
+      ? strataHeaderLeadKey(stack.parentKey)
+      : null,
+  );
+  const leadToggle =
+    lentFixed && leadSlot !== null
+      ? createPortal(
+          <Box
+            component="button"
+            type="button"
+            data-strata-section-toggle
+            onClick={() => stack?.toggle(props.id, startsCollapsed)}
+            aria-expanded={!collapsed}
+            aria-controls={`${props.id}-body`}
+            aria-label={`${collapsed ? "Expand" : "Collapse"} ${props.title}`}
+            title={`${collapsed ? "Expand" : "Collapse"} ${props.title}`}
+            sx={(theme) => ({
+              flex: "none",
+              // Close to the name that follows it, as the `▾` of a section's
+              // header is close to its title.
+              marginRight: -0.75,
+              width: 14,
+              height: strataSize.controlSmall,
+              p: 0,
+              border: 0,
+              background: "none",
+              cursor: "pointer",
+              fontFamily: theme.typography.caption.fontFamily,
+              fontSize: strataType.label.size,
+              color: theme.palette.text.secondary,
+              "&:hover": { color: strataColors.amber },
+              "&:focus-visible": {
+                outline: `1px solid ${theme.palette.primary.main}`,
+                outlineOffset: 2,
+              },
+            })}
+          >
+            {collapsed ? "▸" : "▾"}
+          </Box>,
+          leadSlot.element,
+        )
+      : null;
   const bodyId = `${props.id}-body`;
 
   // How the section is laid out is offered to the menu of commands as the last
@@ -225,6 +333,8 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
     "data-strata-section-title": props.title,
     "data-strata-section-panel": stack?.panelId,
     "data-strata-section-fixed": props.fixed === true ? "true" : undefined,
+    // Its header is the column's, so the column is what is selected, not it.
+    "data-strata-section-lent": lentFixed ? "true" : undefined,
     "data-strata-splittable": splittable ? "true" : undefined,
     "data-strata-section-starts-collapsed": startsCollapsed
       ? "true"
@@ -256,6 +366,7 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
             sx={{ pb: 1 }}
           >
             <SectionForm
+              id={formId}
               bare={props.bare}
               method={props.method ?? "post"}
               onSubmit={handleSubmit}
@@ -264,14 +375,17 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
                 bodyId={bodyId}
                 title={props.title}
                 hideTitle
-                summary={props.summary}
+                summary={lends ? undefined : props.summary}
                 actions={
-                  actionsPosition === ActionsPosition.ABOVE
+                  actionsPosition === ActionsPosition.ABOVE && !lends
                     ? props.actions
                     : undefined
                 }
               />
-              <Box id={bodyId} sx={{ px: 1, pt: 1.75 }}>
+              <Box
+                id={bodyId}
+                sx={{ px: 1, pt: lends ? BODY_UNDER_COLUMN_HEADER : 1.75 }}
+              >
                 <Stack spacing={1.25}>{body}</Stack>
                 {bodyActionsBelow}
               </Box>
@@ -279,6 +393,7 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
           </Box>,
           host,
         )}
+        {lent}
       </Box>
     );
   }
@@ -289,20 +404,41 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
       ref={rootRef}
       {...sectionAttributes}
       {...layoutAttribute}
-      tabIndex={stack ? -1 : undefined}
+      tabIndex={stack && !lentFixed ? -1 : undefined}
       sx={{
+        // As wide as the column, edge to edge, like the column's own header:
+        // the panel pads its content, which this takes back.
+        // Said three times over, as the `Stack` the sections are in sets their
+        // margins to nothing, and would win otherwise.
+        "&&&": { marginLeft: "-0.5rem", marginRight: "-0.5rem" },
+        position: "relative",
         borderBottom: 1,
         borderColor: "divider",
-        pb: 1,
-        // `j` and `k` put the keyboard focus on the section itself.
-        "&:focus": { outline: "none" },
-        // The mark is on the heading only, not the whole body.
-        "&:focus > [data-strata-section-form] > [data-strata-section-header]": {
-          boxShadow: `inset 1px 0 0 ${strataColors.amber}`,
+        pb: collapsed ? 0 : 1,
+        // The line on top, as a column has one: strong and quiet, amber while
+        // the section is the one `j` and `k` put the keyboard focus on. The
+        // first section sits right under the column's own line, so it has
+        // none until it is the one marked.
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          // Over the line under the section above, so the two are one 1px
+          // line, half the thickness of a column's, and not a 2px one. A
+          // string, as a bare 1 would be all of the height.
+          top: -1,
+          left: 0,
+          right: 0,
+          height: "1px",
+          backgroundColor: strataColors.lineStrong,
+          pointerEvents: "none",
         },
+        "&:first-child:not(:focus)::before": { display: "none" },
+        "&:focus": { outline: "none" },
+        "&:focus::before": { backgroundColor: strataColors.amber },
       }}
     >
       <SectionForm
+        id={formId}
         bare={props.bare}
         method={props.method ?? "post"}
         onSubmit={handleSubmit}
@@ -310,7 +446,8 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
         <SectionHeader
           bodyId={bodyId}
           title={props.title}
-          summary={props.summary}
+          hideTitle={lends}
+          summary={lends ? undefined : props.summary}
           collapsed={collapsible ? collapsed : undefined}
           onToggle={
             collapsible
@@ -326,16 +463,22 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
               : undefined
           }
           actions={
-            actionsPosition === ActionsPosition.ABOVE
+            actionsPosition === ActionsPosition.ABOVE && !lends
               ? props.actions
               : undefined
           }
         />
-        <Box id={bodyId} hidden={collapsed} sx={{ px: 1, pt: 1.75 }}>
+        <Box
+          id={bodyId}
+          hidden={collapsed}
+          sx={{ px: "1rem", pt: lends ? BODY_UNDER_COLUMN_HEADER : 1.75 }}
+        >
           <Stack spacing={1.25}>{body}</Stack>
           {bodyActionsBelow}
         </Box>
       </SectionForm>
+      {lent}
+      {leadToggle}
     </Box>
   );
 }

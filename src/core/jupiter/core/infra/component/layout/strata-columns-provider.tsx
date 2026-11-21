@@ -1,13 +1,14 @@
 import type { PropsWithChildren } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GlobalStyles } from "@mui/material";
-import { useMatches, useSearchParams } from "react-router";
+import { useLocation, useMatches, useSearchParams } from "react-router";
 
 import { isEditableFieldTarget } from "#/core/infra/component/layout/is-editable-field-target";
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
 import { StrataDebugOverlay } from "#/core/infra/component/layout/strata-debug-overlay";
 import { StrataFind } from "#/core/infra/component/layout/strata-find";
 import { StrataFooter } from "#/core/infra/component/layout/strata-footer";
+import { StrataKeysHelp } from "#/core/infra/component/layout/strata-keys-help";
 import { StrataHints } from "#/core/infra/component/layout/strata-hints";
 import { StrataAppMenu } from "#/core/infra/component/layout/strata-app-menu";
 import { StrataNewMenu } from "#/core/infra/component/layout/strata-new-menu";
@@ -80,6 +81,7 @@ export function StrataColumnsProvider(
   props: PropsWithChildren<StrataColumnsProviderProps>,
 ) {
   const matches = useMatches();
+  const { pathname } = useLocation();
   const path = useStrataPath();
   const [searchParams] = useSearchParams();
   const [windowWidth, setWindowWidth] = useState(
@@ -87,7 +89,11 @@ export function StrataColumnsProvider(
   );
   // Which column has the focus (a route column's or a split's key), for the
   // path it was chosen on.
-  const [chosen, setChosen] = useState<{ pathKey: string; key: string }>();
+  const [chosen, setChosen] = useState<{
+    pathKey: string;
+    pathname: string;
+    key: string;
+  }>();
   // The sections on screen which can be columns, and where each is drawn once
   // it is one.
   const [splitSpecs, setSplitSpecs] = useState<
@@ -123,9 +129,14 @@ export function StrataColumnsProvider(
   }, []);
 
   const pathKey = path.map((panel) => panel.key).join("|");
-  // A new path starts with the deepest panel focused again.
+  // A new path starts with the deepest panel focused again. On a phone, which
+  // shows one panel at a time, so does a move to another item of the same kind
+  // of panel, as when another item of the list that is on show is picked: it
+  // opens whole, rather than changing behind the list as a strip.
   const focusKey =
-    chosen !== undefined && chosen.pathKey === pathKey
+    chosen !== undefined &&
+    chosen.pathKey === pathKey &&
+    (!props.phone || chosen.pathname === pathname)
       ? chosen.key
       : (path[path.length - 1]?.key ?? "");
 
@@ -207,12 +218,12 @@ export function StrataColumnsProvider(
 
   const focusColumn = useCallback(
     (key: string, takeFocus: boolean = true) => {
-      setChosen({ pathKey, key });
+      setChosen({ pathKey, pathname, key });
       if (takeFocus) {
         setMoves((current) => current + 1);
       }
     },
-    [pathKey],
+    [pathKey, pathname],
   );
 
   const focus = useCallback(
@@ -477,6 +488,7 @@ export function StrataColumnsProvider(
       <StrataMap />
       <StrataHints />
       <StrataFind />
+      <StrataKeysHelp />
       <StrataFooter />
       {!props.phone &&
         layout?.slots.map((slot) => {

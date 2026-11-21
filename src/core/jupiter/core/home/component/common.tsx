@@ -208,7 +208,11 @@ export function WidgetContainer(
   return (
     <Box
       sx={{
-        width: isBigScreen ? "100%" : "calc(100% - 2 * 0.4rem)",
+        // On a small screen the widget takes the whole width it is given, by
+        // stretching rather than by a calculated width: a `Stack` around it
+        // takes its margins away, which the calculation counted on.
+        width: isBigScreen ? "100%" : "auto",
+        alignSelf: isBigScreen ? undefined : "stretch",
         // Without this a widget wider than its column drags the whole grid
         // (and the page) sideways instead of scrolling inside its own box.
         minWidth: 0,

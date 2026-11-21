@@ -1,4 +1,5 @@
 import { strataEnterEditable } from "#/core/infra/component/layout/strata-enter-editable";
+import { strataEnterName } from "#/core/infra/component/layout/strata-enter-name";
 import { strataFocusItem } from "#/core/infra/component/layout/strata-focus-item";
 import { strataOpenItem } from "#/core/infra/component/layout/strata-open-item";
 import {
@@ -24,9 +25,10 @@ export type StrataItemEntry = "section" | "column";
  * and `k` move between the items, stopping at the ends, and `↵` opens the one
  * that has it. Otherwise `e` goes into the list, to its first item, as above.
  * Says whether the key was taken, so the caller leaves it alone; what is not
- * taken is for the caller's other keys. Where the scope has no list but a note,
- * or anything else that can be written in, `e` goes into that instead, with the
- * caret at the end of what is written. `follow` is told of the item a move
+ * taken is for the caller's other keys. Where the scope has no list but the
+ * name of an entity, `e` goes into that, and where it has a note, or anything
+ * else that can be written in, into that instead, with the caret at the end of
+ * what is written. `follow` is told of the item a move
  * lands on, so what is open beside the list can follow the selection.
  */
 export function strataItemKey(
@@ -73,7 +75,7 @@ export function strataItemKey(
     items.length === 0 &&
     scope !== undefined &&
     (entry === "column" || scope === document.activeElement) &&
-    strataEnterEditable(scope, null, true)
+    (strataEnterName(scope) || strataEnterEditable(scope, null, true))
   ) {
     event.preventDefault();
     return true;

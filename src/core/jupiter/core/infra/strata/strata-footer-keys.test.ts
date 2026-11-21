@@ -34,6 +34,34 @@ function listed(overrides: Partial<StrataKeysContext>): string[] {
 }
 
 describe("strataFooterKeys", () => {
+  it("says how to use the search dialog, in the query and on a result", () => {
+    expect(listed({ overlay: "search", typing: "layer" })).toEqual([
+      "type to search",
+      "↓ ↵ results",
+      "esc close",
+    ]);
+    expect(listed({ overlay: "search-results", typing: "layer" })).toEqual([
+      "j k results",
+      "↵ open",
+      "f query",
+      "esc close",
+    ]);
+  });
+
+  it("draws the keys the user chose for the results of the search dialog", () => {
+    const chosen = strataKeyBindingsFrom({
+      [KeyboardAction.NEXT]: "n",
+      [KeyboardAction.PREVIOUS]: "p",
+      [KeyboardAction.FIND]: "/",
+    });
+    expect(
+      strataFooterKeys(
+        { ...quiet, overlay: "search-results", typing: "layer" },
+        chosen,
+      ).map((entry) => [...entry.keys, entry.label].join(" ")),
+    ).toEqual(["n p results", "↵ open", "/ query", "esc close"]);
+  });
+
   it("lists only the keys that work everywhere on a lone, bare column", () => {
     expect(listed({})).toEqual([
       "s hints",

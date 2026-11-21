@@ -32,7 +32,7 @@ import {
 } from "@mui/material";
 import { Link } from "react-router";
 import type { Dispatch, JSX, RefObject, SetStateAction } from "react";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 
 import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
@@ -40,6 +40,8 @@ import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useIsomorphicLayoutEffect } from "#/core/infra/component/use-isomorphic-layout-effect";
 import { useStrataBar } from "#/core/infra/component/layout/strata-bar-context";
 import { useStrataActionCommands } from "#/core/infra/component/layout/use-strata-action-commands";
+import { sectionActionsForForm } from "#/core/infra/component/section-actions-for-form";
+import { StrataSectionFormContext } from "#/core/infra/component/strata-section-form-context";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
 import { strataSize, strataType } from "#/core/infra/component/strata-tokens";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -288,6 +290,26 @@ interface SectionActionsProps {
 }
 
 export function SectionActions(props: SectionActionsProps) {
+  // Drawn in the header of a column, they submit the section's form, not the
+  // header's.
+  const formId = useContext(StrataSectionFormContext);
+  if (formId === null) {
+    return <SectionActionsInForm {...props} />;
+  }
+  return (
+    <SectionActionsInForm
+      {...props}
+      actions={sectionActionsForForm(props.actions, formId)}
+      extraActions={
+        props.extraActions === undefined
+          ? undefined
+          : sectionActionsForForm(props.extraActions, formId)
+      }
+    />
+  );
+}
+
+function SectionActionsInForm(props: SectionActionsProps) {
   const isBigScreen = useBigScreen();
   const bar = useStrataBar();
   const expansion = props.expansion ?? ActionsExpansion.ADAPT;

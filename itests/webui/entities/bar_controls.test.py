@@ -19,6 +19,8 @@ _PHONE: ViewportSize = {"width": 390, "height": 844}
 _HABITS = "/app/workspace/apps/habits/habits"
 # The height of a small button, in px (`strataSize.controlSmall`).
 _SMALL = 26
+# The row of the header of a column, and of a section (`strataSize.columnHeader`).
+_COLUMN_HEADER = 36
 
 
 def _create_habit(client: AuthenticatedClient, name: str) -> Habit:
@@ -49,12 +51,18 @@ def test_the_buttons_of_a_section_are_small(
     assert box is not None
     assert box["height"] <= _SMALL
 
-    # The header of the section is the height of its title row, not of a
-    # button that does not fit it.
+    # The first section's controls are in the header of the column, which is
+    # the height of its row, not of a button that does not fit it.
+    expect(page.locator("#leaf-panel-controls #habit-update")).to_be_visible()
+    column_header_box = page.locator("#leaf-panel-controls").bounding_box()
+    assert column_header_box is not None
+    assert column_header_box["height"] <= _COLUMN_HEADER
+
+    # The header of the other sections is the same row.
     header = page.locator("#leaf-panel [data-strata-section-header]").first
     header_box = header.bounding_box()
     assert header_box is not None
-    assert header_box["height"] <= 30
+    assert header_box["height"] <= _COLUMN_HEADER
 
 
 def test_the_filters_of_a_list_are_in_its_header(page: Page) -> None:

@@ -1,3 +1,4 @@
+import { strataNameField } from "#/core/infra/component/layout/strata-enter-name";
 import { strataScrollToCentre } from "#/core/infra/component/layout/strata-scroll-to-centre";
 
 const EDITABLE = "[contenteditable='true']";
@@ -18,11 +19,14 @@ function strataEditables(root: HTMLElement, ownOnly: boolean): HTMLElement[] {
 
 /**
  * Whether a section, the section of a split column, or a column with no
- * sections has a note, or anything else that can be written in, of its own, for
- * `e` to go into.
+ * sections has a note, the name of an entity, or anything else that can be
+ * written in, of its own, for `e` to go into.
  */
 export function strataHasEditable(scope: HTMLElement): boolean {
-  return strataEditables(scope, true).length > 0;
+  return (
+    strataEditables(scope, true).length > 0 ||
+    strataNameField(scope, true) !== null
+  );
 }
 
 function putCaret(range: Range) {

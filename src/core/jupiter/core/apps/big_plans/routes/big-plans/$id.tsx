@@ -965,7 +965,6 @@ export default function BigPlan() {
             <StrataSection
               id="big-plan-time-plans"
               items={timePlanActivities.length}
-              split={{ size: 1 }}
               title="Time Plans"
               summary={countSummary(
                 timePlanActivities.length,

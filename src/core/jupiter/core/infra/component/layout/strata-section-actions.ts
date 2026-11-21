@@ -13,7 +13,11 @@ function isInColumn(section: HTMLElement): boolean {
 /** Whether `z` collapses or expands the section: not the fixed first one. */
 export function strataSectionCollapsible(section: HTMLElement): boolean {
   return (
-    section.dataset.strataSectionFixed === undefined && !isInColumn(section)
+    // The first section is fixed, but can be collapsed when its header is the
+    // column's (`data-strata-section-lent`).
+    (section.dataset.strataSectionFixed === undefined ||
+      section.dataset.strataSectionLent !== undefined) &&
+    !isInColumn(section)
   );
 }
 

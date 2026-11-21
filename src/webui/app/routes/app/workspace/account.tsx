@@ -373,6 +373,7 @@ export default function Account() {
     <EntityPanel
       kind="trunk"
       sectionsPanelId="account"
+      title="Account"
       key={`account/${loaderData.user.version}`}
       returnLocation="/app/workspace"
     >

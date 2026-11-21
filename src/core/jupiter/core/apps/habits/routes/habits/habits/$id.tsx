@@ -689,7 +689,6 @@ export default function Habit() {
             <StrataSection
               id="habit-time-plans"
               items={loaderData.timePlanActivities.length}
-              split={{ size: 1 }}
               title="Time Plans"
               summary={countSummary(
                 loaderData.timePlanActivities.length,

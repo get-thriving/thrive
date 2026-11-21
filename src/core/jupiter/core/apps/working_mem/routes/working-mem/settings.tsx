@@ -198,7 +198,7 @@ export default function WorkingMemSettings() {
         />
       </SectionCard>
 
-      <SectionCard title="Cleanup Tasks">
+      <SectionCard lends={false} title="Cleanup Tasks">
         {sortedCleanupTasks && (
           <InboxTaskStack
             topLevelInfo={topLevelInfo}

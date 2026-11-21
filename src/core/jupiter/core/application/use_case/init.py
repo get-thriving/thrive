@@ -2,9 +2,6 @@
 
 from typing import cast
 
-from jupiter.core.application.service.index_workspace_seed_entities import (
-    IndexWorkspaceSeedEntitiesService,
-)
 from jupiter.core.apps.big_plans.collection import BigPlanCollection
 from jupiter.core.apps.chores.collection import ChoreCollection
 from jupiter.core.apps.docs.root import DocCollection
@@ -61,6 +58,7 @@ from jupiter.core.common.scheduling_params import (
     SchedulingParams,
 )
 from jupiter.core.common.search.domain import SearchDomain
+from jupiter.core.common.search.mutation_log_record import SearchMutationLogRecord
 from jupiter.core.common.sub.access.access_level import AccessLevel
 from jupiter.core.common.sub.access.sub.grant.service.grant_rights_to_user import (
     GrantRightsToUserService,
@@ -113,7 +111,6 @@ from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt
-from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_link import EntityLink
 from jupiter.framework.progress_reporter.reporter import (
     ProgressReporter,
@@ -530,7 +527,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 "Acquaintance",
                 "Other",
             ]
-            created_circle_ref_ids: list[EntityId] = []
             for circle_name in default_circle_names:
                 new_circle = Circle.new_circle(
                     ctx=context.domain_context,
@@ -538,7 +534,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     name=CircleName(circle_name),
                 )
                 new_circle = await uow.get_for(Circle).create(new_circle)
-                created_circle_ref_ids.append(new_circle.ref_id)
                 await GrantRightsToUserService(self._concept_registry).do_it(
                     context.domain_context,
                     uow,
@@ -646,21 +641,19 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_user_workspace_link
             )
 
-        await IndexWorkspaceSeedEntitiesService(
-            self._ports.domain_storage_engine,
-            self._ports,
-            self._concept_registry,
-            self._time_provider,
-        ).do_it(
-            workspace_ref_id=new_workspace.ref_id,
-            search_domain_ref_id=new_search_domain.ref_id,
-            root_aspect_ref_id=new_root_aspect.ref_id,
-            birth_milestone_ref_id=new_birth_milestone.ref_id,
-            first_schedule_stream_ref_id=new_first_schedule_stream.ref_id,
-            root_doc_dir_ref_id=new_root_doc_dir.ref_id,
-            working_mem_ref_id=new_working_mem.ref_id,
-            circle_ref_ids=created_circle_ref_ids,
-        )
+        # What was made is indexed after the answer, by the drain of the search
+        # mutation log, as for every other mutation: the transaction is over, so
+        # what it finds is there.
+        async with (
+            self._ports.search_indexing_storage_engine.get_unit_of_work() as iuow
+        ):
+            await iuow.search_mutation_log_record_repository.append_unindexed(
+                SearchMutationLogRecord.new_unindexed(
+                    ctx=context.domain_context,
+                    search_domain_ref_id=new_search_domain.ref_id,
+                    mutation_id=context.mutation_id,
+                ),
+            )
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(new_user.ref_id)
 

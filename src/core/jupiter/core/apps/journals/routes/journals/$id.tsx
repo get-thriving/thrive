@@ -312,7 +312,6 @@ export default function Journal() {
         sortedTimePlans.length > 0 && (
           <StrataSection
             items={1}
-            split={{ size: 1 }}
             id="sub-time-plans"
             title="Time Plans in this Period"
           >

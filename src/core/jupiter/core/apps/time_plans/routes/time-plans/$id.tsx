@@ -1698,7 +1698,6 @@ function TimePlanViewContent() {
           <StrataSection
             id="time-plan-lower"
             items={sortedSubTimePlans.length}
-            split={{ size: 1 }}
             title="Lower Time Plans"
             summary={countSummary(sortedSubTimePlans.length, "plan", "plans")}
           >

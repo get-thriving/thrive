@@ -522,7 +522,11 @@ export default function TimePlanAddFromCurrentTimePlans() {
       </SectionCard>
 
       {loaderData.otherHigherTimePlan && (
-        <SectionCard id="time-plan-higher-time-plan" title="Higher Time Plan">
+        <SectionCard
+          lends={false}
+          id="time-plan-higher-time-plan"
+          title="Higher Time Plan"
+        >
           <TimePlanCard
             topLevelInfo={topLevelInfo}
             timePlan={loaderData.otherHigherTimePlan}
@@ -540,6 +544,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
 
       {loaderData.otherPreviousTimePlan && (
         <SectionCard
+          lends={false}
           id="time-plan-previous-time-plan"
           title="Previous Time Plan"
         >
@@ -560,6 +565,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
 
       {loaderData.otherHigherTimePlanSubTimePlans && (
         <SectionCard
+          lends={false}
           id="time-plan-other-higher-time-plan"
           title="Sub Time Plans"
         >

@@ -12,9 +12,8 @@ import { parseForm } from "zodix";
 import { WorkspaceFeatureFlagsEditor } from "@jupiter/core/workspaces/component/feature-flags-editor";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
-import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
 import { EntityPanel } from "@jupiter/core/infra/component/layout/entity-panel";
-import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { StrataSection } from "@jupiter/core/infra/component/strata-section";
 import {
   SectionActions,
   ActionSingle,
@@ -40,7 +39,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 ]);
 
 export const handle = {
-  displayType: DisplayType.TOOL,
+  displayType: DisplayType.TRUNK,
   label: "Settings",
 };
 
@@ -106,67 +105,72 @@ export default function Settings() {
   const inputsEnabled = navigation.state === "idle";
 
   return (
-    <EntityPanel kind="trunk" key={"settings"} returnLocation="/app/workspace">
-      <ToolPanel>
-        <GlobalError intent="update" actionResult={actionData} />
-        <SectionCard
-          id="general"
-          title="General"
-          actions={
-            <SectionActions
-              id="general-actions"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                ActionSingle({
-                  text: "Save",
-                  value: "update",
-                  highlight: true,
-                }),
-              ]}
-            />
-          }
-        >
-          <FormControl fullWidth>
-            <InputLabel id="name">Name</InputLabel>
-            <OutlinedInput
-              label="Name"
-              name="name"
-              readOnly={!inputsEnabled}
-              defaultValue={loaderData.workspace.name}
-            />
-            <FieldError actionResult={actionData} fieldName="/name" />
-          </FormControl>
-        </SectionCard>
-
-        <GlobalError intent="change-feature-flags" actionResult={actionData} />
-        <SectionCard
-          id="feature-flags"
-          title="Feature Flags"
-          actions={
-            <SectionActions
-              id="feature-flags-actions"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                ActionSingle({
-                  text: "Change Feature Flags",
-                  value: "change-feature-flags",
-                  highlight: true,
-                }),
-              ]}
-            />
-          }
-        >
-          <WorkspaceFeatureFlagsEditor
-            name="featureFlags"
+    <EntityPanel
+      kind="trunk"
+      sectionsPanelId="settings"
+      title="Settings"
+      key="settings"
+      returnLocation="/app/workspace"
+    >
+      <StrataSection
+        id="general-section"
+        fixed
+        title="General"
+        actions={
+          <SectionActions
+            id="general-actions"
+            topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
-            featureFlagsControls={topLevelInfo.workspaceFeatureFlagControls}
-            defaultFeatureFlags={loaderData.workspace.feature_flags}
-            hosting={getHosting(globalProperties.universe)}
+            actions={[
+              ActionSingle({
+                text: "Save",
+                value: "update",
+                highlight: true,
+              }),
+            ]}
           />
-        </SectionCard>
-      </ToolPanel>
+        }
+      >
+        <GlobalError intent="update" actionResult={actionData} />
+        <FormControl fullWidth>
+          <InputLabel id="name">Name</InputLabel>
+          <OutlinedInput
+            label="Name"
+            name="name"
+            readOnly={!inputsEnabled}
+            defaultValue={loaderData.workspace.name}
+          />
+          <FieldError actionResult={actionData} fieldName="/name" />
+        </FormControl>
+      </StrataSection>
+
+      <StrataSection
+        id="feature-flags-section"
+        title="Feature Flags"
+        actions={
+          <SectionActions
+            id="feature-flags-actions"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Change Feature Flags",
+                value: "change-feature-flags",
+                highlight: true,
+              }),
+            ]}
+          />
+        }
+      >
+        <GlobalError intent="change-feature-flags" actionResult={actionData} />
+        <WorkspaceFeatureFlagsEditor
+          name="featureFlags"
+          inputsEnabled={inputsEnabled}
+          featureFlagsControls={topLevelInfo.workspaceFeatureFlagControls}
+          defaultFeatureFlags={loaderData.workspace.feature_flags}
+          hosting={getHosting(globalProperties.universe)}
+        />
+      </StrataSection>
     </EntityPanel>
   );
 }

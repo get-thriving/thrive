@@ -17,7 +17,8 @@ import { strataFooterKeys } from "#/core/infra/strata/strata-footer-keys";
  * ones that move between columns, sections and items, the ones that act on
  * what has the focus, and the ones that work anywhere. It follows the focus, so
  * it is the place to look to find out what a key does here, and it says how to
- * leave hint mode, the map and find while they hold the keys.
+ * leave hint mode, the map and find while they hold the keys, and how to use
+ * the search dialog, above whose backdrop it is drawn.
  *
  * Only on a big screen: a phone has no keyboard to speak of. It sits above the
  * banner of a build that is not the production one, and tells the columns how
@@ -33,6 +34,10 @@ export function StrataFooter() {
     return null;
   }
   const keys = strataFooterKeys(context, keyBindings);
+  // While the search dialog is up the footer says how to use it, so it stays
+  // above the dialog's dimmed backdrop rather than under it.
+  const overSearch =
+    context.overlay === "search" || context.overlay === "search-results";
 
   return (
     <Box
@@ -45,7 +50,7 @@ export function StrataFooter() {
         right: 0,
         bottom: "var(--env-banner-height, 0px)",
         height: strataSize.footer,
-        zIndex: theme.zIndex.appBar - 1,
+        zIndex: overSearch ? theme.zIndex.modal + 1 : theme.zIndex.appBar - 1,
         boxSizing: "border-box",
         display: "flex",
         alignItems: "center",

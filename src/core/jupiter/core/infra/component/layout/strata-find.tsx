@@ -6,8 +6,10 @@ import { useLocation } from "react-router";
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
 import { STRATA_COLUMNS_BOTTOM } from "#/core/infra/component/layout/strata-columns-bottom";
 import { StrataColumnsContext } from "#/core/infra/component/layout/strata-columns-context";
+import { strataActivateHintTarget } from "#/core/infra/component/layout/strata-activate-hint-target";
 import { strataEnterEditable } from "#/core/infra/component/layout/strata-enter-editable";
 import { strataFindMatches } from "#/core/infra/component/layout/strata-find-matches";
+import { strataOpenItem } from "#/core/infra/component/layout/strata-open-item";
 import { strataScrollToCentre } from "#/core/infra/component/layout/strata-scroll-to-centre";
 import {
   strataColors,
@@ -91,9 +93,10 @@ function landingOf(match: Range): HTMLElement | null {
  * left; what is typed marks every place it is in the text of the open columns,
  * and the one the search is at stands out, and `↓` and `↑` step through them.
  * `↵` goes to the match and the search is over, the field and the marks gone:
- * the match's column is focused and the keyboard focus goes to the link or
- * button it is in, so `↵` follows it; a match in a note is gone into, with the
- * caret at the match. `Escape` ends the search and leaves things where they
+ * the match's column is focused and what the match is in is chosen as `s` would
+ * choose it: an item is opened (or picked, in a list that picks), a link or
+ * button is pressed, and a match in a note is gone into, with the caret at the
+ * match. `Escape` ends the search and leaves things where they
  * were, and so does clicking elsewhere.
  *
  * It looks at the text of the columns only, not the rail or the top bar, and
@@ -120,8 +123,10 @@ export function StrataFind() {
 
   /**
    * Brings a match into view, and with `focus` the keyboard focus to it. With
-   * `enter` as well, a match in a note or a doc is gone into: the caret goes to
-   * it, ready to type, which takes the keys from find until `Escape` leaves.
+   * `enter` as well, what it is in is acted on as choosing it by hint is: a
+   * match in a note or a doc is gone into, the caret going to it, ready to type,
+   * which takes the keys from find until `Escape` leaves; one in an item
+   * opens it or picks it; one in a link or button presses it.
    */
   const land = useCallback((match: Range, focus: boolean, enter = false) => {
     const parent = match.startContainer.parentElement;
@@ -152,7 +157,26 @@ export function StrataFind() {
     ) {
       return;
     }
-    landingOf(match)?.focus({ preventScroll: true });
+    const landing = landingOf(match);
+    if (landing === null) {
+      return;
+    }
+    landing.focus({ preventScroll: true });
+    if (!enter) {
+      return;
+    }
+    // Then what choosing it by hint would do (`s`): an item of a list is
+    // opened, or picked where that is what pressing it does; a link or button
+    // is pressed. A match in plain text, outside any of these, has only the
+    // focus.
+    if (landing.hasAttribute("data-strata-item")) {
+      strataOpenItem(landing);
+    } else if (
+      landing.matches(PRESSABLE) ||
+      landing.hasAttribute("data-strata-selectable")
+    ) {
+      strataActivateHintTarget(landing);
+    }
   }, []);
 
   const search = useCallback(

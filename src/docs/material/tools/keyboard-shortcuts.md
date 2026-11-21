@@ -85,6 +85,7 @@ letters of a label to go there. They are described in more detail
 | `x` | **Commands**: run an action of the focused column |
 | `f` | **Find**: search the text of the open columns |
 | `⌘K` / `Ctrl+K` | Open the [search](search.md) of the whole workspace |
+| `/` | Show **all the keys** that work right now, large, with the search |
 
 ### Along A Collection
 
@@ -193,9 +194,10 @@ The column must have something to run for `x` to open the menu.
 text of the open columns, whatever the case, and the current match stands out.
 
 * `↓` and `↑` step through the matches, going round at the ends;
-* `↵` goes to the match **and ends the search**: its column is focused, and the
-  keyboard focus is on the link or button it is in, so another `↵` follows it. A
-  match inside a note puts the caret there, ready to type;
+* `↵` goes to the match **and ends the search**, doing what choosing it with
+  hints (`s`) would do: an item of a list opens (or is picked, where a list
+  picks), and a link or button is pressed. A match inside a note puts the caret
+  there, ready to type;
 * `Esc` ends the search and puts the focus back where it was.
 
 ![Find: type to highlight matches in the open columns and step through them](../assets/keyboard-find.png "Find: type to highlight matches in the open columns and step through them")

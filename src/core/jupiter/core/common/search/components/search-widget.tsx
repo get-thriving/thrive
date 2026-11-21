@@ -25,6 +25,7 @@ import {
 } from "@mui/material";
 import { useFetcher } from "react-router";
 import { useContext, useEffect, useRef, useState } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 
 import type { ActionResult } from "#/core/infra/action-result";
 import { isNoErrorSomeData } from "#/core/infra/action-result";
@@ -34,7 +35,10 @@ import { FrontDoorInfoContext } from "#/core/infra/frontdoor-info-context";
 import { ContactsFilterPicker } from "#/core/common/sub/contacts/component/contacts-filter-picker";
 import { LocationsFilterPicker } from "#/core/common/sub/locations/component/locations-filter-picker";
 import { TagsFilterPicker } from "#/core/common/sub/tags/component/tags-filter-picker";
+import { strataColors } from "#/core/infra/component/strata-tokens";
+import { useStrataKeyBindings } from "#/core/infra/component/use-strata-key-bindings";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { strataSearchKey } from "#/core/infra/strata/strata-search-key";
 import { SearchToolFilterFields } from "#/core/common/search/components/search-tool-filter-fields";
 import { SearchToolResults } from "#/core/common/search/components/search-tool-results";
 
@@ -86,8 +90,9 @@ export function SearchWidget({
   const frontDoorInfo = useContext(FrontDoorInfoContext);
   const isMobileAppShell = frontDoorInfo.appShell === AppShell.MOBILE_CAPACITOR;
   const isBigScreen = useBigScreen();
+  const keyBindings = useStrataKeyBindings();
   const searchFetcher = useFetcher<WorkspaceSearchInstantResponse>();
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
@@ -185,9 +190,28 @@ export function SearchWidget({
       return;
     }
     const id = window.requestAnimationFrame(() => {
-      searchInputRef.current?.focus();
+      focusQuery();
     });
-    return () => window.cancelAnimationFrame(id);
+    // Whatever takes the focus away while the dialog is up (the columns behind
+    // it settling as data arrives, say) leaves it on the dialog's own frame, as
+    // the dialog keeps it inside; there is nothing to type in there, so it goes
+    // back to the query.
+    function handleFocusIn(event: FocusEvent) {
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.matches("[role='presentation'], [role='dialog']") ||
+          target.classList.contains("MuiDialog-container")) &&
+        target.querySelector("[data-strata-search]") !== null
+      ) {
+        focusQuery();
+      }
+    }
+    document.addEventListener("focusin", handleFocusIn);
+    return () => {
+      window.cancelAnimationFrame(id);
+      document.removeEventListener("focusin", handleFocusIn);
+    };
   }, [open]);
 
   const handleClose = () => {
@@ -199,7 +223,75 @@ export function SearchWidget({
   const handleClearQuery = () => {
     setSearchOffset(0);
     setSearchQuery("");
-    searchInputRef.current?.focus();
+    focusQuery();
+  };
+
+  // `Enter` or `↓` in the query goes into the results. Among them the keys are
+  // the user's own for the actions of the same name (ADR 0021): next and
+  // previous move along them, open opens the one that has the focus, and find
+  // goes back up to the query, as `previous` does from the first; `↓` and `↑`
+  // always move. The footer says which they are (`data-strata-search*` mark the
+  // dialog and its results for it).
+  const handleKeyDown = (event: ReactKeyboardEvent) => {
+    const target = event.target as HTMLElement;
+    const inQuery = target.dataset?.searchQuery === "true";
+    // The handler is on the dialog, so it also hears the menus the filters open
+    // (they are portals) and the dialog itself when the focus fell back to it;
+    // the menus keep their keys.
+    if (
+      !inQuery &&
+      target.closest?.(
+        "input, textarea, select, [contenteditable='true'], [role='listbox'], [role='menu'], [role='option'], [role='menuitem']",
+      ) != null
+    ) {
+      return;
+    }
+    if (event.nativeEvent.isComposing) {
+      return;
+    }
+    const key = strataSearchKey(event, inQuery, keyBindings);
+    if (key === null) {
+      return;
+    }
+    const links = Array.from(
+      resultsRef.current?.querySelectorAll<HTMLAnchorElement>("a[href]") ?? [],
+    );
+    const at = links.findIndex((link) => link.contains(target));
+    const go = (index: number) => {
+      event.preventDefault();
+      links[index].focus({ preventScroll: true });
+      links[index].scrollIntoView({ block: "nearest" });
+    };
+    switch (key) {
+      case "into":
+        if (links.length > 0) {
+          go(0);
+        }
+        return;
+      case "next":
+        if (links.length > 0) {
+          go(Math.min(at + 1, links.length - 1));
+        }
+        return;
+      case "previous":
+        if (at > 0) {
+          go(at - 1);
+        } else {
+          event.preventDefault();
+          focusQuery();
+        }
+        return;
+      case "open":
+        if (at >= 0) {
+          event.preventDefault();
+          links[at].click();
+        }
+        return;
+      case "query":
+        event.preventDefault();
+        focusQuery();
+        return;
+    }
   };
 
   const inputsEnabled = searchFetcher.state === "idle";
@@ -231,6 +323,7 @@ export function SearchWidget({
       <Dialog
         open={open}
         onClose={handleClose}
+        onKeyDown={handleKeyDown}
         fullWidth
         fullScreen={!isBigScreen}
         maxWidth={false}
@@ -254,6 +347,7 @@ export function SearchWidget({
         }}
       >
         <Box
+          data-strata-search="true"
           sx={{
             position: "relative",
             p: 2,
@@ -289,7 +383,6 @@ export function SearchWidget({
               }}
             >
               <TextField
-                inputRef={searchInputRef}
                 fullWidth
                 size="small"
                 label="Query"
@@ -306,6 +399,15 @@ export function SearchWidget({
                         <SearchIcon fontSize="small" color="action" />
                       </InputAdornment>
                     ),
+                  },
+                  htmlInput: {
+                    "data-search-query": "true",
+                    // The browser's own list of suggestions (addresses and the
+                    // like) would take `↓` and `↵` before the results do.
+                    autoComplete: "off",
+                    autoCorrect: "off",
+                    autoCapitalize: "off",
+                    spellCheck: false,
                   },
                 }}
               />
@@ -394,7 +496,6 @@ export function SearchWidget({
               }}
             >
               <TextField
-                inputRef={searchInputRef}
                 fullWidth
                 size="small"
                 label="Query"
@@ -411,6 +512,15 @@ export function SearchWidget({
                         <SearchIcon fontSize="small" color="action" />
                       </InputAdornment>
                     ),
+                  },
+                  htmlInput: {
+                    "data-search-query": "true",
+                    // The browser's own list of suggestions (addresses and the
+                    // like) would take `↓` and `↵` before the results do.
+                    autoComplete: "off",
+                    autoCorrect: "off",
+                    autoCapitalize: "off",
+                    spellCheck: false,
                   },
                 }}
               />
@@ -558,7 +668,23 @@ export function SearchWidget({
             </Box>
           </Collapse>
 
-          <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", pt: 1 }}>
+          <Box
+            ref={resultsRef}
+            data-strata-search-results="true"
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              overflow: "auto",
+              pt: 1,
+              // The result with the focus is marked as the item of a list is
+              // (`EntityCard`): a line of amber on its left.
+              "& a[href]:focus, & a[href]:focus-visible": { outline: "none" },
+              "& [data-strata-item]:focus-within": {
+                boxShadow: `inset 2px 0 0 ${strataColors.amber}`,
+                backgroundColor: strataColors.panel,
+              },
+            }}
+          >
             {instantAction !== undefined &&
               isNoErrorSomeData(instantAction) &&
               instantAction.data.result && (
@@ -576,6 +702,17 @@ export function SearchWidget({
       </Dialog>
     </>
   );
+}
+
+/**
+ * The query field that is on screen: the dialog has one for a small screen and
+ * one for a big one, and only one of them is shown.
+ */
+function focusQuery() {
+  const shown = Array.from(
+    document.querySelectorAll<HTMLInputElement>("input[data-search-query]"),
+  ).find((input) => input.offsetParent !== null);
+  shown?.focus();
 }
 
 function buildSearchInstantUrl(state: {

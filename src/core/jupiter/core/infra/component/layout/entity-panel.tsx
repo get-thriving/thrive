@@ -28,10 +28,12 @@ import {
   restoreScrollPosition,
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
+import { StrataHeaderLendContext } from "#/core/infra/component/strata-header-lend-context";
 import { StrataSectionStack } from "#/core/infra/component/strata-section-stack";
 import { ColumnHeader } from "#/core/infra/component/layout/column-header";
 import { entityArchiveEntries } from "#/core/infra/component/layout/entity-archive-entries";
 import { EntityArchiveDialog } from "#/core/infra/component/layout/entity-archive-dialog";
+import { strataEnterName } from "#/core/infra/component/layout/strata-enter-name";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
 import { useStrataColumnItemKeys } from "#/core/infra/component/layout/use-strata-column-item-keys";
@@ -194,12 +196,24 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
     column.column !== null && (column.column.focused || column.column.alone),
   );
 
+  // A panel whose header has controls of its own (the one that is a form, which
+  // is not a first column's list) hands the first card of its content its row,
+  // as the first section of a stack has it (ADR 0021).
+  const showControls = leaf?.disabled !== true;
+  const lendsToHeader = isTrunk || showControls;
+  const lendsToCards = props.sectionsPanelId === undefined && lendsToHeader;
+
   const children = (
     <IntentInterceptorProvider handlers={intentHandlers}>
       {props.sectionsPanelId === undefined ? (
-        props.children
+        <StrataHeaderLendContext.Provider value={lendsToCards}>
+          {props.children}
+        </StrataHeaderLendContext.Provider>
       ) : (
-        <StrataSectionStack panelId={props.sectionsPanelId}>
+        <StrataSectionStack
+          panelId={props.sectionsPanelId}
+          lendsToHeader={lendsToHeader}
+        >
           {props.children}
         </StrataSectionStack>
       )}
@@ -218,6 +232,15 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
   // What there is to archive is an entity, which a first column is not.
   const archivable = !isTrunk && (hasEntity || canArchive);
 
+  // A panel folded to a spine, as the one before the focused one is on a
+  // phone, is kept mounted and keeps its scroll, but the page can move it while
+  // it is out of sight (what the column on top of it does to the page). What it
+  // had before is what it goes back to, and what happens to it folded is not
+  // kept.
+  const folded = column.column?.state === "spine";
+  const foldedRef = useRef(folded);
+  foldedRef.current = folded;
+
   useEffect(() => {
     if (containerRef.current === null) {
       return;
@@ -231,7 +254,9 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
     }
 
     function handleScrollSpecial() {
-      saveScrollPosition(theRef, scrollKey);
+      if (!foldedRef.current) {
+        saveScrollPosition(theRef, scrollKey);
+      }
     }
 
     restoreScrollPosition(theRef, scrollKey);
@@ -242,9 +267,32 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
     };
   }, [containerRef, scrollKey, isLeaf]);
 
+  // Coming back from a spine, the panel is where it was left.
+  useEffect(() => {
+    const theRef = containerRef.current;
+    if (folded || theRef === null || (isLeaf && scrollKey.endsWith("/new"))) {
+      return;
+    }
+    const frame = requestAnimationFrame(() =>
+      restoreScrollPosition(theRef, scrollKey),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [folded, scrollKey, isLeaf]);
+
+  // A page that makes an entity starts in its name, ready to type; `Escape`
+  // leaves the field for the column, as it does from any other.
+  const makesEntity =
+    isLeaf &&
+    (scrollKey.endsWith("/new") || /\/new(-[a-z-]+)?$/.test(location.pathname));
+  useEffect(() => {
+    if (!makesEntity || containerRef.current === null) {
+      return;
+    }
+    strataEnterName(containerRef.current, false);
+  }, [makesEntity, scrollKey]);
+
   // What is not an entity of its own is called what its route calls it.
   const routeLabel = useRouteLabel();
-  const showControls = leaf?.disabled !== true;
   const notEditable = !!props.entityNotEditable;
 
   const title =
@@ -280,6 +328,7 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
       position={position}
       chips={views.chips}
       controls={list?.actions ?? leaf?.actions}
+      slot={lendsToHeader ? (column.column?.key ?? undefined) : undefined}
       views={views.buttons}
       menu={menu}
       close={

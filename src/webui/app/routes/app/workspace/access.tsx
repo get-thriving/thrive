@@ -70,6 +70,7 @@ export default function Access() {
     <EntityPanel
       kind="trunk"
       sectionsPanelId="access"
+      title="Access"
       key="access"
       returnLocation="/app/workspace"
     >

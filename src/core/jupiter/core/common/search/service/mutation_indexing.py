@@ -122,7 +122,7 @@ class SearchIndexingForMutationService:
         ):
             return
 
-        workspace_ref_id = workspace_ref_id_from_first_event_context(all_events)
+        workspace_ref_id = workspace_ref_id_from_events(all_events)
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             search_domain = await uow.get_for(SearchDomain).load_by_parent(
@@ -336,12 +336,23 @@ class SearchIndexingForMutationService:
             )
 
 
-def workspace_ref_id_from_first_event_context(
+def workspace_ref_id_from_events(
     all_events: list[MutationEntityEvent],
 ) -> EntityId:
-    """Parse ``user:…+workspace:…`` from the first event (all share the same mutation context)."""
+    """The workspace a mutation was for.
+
+    A logged-in mutation says it in its context, as ``user:…+workspace:…``, which
+    all its events share. A guest mutation, one that signs up or makes a workspace,
+    has no workspace yet when its context is built (the context is ``guest``): it is
+    the one it created, which has an event of its own.
+    """
     from jupiter.core.config import JupiterLoggedInMutationContext
 
     if len(all_events) == 0:
         raise ValueError("Cannot infer workspace from empty mutation events")
+    if all_events[0].context_str == "guest":
+        for event in all_events:
+            if event.entity_type == "Workspace" and not event.kind.is_removed:
+                return event.entity_ref_id
+        raise ValueError("Guest mutation did not create a workspace to index")
     return JupiterLoggedInMutationContext.unwrap_str(all_events[0].context_str)[1]

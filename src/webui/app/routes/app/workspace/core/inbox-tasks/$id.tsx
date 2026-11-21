@@ -404,7 +404,6 @@ export default function InboxTask() {
           <StrataSection
             id="inbox-task-time-plans"
             items={timePlanActivities.length}
-            split={{ size: 1 }}
             title="Time Plans"
             summary={countSummary(
               timePlanActivities.length,

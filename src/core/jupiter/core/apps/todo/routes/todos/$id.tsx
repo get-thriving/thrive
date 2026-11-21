@@ -494,7 +494,6 @@ export default function TodoTask() {
         loaderData.timePlanActivities && (
           <StrataSection
             items={loaderData.timePlanActivities.length}
-            split={{ size: 1 }}
             id="todo-time-plans"
             title="Time Plans"
             actions={

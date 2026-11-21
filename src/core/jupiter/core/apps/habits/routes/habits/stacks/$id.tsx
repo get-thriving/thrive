@@ -424,7 +424,6 @@ export default function HabitStackView() {
         loaderData.timePlanActivities && (
           <StrataSection
             items={loaderData.timePlanActivities.length}
-            split={{ size: 1 }}
             id="habit-stack-time-plans"
             title="Time Plans"
             actions={
