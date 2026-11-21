@@ -141,6 +141,46 @@ def test_webui_todo_create(page: Page) -> None:
     expect(page.locator('input[name="name"]')).to_have_value("Created Todo")
 
 
+def test_webui_todo_new_keeps_the_selected_view(page: Page, create_todo) -> None:
+    create_todo("A todo for the board")
+
+    # The view is a section filter of the list, in the URL (ADR 0014).
+    page.goto("/app/workspace/apps/todos?todos%5Bview%5D=board")
+    page.wait_for_selector("#trunk-panel")
+    board = page.locator('[data-testid="todo-board-column-todo"]')
+    expect(board).to_be_visible()
+
+    # Going to "new" keeps it...
+    page.locator("a[id='trunk-new-leaf-entity']").click()
+    page.wait_for_selector("#leaf-panel")
+    assert "todos%5Bview%5D=board" in page.url
+    expect(board).to_be_visible()
+
+    # ...so does creating the todo...
+    page.locator('input[name="name"]').fill("Created on the board")
+    page.locator("button[id='todo-create']").click()
+    page.wait_for_url(re.compile(r"/app/workspace/apps/todos/[^/?]+\?"))
+    page.wait_for_selector("#leaf-panel")
+    assert "todos%5Bview%5D=board" in page.url
+    expect(board).to_be_visible()
+    expect(board).to_contain_text("Created on the board")
+
+
+def test_webui_todo_new_closed_keeps_the_selected_view(page: Page, create_todo) -> None:
+    create_todo("A todo for the board")
+
+    page.goto("/app/workspace/apps/todos?todos%5Bview%5D=board")
+    page.wait_for_selector("#trunk-panel")
+    page.locator("a[id='trunk-new-leaf-entity']").click()
+    page.wait_for_selector("#leaf-panel")
+
+    page.locator("#leaf-panel-controls [data-strata-close]").click()
+    page.wait_for_url(re.compile(r"/app/workspace/apps/todos\?"))
+
+    assert "todos%5Bview%5D=board" in page.url
+    expect(page.locator('[data-testid="todo-board-column-todo"]')).to_be_visible()
+
+
 def test_webui_todo_update(page: Page, create_todo) -> None:
     todo = create_todo("Original Todo Name")
     page.goto(f"/app/workspace/apps/todos/{todo.ref_id}")

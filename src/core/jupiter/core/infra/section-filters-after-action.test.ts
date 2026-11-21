@@ -36,6 +36,28 @@ describe("withSectionFiltersAfterAction", () => {
     ).toBe("/habits/13");
   });
 
+  it("brings them from a page that makes an entity to the entity it made", () => {
+    expect(
+      withSectionFiltersAfterAction("/habits/12", url(`/habits/new?${SPLIT}`)),
+    ).toBe(`/habits/12?${SPLIT}`);
+    expect(
+      withSectionFiltersAfterAction(
+        "/vacations/9",
+        url(`/vacations/new-from-wish?${SPLIT}`),
+      ),
+    ).toBe(`/vacations/9?${SPLIT}`);
+  });
+
+  it("does not take them from a page that makes an entity to a page elsewhere", () => {
+    expect(
+      withSectionFiltersAfterAction("/chores/3", url(`/habits/new?${SPLIT}`)),
+    ).toBe("/chores/3");
+    // `news` is not `new`, and the page next to it is not where it goes.
+    expect(
+      withSectionFiltersAfterAction("/habits/12", url(`/habits/news?${SPLIT}`)),
+    ).toBe("/habits/12");
+  });
+
   it("keeps what the redirect already says about a filter", () => {
     expect(
       withSectionFiltersAfterAction(
