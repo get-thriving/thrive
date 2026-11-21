@@ -13,9 +13,11 @@ import {
  * are in `requestUrl`. The server does not know which route each panel is
  * drawn by, so it takes them all to be at the page that posted, and carries
  * them to the page itself, to a page under it and to one above it, which are
- * the places where the panel is still on screen or is going to be. Anywhere
- * else the redirect is left as it was. Filters the redirect already has are
- * kept as it has them.
+ * the places where the panel is still on screen or is going to be. A page that
+ * makes an entity (`new`, `new-from-wish`) goes to the entity it made, which is
+ * next to it, so that counts too: the list the user came from stays as it was.
+ * Anywhere else the redirect is left as it was. Filters the redirect already
+ * has are kept as it has them.
  */
 export function withSectionFiltersAfterAction(
   location: string,
@@ -42,9 +44,29 @@ export function withSectionFiltersAfterAction(
   );
 }
 
-/** Whether one path is the other, or is under it. */
-function isRelated(a: string, b: string): boolean {
-  const pa = a.replace(/\/+$/, "");
-  const pb = b.replace(/\/+$/, "");
-  return pa === pb || pa.startsWith(`${pb}/`) || pb.startsWith(`${pa}/`);
+/**
+ * Whether the page redirected to is the page posted from, is under it or above
+ * it, or is next to a page that makes an entity, which is where that goes.
+ * Two other pages next to each other are not related: the filters of an entity's
+ * panel are about that entity.
+ */
+function isRelated(target: string, page: string): boolean {
+  const pt = target.replace(/\/+$/, "");
+  const pp = page.replace(/\/+$/, "");
+  return (
+    pt === pp ||
+    pt.startsWith(`${pp}/`) ||
+    pp.startsWith(`${pt}/`) ||
+    (makesAnEntity(pp) && parentOf(pt) === parentOf(pp))
+  );
+}
+
+/** `.../new`, `.../new-from-wish`: the pages that make an entity. */
+function makesAnEntity(path: string): boolean {
+  const last = path.slice(path.lastIndexOf("/") + 1);
+  return last === "new" || last.startsWith("new-");
+}
+
+function parentOf(path: string): string {
+  return path.slice(0, path.lastIndexOf("/"));
 }
