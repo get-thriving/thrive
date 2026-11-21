@@ -89,9 +89,9 @@ export interface InboxTaskCardProps {
   topLevelInfo: TopLevelInfo;
   compact?: boolean;
   /**
-   * As few pixels as it takes: one row with the name and short tags, which
-   * wrap below the name only if it is too long to leave them room. For boards
-   * where many cards must fit on screen. Implies `compact`.
+   * A row of a list rather than a card: the name, and under it the tags, in
+   * full and outlined, with no box, padding or buttons beyond what that takes.
+   * For boards where many must fit on screen. Implies `compact`.
    */
   dense?: boolean;
   allowSwipe?: boolean;
@@ -255,14 +255,13 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
             dense
               ? {
                   display: "flex",
-                  flexWrap: "wrap",
-                  alignItems: "baseline",
-                  columnGap: "0.4rem",
+                  flexDirection: "column",
+                  rowGap: "0.2rem",
                   minWidth: 0,
                   flex: 1,
-                  padding: "0.2rem 0.5rem",
+                  padding: "0.3rem 0.5rem",
                   // MUI pads the last CardContent more than the others.
-                  "&:last-child": { paddingBottom: "0.2rem" },
+                  "&:last-child": { paddingBottom: "0.3rem" },
                 }
               : {
                   paddingTop: isBigScreen ? "0.5rem" : "1rem",
@@ -271,7 +270,7 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
                 }
           }
         >
-          <Box sx={dense ? { flex: "1 1 8rem", minWidth: 0 } : undefined}>
+          <Box sx={dense ? { minWidth: 0 } : undefined}>
             {linksEnabled ? (
               <EntityLink
                 to={targetLink}
@@ -303,20 +302,14 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
               dense
                 ? {
                     paddingTop: 0,
-                    marginLeft: "auto",
-                    justifyContent: "flex-end",
-                    gap: "0.2rem",
-                    // The tags are short here already: trim what a chip pads.
-                    "& .MuiChip-root": { minWidth: 0 },
+                    gap: "0.25rem",
+                    // Labels are shown in full: no 130px cap with an ellipsis.
+                    "& .MuiChip-root": { minWidth: 0, maxWidth: "none" },
                     // Outlined chips take their text from the colour they are
                     // given; the neutral ones are muted, so what is not
                     // special does not shout.
                     "& .MuiChip-colorDefault": {
                       color: strataColors.textMuted,
-                    },
-                    "& .MuiChip-label": {
-                      paddingLeft: "0.3rem",
-                      paddingRight: "0.3rem",
                     },
                   }
                 : undefined
@@ -336,13 +329,13 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
             {props.showOptions.showEisen && (
               <EisenTag
                 eisen={props.optimisticState?.eisen ?? props.inboxTask.eisen}
-                compact={dense}
+                outlined={dense}
               />
             )}
             {props.showOptions.showDifficulty && (
               <DifficultyTag
                 difficulty={props.inboxTask.difficulty}
-                compact={dense}
+                outlined={dense}
               />
             )}
             {props.showOptions.showActionableDate &&
@@ -350,7 +343,7 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
                 <ADateTag
                   label="Actionable from"
                   date={props.inboxTask.actionable_date}
-                  compact={dense}
+                  outlined={dense}
                 />
               )}
             {props.showOptions.showDueDate && props.inboxTask.due_date && (
@@ -358,7 +351,7 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
                 label="Due at"
                 date={props.inboxTask.due_date}
                 color={dueColor}
-                compact={dense}
+                outlined={dense}
               />
             )}
             {dense &&
