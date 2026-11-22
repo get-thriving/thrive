@@ -9,7 +9,6 @@ import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { Logo } from "@jupiter/core/infra/component/logo";
 import { Title } from "@jupiter/core/infra/component/title";
 import {
-  ActionsExpansion,
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
@@ -40,7 +39,6 @@ export default function UserAlreadyExists() {
               id="user-already-exists"
               topLevelInfo={EMPTY_CONTEXT}
               inputsEnabled={true}
-              expansion={ActionsExpansion.ALWAYS_SHOW}
               actions={[
                 NavSingle({
                   text: "Start a New Workspace",

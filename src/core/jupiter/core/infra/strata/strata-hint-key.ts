@@ -32,8 +32,8 @@ export type StrataHintKeyAction =
   | { kind: "leave" }
   /** Take back the last letter. */
   | { kind: "back" }
-  /** A letter of a label. */
-  | { kind: "letter"; letter: string }
+  /** A letter of a label; with `⇧` it asks for the place in a tab of its own. */
+  | { kind: "letter"; letter: string; shift: boolean }
   /** Nothing, but the key stays out of the page behind the labels. */
   | { kind: "ignore" };
 
@@ -61,7 +61,7 @@ export function strataHintKeyAction(
   }
   const letter = event.key.toLowerCase();
   if (event.key.length === 1 && STRATA_HINT_ALPHABET.includes(letter)) {
-    return { kind: "letter", letter };
+    return { kind: "letter", letter, shift: event.shiftKey };
   }
   return { kind: "ignore" };
 }

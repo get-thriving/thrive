@@ -24,6 +24,11 @@ export const STRATA_KEY_ACTION_GROUPS: StrataKeyActionGroup[] = [
     actions: [
       { action: KeyboardAction.COLUMN_PREVIOUS, label: "Column to the left" },
       { action: KeyboardAction.COLUMN_NEXT, label: "Column to the right" },
+      {
+        action: KeyboardAction.COLUMN_NARROWER,
+        label: "Make the column narrower",
+      },
+      { action: KeyboardAction.COLUMN_WIDER, label: "Make the column wider" },
       { action: KeyboardAction.MENU, label: "Open the column's menu" },
       { action: KeyboardAction.CLOSE, label: "Close the column, or go back" },
     ],

@@ -13,6 +13,8 @@ def default_key_bindings() -> dict[KeyboardAction, KeyBinding]:
     return {
         KeyboardAction.COLUMN_PREVIOUS: KeyBinding.parse("h"),
         KeyboardAction.COLUMN_NEXT: KeyBinding.parse("l"),
+        KeyboardAction.COLUMN_NARROWER: KeyBinding.parse("u"),
+        KeyboardAction.COLUMN_WIDER: KeyBinding.parse("i"),
         KeyboardAction.NEXT: KeyBinding.parse("j"),
         KeyboardAction.PREVIOUS: KeyBinding.parse("k"),
         KeyboardAction.OPEN: KeyBinding.parse("Enter"),

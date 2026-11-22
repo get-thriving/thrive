@@ -27,13 +27,19 @@ const ESCAPE = ["esc"];
 export function strataFooterKeys(
   context: StrataKeysContext,
   bindings: StrataKeyBindings,
+  /** The places the keys lead to may open in a tab of their own (`⇧`). */
+  newTab: boolean = false,
 ): StrataFooterKey[] {
+  const inNewTab: StrataFooterKey[] = newTab
+    ? [{ keys: ["⇧"], label: "new tab" }]
+    : [];
   const key = (action: KeyboardAction) =>
     strataKeyBindingLabel(bindings[action]);
   switch (context.overlay) {
     case "hints":
       return [
         { keys: [], label: "type a label to click it" },
+        ...inNewTab,
         { keys: ["⌫"], label: "back" },
         { keys: ESCAPE, label: "cancel" },
       ];
@@ -46,6 +52,7 @@ export function strataFooterKeys(
     case "apps":
       return [
         { keys: [], label: "type a label to go there" },
+        ...inNewTab,
         { keys: ["⌫"], label: "back" },
         { keys: ESCAPE, label: "cancel" },
       ];
@@ -91,6 +98,12 @@ export function strataFooterKeys(
         { keys: [key(KeyboardAction.OPEN)], label: "open" },
         { keys: [key(KeyboardAction.FIND)], label: "query" },
         { keys: ESCAPE, label: "close" },
+      ];
+    case "confirm":
+      return [
+        { keys: ["y"], label: "yes" },
+        { keys: ["n"], label: "no" },
+        { keys: ESCAPE, label: "cancel" },
       ];
     case null:
       break;
@@ -184,6 +197,15 @@ export function strataFooterKeys(
     keys.push({
       keys: [key(KeyboardAction.SCROLL_TOP), key(KeyboardAction.SCROLL_BOTTOM)],
       label: "top bottom",
+    });
+  }
+  if (context.resizable) {
+    keys.push({
+      keys: [
+        key(KeyboardAction.COLUMN_NARROWER),
+        key(KeyboardAction.COLUMN_WIDER),
+      ],
+      label: "size",
     });
   }
   if (context.menu) {

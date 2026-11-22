@@ -111,7 +111,7 @@ export function SectionHeader(props: SectionHeaderProps) {
       {props.actions === undefined ? (
         <Box sx={{ flex: 1 }} />
       ) : (
-        <BarControls>{props.actions}</BarControls>
+        <BarControls title={props.title}>{props.actions}</BarControls>
       )}
       {props.splitAction !== undefined && (
         <Box
@@ -166,7 +166,7 @@ const labelSx = (theme: Theme) => ({
   color: theme.palette.text.secondary,
   // Amber while the section is the one the keyboard is on, as a column's name
   // is while the column is.
-  "[data-strata-section]:focus > [data-strata-section-form] > [data-strata-section-header] &":
+  "[data-strata-section]:focus > [data-strata-section-form] > [data-strata-section-header] &, [data-strata-section][data-strata-remembered] > [data-strata-section-form] > [data-strata-section-header] &":
     { color: theme.palette.primary.main },
   "button&": {
     cursor: "pointer",

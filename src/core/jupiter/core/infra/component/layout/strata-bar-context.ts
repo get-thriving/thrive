@@ -11,6 +11,12 @@ export interface StrataBar {
    * width, and tells them. 0 when they all fit.
    */
   folded: number;
+  /**
+   * The name of the section the bar is the header of, which says whose actions
+   * the `⋯` menu of the column lists when the bar folds them there. Left out
+   * for the header of the column itself.
+   */
+  title?: string;
 }
 
 /** Null outside a bar, where controls are drawn at their usual size. */

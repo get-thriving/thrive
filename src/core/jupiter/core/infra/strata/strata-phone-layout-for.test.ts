@@ -86,4 +86,30 @@ describe("strataPhoneLayoutFor", () => {
     const layout = strataPhoneLayoutFor(path("a", "b"), 9, 390);
     expect(layout.slots[1].state).toBe("full");
   });
+
+  it("takes the sections split out of a panel as panels of the row", () => {
+    const columns: ColumnSpec[] = [
+      { key: "list", kind: "route", size: 2 },
+      { key: "item", kind: "route", size: 2 },
+      { key: "split:tasks", kind: "split", size: 2 },
+      { key: "split:notes", kind: "split", size: 2 },
+    ];
+    const layout = strataPhoneLayoutFor(columns, 2, 390);
+    expect(layout.description).toBe(
+      "list:| item:strip split:tasks:1 split:notes:strip",
+    );
+    expect(layout.slots[2]).toMatchObject({
+      state: "full",
+      focused: true,
+      left: 14,
+      width: 362,
+    });
+    expect(layout.slots[3]).toMatchObject({
+      state: "spine",
+      edgeLabel: "right",
+    });
+    // The item and its splits are one subject, so the item is in the focused one.
+    expect(layout.slots[1].inFocusedSubject).toBe(true);
+    expect(layout.slots[0].inFocusedSubject).toBe(false);
+  });
 });

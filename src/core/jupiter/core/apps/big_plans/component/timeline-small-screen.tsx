@@ -213,8 +213,10 @@ const SmallScreenTimelineLine = styled("div")<SmallScreenTimelineLineProps>(
     position: "relative",
     height: "1.5rem",
     backgroundColor: selected ? theme.palette.action.hover : "transparent",
-    // The one with the keyboard focus is marked by a line on its left.
-    "&:focus": {
+    // The one with the keyboard focus is marked by a line on its left, and so is
+    // the one `j` and `k` were last on while the keyboard is elsewhere
+    // (`data-strata-remembered`).
+    "&:focus, &[data-strata-remembered]": {
       outline: "none",
       boxShadow: `inset 2px 0 0 ${strataColors.amber}`,
     },

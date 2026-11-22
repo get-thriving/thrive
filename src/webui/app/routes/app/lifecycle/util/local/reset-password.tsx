@@ -22,7 +22,6 @@ import {
   ActionSingle,
   NavSingle,
   NavMultipleCompact,
-  ActionsExpansion,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
@@ -102,7 +101,6 @@ export default function ResetPassword() {
               id="reset-password"
               topLevelInfo={EMPTY_CONTEXT}
               inputsEnabled={inputsEnabled}
-              expansion={ActionsExpansion.ALWAYS_SHOW}
               actions={[
                 ActionSingle({
                   text: "Reset Password",

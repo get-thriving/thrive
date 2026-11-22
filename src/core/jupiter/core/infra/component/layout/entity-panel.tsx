@@ -1,5 +1,5 @@
 import { Box, Stack } from "@mui/material";
-import { Form, useLocation } from "react-router";
+import { Form, useLocation, useSearchParams } from "react-router";
 import {
   type JSX,
   type PropsWithChildren,
@@ -24,6 +24,12 @@ import {
   extractBranchFromPath,
   extractTrunkFromPath,
 } from "#/core/infra/routes";
+import { saveNavPosition } from "#/core/infra/nav-restoration";
+import {
+  strataMarkNavPosition,
+  strataNavPositionOf,
+} from "#/core/infra/component/layout/strata-nav-position";
+import { STRATA_NAV_KEY_ATTRIBUTE } from "#/core/infra/component/layout/strata-scroll-column";
 import {
   restoreScrollPosition,
   saveScrollPosition,
@@ -33,6 +39,7 @@ import { StrataSectionStack } from "#/core/infra/component/strata-section-stack"
 import { ColumnHeader } from "#/core/infra/component/layout/column-header";
 import { entityArchiveEntries } from "#/core/infra/component/layout/entity-archive-entries";
 import { EntityArchiveDialog } from "#/core/infra/component/layout/entity-archive-dialog";
+import { createAnotherNonce } from "#/core/infra/create-and-another";
 import { strataEnterName } from "#/core/infra/component/layout/strata-enter-name";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
 import { useStrataColumn } from "#/core/infra/component/layout/use-strata-column";
@@ -89,6 +96,12 @@ interface EntityPanelLeafProps {
   disabled?: boolean;
   /** Form intents the panel's content handles itself, instead of submitting. */
   intentHandlers?: IntentHandlers;
+  /**
+   * Changes whenever the form of a page that makes an entity is built anew
+   * without the page changing, as "Create & Another" does for the intents
+   * above: the focus goes to the name again.
+   */
+  freshFormKey?: number;
   /**
    * Controls in the header, such as a button to the entity's settings, small
    * and folded when there is no room. What submits a form of the body names it
@@ -259,11 +272,35 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
       }
     }
 
+    // Where `j` and `k` had got to is kept with the scroll.
+    function handleFocusIn() {
+      if (foldedRef.current) {
+        return;
+      }
+      const position = strataNavPositionOf(theRef);
+      if (position !== null) {
+        saveNavPosition(scrollKey, position);
+        mark();
+      }
+    }
+
+    // What `j` and `k` were last on stays drawn selected.
+    function mark() {
+      const column = theRef.closest<HTMLElement>("[data-strata-column]");
+      if (column !== null) {
+        strataMarkNavPosition(column);
+      }
+    }
+
     restoreScrollPosition(theRef, scrollKey);
+    const frame = requestAnimationFrame(mark);
     theRef.addEventListener("scroll", handleScrollSpecial);
+    theRef.addEventListener("focusin", handleFocusIn);
 
     return () => {
+      cancelAnimationFrame(frame);
       theRef.removeEventListener("scroll", handleScrollSpecial);
+      theRef.removeEventListener("focusin", handleFocusIn);
     };
   }, [containerRef, scrollKey, isLeaf]);
 
@@ -280,16 +317,46 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
   }, [folded, scrollKey, isLeaf]);
 
   // A page that makes an entity starts in its name, ready to type; `Escape`
-  // leaves the field for the column, as it does from any other.
+  // leaves the field for the column, as it does from any other. So does the
+  // page "Create & Another" comes back to, which is a new one (its nonce moved
+  // on), and the form that is built anew in place (`freshFormKey`). The menu
+  // or the button that made the entity may hand the focus back to where it was
+  // just after the form is up, so it is tried again a few times, for as long
+  // as the focus is nowhere in particular, and once the inputs can be written
+  // in, if they could not be.
+  const [searchParams] = useSearchParams();
+  const createAnother = createAnotherNonce(searchParams);
+  const freshFormKey = leaf?.freshFormKey;
   const makesEntity =
     isLeaf &&
     (scrollKey.endsWith("/new") || /\/new(-[a-z-]+)?$/.test(location.pathname));
+  const nameWaiting = useRef(false);
   useEffect(() => {
-    if (!makesEntity || containerRef.current === null) {
+    const container = containerRef.current;
+    if (!makesEntity || container === null) {
       return;
     }
-    strataEnterName(containerRef.current, false);
-  }, [makesEntity, scrollKey]);
+    nameWaiting.current = !strataEnterName(container, false);
+    const timers = [100, 250, 500].map((delay) =>
+      window.setTimeout(() => {
+        const active = document.activeElement;
+        const typing =
+          active instanceof HTMLElement &&
+          active.closest("input, textarea, select") !== null &&
+          active.closest("[data-strata-column]") !== null;
+        if (!typing && strataEnterName(container, false)) {
+          nameWaiting.current = false;
+        }
+      }, delay),
+    );
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [makesEntity, scrollKey, createAnother, freshFormKey]);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (inputsEnabled && nameWaiting.current && container !== null) {
+      nameWaiting.current = !strataEnterName(container, false);
+    }
+  }, [inputsEnabled]);
 
   // What is not an entity of its own is called what its route calls it.
   const routeLabel = useRouteLabel();
@@ -367,7 +434,12 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
             </Form>
           )}
 
-      <div id={`${prefix}-panel-content`} ref={containerRef} data-strata-scroll>
+      <div
+        id={`${prefix}-panel-content`}
+        ref={containerRef}
+        data-strata-scroll
+        {...{ [STRATA_NAV_KEY_ATTRIBUTE]: scrollKey }}
+      >
         {views.bodies}
 
         <Box

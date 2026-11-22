@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import type { PropsWithChildren } from "react";
 
 import { useStrataColumnKey } from "#/core/infra/component/layout/strata-column-key-context";
@@ -9,13 +9,14 @@ import { strataScrollColumn } from "#/core/infra/component/layout/strata-scroll-
 import { strataEnterName } from "#/core/infra/component/layout/strata-enter-name";
 import { strataEnterEditable } from "#/core/infra/component/layout/strata-enter-editable";
 import { strataItemKey } from "#/core/infra/component/layout/strata-item-key";
+import { strataResumeNavPosition } from "#/core/infra/component/layout/strata-nav-position";
 import {
   strataSectionCollapsible,
   strataSectionSplittable,
 } from "#/core/infra/component/layout/strata-section-actions";
 import { strataOpenItem } from "#/core/infra/component/layout/strata-open-item";
 import { strataSectionItems } from "#/core/infra/component/layout/strata-section-items";
-import { useStrataFollowItem } from "#/core/infra/component/layout/use-strata-follow-item";
+import { useStrataAfterOpen } from "#/core/infra/component/layout/use-strata-after-open";
 import { STRATA_SECTION_FILTERS } from "#/core/infra/component/strata-section-filters";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 import { isStrataCollapseKey } from "#/core/infra/strata/strata-collapse-key";
@@ -62,7 +63,12 @@ export function StrataSectionStack(
   const parentKey = useStrataColumnKey();
   const { collapsed, expanded, split } = filters;
   const focusColumn = columns?.focusColumn;
-  const follow = useStrataFollowItem();
+  const lender = useRef<string | null>(null);
+  const claimLend = useCallback((sectionId: string) => {
+    lender.current ??= sectionId;
+    return lender.current === sectionId;
+  }, []);
+  const afterOpen = useStrataAfterOpen();
   const keyBindings = useStrataKeyBindings();
 
   // A section that starts collapsed is open when it is in `expanded`, and one
@@ -134,6 +140,11 @@ export function StrataSectionStack(
           el.closest("[data-strata-column]") === column,
       );
       const active = document.activeElement;
+      // Another column has the focus: its keys are its own, not those of a
+      // stack that is open beside it.
+      if (mine.length === 0) {
+        return;
+      }
 
       if (stackAction !== null) {
         // The sections themselves, not the split placeholders, in the order
@@ -180,6 +191,19 @@ export function StrataSectionStack(
           return;
         }
 
+        // With the focus not in a section, but on the column, `j` and `k` go on
+        // from where they had got to in it, if they had: the section or the
+        // item after or before the one they were on, which is drawn selected.
+        // Else they start from the first one.
+        if (
+          scope === undefined &&
+          (stackAction === "next" || stackAction === "previous") &&
+          strataResumeNavPosition(column, stackAction === "next" ? 1 : -1)
+        ) {
+          event.preventDefault();
+          return;
+        }
+
         // The items: on one, `j` and `k` move between them and `↵` opens it;
         // `e` goes into the list of the section that has the focus itself, and
         // in a split column, where the section has no focus of its own, `j` and
@@ -190,7 +214,7 @@ export function StrataSectionStack(
             stackAction,
             scope,
             inSplit === undefined ? "section" : "column",
-            follow,
+            afterOpen,
           )
         ) {
           return;
@@ -299,19 +323,29 @@ export function StrataSectionStack(
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [panelId, toggle, setSplit, follow, keyBindings]);
+  }, [panelId, toggle, setSplit, afterOpen, keyBindings]);
 
   const value = useMemo(
     () => ({
       panelId,
       parentKey,
       lendsToHeader,
+      claimLend,
       isCollapsed,
       toggle,
       split,
       setSplit,
     }),
-    [panelId, parentKey, lendsToHeader, isCollapsed, toggle, split, setSplit],
+    [
+      panelId,
+      parentKey,
+      lendsToHeader,
+      claimLend,
+      isCollapsed,
+      toggle,
+      split,
+      setSplit,
+    ],
   );
 
   return (

@@ -190,7 +190,7 @@ export const strataSize = {
   rowComfortable: 30, // trunk lists
   formRow: 38, // label | control rows in editors
   control: 32, // inputs, selects, buttons and segmented options
-  controlSmall: 26, // small buttons and options
+  controlSmall: 24, // small buttons and options, and all that is in a header
   controlLarge: 38, // large buttons
   footer: 28, // key hints
   rail: 52, // icon rail width

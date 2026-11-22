@@ -57,10 +57,12 @@ describe("strataAppMenuKeyAction", () => {
     expect(strataAppMenuKeyAction(press("t"))).toEqual({
       kind: "letter",
       letter: "t",
+      shift: false,
     });
-    expect(strataAppMenuKeyAction(press("Z"))).toEqual({
+    expect(strataAppMenuKeyAction(press("Z", { shiftKey: true }))).toEqual({
       kind: "letter",
       letter: "z",
+      shift: true,
     });
   });
 

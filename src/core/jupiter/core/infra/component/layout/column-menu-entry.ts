@@ -7,6 +7,8 @@ export interface ColumnMenuEntry {
   disabled?: boolean;
   /** A command that destroys something, drawn in the danger colour. */
   danger?: boolean;
+  /** The key that does the same, shown at the right of the entry. */
+  hint?: string;
   /** Set apart from the entries before it by a divider. */
   divided?: boolean;
 }

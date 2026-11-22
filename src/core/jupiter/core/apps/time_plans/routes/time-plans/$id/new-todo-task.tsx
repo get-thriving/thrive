@@ -96,6 +96,7 @@ export default function TimePlanNewTodoTask() {
       )}
       inputsEnabled={inputsEnabled}
       intentHandlers={intentHandlers}
+      freshFormKey={formKey}
     >
       <TodoTaskCreateForm
         key={formKey}

@@ -21,6 +21,7 @@ const quiet: StrataKeysContext = {
   targets: 0,
   scrolls: false,
   position: false,
+  resizable: false,
   menu: false,
   commands: false,
   closable: true,
@@ -34,6 +35,41 @@ function listed(overrides: Partial<StrataKeysContext>): string[] {
 }
 
 describe("strataFooterKeys", () => {
+  it("says that ⇧ opens a tab of its own in hint mode and the menu of apps, where there are tabs", () => {
+    const keys = (overlay: "hints" | "apps", newTab: boolean) =>
+      strataFooterKeys({ ...quiet, overlay }, DEFAULTS, newTab).map(
+        (entry) => entry.label,
+      );
+    expect(keys("hints", true)).toContain("new tab");
+    expect(keys("apps", true)).toContain("new tab");
+    expect(keys("hints", false)).not.toContain("new tab");
+    expect(keys("apps", false)).not.toContain("new tab");
+  });
+
+  it("lists u and i, as the keys of the size, only on a column that can be resized", () => {
+    expect(listed({ resizable: true })).toContain("u i size");
+    expect(listed({ resizable: false })).not.toContain("u i size");
+  });
+
+  it("draws the keys the user chose for the size of a column", () => {
+    const chosen = strataKeyBindingsFrom({
+      [KeyboardAction.COLUMN_NARROWER]: "[",
+      [KeyboardAction.COLUMN_WIDER]: "]",
+    });
+    const keys = strataFooterKeys({ ...quiet, resizable: true }, chosen).map(
+      (entry) => [...entry.keys, entry.label].join(" "),
+    );
+    expect(keys).toContain("[ ] size");
+  });
+
+  it("lists y, n and esc while a dialog asks to confirm, over the field-less layer it is", () => {
+    expect(listed({ overlay: "confirm", typing: "layer" })).toEqual([
+      "y yes",
+      "n no",
+      "esc cancel",
+    ]);
+  });
+
   it("says how to use the search dialog, in the query and on a result", () => {
     expect(listed({ overlay: "search", typing: "layer" })).toEqual([
       "type to search",

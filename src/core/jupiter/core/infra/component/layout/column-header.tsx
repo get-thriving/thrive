@@ -11,6 +11,7 @@ import { BarControls } from "#/core/infra/component/layout/bar-controls";
 import { StrataHeaderSlotOutlet } from "#/core/infra/component/layout/strata-header-slot-outlet";
 import { ColumnClose } from "#/core/infra/component/layout/column-close";
 import type { ColumnChip } from "#/core/infra/component/layout/column-chip";
+import { useColumnResizeEntries } from "#/core/infra/component/layout/use-column-resize-entries";
 import { ColumnMenu } from "#/core/infra/component/layout/column-menu";
 import type { ColumnMenuEntry } from "#/core/infra/component/layout/column-menu-entry";
 import { StrataCommandKind } from "#/core/infra/component/layout/strata-command-kind";
@@ -93,7 +94,16 @@ interface ColumnHeaderProps {
  */
 export function ColumnHeader(props: ColumnHeaderProps) {
   const focused = useStrataColumnFocused();
-  const menu = props.menu ?? [];
+  // Wider, narrower and the default size come first in the menu.
+  const resizeEntries = useColumnResizeEntries(props.id);
+  const menu = [
+    ...resizeEntries,
+    ...(props.menu ?? []).map((entry, index) =>
+      index === 0 && resizeEntries.length > 0
+        ? { ...entry, divided: true }
+        : entry,
+    ),
+  ];
   const chips = props.chips ?? [];
   const header = useRef<HTMLDivElement>(null);
   const keyBindings = useStrataKeyBindings();
@@ -152,7 +162,12 @@ export function ColumnHeader(props: ColumnHeaderProps) {
   }
 
   return (
-    <Header id={props.id} ref={header} data-strata-header>
+    <Header
+      id={props.id}
+      ref={header}
+      data-strata-header
+      data-strata-resizable={resizeEntries.length > 0 ? "" : undefined}
+    >
       {props.slot !== undefined && (
         <StrataHeaderSlotOutlet columnKey={props.slot} lead />
       )}
@@ -221,7 +236,7 @@ export function ColumnHeader(props: ColumnHeaderProps) {
       )}
       <Actions grow={props.controls === undefined && props.slot === undefined}>
         {props.views}
-        {menu.length > 0 && <ColumnMenu headerId={props.id} entries={menu} />}
+        <ColumnMenu headerId={props.id} entries={menu} />
         {props.close !== undefined && <ColumnClose {...props.close} />}
       </Actions>
     </Header>

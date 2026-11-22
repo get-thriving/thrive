@@ -27,7 +27,11 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 )
 from playwright.sync_api import Locator, Page, ViewportSize, expect
 
-from itests.helpers import get_parsed_from_response, wait_for_hydration
+from itests.helpers import (
+    click_entity_archive,
+    get_parsed_from_response,
+    wait_for_hydration,
+)
 
 _WIDE: ViewportSize = {"width": 1400, "height": 900}
 _PHONE: ViewportSize = {"width": 390, "height": 800}
@@ -288,3 +292,23 @@ def test_a_phone_has_no_footer(page: Page, habit_for_footer: Habit) -> None:
     wait_for_hydration(page)
 
     expect(page.locator(_FOOTER)).to_have_count(0)
+
+
+def test_the_footer_lists_y_and_n_while_a_dialog_asks_to_confirm(
+    page: Page, habit_for_footer: Habit
+) -> None:
+    _open(page, habit_for_footer)
+
+    click_entity_archive(page, "leaf")
+
+    expect(page.locator("[data-strata-confirm]")).to_be_visible()
+    expect(_key(page, "yes").locator("kbd")).to_have_text(["y"])
+    expect(_key(page, "no").locator("kbd")).to_have_text(["n"])
+    expect(_key(page, "cancel").locator("kbd")).to_have_text(["esc"])
+
+    # `n` answers no: the dialog goes, the habit is not archived, and `n` did
+    # not open the menu of new items.
+    page.keyboard.press("n")
+    expect(page.locator("[data-strata-confirm]")).to_have_count(0)
+    expect(page.locator("[data-strata-new-menu]")).to_have_count(0)
+    expect(page.locator(_DETAIL)).to_be_visible()

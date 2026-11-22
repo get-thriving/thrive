@@ -199,7 +199,7 @@ def test_a_leaf_has_no_expansion_controls(page: Page) -> None:
     expect(page.locator("#leaf-panel-controls [data-strata-menu]")).to_have_count(0)
 
 
-def test_the_home_page_takes_the_whole_window(page: Page) -> None:
+def test_the_home_page_fills_the_window_when_it_is_alone(page: Page) -> None:
     page.set_viewport_size(_WIDE)
     page.goto("/app/workspace")
     wait_for_hydration(page)
@@ -263,3 +263,48 @@ def test_a_part_of_the_path_focuses_the_column_it_belongs_to(page: Page) -> None
     path.get_by_role("button", name="New habit", exact=True).click()
 
     expect(page.locator("#leaf-panel")).to_have_attribute("data-focused", "true")
+
+
+def _open_with_declared_sizes(page: Page) -> None:
+    """Open the page of a new habit with no size chosen by the user for a column."""
+    page.set_viewport_size(_WIDE)
+    page.goto(_NEW_HABIT)
+    page.evaluate("localStorage.removeItem('strata:column-sizes')")
+    page.reload()
+    wait_for_hydration(page)
+
+
+def test_i_and_u_make_the_focused_column_wider_and_narrower(page: Page) -> None:
+    _open_with_declared_sizes(page)
+    expect(page.locator("#leaf-panel")).to_have_attribute("data-focused", "true")
+    declared = _box(page, "#leaf-panel")["width"]
+    assert abs(declared - 2 * _UNIT_AT_WIDE) <= 1
+
+    page.keyboard.press("i")
+    assert abs(_box(page, "#leaf-panel")["width"] - 3 * _UNIT_AT_WIDE) <= 1
+
+    # It does not go below what the column is allowed to be, and the size is
+    # kept: the column comes back as the user left it.
+    page.keyboard.press("u")
+    page.keyboard.press("u")
+    assert abs(_box(page, "#leaf-panel")["width"] - 2 * _UNIT_AT_WIDE) <= 1
+    page.keyboard.press("i")
+    page.reload()
+    wait_for_hydration(page)
+    assert abs(_box(page, "#leaf-panel")["width"] - 3 * _UNIT_AT_WIDE) <= 1
+    page.evaluate("localStorage.removeItem('strata:column-sizes')")
+
+
+def test_the_menu_makes_a_column_wider_and_brings_the_default_back(
+    page: Page,
+) -> None:
+    _open_with_declared_sizes(page)
+
+    page.locator("#leaf-panel [data-strata-menu]").click()
+    page.locator("#leaf-panel-controls-wider").click()
+    assert abs(_box(page, "#leaf-panel")["width"] - 3 * _UNIT_AT_WIDE) <= 1
+
+    page.locator("#leaf-panel [data-strata-menu]").click()
+    page.locator("#leaf-panel-controls-default-size").click()
+    assert abs(_box(page, "#leaf-panel")["width"] - 2 * _UNIT_AT_WIDE) <= 1
+    page.evaluate("localStorage.removeItem('strata:column-sizes')")

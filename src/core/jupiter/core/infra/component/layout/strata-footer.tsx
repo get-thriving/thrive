@@ -10,6 +10,7 @@ import {
   strataSize,
 } from "#/core/infra/component/strata-tokens";
 import { useStrataKeyBindings } from "#/core/infra/component/use-strata-key-bindings";
+import { useStrataNewTab } from "#/core/infra/component/layout/use-strata-new-tab";
 import { strataFooterKeys } from "#/core/infra/strata/strata-footer-keys";
 
 /**
@@ -29,15 +30,19 @@ export function StrataFooter() {
   const keyBindings = useStrataKeyBindings();
   const columns = useContext(StrataColumnsContext);
   const context = useStrataKeysContext(columns?.slots ?? []);
+  const newTab = useStrataNewTab();
 
   if (columns === null || columns.phone || columns.slots.length === 0) {
     return null;
   }
-  const keys = strataFooterKeys(context, keyBindings);
-  // While the search dialog is up the footer says how to use it, so it stays
-  // above the dialog's dimmed backdrop rather than under it.
+  const keys = strataFooterKeys(context, keyBindings, newTab);
+  // While the search dialog or a question to confirm is up the footer says how
+  // to use it, so it stays above the dialog's dimmed backdrop rather than
+  // under it.
   const overSearch =
-    context.overlay === "search" || context.overlay === "search-results";
+    context.overlay === "search" ||
+    context.overlay === "search-results" ||
+    context.overlay === "confirm";
 
   return (
     <Box

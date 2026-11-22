@@ -107,6 +107,7 @@ export default function TimePlanNewHabit() {
       )}
       inputsEnabled={inputsEnabled}
       intentHandlers={intentHandlers}
+      freshFormKey={formKey}
     >
       <HabitCreateForm
         key={formKey}

@@ -34,13 +34,6 @@ interface EntityCardProps {
   allowMarkDone?: boolean;
   allowMarkNotDone?: boolean;
   indent?: number;
-  /**
-   * Leave out for a card in a list where the open page is not the one the
-   * list's selection leads: moving through such a list with `j` and `k` does
-   * not open what each card leads to (`useStrataFollowItem`). Set to `false`
-   * for a list that picks among things, one of which is on show.
-   */
-  follow?: boolean;
   markButtonsStyle?: "row" | "column";
   onClick?: () => void;
   onMarkDone?: () => void;
@@ -119,7 +112,6 @@ export function EntityCard(props: PropsWithChildren<EntityCardProps>) {
         // An item of a list: `e` goes into the list of a section, and then `j`
         // and `k` move between the items and `↵` opens one (ADR 0021).
         data-strata-item=""
-        data-strata-follow={props.follow === false ? "false" : undefined}
         // A card that is picked, not opened: `↵` and the hints select it
         // rather than following the link in it.
         data-strata-selectable={
@@ -130,7 +122,9 @@ export function EntityCard(props: PropsWithChildren<EntityCardProps>) {
           // The one with the keyboard focus is marked by a line on its left,
           // which sits on top of the selection's glow rather than replacing it,
           // so a card picked with `↵` shows as picked at once.
-          "&:focus": {
+          // An item `j` and `k` were last on keeps it too (`data-strata-remembered`)
+          // while the keyboard is elsewhere, in the column that shows it open.
+          "&:focus, &[data-strata-remembered]": {
             outline: "none",
             boxShadow: selectedShadow
               ? `inset 2px 0 0 ${strataColors.amber}, ${selectedShadow}`

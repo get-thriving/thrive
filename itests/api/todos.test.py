@@ -233,7 +233,7 @@ def create_finished_todo(logged_in_client: AuthenticatedClient, create_todo):
     """Create a todo and finish it, which stamps the completion time of its inbox task."""
 
     def _create(name: str) -> TodoTask:
-        todo = create_todo(name)
+        todo: TodoTask = create_todo(name)
         todo_entry = _find_todos(logged_in_client, include_inbox_tasks=True)
         inbox_task = next(
             e.inbox_task for e in todo_entry if e.todo_task.ref_id == todo.ref_id

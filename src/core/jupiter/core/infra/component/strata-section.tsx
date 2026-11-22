@@ -133,8 +133,7 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
     props.items !== undefined &&
     props.items > 0 &&
     parentKey !== null &&
-    columns !== null &&
-    !columns.phone;
+    columns !== null;
   const registerSplit = columns?.registerSplit;
   const isSplit =
     splittable && columns.splits.some((split) => split.id === props.id);
@@ -178,16 +177,20 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
   // first of the stack (the fixed one) or the one in a column of its own: its
   // controls are drawn there, among the column's own, and it has no row.
   const formId = `${props.id}-form`;
+  const fixedLends =
+    props.fixed === true &&
+    stack !== null &&
+    stack.lendsToHeader &&
+    stack.claimLend(props.id);
   const slot = useStrataHeaderSlot(
     inColumn
       ? strataSplitKey(props.id)
-      : props.fixed === true && stack !== null
+      : props.fixed === true && stack !== null && fixedLends
         ? stack.parentKey
         : null,
   );
   const lends =
-    (inColumn || (props.fixed === true && stack?.lendsToHeader === true)) &&
-    actionsPosition === ActionsPosition.ABOVE;
+    (inColumn || fixedLends) && actionsPosition === ActionsPosition.ABOVE;
   const hasSummary = props.summary !== undefined && props.summary !== "";
   const lent =
     lends && slot !== null && (props.actions !== undefined || hasSummary)
@@ -412,8 +415,6 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
         // margins to nothing, and would win otherwise.
         "&&&": { marginLeft: "-0.5rem", marginRight: "-0.5rem" },
         position: "relative",
-        borderBottom: 1,
-        borderColor: "divider",
         pb: collapsed ? 0 : 1,
         // The line on top, as a column has one: strong and quiet, amber while
         // the section is the one `j` and `k` put the keyboard focus on. The
@@ -422,19 +423,26 @@ export function StrataSection(props: PropsWithChildren<StrataSectionProps>) {
         "&::before": {
           content: '""',
           position: "absolute",
-          // Over the line under the section above, so the two are one 1px
-          // line, half the thickness of a column's, and not a 2px one. A
-          // string, as a bare 1 would be all of the height.
-          top: -1,
+          // Inside the section, not over the one above, which a column that
+          // scrolls it to its top would cut off. It is the only line between
+          // two sections: they have none under them. A string for the height,
+          // as a bare 1 would be all of it.
+          top: 0,
           left: 0,
           right: 0,
           height: "1px",
           backgroundColor: strataColors.lineStrong,
           pointerEvents: "none",
         },
-        "&:first-child:not(:focus)::before": { display: "none" },
+        "&:first-child:not(:focus):not([data-strata-remembered])::before": {
+          display: "none",
+        },
         "&:focus": { outline: "none" },
-        "&:focus::before": { backgroundColor: strataColors.amber },
+        // The one `j` and `k` were last on keeps the line, as the item of a
+        // list keeps its own, while the keyboard is elsewhere.
+        "&:focus::before, &[data-strata-remembered]::before": {
+          backgroundColor: strataColors.amber,
+        },
       }}
     >
       <SectionForm

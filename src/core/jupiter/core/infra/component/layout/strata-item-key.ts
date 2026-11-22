@@ -28,15 +28,16 @@ export type StrataItemEntry = "section" | "column";
  * taken is for the caller's other keys. Where the scope has no list but the
  * name of an entity, `e` goes into that, and where it has a note, or anything
  * else that can be written in, into that instead, with the caret at the end of
- * what is written. `follow` is told of the item a move
- * lands on, so what is open beside the list can follow the selection.
+ * what is written. Moving through the items opens nothing: `↵` does, and
+ * `opened` is told of the item it opened.
  */
 export function strataItemKey(
   event: KeyboardEvent,
   action: StrataStackKeyAction,
   scope: HTMLElement | undefined,
   entry: StrataItemEntry,
-  follow?: (items: readonly HTMLElement[], target: HTMLElement) => void,
+  /** Told of the item `↵` opened, so the column it opens in can take the focus. */
+  opened?: (item: HTMLElement) => void,
 ): boolean {
   const items = scope === undefined ? [] : strataSectionItems(scope);
   const focused = strataFocusedItem();
@@ -46,12 +47,12 @@ export function strataItemKey(
     if (action === "open") {
       event.preventDefault();
       strataOpenItem(items[onItem]);
+      opened?.(items[onItem]);
     } else if (action !== "items") {
       event.preventDefault();
       const next = strataNextSection(action, items.length, onItem);
       if (next !== null) {
         strataFocusItem(items[next]);
-        follow?.(items, items[next]);
       }
     }
     return true;

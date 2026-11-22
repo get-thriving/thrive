@@ -107,6 +107,7 @@ export default function TimePlanNewChore() {
       )}
       inputsEnabled={inputsEnabled}
       intentHandlers={intentHandlers}
+      freshFormKey={formKey}
     >
       <ChoreCreateForm
         key={formKey}

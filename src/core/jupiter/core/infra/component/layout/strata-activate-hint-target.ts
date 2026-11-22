@@ -78,8 +78,23 @@ function press(element: HTMLElement) {
  * Does to an element what choosing it by hint should: a field takes the focus,
  * with the caret at the end of what is in it, so typing goes on from there; a
  * select or a date opens its picker; anything else is pressed, as with a click.
+ * With `newTab` a link is opened in a tab of its own instead.
  */
-export function strataActivateHintTarget(element: HTMLElement) {
+export function strataActivateHintTarget(
+  element: HTMLElement,
+  options: { newTab?: boolean } = {},
+) {
+  // With `⇧`, what leads somewhere opens there in a tab of its own: the link
+  // the element is, is in, or holds. What leads nowhere is done as always.
+  if (options.newTab === true) {
+    const link =
+      element.closest<HTMLAnchorElement>("a[href]") ??
+      element.querySelector<HTMLAnchorElement>("a[href]");
+    if (link !== null && link.href !== "") {
+      window.open(link.href, "_blank", "noopener,noreferrer");
+      return;
+    }
+  }
   if (element instanceof HTMLInputElement) {
     if (!TEXT_LIKE_INPUTS.has(element.type)) {
       press(element);

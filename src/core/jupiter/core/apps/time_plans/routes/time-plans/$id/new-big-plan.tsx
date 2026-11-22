@@ -99,6 +99,7 @@ export default function TimePlanNewBigPlan() {
       )}
       inputsEnabled={inputsEnabled}
       intentHandlers={intentHandlers}
+      freshFormKey={formKey}
     >
       <BigPlanCreateForm
         key={formKey}

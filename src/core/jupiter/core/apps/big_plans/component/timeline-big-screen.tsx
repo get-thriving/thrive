@@ -121,9 +121,12 @@ export function BigPlanTimelineBigScreen({
                 onClick={() => allowSelect && onClick?.(entry)}
                 sx={{
                   "&:focus": { outline: "none" },
-                  "&:focus > td:first-of-type": {
-                    boxShadow: `inset 2px 0 0 ${strataColors.amber}`,
-                  },
+                  // An item `j` and `k` were last on keeps the line while the
+                  // keyboard is elsewhere (`data-strata-remembered`).
+                  "&:focus > td:first-of-type, &[data-strata-remembered] > td:first-of-type":
+                    {
+                      boxShadow: `inset 2px 0 0 ${strataColors.amber}`,
+                    },
                 }}
               >
                 <TableCell

@@ -18,7 +18,6 @@ import { Password } from "@jupiter/core/auth/component/password";
 import { LifecycleOAuthProviderButtons } from "@jupiter/core/auth/component/lifecycle-oauth-provider-buttons";
 import { Title } from "@jupiter/core/infra/component/title";
 import {
-  ActionsExpansion,
   ActionSingle,
   NavMultipleCompact,
   NavSingle,
@@ -124,7 +123,6 @@ export default function InitCreateUser() {
               id="init-create-user"
               topLevelInfo={EMPTY_CONTEXT}
               inputsEnabled={inputsEnabled}
-              expansion={ActionsExpansion.ALWAYS_SHOW}
               actions={[
                 ActionSingle({
                   text: "Create",

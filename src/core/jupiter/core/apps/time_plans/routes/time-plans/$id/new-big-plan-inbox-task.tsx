@@ -104,6 +104,7 @@ export default function TimePlanNewBigPlanInboxTask() {
       )}
       inputsEnabled={inputsEnabled}
       intentHandlers={intentHandlers}
+      freshFormKey={formKey}
     >
       <BigPlanInboxTaskCreateForm
         key={formKey}

@@ -10,6 +10,8 @@ import { KeyboardAction } from "@jupiter/webapi-client";
 export const DEFAULT_KEY_BINDINGS: Record<KeyboardAction, string> = {
   [KeyboardAction.COLUMN_PREVIOUS]: "h",
   [KeyboardAction.COLUMN_NEXT]: "l",
+  [KeyboardAction.COLUMN_NARROWER]: "u",
+  [KeyboardAction.COLUMN_WIDER]: "i",
   [KeyboardAction.NEXT]: "j",
   [KeyboardAction.PREVIOUS]: "k",
   [KeyboardAction.OPEN]: "Enter",

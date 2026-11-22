@@ -19,7 +19,6 @@ import {
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import {
-  ActionsExpansion,
   ButtonSingle,
   NavSingle,
   SectionActions,
@@ -77,7 +76,6 @@ export default function ShowRecoveryToken() {
               id="recovery-token"
               topLevelInfo={EMPTY_CONTEXT}
               inputsEnabled={true}
-              expansion={ActionsExpansion.ALWAYS_SHOW}
               actions={[
                 ButtonSingle({
                   text: hasCopied ? "Copied" : "Copy",

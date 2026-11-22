@@ -34,7 +34,6 @@ import { Logo } from "@jupiter/core/infra/component/logo";
 import { Title } from "@jupiter/core/infra/component/title";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
 import {
-  ActionsExpansion,
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
@@ -147,7 +146,6 @@ export default function InitCreateWorkspace() {
               id="init-create-workspace"
               topLevelInfo={EMPTY_CONTEXT}
               inputsEnabled={inputsEnabled}
-              expansion={ActionsExpansion.ALWAYS_SHOW}
               actions={[
                 ActionSingle({
                   text: "Create",

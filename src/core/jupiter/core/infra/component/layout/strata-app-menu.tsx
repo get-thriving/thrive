@@ -18,6 +18,7 @@ import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
 import { StrataColumnsContext } from "#/core/infra/component/layout/strata-columns-context";
 import { StrataLabelChip } from "#/core/infra/component/layout/strata-label-chip";
+import { useStrataNewTab } from "#/core/infra/component/layout/use-strata-new-tab";
 import type { AppMenuEntry } from "#/core/infra/component/shell/app-menu-entry";
 import { appMenuGroups } from "#/core/infra/component/shell/app-menu-groups";
 import {
@@ -65,6 +66,12 @@ export function StrataAppMenu() {
   const [typed, setTyped] = useState("");
   const openRef = useRef(false);
   const typedRef = useRef("");
+  const newTab = useStrataNewTab();
+  const newTabRef = useRef(newTab);
+  newTabRef.current = newTab;
+  // `⇧` was held for a letter of the label: the place goes to a tab of its own.
+  const [inNewTab, setInNewTab] = useState(false);
+  const inNewTabRef = useRef(false);
 
   const groups = useMemo(
     () =>
@@ -102,6 +109,10 @@ export function StrataAppMenu() {
     typedRef.current = next;
     setOpen(isOpen);
     setTyped(next);
+    if (!isOpen) {
+      inNewTabRef.current = false;
+      setInNewTab(false);
+    }
   }, []);
 
   const exit = useCallback(() => {
@@ -111,11 +122,11 @@ export function StrataAppMenu() {
   }, [change]);
 
   const choose = useCallback(
-    (entry: AppMenuEntry) => {
+    (entry: AppMenuEntry, newTabAsked: boolean) => {
       // The menu is over before the move, so what it moves finds a page
       // without the menu over it.
       exit();
-      if (entry.external) {
+      if (entry.external || newTabAsked) {
         window.open(entry.to, "_blank", "noopener,noreferrer");
       } else {
         navigate(entry.to);
@@ -165,6 +176,10 @@ export function StrataAppMenu() {
           return;
         case "letter": {
           const next = typedRef.current + action.letter;
+          if (newTabRef.current && action.shift && !inNewTabRef.current) {
+            inNewTabRef.current = true;
+            setInNewTab(true);
+          }
           const progress = strataHintProgress(labelsRef.current, next);
           if (progress.matching.length === 0) {
             return;
@@ -173,7 +188,7 @@ export function StrataAppMenu() {
             change(true, next);
             return;
           }
-          choose(entriesRef.current[progress.chosen]);
+          choose(entriesRef.current[progress.chosen], inNewTabRef.current);
           return;
         }
         case "ignore":
@@ -261,10 +276,14 @@ export function StrataAppMenu() {
           }}
         >
           <Box component="span" sx={{ color: strataColors.amber }}>
-            Go to
+            {inNewTab ? "Go to, new tab" : "Go to"}
           </Box>
           <Box component="span" data-strata-app-menu-typed="true">
-            {typed === "" ? "type a label" : typed}
+            {typed === ""
+              ? newTab
+                ? "type a label, ⇧ for a new tab"
+                : "type a label"
+              : typed}
           </Box>
         </Box>
         {/* The sections sit side by side so that all of them fit the window;
@@ -302,7 +321,12 @@ export function StrataAppMenu() {
                           type="button"
                           data-strata-app-menu-entry={entry.label}
                           aria-label={`Go to ${entry.label}`}
-                          onClick={() => choose(entry)}
+                          onClick={(event) =>
+                            choose(
+                              entry,
+                              newTab && (event.shiftKey || inNewTab),
+                            )
+                          }
                           sx={{
                             display: "flex",
                             alignItems: "center",

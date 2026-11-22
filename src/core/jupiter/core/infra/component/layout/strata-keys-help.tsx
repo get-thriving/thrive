@@ -13,6 +13,7 @@ import {
 } from "#/core/infra/component/strata-tokens";
 import { useStrataKeyBindings } from "#/core/infra/component/use-strata-key-bindings";
 import type { StrataFooterKey } from "#/core/infra/strata/strata-footer-key";
+import { useStrataNewTab } from "#/core/infra/component/layout/use-strata-new-tab";
 import { strataFooterKeys } from "#/core/infra/strata/strata-footer-keys";
 import { isStrataKeysHelpKey } from "#/core/infra/strata/strata-keys-help-key";
 
@@ -28,7 +29,8 @@ function KeysHelpList() {
   const keyBindings = useStrataKeyBindings();
   const columns = useContext(StrataColumnsContext);
   const context = useStrataKeysContext(columns?.slots ?? []);
-  const keys = [...strataFooterKeys(context, keyBindings), ...ALWAYS];
+  const newTab = useStrataNewTab();
+  const keys = [...strataFooterKeys(context, keyBindings, newTab), ...ALWAYS];
 
   return (
     <Box

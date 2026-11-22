@@ -203,6 +203,23 @@ def test_enter_opens_the_item_with_the_focus(
     page.wait_for_url(re.compile(rf"/app/workspace/core/inbox-tasks/{ref_id}"))
 
 
+def test_enter_moves_the_focus_to_the_column_the_item_opened_in(
+    page: Page, habit_with_inbox_tasks
+) -> None:
+    habit, _ = habit_with_inbox_tasks
+    _open(page, habit)
+    items = _items(page)
+
+    page.keyboard.press("e")
+    page.keyboard.press("j")
+    page.keyboard.press("Enter")
+    ref_id = items[1].removeprefix("inbox-task-")
+    page.wait_for_url(re.compile(rf"/app/workspace/core/inbox-tasks/{ref_id}"))
+
+    # No `l` is needed: the column of the item that opened has the focus.
+    expect(page.locator("#leaf-panel")).to_have_attribute("data-focused", "true")
+
+
 def test_enter_on_the_section_opens_its_first_item(
     page: Page, habit_with_inbox_tasks
 ) -> None:

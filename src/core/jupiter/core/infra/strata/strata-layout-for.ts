@@ -12,6 +12,7 @@ import {
 } from "#/core/infra/strata/layout";
 import { strataColumnsWithSplits } from "#/core/infra/strata/strata-columns-with-splits";
 import { strataSubjectsOf } from "#/core/infra/strata/strata-subjects-of";
+import { strataResizedSize } from "#/core/infra/strata/strata-column-resize";
 import type { StrataSplitSpec } from "#/core/infra/strata/strata-split-spec";
 
 /** One path panel, placed on the screen. */
@@ -105,11 +106,28 @@ export function strataLayoutWithSplits(input: {
   focusKey: string;
   width: number;
   rail: number;
+  /**
+   * Units the user widened (or, below zero, narrowed) columns by, by key; a
+   * column not in it is as its route declares.
+   */
+  resized?: ReadonlyMap<string, number>;
 }): StrataSplitsLayout {
   const units = unitsForWidth(input.width, { rail: input.rail });
   const active = input.wanted.filter((id) => input.splits.has(id));
+  const resized = input.resized;
   const result = layoutColumns({
-    columns: strataColumnsWithSplits(input.path, input.splits, active),
+    columns: strataColumnsWithSplits(input.path, input.splits, active).map(
+      (column) =>
+        resized?.has(column.key)
+          ? {
+              ...column,
+              size: strataResizedSize(
+                column.size,
+                resized.get(column.key) ?? 0,
+              ),
+            }
+          : column,
+    ),
     focusKey: input.focusKey,
     units,
   });

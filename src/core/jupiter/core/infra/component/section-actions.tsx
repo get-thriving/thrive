@@ -1,7 +1,6 @@
 import type { WorkspaceFeature } from "@jupiter/webapi-client";
 import {
   ArrowDropDown as ArrowDropDownIcon,
-  Bolt as BoltIcon,
   CheckBox as CheckBoxIcon,
   CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
 } from "@mui/icons-material";
@@ -13,10 +12,6 @@ import {
   Checkbox,
   Chip,
   ClickAwayListener,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Divider,
   FormControl,
   Grow,
@@ -32,14 +27,30 @@ import {
 } from "@mui/material";
 import { Link } from "react-router";
 import type { Dispatch, JSX, RefObject, SetStateAction } from "react";
-import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  useContext,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 
 import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useIsomorphicLayoutEffect } from "#/core/infra/component/use-isomorphic-layout-effect";
 import { useStrataBar } from "#/core/infra/component/layout/strata-bar-context";
-import { useStrataActionCommands } from "#/core/infra/component/layout/use-strata-action-commands";
+import { useStrataColumnKey } from "#/core/infra/component/layout/strata-column-key-context";
+import {
+  strataClearMenuActions,
+  strataSetMenuActions,
+} from "#/core/infra/component/layout/strata-menu-actions";
+import { strataCommandsOfActions } from "#/core/infra/component/layout/strata-commands-of-actions";
+import {
+  useStrataActionCommands,
+  useStrataActionsHost,
+} from "#/core/infra/component/layout/use-strata-action-commands";
 import { sectionActionsForForm } from "#/core/infra/component/section-actions-for-form";
 import { StrataSectionFormContext } from "#/core/infra/component/strata-section-form-context";
 import { useSectionFiltersPreserver } from "#/core/infra/component/use-section-filter";
@@ -146,16 +157,6 @@ export type ActionDesc =
   | FilterFewOptionsDesc<any> // A group to filter on, can be a navigation or a callback
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   | FilterManyOptionsDesc<any>; // A group to filter on, with many options
-
-export function isSingleAction(
-  action: ActionDesc,
-): action is NavSingleDesc | ActionSingleDesc | ButtonSingleDesc {
-  return (
-    action.kind === "nav-single" ||
-    action.kind === "action-single" ||
-    action.kind === "button-single"
-  );
-}
 
 export function NavSingle(desc: Omit<NavSingleDesc, "kind">): NavSingleDesc {
   return {
@@ -274,18 +275,15 @@ export function FilterManyOptions<K>(
   };
 }
 
-export enum ActionsExpansion {
-  ALWAYS_SHOW,
-  ALWAYS_COMPACT,
-  ADAPT,
-}
-
 interface SectionActionsProps {
   id: string;
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
-  expansion?: ActionsExpansion;
   actions: Array<ActionDesc>;
+  /**
+   * The ones that are rarely wanted, which a header keeps in the `⋯` menu of
+   * its column even when there is room for them.
+   */
   extraActions?: Array<ActionDesc>;
 }
 
@@ -310,15 +308,17 @@ export function SectionActions(props: SectionActionsProps) {
 }
 
 function SectionActionsInForm(props: SectionActionsProps) {
-  const isBigScreen = useBigScreen();
   const bar = useStrataBar();
-  const expansion = props.expansion ?? ActionsExpansion.ADAPT;
-  // In a bar it is the room that says how many of the actions fit; anywhere
-  // else it is the screen.
-  const narrow = bar === null && !isBigScreen;
+  const columnKey = useStrataColumnKey();
+  const menuId = useId();
   // Every action is a command of the column (ADR 0021), however the section
-  // draws it: spread out, or behind a drop-down.
+  // draws it: in its header, or in the menu of the column.
   const ref = useRef<HTMLDivElement>(null);
+  const host = useStrataActionsHost(
+    ref,
+    props.inputsEnabled,
+    props.topLevelInfo,
+  );
   const commands = useStrataActionCommands(
     ref,
     props.actions.concat(props.extraActions ?? []),
@@ -326,41 +326,47 @@ function SectionActionsInForm(props: SectionActionsProps) {
     props.topLevelInfo,
   );
 
-  let actions: Array<ActionDesc>;
-  let extraActions: Array<ActionDesc>;
+  // A header shows as many of the actions as fit, from the first, and always
+  // at least one; the bar folds the rest, with the extra ones, into the menu
+  // of the column. Where there is no header, they all show.
+  const foldsIntoMenu = bar !== null && columnKey !== null;
+  const folded = foldsIntoMenu
+    ? Math.min(bar.folded, Math.max(props.actions.length - 1, 0))
+    : 0;
+  const actions = props.actions.slice(0, props.actions.length - folded);
+  const inTheMenu = foldsIntoMenu
+    ? props.actions
+        .slice(props.actions.length - folded)
+        .concat(props.extraActions ?? [])
+    : [];
+  const rest = foldsIntoMenu ? [] : (props.extraActions ?? []);
+  const title = bar?.title;
+  const menuCommands = strataCommandsOfActions(inTheMenu, host);
 
-  // A lone action has nothing to fold with, so it shows, unless even it does
-  // not fit the bar.
-  if (
-    props.actions.length === 1 &&
-    (props.extraActions?.length ?? 0) === 0 &&
-    (bar === null || bar.folded === 0)
-  ) {
-    actions = props.actions;
-    extraActions = [];
-  } else if (expansion === ActionsExpansion.ALWAYS_COMPACT) {
-    actions = [];
-    extraActions = props.actions.concat(props.extraActions ?? []);
-  } else if (expansion === ActionsExpansion.ADAPT && bar !== null) {
-    // As many as fit, from the first; the bar folds the rest, with the extra
-    // ones, into the button.
-    const folded = Math.min(bar.folded, props.actions.length);
-    actions = props.actions.slice(0, props.actions.length - folded);
-    extraActions = props.actions
-      .slice(props.actions.length - folded)
-      .concat(props.extraActions ?? []);
-  } else if (expansion === ActionsExpansion.ADAPT && narrow) {
-    if (isSingleAction(props.actions[0])) {
-      actions = props.actions.slice(0, 1);
-      extraActions = props.actions.concat(props.extraActions ?? []);
-    } else {
-      actions = [];
-      extraActions = props.actions.concat(props.extraActions ?? []);
+  // What the section holds back is listed in the menu of its column, as
+  // commands like its own, made anew each time it changes, and taken back out
+  // when there is none of it.
+  useIsomorphicLayoutEffect(() => {
+    if (columnKey === null) {
+      return;
     }
-  } else {
-    actions = props.actions;
-    extraActions = props.extraActions ?? [];
-  }
+    if (menuCommands.length === 0) {
+      strataClearMenuActions(columnKey, menuId);
+      return;
+    }
+    strataSetMenuActions(columnKey, {
+      id: menuId,
+      title,
+      commands: menuCommands,
+    });
+  });
+  useIsomorphicLayoutEffect(() => {
+    return () => {
+      if (columnKey !== null) {
+        strataClearMenuActions(columnKey, menuId);
+      }
+    };
+  }, [columnKey, menuId]);
 
   return (
     <Stack
@@ -369,104 +375,31 @@ function SectionActionsInForm(props: SectionActionsProps) {
       data-strata-actions={commands.length > 0 ? "true" : undefined}
       direction="row"
       spacing={bar !== null ? 0.5 : 1}
+      useFlexGap
       sx={{
         // A bar has its own padding and aligns what it holds.
         padding: bar !== null ? 0 : "0.25rem",
         alignItems: bar !== null ? "center" : undefined,
+        flexWrap: bar !== null ? undefined : "wrap",
         height: "fit-content",
       }}
     >
-      {actions.map((action, index) => (
+      {actions.concat(rest).map((action, index) => (
         <ActionView
           key={`action-${props.id}-${index}`}
           topLevelInfo={props.topLevelInfo}
-          isInDialog={false}
           inputsEnabled={props.inputsEnabled}
           orientation="horizontal"
           action={action}
         />
       ))}
-
-      {extraActions.length > 0 && (
-        <SectionActionsWithDialog
-          id={props.id}
-          topLevelInfo={props.topLevelInfo}
-          inputsEnabled={props.inputsEnabled}
-          actions={extraActions}
-        />
-      )}
     </Stack>
-  );
-}
-
-interface SectionActionsWithDialogProps {
-  id: string;
-  topLevelInfo: TopLevelInfo;
-  inputsEnabled: boolean;
-  actions: Array<ActionDesc>;
-}
-
-function SectionActionsWithDialog(props: SectionActionsWithDialogProps) {
-  const [showExtraActionsDialog, setShowExtraActionsDialog] = useState(false);
-  const size = useBarSize(false);
-
-  if (props.actions.length === 0) {
-    return <></>;
-  }
-
-  return (
-    <>
-      <Button
-        disabled={!props.inputsEnabled}
-        variant="outlined"
-        size={size ?? "medium"}
-        color="primary"
-        aria-label="More actions"
-        title="More actions"
-        sx={
-          size === undefined
-            ? { margin: "0.25rem", minWidth: 0 }
-            : { margin: 0, minWidth: 0, width: strataSize.controlSmall, p: 0 }
-        }
-        onClick={() => setShowExtraActionsDialog(true)}
-      >
-        <BoltIcon fontSize={size === undefined ? "medium" : "small"} />
-      </Button>
-
-      <Dialog
-        onClose={() => setShowExtraActionsDialog(false)}
-        open={showExtraActionsDialog}
-        disablePortal
-      >
-        <DialogTitle>Actions</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2}>
-            {props.actions.map((action, index) => (
-              <ActionView
-                key={`action-${props.id}-${index}`}
-                topLevelInfo={props.topLevelInfo}
-                inputsEnabled={props.inputsEnabled}
-                isInDialog={true}
-                orientation="vertical"
-                action={action}
-              />
-            ))}
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowExtraActionsDialog(false)}>
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
   );
 }
 
 interface ActionViewProps {
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
-  isInDialog: boolean;
   orientation: "horizontal" | "vertical";
   action: ActionDesc;
 }
@@ -479,7 +412,6 @@ function ActionView(props: ActionViewProps) {
           id={props.action.id}
           topLevelInfo={props.topLevelInfo}
           inputsEnabled={props.inputsEnabled}
-          isInDialog={props.isInDialog}
           action={props.action}
         />
       );
@@ -490,7 +422,6 @@ function ActionView(props: ActionViewProps) {
           topLevelInfo={props.topLevelInfo}
           inputsEnabled={props.inputsEnabled}
           orientation={props.orientation}
-          isInDialog={props.isInDialog}
           action={props.action}
         />
       );
@@ -500,7 +431,6 @@ function ActionView(props: ActionViewProps) {
         <ActionSingleView
           topLevelInfo={props.topLevelInfo}
           inputsEnabled={props.inputsEnabled}
-          isInDialog={props.isInDialog}
           action={props.action}
         />
       );
@@ -511,7 +441,6 @@ function ActionView(props: ActionViewProps) {
           topLevelInfo={props.topLevelInfo}
           inputsEnabled={props.inputsEnabled}
           orientation={props.orientation}
-          isInDialog={props.isInDialog}
           action={props.action}
         />
       );
@@ -521,7 +450,6 @@ function ActionView(props: ActionViewProps) {
         <ButtonSingleView
           topLevelInfo={props.topLevelInfo}
           inputsEnabled={props.inputsEnabled}
-          isInDialog={props.isInDialog}
           action={props.action}
         />
       );
@@ -532,7 +460,6 @@ function ActionView(props: ActionViewProps) {
           topLevelInfo={props.topLevelInfo}
           inputsEnabled={props.inputsEnabled}
           orientation={props.orientation}
-          isInDialog={props.isInDialog}
           action={props.action}
         />
       );
@@ -543,7 +470,6 @@ function ActionView(props: ActionViewProps) {
           topLevelInfo={props.topLevelInfo}
           inputsEnabled={props.inputsEnabled}
           orientation={props.orientation}
-          isInDialog={props.isInDialog}
           action={props.action}
         />
       );
@@ -554,13 +480,12 @@ interface NavSingleViewProps {
   id?: string;
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
-  isInDialog: boolean;
   action: NavSingleDesc;
 }
 
 function NavSingleView(props: NavSingleViewProps) {
   const isBigScreen = useShowsWholeText();
-  const size = useBarSize(props.isInDialog);
+  const size = useBarSize();
   const preserveFilters = useSectionFiltersPreserver();
 
   if (props.action.gatedOn) {
@@ -584,7 +509,7 @@ function NavSingleView(props: NavSingleViewProps) {
       startIcon={props.action.icon}
       to={preserveFilters(props.action.link)}
     >
-      {getRealText(props.action.text, props.isInDialog, isBigScreen)}
+      {getRealText(props.action.text, isBigScreen)}
     </Button>
   );
 }
@@ -592,7 +517,6 @@ function NavSingleView(props: NavSingleViewProps) {
 interface NavMultipleViewProps {
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
-  isInDialog: boolean;
   orientation: "horizontal" | "vertical";
   action: NavMultipleDesc;
 }
@@ -608,7 +532,7 @@ function NavMultipleView(props: NavMultipleViewProps) {
 
 function NavMultipleSpreadView(props: NavMultipleViewProps) {
   const isBigScreen = useShowsWholeText();
-  const size = useBarSize(props.isInDialog);
+  const size = useBarSize();
   const preserveFilters = useSectionFiltersPreserver();
   const visibleNavs = visibleNavItems(
     props.action.navs,
@@ -635,7 +559,7 @@ function NavMultipleSpreadView(props: NavMultipleViewProps) {
             startIcon={nav.icon}
             to={preserveFilters(nav.link)}
           >
-            {getRealText(nav.text, props.isInDialog, isBigScreen)}
+            {getRealText(nav.text, isBigScreen)}
           </Button>
         );
       })}
@@ -787,7 +711,7 @@ function NavMultipleCompactView(props: NavMultipleViewProps) {
   const theme = useTheme();
   const isBigScreen = useBigScreen();
   const wholeText = useShowsWholeText();
-  const size = useBarSize(props.isInDialog);
+  const size = useBarSize();
   const preserveFilters = useSectionFiltersPreserver();
 
   const visibleNavs = visibleNavItems(
@@ -832,11 +756,7 @@ function NavMultipleCompactView(props: NavMultipleViewProps) {
           startIcon={realActions[selectedIndex].icon}
           to={preserveFilters(realActions[selectedIndex].link)}
         >
-          {getRealText(
-            realActions[selectedIndex].text || "",
-            props.isInDialog,
-            wholeText,
-          )}
+          {getRealText(realActions[selectedIndex].text || "", wholeText)}
         </Button>
         <Button
           id="section-action-nav-multiple-compact-button"
@@ -891,13 +811,12 @@ function NavMultipleCompactView(props: NavMultipleViewProps) {
 interface ActionSingleViewProps {
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
-  isInDialog: boolean;
   action: ActionSingleDesc;
 }
 
 function ActionSingleView(props: ActionSingleViewProps) {
   const isBigScreen = useShowsWholeText();
-  const size = useBarSize(props.isInDialog);
+  const size = useBarSize();
 
   if (props.action.gatedOn) {
     const workspace = props.topLevelInfo.workspace;
@@ -922,7 +841,7 @@ function ActionSingleView(props: ActionSingleViewProps) {
       value={props.action.value}
       id={props.action.id}
     >
-      {getRealText(props.action.text || "", props.isInDialog, isBigScreen)}
+      {getRealText(props.action.text || "", isBigScreen)}
     </Button>
   );
 }
@@ -930,7 +849,6 @@ function ActionSingleView(props: ActionSingleViewProps) {
 interface ActionMultipleViewProps {
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
-  isInDialog: boolean;
   orientation: "horizontal" | "vertical";
   action: ActionMultipleDesc;
 }
@@ -946,7 +864,7 @@ function ActionMultipleView(props: ActionMultipleViewProps) {
 
 function ActionMultipleSpreadView(props: ActionMultipleViewProps) {
   const isBigScreen = useShowsWholeText();
-  const size = useBarSize(props.isInDialog);
+  const size = useBarSize();
 
   return (
     <ButtonGroup orientation={props.orientation} size={size}>
@@ -974,7 +892,7 @@ function ActionMultipleSpreadView(props: ActionMultipleViewProps) {
             value={action.value}
             id={action.id}
           >
-            {getRealText(action.text || "", props.isInDialog, isBigScreen)}
+            {getRealText(action.text || "", isBigScreen)}
           </Button>
         );
       })}
@@ -994,7 +912,7 @@ function ActionMultipleCompactView(props: ActionMultipleViewProps) {
   const theme = useTheme();
   const isBigScreen = useBigScreen();
   const wholeText = useShowsWholeText();
-  const size = useBarSize(props.isInDialog);
+  const size = useBarSize();
 
   const realActions: ActionSingleDesc[] = [];
   for (const action of props.action.actions) {
@@ -1039,11 +957,7 @@ function ActionMultipleCompactView(props: ActionMultipleViewProps) {
           value={realActions[selectedIndex].value}
           id={realActions[selectedIndex].id}
         >
-          {getRealText(
-            realActions[selectedIndex].text || "",
-            props.isInDialog,
-            wholeText,
-          )}
+          {getRealText(realActions[selectedIndex].text || "", wholeText)}
         </Button>
         <Button
           size="small"
@@ -1100,13 +1014,12 @@ function ActionMultipleCompactView(props: ActionMultipleViewProps) {
 interface ButtonSingleViewProps {
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
-  isInDialog: boolean;
   action: ButtonSingleDesc;
 }
 
 function ButtonSingleView(props: ButtonSingleViewProps) {
   const isBigScreen = useShowsWholeText();
-  const size = useBarSize(props.isInDialog);
+  const size = useBarSize();
 
   if (props.action.gatedOn) {
     const workspace = props.topLevelInfo.workspace;
@@ -1123,7 +1036,7 @@ function ButtonSingleView(props: ButtonSingleViewProps) {
       startIcon={props.action.icon}
       onClick={props.action.onClick}
     >
-      {getRealText(props.action.text || "", props.isInDialog, isBigScreen)}
+      {getRealText(props.action.text || "", isBigScreen)}
     </Button>
   );
 }
@@ -1131,7 +1044,6 @@ function ButtonSingleView(props: ButtonSingleViewProps) {
 interface FilterFewOptionsViewProps<K> {
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
-  isInDialog: boolean;
   orientation: "horizontal" | "vertical";
   action: FilterFewOptionsDesc<K>;
 }
@@ -1147,7 +1059,7 @@ function FilterFewOptionsView<K>(props: FilterFewOptionsViewProps<K>) {
 
 function FilterFewOptionsSpreadView<K>(props: FilterFewOptionsViewProps<K>) {
   const isBigScreen = useShowsWholeText();
-  const size = useBarSize(props.isInDialog);
+  const size = useBarSize();
   // Whoever put these buttons here is the one keeping track of which one is
   // on - so a choice made elsewhere, like going back to a page that was left
   // on another one, shows up here too.
@@ -1192,7 +1104,7 @@ function FilterFewOptionsSpreadView<K>(props: FilterFewOptionsViewProps<K>) {
               props.action.onSelect(option.value);
             }}
           >
-            {getRealText(option.text, props.isInDialog, isBigScreen)}
+            {getRealText(option.text, isBigScreen)}
           </Button>
         );
       })}
@@ -1221,7 +1133,7 @@ function FilterFewOptionsCompactView<K>(props: FilterFewOptionsViewProps<K>) {
   const selectId = `section-action-filter-few-compact-${props.action.title}`;
   // In a bar the title is not a floating label, which would not fit: the
   // control is as tall as a button and the title is its name and its tooltip.
-  const dense = useBarSize(props.isInDialog) !== undefined;
+  const dense = useBarSize() !== undefined;
 
   if (realOptions.length === 0) {
     return <></>;
@@ -1287,13 +1199,12 @@ function FilterFewOptionsCompactView<K>(props: FilterFewOptionsViewProps<K>) {
 interface FilterManyOptionsViewProps<K> {
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
-  isInDialog: boolean;
   orientation: "horizontal" | "vertical";
   action: FilterManyOptionsDesc<K>;
 }
 
 function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
-  const dense = useBarSize(props.isInDialog) !== undefined;
+  const dense = useBarSize() !== undefined;
   const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -1475,11 +1386,20 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
   );
 }
 
-// A select or an autocomplete in a bar is as tall as a small button.
+// A select or an autocomplete in a bar is as tall as a small button, to the
+// pixel: the theme's own height for an input is not for a bar.
 const BAR_INPUT_SX = {
-  minHeight: strataSize.controlSmall,
+  // `&&` beats the theme's rule for the height of an input.
+  "&&": {
+    height: strataSize.controlSmall,
+    minHeight: strataSize.controlSmall,
+  },
   fontSize: strataType.path.size,
-  "& .MuiOutlinedInput-root": { minHeight: strataSize.controlSmall },
+  "& .MuiOutlinedInput-root": {
+    height: strataSize.controlSmall,
+    minHeight: strataSize.controlSmall,
+    paddingBlock: 0,
+  },
   "& .MuiSelect-select.MuiSelect-select": {
     paddingBlock: 0,
     paddingLeft: "8px",
@@ -1570,9 +1490,9 @@ function visibleNavItems(
 }
 
 /** Controls in a bar are small; those in a dialog opened from it are not. */
-function useBarSize(isInDialog: boolean): "small" | undefined {
+function useBarSize(): "small" | undefined {
   const bar = useStrataBar();
-  return bar !== null && !isInDialog ? "small" : undefined;
+  return bar !== null ? "small" : undefined;
 }
 
 /**
@@ -1585,8 +1505,8 @@ function useShowsWholeText(): boolean {
   return isBigScreen || bar !== null;
 }
 
-function getRealText(text: string, isInDialog: boolean, isBigScreen: boolean) {
-  if (isBigScreen || isInDialog) {
+function getRealText(text: string, isBigScreen: boolean) {
+  if (isBigScreen) {
     return text;
   }
 

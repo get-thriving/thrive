@@ -240,11 +240,12 @@ def _selected_path(page: Page) -> str | None:
     return path
 
 
-def test_the_list_takes_the_open_item_along_with_j(
+def test_the_list_starts_from_the_open_item_and_opens_nothing_with_k(
     page: Page, habits_for_position: list[Habit]
 ) -> None:
-    # Open the last habit of the list, then go down the list from the top to the
-    # first: the open item is the one the selection is on, wherever it stops.
+    # Open the last habit of the list, then go up the list from it: the
+    # selection starts on the open item, goes through the others and opens none
+    # of them.
     _open(page, habits_for_position[0])
     paths = _list(page)
     page.goto(paths[-1])
@@ -254,14 +255,14 @@ def test_the_list_takes_the_open_item_along_with_j(
     page.locator("#strata-column-map button").nth(0).click()
     expect(page.locator("#trunk-panel")).to_have_attribute("data-focused", "true")
 
-    for _ in range(300):
-        page.keyboard.press("j")
-        if _selected_path(page) == paths[0]:
-            break
-    assert _selected_path(page) == paths[0]
+    page.keyboard.press("k")
+    assert _selected_path(page) == paths[-1]
+    page.keyboard.press("k")
+    assert _selected_path(page) == paths[-2]
 
-    # The open item followed, and the list kept the focus.
-    expect(page).to_have_url(re.compile(re.escape(paths[0]) + r"(\?.*)?$"))
+    # The open item stayed where it was, and the list kept the focus: `↵` is
+    # what opens.
+    expect(page).to_have_url(re.compile(re.escape(paths[-1]) + r"(\?.*)?$"))
     expect(page.locator("#trunk-panel")).to_have_attribute("data-focused", "true")
 
 
@@ -285,3 +286,26 @@ def test_a_phone_has_no_place(page: Page, habits_for_position: list[Habit]) -> N
     wait_for_hydration(page)
 
     expect(page.locator("[data-strata-position]")).to_have_count(0)
+
+
+def test_j_and_k_go_on_in_the_list_while_an_entity_with_sections_is_open(
+    page: Page, habits_for_position: list[Habit]
+) -> None:
+    # The stack of sections of the open entity must not take the keys of the
+    # list beside it: they used to put the selection back on the open item.
+    _open(page, habits_for_position[0])
+    paths = _list(page)
+    page.goto(paths[-1])
+    wait_for_hydration(page)
+
+    page.locator("#strata-column-map button").nth(0).click()
+    expect(page.locator("#trunk-panel")).to_have_attribute("data-focused", "true")
+
+    page.keyboard.press("k")
+    assert _selected_path(page) == paths[-1]
+    page.keyboard.press("k")
+    assert _selected_path(page) == paths[-2]
+    page.keyboard.press("k")
+    assert _selected_path(page) == paths[-3]
+    page.keyboard.press("j")
+    assert _selected_path(page) == paths[-2]

@@ -12,6 +12,13 @@ export interface StrataSectionsContextValue {
    * does and nothing moves when the page comes alive.
    */
   lendsToHeader: boolean;
+  /**
+   * Whether the fixed section asking is the one whose controls the header of
+   * the column draws: the first to ask, and only that one. A page that holds
+   * another stack's fixed section (an editor of another entity, say) leaves
+   * that one its own row.
+   */
+  claimLend: (sectionId: string) => boolean;
   /** Whether a section is collapsed now; some start collapsed, some open. */
   isCollapsed: (sectionId: string, startsCollapsed: boolean) => boolean;
   toggle: (sectionId: string, startsCollapsed: boolean) => void;

@@ -73,16 +73,15 @@ export function SectionCard(props: PropsWithChildren<SectionCardProps>) {
         // may be in, which sets their margins to nothing.
         "&&&": { marginLeft: "-0.5rem", marginRight: "-0.5rem" },
         position: "relative",
-        borderBottom: 1,
-        borderColor: "divider",
         pb: 1,
         "&::before": {
           content: '""',
           position: "absolute",
-          // Over the line under the section above, so the two are one 1px
-          // line, half the thickness of a column's, and not a 2px one. A
-          // string, as a bare 1 would be all of the height.
-          top: -1,
+          // Inside the section, not over the one above, which a column that
+          // scrolls it to its top would cut off. It is the only line between
+          // two sections: they have none under them. A string for the height,
+          // as a bare 1 would be all of it.
+          top: 0,
           left: 0,
           right: 0,
           height: "1px",

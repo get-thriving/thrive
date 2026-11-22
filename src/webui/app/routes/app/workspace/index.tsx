@@ -109,7 +109,7 @@ import type { StrataHandle } from "#/core/infra/strata/strata-handle";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
-  strata: { size: "FULL" } satisfies StrataHandle,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
   label: "Home",
 };
 

@@ -3,6 +3,7 @@ import type {
   StrataPlacedSlot,
 } from "#/core/infra/strata/strata-layout-for";
 import type { ColumnSpec } from "#/core/infra/strata/layout";
+import { strataSubjectsOf } from "#/core/infra/strata/strata-subjects-of";
 
 /**
  * The strip a panel next to the focused one folds into, at either edge: wide
@@ -15,6 +16,9 @@ export const PHONE_STRIP_PX = 14;
  * time, whole. The panel before it is a thin strip at the left edge and the one
  * after it one at the right edge, each saying what it is; every other panel
  * has no room at all. The strips only exist where there is a panel to go to.
+ * `path` is the route's panels with the sections split out of them, each after
+ * the panel it comes from (ADR 0021): a split is one more panel in the row, and
+ * is reached the same way, by its strip.
  */
 export function strataPhoneLayoutFor(
   path: ColumnSpec[],
@@ -28,6 +32,10 @@ export function strataPhoneLayoutFor(
   const childSliver = hasChild ? PHONE_STRIP_PX : 0;
   const focusedWidth = Math.max(0, width - parentStrip - childSliver);
 
+  const subjects = strataSubjectsOf(
+    path.map((panel) => panel.kind),
+    focusIndex,
+  );
   const slots: StrataPlacedSlot[] = path.map((panel, index) => {
     const base = {
       key: panel.key,
@@ -36,8 +44,8 @@ export function strataPhoneLayoutFor(
       focused: false,
       alone: path.length === 1,
       fullScreen: panel.size === "full",
-      subject: index,
-      inFocusedSubject: path.length > 1 && index === focusIndex,
+      subject: subjects.subject[index],
+      inFocusedSubject: path.length > 1 && subjects.inFocusedSubject[index],
     };
     if (index === focusIndex) {
       return {

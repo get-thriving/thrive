@@ -8,8 +8,9 @@ export interface StrataKeysContext {
   /**
    * What took the keys, if something did: hint mode, the map, the menu of apps,
    * the menu of new items, the menu of commands (which is searching a filter's many choices, or not),
-   * the find field, or the search dialog (with the focus in its query, or on
-   * one of its results).
+   * the find field, the search dialog (with the focus in its query, or on
+   * one of its results), or a dialog that asks to confirm an action, which
+   * `y` and `n` answer.
    */
   overlay:
     | "hints"
@@ -21,6 +22,7 @@ export interface StrataKeysContext {
     | "commands-search"
     | "search"
     | "search-results"
+    | "confirm"
     | null;
   /**
    * Where the user is typing: in a field, which `Escape` leaves, or in a dialog
@@ -61,6 +63,8 @@ export interface StrataKeysContext {
    * go to the one before and after it.
    */
   position: boolean;
+  /** The focused column can be made wider or narrower, which `i` and `u` do, and its `⋯` menu. */
+  resizable: boolean;
   /** The focused column has a menu, which `.` opens. */
   menu: boolean;
   /**

@@ -3,10 +3,14 @@ import type { RefObject } from "react";
 
 import { isTypingTarget } from "#/core/infra/component/layout/is-typing-target";
 import { strataItemKey } from "#/core/infra/component/layout/strata-item-key";
+import { strataResumeNavPosition } from "#/core/infra/component/layout/strata-nav-position";
 import { strataColumnSections } from "#/core/infra/component/layout/strata-map-columns";
 import { strataOpenItem } from "#/core/infra/component/layout/strata-open-item";
-import { strataSectionItems } from "#/core/infra/component/layout/strata-section-items";
-import { useStrataFollowItem } from "#/core/infra/component/layout/use-strata-follow-item";
+import {
+  strataFocusedItem,
+  strataSectionItems,
+} from "#/core/infra/component/layout/strata-section-items";
+import { useStrataAfterOpen } from "#/core/infra/component/layout/use-strata-after-open";
 import { useStrataKeyBindings } from "#/core/infra/component/use-strata-key-bindings";
 import { strataStackKeyAction } from "#/core/infra/strata/strata-stack-key";
 
@@ -21,13 +25,12 @@ import { strataStackKeyAction } from "#/core/infra/strata/strata-stack-key";
  * nothing there.
  *
  * `inside` is any element in the column; the column is the nearest one around
- * it. Moving through the items makes the item that is open beside the list
- * follow the selection (`useStrataFollowItem`).
+ * it. Moving through the items only selects: `↵` opens.
  */
 export function useStrataColumnItemKeys(
   inside: RefObject<HTMLElement | null>,
 ): void {
-  const follow = useStrataFollowItem();
+  const afterOpen = useStrataAfterOpen();
   const keyBindings = useStrataKeyBindings();
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -54,7 +57,16 @@ export function useStrataColumnItemKeys(
       if (strataColumnSections(column).length > 0) {
         return;
       }
-      if (strataItemKey(event, action, column, "column", follow)) {
+      // Back to the item they were on, and not the first one or the last.
+      if (
+        (action === "next" || action === "previous") &&
+        strataFocusedItem() === null &&
+        strataResumeNavPosition(column, action === "next" ? 1 : -1)
+      ) {
+        event.preventDefault();
+        return;
+      }
+      if (strataItemKey(event, action, column, "column", afterOpen)) {
         return;
       }
       // `↵` on the column itself, with nothing else to go into: its first item.
@@ -63,10 +75,11 @@ export function useStrataColumnItemKeys(
         if (first !== undefined) {
           event.preventDefault();
           strataOpenItem(first);
+          afterOpen(first);
         }
       }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [inside, follow, keyBindings]);
+  }, [inside, afterOpen, keyBindings]);
 }

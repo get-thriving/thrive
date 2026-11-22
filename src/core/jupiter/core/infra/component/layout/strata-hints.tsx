@@ -8,6 +8,7 @@ import { strataActivateHintTarget } from "#/core/infra/component/layout/strata-a
 import { strataHintColumnTitles } from "#/core/infra/component/layout/strata-hint-column-titles";
 import { strataHintTargets } from "#/core/infra/component/layout/strata-hint-targets";
 import { StrataLabelChip } from "#/core/infra/component/layout/strata-label-chip";
+import { useStrataNewTab } from "#/core/infra/component/layout/use-strata-new-tab";
 import {
   strataColors,
   strataFonts,
@@ -27,6 +28,8 @@ interface HintSession {
   targets: HTMLElement[];
   labels: string[];
   typed: string;
+  /** `⇧` was held for a letter: the place goes to a tab of its own. */
+  newTab: boolean;
 }
 
 /** Where a hint's label goes: the top left of what is seen of its element. */
@@ -82,6 +85,9 @@ export function StrataHints() {
   const keyBindings = useStrataKeyBindings();
   const theme = useTheme();
   const location = useLocation();
+  const newTab = useStrataNewTab();
+  const newTabRef = useRef(newTab);
+  newTabRef.current = newTab;
   const [session, setSession] = useState<HintSession | null>(null);
   const [positions, setPositions] = useState<HintPosition[]>([]);
   // The handler of keys reads the session as it is now, not as it was rendered.
@@ -122,6 +128,7 @@ export function StrataHints() {
           targets,
           labels: strataHintLabels(targets.length),
           typed: "",
+          newTab: false,
         });
         return;
       }
@@ -143,19 +150,20 @@ export function StrataHints() {
           return;
         case "letter": {
           const typed = now.typed + action.letter;
+          const newTab = now.newTab || (newTabRef.current && action.shift);
           const progress = strataHintProgress(now.labels, typed);
           if (progress.matching.length === 0) {
             return;
           }
           if (progress.chosen === null) {
-            change({ ...now, typed });
+            change({ ...now, typed, newTab });
             return;
           }
           // The mode is over before the element is acted on, so what the
           // action opens finds a page without labels.
           const element = now.targets[progress.chosen];
           exit();
-          strataActivateHintTarget(element);
+          strataActivateHintTarget(element, { newTab });
           return;
         }
         case "ignore":
@@ -302,10 +310,14 @@ export function StrataHints() {
         }}
       >
         <Box component="span" sx={{ color: strataColors.amber }}>
-          Go to
+          {session.newTab ? "Go to, new tab" : "Go to"}
         </Box>
         <Box component="span">
-          {session.typed === "" ? "type a label" : session.typed}
+          {session.typed === ""
+            ? newTab
+              ? "type a label, ⇧ for a new tab"
+              : "type a label"
+            : session.typed}
         </Box>
       </Box>
     </Box>,

@@ -39,7 +39,7 @@ export interface ColumnSpec {
   /** Stable id: the route id for route columns, `split:<id>` for split and view columns. */
   key: string;
   kind: ColumnKind;
-  size: ColumnSize;
+  size: ColumnSize | number;
   /** May take spare units, growing to the right. */
   grow?: boolean;
 }

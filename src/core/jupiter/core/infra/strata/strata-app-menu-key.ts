@@ -31,8 +31,8 @@ export type StrataAppMenuKeyAction =
   | { kind: "leave" }
   /** Take back the last letter. */
   | { kind: "back" }
-  /** A letter of a label. */
-  | { kind: "letter"; letter: string }
+  /** A letter of a label; with `⇧` it asks for the place in a tab of its own. */
+  | { kind: "letter"; letter: string; shift: boolean }
   /** Nothing, but the key stays out of the page behind the menu. */
   | { kind: "ignore" };
 
@@ -60,7 +60,11 @@ export function strataAppMenuKeyAction(
     return { kind: "back" };
   }
   if (/^[a-zA-Z]$/.test(event.key)) {
-    return { kind: "letter", letter: event.key.toLowerCase() };
+    return {
+      kind: "letter",
+      letter: event.key.toLowerCase(),
+      shift: event.shiftKey,
+    };
   }
   return { kind: "ignore" };
 }

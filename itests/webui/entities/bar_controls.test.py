@@ -18,7 +18,7 @@ _WIDE: ViewportSize = {"width": 1920, "height": 1000}
 _PHONE: ViewportSize = {"width": 390, "height": 844}
 _HABITS = "/app/workspace/apps/habits/habits"
 # The height of a small button, in px (`strataSize.controlSmall`).
-_SMALL = 26
+_SMALL = 24
 # The row of the header of a column, and of a section (`strataSize.columnHeader`).
 _COLUMN_HEADER = 36
 
@@ -76,18 +76,23 @@ def test_the_filters_of_a_list_are_in_its_header(page: Page) -> None:
     expect(page.locator("#trunk-panel [data-strata-toolbar]")).to_have_count(0)
 
 
-def test_filters_that_do_not_fit_fold_into_one_button(page: Page) -> None:
+def test_filters_that_do_not_fit_fold_into_the_menu(page: Page) -> None:
     page.set_viewport_size(_PHONE)
     page.goto(_HABITS)
     wait_for_hydration(page)
 
     header = page.locator("#trunk-panel [data-strata-header]")
-    more = header.get_by_role("button", name="More actions")
-    expect(more).to_be_visible()
-    # What is behind the button is as it always was: labelled, at full size.
-    more.click()
-    dialog = page.get_by_role("dialog")
-    expect(dialog.get_by_text("Grouping").first).to_be_visible()
+    # No second button for them: the one of the header is the menu of the column.
+    expect(header.get_by_role("button", name="More actions")).to_have_count(0)
+    # The first control stays.
+    expect(header.get_by_role("link", name="New")).to_be_visible()
+    header.get_by_role("button", name="Menu").click()
+    # They are entries like the others of the menu, before the commands of the
+    # column, and a filter opens its choices under it.
+    menu = page.get_by_role("menu")
+    expect(menu.get_by_role("menuitem", name="Groups")).to_be_visible()
+    menu.get_by_role("menuitem", name="Groups").click()
+    expect(menu.get_by_role("menuitem", name="Show all")).to_be_visible()
 
 
 def test_controls_that_partly_fit_are_spread_out_and_the_rest_fold(
@@ -98,7 +103,8 @@ def test_controls_that_partly_fit_are_spread_out_and_the_rest_fold(
     wait_for_hydration(page)
 
     header = page.locator("#trunk-panel [data-strata-header]")
-    # The first ones are in the bar, and only the last ones are in the button.
+    # The first ones are in the bar, and only the last ones are in the menu.
     expect(header.get_by_role("link", name="New")).to_be_visible()
     expect(header.get_by_role("combobox", name="Grouping")).to_be_visible()
-    expect(header.get_by_role("button", name="More actions")).to_be_visible()
+    expect(header.get_by_role("button", name="More actions")).to_have_count(0)
+    expect(header.get_by_role("button", name="Menu")).to_be_visible()

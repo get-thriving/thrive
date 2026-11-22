@@ -22,7 +22,6 @@ import {
   ButtonSingle,
   NavSingle,
   SectionActions,
-  ActionsExpansion,
 } from "@jupiter/core/infra/component/section-actions";
 import { noErrorSomeData } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
@@ -93,7 +92,6 @@ export default function NewApiKey() {
             id="api-key-create"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
-            expansion={created ? ActionsExpansion.ALWAYS_SHOW : undefined}
             actions={
               created
                 ? [

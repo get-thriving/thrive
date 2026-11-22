@@ -35,6 +35,7 @@ import { strataLayoutWithSplits } from "#/core/infra/strata/strata-layout-for";
 import { isStrataMenuKey } from "#/core/infra/strata/strata-menu-key";
 import { strataScrollKeyAction } from "#/core/infra/strata/strata-scroll-key";
 import {
+  strataColumnsWithSplits,
   strataSplitIdOf,
   strataSplitKey,
 } from "#/core/infra/strata/strata-columns-with-splits";
@@ -43,6 +44,17 @@ import { StrataSplitColumn } from "#/core/infra/component/layout/strata-split-co
 import { strataPhoneLayoutFor } from "#/core/infra/strata/strata-phone-layout-for";
 import type { StrataLevel } from "#/core/infra/strata/strata-level";
 import { strataLevelOf } from "#/core/infra/strata/strata-level-of";
+import {
+  useStrataColumnDeltas,
+  strataSetColumnDelta,
+} from "#/core/infra/component/layout/strata-column-sizes";
+import {
+  strataCanResize,
+  strataResizedDelta,
+  strataResizedSize,
+} from "#/core/infra/strata/strata-column-resize";
+import type { StrataResizeDirection } from "#/core/infra/strata/strata-column-resize";
+import { strataResizeDirection } from "#/core/infra/strata/strata-resize-key";
 import { useStrataPath } from "#/core/infra/strata/use-strata-path";
 
 // A section split out into a column of its own is kept in the URL as
@@ -162,23 +174,36 @@ export function StrataColumnsProvider(
     return keys;
   }, [matches]);
 
+  // The sizes the user gave to columns, kept in the browser.
+  const deltas = useStrataColumnDeltas();
+
   // What is laid out: the columns on screen, in order, which of them is
-  // focused, and which splits are shown. A small screen has no splits:
-  // sections stay inline.
+  // focused, and which splits are shown.
   const view = useMemo(() => {
     if (path.length === 0) {
       return null;
     }
     if (props.phone) {
-      const focus = Math.max(
-        0,
-        path.findIndex((panel) => panel.key === focusKey),
-      );
+      // The splits are columns of the row as they are elsewhere, one after the
+      // panel they come from; a phone shows one of them at a time, with strips
+      // for the neighbours on either side.
+      const active = wanted.filter((id) => splitSpecs.has(id));
+      const phoneColumns = strataColumnsWithSplits(path, splitSpecs, active);
+      const found = phoneColumns.findIndex((panel) => panel.key === focusKey);
+      const focus =
+        found >= 0
+          ? found
+          : Math.max(
+              0,
+              phoneColumns.findIndex(
+                (panel) => panel.key === path[path.length - 1]?.key,
+              ),
+            );
       return {
-        layout: strataPhoneLayoutFor(path, focus, windowWidth),
-        columns: path,
+        layout: strataPhoneLayoutFor(phoneColumns, focus, windowWidth),
+        columns: phoneColumns,
         focus,
-        active: [] as string[],
+        active,
       };
     }
     const result = strataLayoutWithSplits({
@@ -188,6 +213,7 @@ export function StrataColumnsProvider(
       focusKey,
       width: windowWidth,
       rail: props.offsetLeft,
+      resized: deltas,
     });
     return {
       layout: result,
@@ -203,6 +229,7 @@ export function StrataColumnsProvider(
     props.phone,
     splitSpecs,
     wanted,
+    deltas,
   ]);
   const layout = view?.layout ?? null;
   const columns = view?.columns ?? path;
@@ -254,11 +281,72 @@ export function StrataColumnsProvider(
     [path, focusColumn],
   );
 
+  // What each column declares, to resize it from: its route's size, or the
+  // one its splits ask of it.
+  const declaredSizes = useMemo(() => {
+    const active = wanted.filter((id) => splitSpecs.has(id));
+    return new Map(
+      strataColumnsWithSplits(path, splitSpecs, active).map(
+        (column) => [column.key, column.size] as const,
+      ),
+    );
+  }, [path, splitSpecs, wanted]);
+
+  const canResizeColumn = useCallback(
+    (key: string, direction: StrataResizeDirection) => {
+      const declared = declaredSizes.get(key);
+      return (
+        !props.phone &&
+        declared !== undefined &&
+        strataCanResize(declared, deltas.get(key) ?? 0, direction)
+      );
+    },
+    [declaredSizes, deltas, props.phone],
+  );
+
+  const resizeColumn = useCallback(
+    (key: string, direction: StrataResizeDirection) => {
+      const declared = declaredSizes.get(key);
+      if (declared === undefined || !canResizeColumn(key, direction)) {
+        return false;
+      }
+      strataSetColumnDelta(
+        key,
+        strataResizedDelta(declared, deltas.get(key) ?? 0, direction),
+      );
+      return true;
+    },
+    [declaredSizes, deltas, canResizeColumn],
+  );
+
+  const resetColumnSize = useCallback((key: string) => {
+    strataSetColumnDelta(key, 0);
+  }, []);
+
+  const isColumnResized = useCallback(
+    (key: string) => {
+      const declared = declaredSizes.get(key);
+      return (
+        declared !== undefined &&
+        strataResizedSize(declared, deltas.get(key) ?? 0) !== declared
+      );
+    },
+    [declaredSizes, deltas],
+  );
+
   const focusOut = useCallback(() => {
     if (focusIndex <= 0) {
       return false;
     }
     focusColumn(columns[focusIndex - 1].key);
+    return true;
+  }, [focusIndex, columns, focusColumn]);
+
+  const focusIn = useCallback(() => {
+    if (focusIndex >= columns.length - 1) {
+      return false;
+    }
+    focusColumn(columns[focusIndex + 1].key);
     return true;
   }, [focusIndex, columns, focusColumn]);
 
@@ -352,6 +440,26 @@ export function StrataColumnsProvider(
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [columns, focusIndex, focusColumn, keyBindings]);
+
+  // `u` and `i` (the keys of the narrower and the wider column) resize the
+  // focused column, between the least and the most a column may be.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const direction = strataResizeDirection(
+        event,
+        isTypingTarget(event.target),
+        keyBindings,
+      );
+      const column = columns[focusIndex];
+      if (direction === null || column === undefined) {
+        return;
+      }
+      event.preventDefault();
+      resizeColumn(column.key, direction);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [columns, focusIndex, resizeColumn, keyBindings]);
 
   // `Home` and `⇧k`, `End` and `⇧j`, scroll the focused column to its top and
   // to its bottom, in every kind of column.
@@ -456,6 +564,11 @@ export function StrataColumnsProvider(
       phone: props.phone,
       position: { index: focusIndex, count: columns.length },
       focusOut,
+      focusIn,
+      canResizeColumn,
+      resizeColumn,
+      resetColumnSize,
+      isColumnResized,
     }),
     [
       columnFor,
@@ -473,6 +586,11 @@ export function StrataColumnsProvider(
       focusIndex,
       columns.length,
       focusOut,
+      focusIn,
+      canResizeColumn,
+      resizeColumn,
+      resetColumnSize,
+      isColumnResized,
     ],
   );
 
@@ -490,28 +608,27 @@ export function StrataColumnsProvider(
       <StrataFind />
       <StrataKeysHelp />
       <StrataFooter />
-      {!props.phone &&
-        layout?.slots.map((slot) => {
-          const id = strataSplitIdOf(slot.key);
-          const spec = id === null ? undefined : splitSpecs.get(id);
-          if (id === null || spec === undefined) {
-            return null;
-          }
-          return (
-            <StrataSplitColumn
-              key={slot.key}
-              id={id}
-              title={spec.title}
-              view={spec.view === true}
-              column={slot}
-              offsetLeft={props.offsetLeft}
-              animate={animate}
-              onFocus={() => focusColumn(slot.key)}
-              onFold={() => folders.current.get(id)?.()}
-              setHost={setHost}
-            />
-          );
-        })}
+      {layout?.slots.map((slot) => {
+        const id = strataSplitIdOf(slot.key);
+        const spec = id === null ? undefined : splitSpecs.get(id);
+        if (id === null || spec === undefined) {
+          return null;
+        }
+        return (
+          <StrataSplitColumn
+            key={slot.key}
+            id={id}
+            title={spec.title}
+            view={spec.view === true}
+            column={slot}
+            offsetLeft={props.offsetLeft}
+            animate={animate}
+            onFocus={() => focusColumn(slot.key)}
+            onFold={() => folders.current.get(id)?.()}
+            setHost={setHost}
+          />
+        );
+      })}
       {layout?.gutters.map((gutter) => (
         <StrataEmptySlot
           key={gutter.side}

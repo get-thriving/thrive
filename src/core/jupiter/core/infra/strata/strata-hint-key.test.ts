@@ -64,10 +64,13 @@ describe("strataHintKeyAction", () => {
     expect(strataHintKeyAction(key("d"))).toEqual({
       kind: "letter",
       letter: "d",
+      shift: false,
     });
+    // `⇧` is told apart, as it asks for a tab of its own.
     expect(strataHintKeyAction(key("D", { shiftKey: true }))).toEqual({
       kind: "letter",
       letter: "d",
+      shift: true,
     });
   });
 
@@ -75,6 +78,7 @@ describe("strataHintKeyAction", () => {
     expect(strataHintKeyAction(key("s"))).toEqual({
       kind: "letter",
       letter: "s",
+      shift: false,
     });
   });
 

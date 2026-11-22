@@ -34,6 +34,7 @@ export const STRATA_QUIET_KEYS_CONTEXT: StrataKeysContext = {
   targets: 0,
   scrolls: false,
   position: false,
+  resizable: false,
   menu: false,
   commands: false,
   closable: false,
@@ -63,6 +64,10 @@ function overlayOnPage(): StrataKeysContext["overlay"] {
       active.closest("[data-strata-search-results]") !== null
       ? "search-results"
       : "search";
+  }
+  // A dialog that asks to confirm is modal too: it is on top of everything.
+  if (document.querySelector("[data-strata-confirm]") !== null) {
+    return "confirm";
   }
   if (document.querySelector("[data-strata-hints]") !== null) {
     return "hints";
@@ -158,6 +163,7 @@ export function strataKeysContextFromPage(
     targets,
     scrolls: strataColumnScrolls(frame),
     position: strataColumnControl(frame, "[data-strata-position]") !== null,
+    resizable: strataColumnControl(frame, "[data-strata-resizable]") !== null,
     menu: strataColumnControl(frame, "[data-strata-menu]") !== null,
     commands: strataColumnHasCommands(frame),
     closable: strataColumnControl(frame, "[data-strata-close]") !== null,

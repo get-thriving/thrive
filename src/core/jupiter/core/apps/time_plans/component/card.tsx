@@ -59,9 +59,6 @@ export function TimePlanCard(props: TimePlanCardProps) {
       allowSwipe={props.allowSwipe}
       allowSelect={props.allowSelect}
       allowMarkNotDone={props.allowMarkNotDone}
-      // Beside the plan that things are added to, the cards pick which other
-      // plan to show: walking through them does not load each one.
-      follow={props.relativeToTimePlan === undefined}
       selected={props.selected}
       onClick={
         props.onClick

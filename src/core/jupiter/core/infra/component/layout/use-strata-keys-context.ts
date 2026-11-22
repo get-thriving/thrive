@@ -25,6 +25,7 @@ function sameContext(a: StrataKeysContext, b: StrataKeysContext): boolean {
     a.targets === b.targets &&
     a.scrolls === b.scrolls &&
     a.position === b.position &&
+    a.resizable === b.resizable &&
     a.menu === b.menu &&
     a.closable === b.closable
   );

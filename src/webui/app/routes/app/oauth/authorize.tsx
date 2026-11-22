@@ -23,7 +23,6 @@ import {
 } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
-  ActionsExpansion,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
@@ -169,7 +168,6 @@ export default function OAuthAuthorize() {
               id="oauth-authorize"
               topLevelInfo={EMPTY_CONTEXT}
               inputsEnabled={inputsEnabled}
-              expansion={ActionsExpansion.ALWAYS_SHOW}
               actions={[
                 ActionSingle({
                   text: "Allow",

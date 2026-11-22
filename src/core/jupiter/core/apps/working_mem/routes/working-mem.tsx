@@ -14,7 +14,6 @@ import { EntityNoteEditor } from "#/core/infra/component/entity-note-editor";
 import { makeTrunkErrorBoundary } from "#/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { NestedOutlet } from "#/core/infra/component/layout/nested-outlet";
-import { ToolPanel } from "#/core/infra/component/layout/tool-panel";
 import { EntityPanel } from "#/core/infra/component/layout/entity-panel";
 import {
   SectionActions,
@@ -47,7 +46,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 
 export const handle = {
   displayType: DisplayType.TRUNK,
-  strata: { size: "FULL" } satisfies StrataHandle,
+  strata: { size: "B", grow: true } satisfies StrataHandle,
   label: strataTrunkLabel,
 };
 
@@ -132,14 +131,12 @@ export default function WorkingMem() {
       }
     >
       <NestingAwareBlock>
-        <ToolPanel>
-          <SectionCard title="Working Mem">
-            <EntityNoteEditor
-              initialNote={loaderData.entry.note}
-              inputsEnabled={inputsEnabled}
-            />
-          </SectionCard>
-        </ToolPanel>
+        <SectionCard title="Working Mem">
+          <EntityNoteEditor
+            initialNote={loaderData.entry.note}
+            inputsEnabled={inputsEnabled}
+          />
+        </SectionCard>
       </NestingAwareBlock>
 
       <NestedOutlet />

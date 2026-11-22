@@ -1,5 +1,6 @@
 import { createContext } from "react";
 
+import type { StrataResizeDirection } from "#/core/infra/strata/strata-column-resize";
 import type { StrataSplitSpec } from "#/core/infra/strata/strata-split-spec";
 import type { StrataLevel } from "#/core/infra/strata/strata-level";
 import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
@@ -60,6 +61,24 @@ export interface StrataColumnsApi {
    * nothing happens, when the focused panel is the first.
    */
   focusOut: () => boolean;
+  /**
+   * Show the column after the focused one, as an item opened in a list does
+   * when it replaces what is open there. False, and nothing happens, when the
+   * focused column is the last.
+   */
+  focusIn: () => boolean;
+  /**
+   * Whether the column with this key can be made wider (1) or narrower (-1)
+   * than it is: it is not at the most or the least a column may be, nor the
+   * whole screen, and this is not a phone.
+   */
+  canResizeColumn: (key: string, direction: StrataResizeDirection) => boolean;
+  /** Make a column one unit wider or narrower; false if it could not be. */
+  resizeColumn: (key: string, direction: StrataResizeDirection) => boolean;
+  /** Give a column back the size its route declares. */
+  resetColumnSize: (key: string) => void;
+  /** Whether the user gave the column a size other than the declared one. */
+  isColumnResized: (key: string) => boolean;
 }
 
 /**

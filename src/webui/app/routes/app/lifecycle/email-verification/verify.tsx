@@ -32,7 +32,6 @@ import {
   validationErrorToUIErrorInfo,
 } from "@jupiter/core/infra/action-result";
 import {
-  ActionsExpansion,
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
@@ -195,7 +194,6 @@ export default function EmailVerificationVerify() {
               id="email-verification-verify"
               topLevelInfo={EMPTY_CONTEXT}
               inputsEnabled={inputsEnabled}
-              expansion={ActionsExpansion.ALWAYS_SHOW}
               actions={[
                 ActionSingle({
                   text: "Verify",

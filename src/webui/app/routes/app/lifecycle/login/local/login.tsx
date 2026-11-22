@@ -30,7 +30,6 @@ import {
   ActionSingle,
   NavSingle,
   NavMultipleCompact,
-  ActionsExpansion,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
@@ -141,7 +140,6 @@ export default function Login() {
               id="login"
               topLevelInfo={EMPTY_CONTEXT}
               inputsEnabled={inputsEnabled}
-              expansion={ActionsExpansion.ALWAYS_SHOW}
               actions={[
                 ActionSingle({
                   text: "Login",

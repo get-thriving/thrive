@@ -26,7 +26,9 @@ it is always accurate even when this page is not.
 The one-letter keys stay out of the way of typing. They do not work:
 
 * while you are typing in a field (press `Esc` to leave the field first);
-* while a dialog or a menu is open, which keep their own `Esc`;
+* while a dialog or a menu is open, which keep their own `Esc`. The dialog that
+  asks you to confirm archiving or deleting an entity also takes `y` for yes and
+  `n` for no, and the footer lists them;
 * with the `Ctrl`, `Alt` or `Cmd` key held down, so browser shortcuts such as
   reload keep working.
 
@@ -43,12 +45,25 @@ focus, marked with an amber line along its top.
 | --- | --- |
 | `h` | Focus the column to the left |
 | `l` | Focus the column to the right |
+| `u` | Make the focused column narrower |
+| `i` | Make the focused column wider |
 | `.` | Open the menu of the focused column (the `⋯` menu) |
 | `Esc` | Close the focused column, or go back, see [Going Back](#going-back-with-esc) |
 | `Home` or `⇧k` | Scroll the focused column to its top |
 | `End` or `⇧j` | Scroll the focused column to its bottom |
 
 `Home` and `End` always scroll, even if you give `⇧k` and `⇧j` other keys.
+
+### Making A Column Wider Or Narrower
+
+Every column opens at the size its page gives it. `i` makes the focused column
+one unit wider and `u` one unit narrower (a unit is a little under 190px). A
+column never goes below two units, or what its page gives it if that is less,
+and never above five. The same is in the `⋯` menu of the column (**Wider**,
+**Narrower** and **Default size**). The size you choose is kept in this browser, for each kind of
+column, so it is there when you come back. **Default size** gives a column back
+the size its page gave it. A column that is the whole window is not resized, and
+neither is anything on a phone.
 
 ### Sections And Items
 
@@ -67,6 +82,10 @@ and cannot be collapsed or split out.
 | `⇧c` | Fold a split column back into its section |
 
 `j` and `k` stop at the ends of the stack or the list; they do not wrap around.
+When you come back to a column, or reload the page, `j` and `k` from the column
+go on from the section or item you were on, which stays marked in amber while you are
+elsewhere: one press moves to the next or the previous one, and they do not start
+from the top again. Scrolling the column to its top starts them from the first one.
 Columns that are a list themselves, such as the first column of an app, work the
 same way, but their items belong to the column rather than to a section.
 
@@ -125,7 +144,9 @@ so you can tell where a label goes.
 
 Typing a label does what clicking would: a field gets the focus with the caret
 at the end of its text, a select or a date opens its picker, and a button or link
-is pressed. Things that are disabled, hidden, collapsed or covered are not
+is pressed. Hold `⇧` while you type a label (any letter of it) to open a link in
+a new tab instead, on a computer in a browser; what leads nowhere is done as
+always. Things that are disabled, hidden, collapsed or covered are not
 labelled. The rail, the top bar and the footer are not labelled either: they
 have the keys `q`, `x`, `n` and `⌘K`.
 
@@ -146,7 +167,9 @@ It does not open when there is nothing to jump to.
 `q` opens a menu with three sections: the apps your workspace has enabled, the
 support and shared pages (Tools, Core and so on), and what is on the right of
 the top bar (account, access, settings, and so on). Every entry has a letter or
-two taken from its name. Typing them goes there.
+two taken from its name. Typing them goes there. Hold `⇧` while you type the
+label (any letter of it) to open the page in a new tab instead, on a computer in
+a browser; on a phone and in the apps there are no tabs to open.
 
 ![Apps: every app and tool, each with its own two letter key](../assets/keyboard-apps.png "Apps: every app and tool, each with its own two letter key")
 

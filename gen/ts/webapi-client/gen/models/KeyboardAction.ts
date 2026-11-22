@@ -12,6 +12,8 @@
 export enum KeyboardAction {
     COLUMN_PREVIOUS = 'column-previous',
     COLUMN_NEXT = 'column-next',
+    COLUMN_NARROWER = 'column-narrower',
+    COLUMN_WIDER = 'column-wider',
     NEXT = 'next',
     PREVIOUS = 'previous',
     OPEN = 'open',
