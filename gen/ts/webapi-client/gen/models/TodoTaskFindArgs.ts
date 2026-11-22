@@ -3,11 +3,13 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { EntityId } from './EntityId';
+import type { Timestamp } from './Timestamp';
 /**
  * TodoTaskFind args.
  */
 export type TodoTaskFindArgs = {
     allow_archived?: (boolean | null);
+    filter_finished_after?: (Timestamp | null);
     include_tags?: (boolean | null);
     include_contacts?: (boolean | null);
     include_locations?: (boolean | null);

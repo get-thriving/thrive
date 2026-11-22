@@ -127,6 +127,7 @@ class SqliteInboxTaskRepository(
         ) = False,
         filter_ref_ids: Iterable[EntityId] | None = None,
         filter_status: Iterable[InboxTaskStatus] | NoFilter = NO_FILTER,
+        filter_completed_after: Timestamp | NoFilter = NO_FILTER,
     ) -> list[InboxTask]:
         """Find inbox tasks matching any owner prefix ``type:purpose:``."""
         prefixes = [
@@ -147,6 +148,10 @@ class SqliteInboxTaskRepository(
             query_stmt = query_stmt.where(
                 self._table.c.status.in_(s.value for s in filter_status),
             )
+        if not isinstance(filter_completed_after, NoFilter):
+            query_stmt = query_stmt.where(
+                self._table.c.completed_time.is_not(None)
+            ).where(self._table.c.completed_time >= filter_completed_after.the_ts)
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))

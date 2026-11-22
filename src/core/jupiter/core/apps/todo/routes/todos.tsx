@@ -15,6 +15,7 @@ import type { DragStart, DropResult } from "@hello-pangea/dnd";
 import { DragDropContext } from "@hello-pangea/dnd";
 import FlareIcon from "@mui/icons-material/Flare";
 import ViewKanbanIcon from "@mui/icons-material/ViewKanban";
+import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import { Grid, Tab, Tabs, Typography } from "@mui/material";
 import type {
@@ -22,6 +23,7 @@ import type {
   ShouldRevalidateFunction,
 } from "react-router";
 import { useFetcher } from "react-router";
+import { DateTime } from "luxon";
 import { Fragment, useContext, useState } from "react";
 
 import { EntityNameComponent } from "#/core/common/component/entity-name";
@@ -59,6 +61,8 @@ import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
 } from "#/core/common/sub/inbox_tasks/root";
+import { TODO_BOARD_ARCHIVE_WINDOW_DAYS } from "#/core/apps/todo/board-done-groups";
+import { TodoBoard } from "#/core/apps/todo/components/board";
 import { InboxTaskKanbanBoard } from "#/core/common/sub/inbox_tasks/component/kanban-board";
 import {
   SmallScreenKanban,
@@ -94,21 +98,46 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.todo.todoTaskFind({
-    allow_archived: false,
-    include_notes: false,
-    include_life_plan: true,
-    include_contacts: true,
-    include_locations: true,
-    include_inbox_tasks: true,
-  });
 
-  const allContacts = await apiClient.contacts.contactFind({
-    allow_archived: false,
-  });
+  // The board's done column also shows what was finished in the last seven
+  // days, archived or not. There can be tens of thousands of archived todos, so
+  // that is asked for on its own, with the finished-date cut made by the API.
+  // The user's timezone is not known here, so ask for a day more than seven and
+  // let the board make the exact cut, which is what needs the timezone.
+  const finishedSince = DateTime.now()
+    .toUTC()
+    .minus({ days: TODO_BOARD_ARCHIVE_WINDOW_DAYS + 1 })
+    .toISO();
+
+  const [response, recentlyFinishedResponse, allContacts] = await Promise.all([
+    apiClient.todo.todoTaskFind({
+      allow_archived: false,
+      include_notes: false,
+      include_life_plan: true,
+      include_contacts: true,
+      include_locations: true,
+      include_inbox_tasks: true,
+    }),
+    apiClient.todo.todoTaskFind({
+      allow_archived: true,
+      filter_finished_after: finishedSince,
+      include_notes: false,
+      include_life_plan: false,
+      include_contacts: true,
+      include_locations: true,
+      include_inbox_tasks: true,
+    }),
+    apiClient.contacts.contactFind({
+      allow_archived: false,
+    }),
+  ]);
 
   return {
     entries: response.entries,
+    // The ones that are not archived are in `entries` already.
+    archivedEntries: recentlyFinishedResponse.entries.filter(
+      (entry) => entry.todo_task.archived,
+    ),
     allContacts: allContacts.contacts as Array<Contact>,
   };
 }
@@ -121,6 +150,7 @@ enum View {
   LIST = "list",
   KANBAN_BY_EISEN = "kanban-by-eisen",
   KANBAN = "kanban",
+  BOARD = "board",
 }
 
 const EISENS = [
@@ -161,14 +191,19 @@ export default function Todos() {
 
   const entries = loaderData.entries as Array<TodoTaskFindResultEntry>;
 
-  const filteredEntries = entries.filter((entry) => {
-    const contactsOk =
+  function matchesSelectedContacts(entry: TodoTaskFindResultEntry): boolean {
+    return (
       selectedContactsRefId.length === 0 ||
       entry.contacts?.some((contact: Contact) =>
         selectedContactsRefId.includes(contact.ref_id),
-      );
-    return contactsOk;
-  });
+      )
+    );
+  }
+
+  const filteredEntries = entries.filter(matchesSelectedContacts);
+  const filteredArchivedEntries = (
+    loaderData.archivedEntries as Array<TodoTaskFindResultEntry>
+  ).filter(matchesSelectedContacts);
 
   const sortedTodoTasks: Array<TodoTask> = [...filteredEntries]
     .sort((a, b) => a.todo_task.name.localeCompare(b.todo_task.name))
@@ -192,6 +227,39 @@ export default function Todos() {
       accessStatus: entry.access_status,
       location: entry.location ?? undefined,
     };
+  }
+
+  const archivedInboxTasks = filteredArchivedEntries.map(
+    (entry) => entry.inbox_task as InboxTask,
+  );
+  const boardMoreInfoByRefId: { [key: string]: InboxTaskParent } = {
+    ...moreInfoByRefId,
+  };
+  for (const entry of filteredArchivedEntries) {
+    boardMoreInfoByRefId[(entry.inbox_task as InboxTask).ref_id] = {
+      todoTask: entry.todo_task,
+      owner: entry.owner,
+      accessStatus: entry.access_status,
+      location: entry.location ?? undefined,
+    };
+  }
+
+  function handleBoardMove(it: InboxTask, status: InboxTaskStatus) {
+    setOptimisticUpdates((oldOptimisticUpdates) => ({
+      ...oldOptimisticUpdates,
+      [it.ref_id]: {
+        status,
+        eisen: oldOptimisticUpdates[it.ref_id]?.eisen ?? it.eisen,
+      },
+    }));
+
+    kanbanBoardMoveFetcher.submit(
+      { id: it.ref_id, status },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
   }
 
   function onDragStart(start: DragStart) {
@@ -352,6 +420,11 @@ export default function Todos() {
                   text: "Kanban",
                   icon: <ViewKanbanIcon />,
                 },
+                {
+                  value: View.BOARD,
+                  text: "Board",
+                  icon: <ViewColumnIcon />,
+                },
               ],
               (view) => setFilters({ view }),
             ),
@@ -509,6 +582,20 @@ export default function Todos() {
             />
           </>
         )}
+
+        {selectedView === View.BOARD &&
+          (sortedTodoInboxTasks.length > 0 ||
+            archivedInboxTasks.length > 0) && (
+            <TodoBoard
+              topLevelInfo={topLevelInfo}
+              inboxTasks={sortedTodoInboxTasks}
+              archivedInboxTasks={archivedInboxTasks}
+              moreInfoByRefId={boardMoreInfoByRefId}
+              optimisticUpdates={optimisticUpdates}
+              actionableTime={selectedActionableTime}
+              onMove={handleBoardMove}
+            />
+          )}
 
         {selectedView === View.KANBAN &&
           sortedTodoInboxTasks.length > 0 &&

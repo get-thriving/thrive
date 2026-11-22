@@ -17,6 +17,7 @@ class TodoTaskFindArgs:
 
     Attributes:
         allow_archived (bool | None | Unset):
+        filter_finished_after (None | str | Unset):
         include_tags (bool | None | Unset):
         include_contacts (bool | None | Unset):
         include_locations (bool | None | Unset):
@@ -28,6 +29,7 @@ class TodoTaskFindArgs:
     """
 
     allow_archived: bool | None | Unset = UNSET
+    filter_finished_after: None | str | Unset = UNSET
     include_tags: bool | None | Unset = UNSET
     include_contacts: bool | None | Unset = UNSET
     include_locations: bool | None | Unset = UNSET
@@ -44,6 +46,12 @@ class TodoTaskFindArgs:
             allow_archived = UNSET
         else:
             allow_archived = self.allow_archived
+
+        filter_finished_after: None | str | Unset
+        if isinstance(self.filter_finished_after, Unset):
+            filter_finished_after = UNSET
+        else:
+            filter_finished_after = self.filter_finished_after
 
         include_tags: bool | None | Unset
         if isinstance(self.include_tags, Unset):
@@ -104,6 +112,8 @@ class TodoTaskFindArgs:
         field_dict.update({})
         if allow_archived is not UNSET:
             field_dict["allow_archived"] = allow_archived
+        if filter_finished_after is not UNSET:
+            field_dict["filter_finished_after"] = filter_finished_after
         if include_tags is not UNSET:
             field_dict["include_tags"] = include_tags
         if include_contacts is not UNSET:
@@ -135,6 +145,15 @@ class TodoTaskFindArgs:
             return cast(bool | None | Unset, data)
 
         allow_archived = _parse_allow_archived(d.pop("allow_archived", UNSET))
+
+        def _parse_filter_finished_after(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        filter_finished_after = _parse_filter_finished_after(d.pop("filter_finished_after", UNSET))
 
         def _parse_include_tags(data: object) -> bool | None | Unset:
             if data is None:
@@ -226,6 +245,7 @@ class TodoTaskFindArgs:
 
         todo_task_find_args = cls(
             allow_archived=allow_archived,
+            filter_finished_after=filter_finished_after,
             include_tags=include_tags,
             include_contacts=include_contacts,
             include_locations=include_locations,

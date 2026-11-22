@@ -5,12 +5,20 @@ import { difficultyName } from "#/core/common/difficulty";
 
 interface Props {
   difficulty: Difficulty;
+  /** Outlined, with the colour as the text, for where chips are many. */
+  outlined?: boolean;
 }
 
 export function DifficultyTag(props: Props) {
   const tagName = difficultyName(props.difficulty);
   const tagClass = difficultyToClass(props.difficulty);
-  return <SlimChip label={tagName} color={tagClass} />;
+  return (
+    <SlimChip
+      label={tagName}
+      color={tagClass}
+      variant={props.outlined ? "outlined" : "filled"}
+    />
+  );
 }
 
 function difficultyToClass(difficulty: Difficulty) {

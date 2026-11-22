@@ -1,11 +1,22 @@
 """Tests for the API for todo tasks."""
 
+import time
 from collections.abc import Iterator
+from datetime import UTC, datetime, timedelta
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.get_access_for_entity import (
+    sync_detailed as get_access_for_entity_sync,
+)
 from jupiter_webapi_client.api.application.invite_users_to_entity import (
     sync_detailed as invite_users_to_entity_sync,
+)
+from jupiter_webapi_client.api.application.remove_grant_for_entity import (
+    sync_detailed as remove_grant_for_entity_sync,
+)
+from jupiter_webapi_client.api.inbox_tasks.inbox_task_update import (
+    sync_detailed as inbox_task_update_sync,
 )
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
@@ -16,18 +27,55 @@ from jupiter_webapi_client.api.todo.todo_task_archive import (
 from jupiter_webapi_client.api.todo.todo_task_create import (
     sync_detailed as todo_task_create_sync,
 )
+from jupiter_webapi_client.api.todo.todo_task_find import (
+    sync_detailed as todo_task_find_sync,
+)
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
+from jupiter_webapi_client.models.get_access_for_entity_args import (
+    GetAccessForEntityArgs,
+)
+from jupiter_webapi_client.models.get_access_for_entity_result import (
+    GetAccessForEntityResult,
+)
+from jupiter_webapi_client.models.inbox_task_status import InboxTaskStatus
+from jupiter_webapi_client.models.inbox_task_update_args import InboxTaskUpdateArgs
+from jupiter_webapi_client.models.inbox_task_update_args_actionable_date import (
+    InboxTaskUpdateArgsActionableDate,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_difficulty import (
+    InboxTaskUpdateArgsDifficulty,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_due_date import (
+    InboxTaskUpdateArgsDueDate,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_eisen import (
+    InboxTaskUpdateArgsEisen,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_is_key import (
+    InboxTaskUpdateArgsIsKey,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_name import (
+    InboxTaskUpdateArgsName,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_status import (
+    InboxTaskUpdateArgsStatus,
+)
 from jupiter_webapi_client.models.invite_users_to_entity_args import (
     InviteUsersToEntityArgs,
 )
 from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
+from jupiter_webapi_client.models.remove_grant_for_entity_args import (
+    RemoveGrantForEntityArgs,
+)
 from jupiter_webapi_client.models.todo_task import TodoTask
 from jupiter_webapi_client.models.todo_task_archive_args import TodoTaskArchiveArgs
 from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
 from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
+from jupiter_webapi_client.models.todo_task_find_args import TodoTaskFindArgs
+from jupiter_webapi_client.models.todo_task_find_result import TodoTaskFindResult
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
@@ -180,6 +228,110 @@ def test_api_todo_find(api_url: str, api_key: str, create_todo) -> None:
     assert "Todo Beta" in names
 
 
+@pytest.fixture()
+def create_finished_todo(logged_in_client: AuthenticatedClient, create_todo):
+    """Create a todo and finish it, which stamps the completion time of its inbox task."""
+
+    def _create(name: str) -> TodoTask:
+        todo = create_todo(name)
+        todo_entry = _find_todos(logged_in_client, include_inbox_tasks=True)
+        inbox_task = next(
+            e.inbox_task for e in todo_entry if e.todo_task.ref_id == todo.ref_id
+        )
+        inbox_task_update_sync(
+            client=logged_in_client,
+            body=InboxTaskUpdateArgs(
+                ref_id=inbox_task.ref_id,
+                name=InboxTaskUpdateArgsName(should_change=False),
+                status=InboxTaskUpdateArgsStatus(
+                    should_change=True, value=InboxTaskStatus.DONE
+                ),
+                eisen=InboxTaskUpdateArgsEisen(should_change=False),
+                difficulty=InboxTaskUpdateArgsDifficulty(should_change=False),
+                actionable_date=InboxTaskUpdateArgsActionableDate(should_change=False),
+                due_date=InboxTaskUpdateArgsDueDate(should_change=False),
+                is_key=InboxTaskUpdateArgsIsKey(should_change=False),
+            ),
+        )
+        return todo
+
+    return _create
+
+
+def _find_todos(client: AuthenticatedClient, **kwargs):
+    result = todo_task_find_sync(client=client, body=TodoTaskFindArgs(**kwargs))
+    return get_parsed_from_response(TodoTaskFindResult, result).entries
+
+
+def _names(entries) -> set[str]:
+    return {e.todo_task.name for e in entries}
+
+
+def _timestamp(value: datetime) -> str:
+    return value.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
+
+
+def test_api_todo_find_filter_finished_after(
+    logged_in_client: AuthenticatedClient,
+    create_todo,
+    create_finished_todo,
+    archive_todo,
+) -> None:
+    still_open = create_todo("Finished After: still open")
+    finished = create_finished_todo("Finished After: finished")
+    finished_then_archived = create_finished_todo("Finished After: finished, archived")
+    archive_todo(finished_then_archived.ref_id)
+
+    an_hour_ago = _timestamp(datetime.now(UTC) - timedelta(hours=1))
+
+    # What was finished, and only that, whether or not it is archived now.
+    both = _find_todos(
+        logged_in_client,
+        allow_archived=True,
+        filter_finished_after=an_hour_ago,
+        include_inbox_tasks=True,
+    )
+    assert _names(both) == {finished.name, finished_then_archived.name}
+    assert all(e.inbox_task.status == InboxTaskStatus.DONE for e in both)
+    assert still_open.name not in _names(both)
+
+    # Without asking for archived ones, the archived ones are not there.
+    live = _find_todos(logged_in_client, filter_finished_after=an_hour_ago)
+    assert _names(live) == {finished.name}
+
+    # The archived ones are marked as such, so a view can tell them apart.
+    archived_flags = {e.todo_task.name: e.todo_task.archived for e in both}
+    assert archived_flags == {
+        finished.name: False,
+        finished_then_archived.name: True,
+    }
+
+
+def test_api_todo_find_filter_finished_after_is_a_real_cut(
+    logged_in_client: AuthenticatedClient, create_finished_todo, archive_todo
+) -> None:
+    earlier = create_finished_todo("Finished Cut: earlier")
+    archive_todo(earlier.ref_id)
+    time.sleep(1.5)
+    cut = _timestamp(datetime.now(UTC))
+    time.sleep(1.5)
+    later = create_finished_todo("Finished Cut: later")
+    archive_todo(later.ref_id)
+
+    found = _find_todos(
+        logged_in_client, allow_archived=True, filter_finished_after=cut
+    )
+    assert _names(found) == {later.name}
+
+    in_the_future = _timestamp(datetime.now(UTC) + timedelta(days=1))
+    assert (
+        _find_todos(
+            logged_in_client, allow_archived=True, filter_finished_after=in_the_future
+        )
+        == []
+    )
+
+
 def test_api_todo_update(api_url: str, api_key: str, create_todo) -> None:
     created = create_todo("Old Todo")
 
@@ -314,6 +466,96 @@ def grant_todo_access(
         return another_user_with_todos_enabled.api_key
 
     return _grant
+
+
+def test_api_todo_find_filter_finished_after_covers_shared_todos_and_only_them(
+    webapi_url: str,
+    create_finished_todo,
+    archive_todo,
+    grant_todo_access,
+    another_user_with_todos_enabled: AnotherUserAndWorkspace,
+) -> None:
+    # Todos of another workspace live in that workspace's inbox tasks, so finding
+    # them by finish date goes by a different road than finding one's own.
+    shared_live = create_finished_todo("Shared Finished: shared, live")
+    shared_archived = create_finished_todo("Shared Finished: shared, archived")
+    not_shared = create_finished_todo("Shared Finished: not shared")
+    grant_todo_access(shared_live, AccessLevel.READER)
+    grant_todo_access(shared_archived, AccessLevel.READER)
+    archive_todo(shared_archived.ref_id)
+    archive_todo(not_shared.ref_id)
+
+    sharee_client = AuthenticatedClient(
+        base_url=webapi_url,
+        token=another_user_with_todos_enabled.init_result.auth_token_ext,
+    )
+    an_hour_ago = _timestamp(datetime.now(UTC) - timedelta(hours=1))
+
+    found = _find_todos(
+        sharee_client, allow_archived=True, filter_finished_after=an_hour_ago
+    )
+    assert _names(found) == {shared_live.name, shared_archived.name}
+    assert {e.todo_task.name: e.todo_task.archived for e in found} == {
+        shared_live.name: False,
+        shared_archived.name: True,
+    }
+
+
+def test_api_todo_find_filter_finished_after_stops_at_a_revoked_grant(
+    webapi_url: str,
+    logged_in_client: AuthenticatedClient,
+    create_finished_todo,
+    grant_todo_access,
+    another_user_with_todos_enabled: AnotherUserAndWorkspace,
+) -> None:
+    # The grants are only where the search for shared todos starts: whether the
+    # other user may read one is the access status, so a grant taken back is
+    # the end of it.
+    shared = create_finished_todo("Revoked Grant: shared, then not")
+    grant_todo_access(shared, AccessLevel.READER)
+
+    sharee_client = AuthenticatedClient(
+        base_url=webapi_url,
+        token=another_user_with_todos_enabled.init_result.auth_token_ext,
+    )
+    an_hour_ago = _timestamp(datetime.now(UTC) - timedelta(hours=1))
+
+    # Other tests of the module share todos with the same user, so this looks
+    # for its own todo and not for the only one.
+    assert shared.name in _names(
+        _find_todos(sharee_client, filter_finished_after=an_hour_ago)
+    )
+
+    access_response = get_access_for_entity_sync(
+        client=logged_in_client,
+        body=GetAccessForEntityArgs(
+            entity_type=NamedEntityTag.TODOTASK, entity_ref_id=shared.ref_id
+        ),
+    )
+    sharee_ref_id = another_user_with_todos_enabled.init_result.new_user.ref_id
+    grant = next(
+        entry.access_grant
+        for entry in get_parsed_from_response(
+            GetAccessForEntityResult, access_response
+        ).entries
+        if entry.access_grant.user_ref_id == sharee_ref_id
+        and entry.access_grant.access_level != AccessLevel.OWNER
+    )
+    remove_response = remove_grant_for_entity_sync(
+        client=logged_in_client,
+        body=RemoveGrantForEntityArgs(
+            entity_type=NamedEntityTag.TODOTASK,
+            entity_ref_id=shared.ref_id,
+            access_grant_ref_id=grant.ref_id,
+        ),
+    )
+    assert remove_response.status_code == 200
+
+    assert shared.name not in _names(
+        _find_todos(
+            sharee_client, allow_archived=True, filter_finished_after=an_hour_ago
+        )
+    )
 
 
 def _assert_other_user_cannot_access_todo(

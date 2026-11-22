@@ -5,12 +5,20 @@ import { eisenName } from "#/core/common/eisen";
 
 interface Props {
   eisen: Eisen;
+  /** Outlined, with the colour as the text, for where chips are many. */
+  outlined?: boolean;
 }
 
 export function EisenTag(props: Props) {
   const tagName = eisenName(props.eisen);
   const tagClass = eisenToClass(props.eisen);
-  return <SlimChip label={tagName} color={tagClass} />;
+  return (
+    <SlimChip
+      label={tagName}
+      color={tagClass}
+      variant={props.outlined ? "outlined" : "filled"}
+    />
+  );
 }
 
 function eisenToClass(eisen: Eisen) {
