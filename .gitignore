@@ -19,6 +19,7 @@ site
 src/webui/build/
 src/webui/public/build/
 src/published/build/
+src/landing/build/
 src/published/public/build/
 .env
 gen/ts/webapi-client/dist/
@@ -158,6 +159,7 @@ src/mobile/ios/App/App/config.xml
 # React Router generated route types
 src/webui/.react-router/
 src/published/.react-router/
+src/landing/.react-router/
 
 # Default home of uploaded images when a service is run by hand (ADR 0018)
 /src/webapi/*/images/

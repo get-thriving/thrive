@@ -18,6 +18,7 @@ export STANDARD_API_PORT=8020
 export STANDARD_MCP_PORT=8030
 export STANDARD_WEBUI_PORT=10020
 export STANDARD_PUBLISHED_PORT=10040
+export STANDARD_LANDING_PORT=10050
 export STANDARD_DOCS_PORT=8000
 
 # Local WebAPI Postgres sidecar defaults (pm2 docker run / dev tooling).

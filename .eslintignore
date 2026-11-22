@@ -23,3 +23,5 @@ yarn-error.log*
 # React Router generated route types
 src/webui/.react-router
 src/published/.react-router
+src/landing/.react-router
+src/landing/build
