@@ -104,14 +104,6 @@ class TodoTaskFindUseCase(
 ):
     """The command for finding todo tasks."""
 
-    # How many todo tasks are looked up at once. Keeps the number of query
-    # parameters well under what the databases accept.
-    _CHUNK_SIZE = 1000
-
-    @staticmethod
-    def _chunks(items: list[EntityId], size: int) -> list[list[EntityId]]:
-        return [items[start : start + size] for start in range(0, len(items), size)]
-
     async def _find_finished_inbox_tasks(
         self,
         uow: DomainUnitOfWork,
@@ -130,7 +122,21 @@ class TodoTaskFindUseCase(
         - todo tasks shared by others are found through the grants that were
           made to the user, which, unlike owner grants, are few.
 
-        Access is then checked for just the todo tasks that were found.
+        The grants only say which todo tasks to look at. Whether the user can
+        read one is decided by the access statuses, which are checked for just
+        the todo tasks that were found, so a grant that was taken back, or is
+        archived, does not let anything through.
+
+        This is right while these hold, and breaks quietly, by leaving todo
+        tasks out of what was finished recently, if one stops:
+
+        - A todo task's inbox task is in the inbox task collection of the
+          workspace that made it, and a todo task has one inbox task.
+        - A todo task is only accessible to its owner and to those who were
+          granted it themselves. A todo task's parent, the todo domain, is not
+          shareable, so none is inherited, and an inherited right is a status
+          with no grant of its own on the todo task, which this does not find.
+          If todo tasks ever inherit access from something, this has to as well.
         """
         user_ref_id = context.user.ref_id
         inbox_task_repository = uow.get(InboxTaskRepository)
@@ -155,12 +161,12 @@ class TodoTaskFindUseCase(
                 if grant.entity.the_type == NamedEntityTag.TODO_TASK.value
             }
         )
-        for chunk in self._chunks(shared_todo_ref_ids, self._CHUNK_SIZE):
+        if shared_todo_ref_ids:
             inbox_tasks.extend(
                 await inbox_task_repository.find_all_for_owner_created_desc(
                     owner=[
                         EntityLink.std(NamedEntityTag.TODO_TASK.value, ref_id)
-                        for ref_id in chunk
+                        for ref_id in shared_todo_ref_ids
                     ],
                     allow_archived=True,
                     filter_completed_after=finished_after,
@@ -178,22 +184,18 @@ class TodoTaskFindUseCase(
                 if ref_id in wanted
             }
 
-        readable: set[EntityId] = set()
-        for chunk in self._chunks(list(by_todo_ref_id), self._CHUNK_SIZE):
-            statuses = await uow.get(
-                AccessStatusRepository
-            ).load_all_for_entities_and_user(
-                [
-                    EntityLink.std(NamedEntityTag.TODO_TASK.value, ref_id)
-                    for ref_id in chunk
-                ],
-                user_ref_id,
-            )
-            readable.update(
-                status.entity.ref_id
-                for status in statuses
-                if status.access_level.allows(AccessLevel.READER)
-            )
+        statuses = await uow.get(AccessStatusRepository).load_all_for_entities_and_user(
+            [
+                EntityLink.std(NamedEntityTag.TODO_TASK.value, ref_id)
+                for ref_id in by_todo_ref_id
+            ],
+            user_ref_id,
+        )
+        readable = {
+            status.entity.ref_id
+            for status in statuses
+            if status.access_level.allows(AccessLevel.READER)
+        }
         return {
             ref_id: inbox_task
             for ref_id, inbox_task in by_todo_ref_id.items()

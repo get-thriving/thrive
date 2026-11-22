@@ -6,8 +6,14 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 import requests
+from jupiter_webapi_client.api.application.get_access_for_entity import (
+    sync_detailed as get_access_for_entity_sync,
+)
 from jupiter_webapi_client.api.application.invite_users_to_entity import (
     sync_detailed as invite_users_to_entity_sync,
+)
+from jupiter_webapi_client.api.application.remove_grant_for_entity import (
+    sync_detailed as remove_grant_for_entity_sync,
 )
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_update import (
     sync_detailed as inbox_task_update_sync,
@@ -28,6 +34,12 @@ from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.access_level import AccessLevel
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
+from jupiter_webapi_client.models.get_access_for_entity_args import (
+    GetAccessForEntityArgs,
+)
+from jupiter_webapi_client.models.get_access_for_entity_result import (
+    GetAccessForEntityResult,
+)
 from jupiter_webapi_client.models.inbox_task_status import InboxTaskStatus
 from jupiter_webapi_client.models.inbox_task_update_args import InboxTaskUpdateArgs
 from jupiter_webapi_client.models.inbox_task_update_args_actionable_date import (
@@ -55,6 +67,9 @@ from jupiter_webapi_client.models.invite_users_to_entity_args import (
     InviteUsersToEntityArgs,
 )
 from jupiter_webapi_client.models.named_entity_tag import NamedEntityTag
+from jupiter_webapi_client.models.remove_grant_for_entity_args import (
+    RemoveGrantForEntityArgs,
+)
 from jupiter_webapi_client.models.todo_task import TodoTask
 from jupiter_webapi_client.models.todo_task_archive_args import TodoTaskArchiveArgs
 from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
@@ -484,6 +499,63 @@ def test_api_todo_find_filter_finished_after_covers_shared_todos_and_only_them(
         shared_live.name: False,
         shared_archived.name: True,
     }
+
+
+def test_api_todo_find_filter_finished_after_stops_at_a_revoked_grant(
+    webapi_url: str,
+    logged_in_client: AuthenticatedClient,
+    create_finished_todo,
+    grant_todo_access,
+    another_user_with_todos_enabled: AnotherUserAndWorkspace,
+) -> None:
+    # The grants are only where the search for shared todos starts: whether the
+    # other user may read one is the access status, so a grant taken back is
+    # the end of it.
+    shared = create_finished_todo("Revoked Grant: shared, then not")
+    grant_todo_access(shared, AccessLevel.READER)
+
+    sharee_client = AuthenticatedClient(
+        base_url=webapi_url,
+        token=another_user_with_todos_enabled.init_result.auth_token_ext,
+    )
+    an_hour_ago = _timestamp(datetime.now(UTC) - timedelta(hours=1))
+
+    # Other tests of the module share todos with the same user, so this looks
+    # for its own todo and not for the only one.
+    assert shared.name in _names(
+        _find_todos(sharee_client, filter_finished_after=an_hour_ago)
+    )
+
+    access_response = get_access_for_entity_sync(
+        client=logged_in_client,
+        body=GetAccessForEntityArgs(
+            entity_type=NamedEntityTag.TODOTASK, entity_ref_id=shared.ref_id
+        ),
+    )
+    sharee_ref_id = another_user_with_todos_enabled.init_result.new_user.ref_id
+    grant = next(
+        entry.access_grant
+        for entry in get_parsed_from_response(
+            GetAccessForEntityResult, access_response
+        ).entries
+        if entry.access_grant.user_ref_id == sharee_ref_id
+        and entry.access_grant.access_level != AccessLevel.OWNER
+    )
+    remove_response = remove_grant_for_entity_sync(
+        client=logged_in_client,
+        body=RemoveGrantForEntityArgs(
+            entity_type=NamedEntityTag.TODOTASK,
+            entity_ref_id=shared.ref_id,
+            access_grant_ref_id=grant.ref_id,
+        ),
+    )
+    assert remove_response.status_code == 200
+
+    assert shared.name not in _names(
+        _find_todos(
+            sharee_client, allow_archived=True, filter_finished_after=an_hour_ago
+        )
+    )
 
 
 def _assert_other_user_cannot_access_todo(
