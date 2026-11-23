@@ -8,13 +8,14 @@ function download(distribution: string): string {
 /** Every place the page sends people to, so the pages hold no URLs of their own. */
 export const landingLinks = {
   app: appUrl,
+  signIn: `${appUrl}/app/workspace`,
   docs: docsUrl,
   community: communityUrl,
   source: sourceUrl,
   supportMailto: `mailto:${supportEmail}`,
   supportEmail,
-  selfHostGuide: `${docsUrl}/how-tos/self-hosting.html`,
-  cli: `${docsUrl}/concepts/clients.html`,
+  selfHostGuide: `${docsUrl}/how-tos/self-hosting/`,
+  cli: `${docsUrl}/concepts/clients/`,
   downloadMac: download("mac-web"),
   downloadIos: download("app-store"),
   downloadAndroid: download("google-play-store"),

@@ -11,9 +11,9 @@ const DESCRIPTION =
 
 export function meta() {
   return [
-    { title: "Thrive | life planning" },
+    { title: "Thrive | Life Planning" },
     { name: "description", content: DESCRIPTION },
-    { property: "og:title", content: "Thrive | life planning" },
+    { property: "og:title", content: "Thrive | Life Planning" },
     { property: "og:description", content: DESCRIPTION },
   ];
 }

@@ -23,7 +23,7 @@ export function RunItYourWay() {
             </div>
           </dl>
           <div className="button-row panel-actions">
-            <a href={landingLinks.app} className="button button-primary">
+            <a href={landingLinks.signIn} className="button button-primary">
               Get started
             </a>
           </div>

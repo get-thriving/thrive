@@ -18,7 +18,7 @@ export function SiteHeader() {
         </nav>
         <div className="site-actions">
           <a
-            href={landingLinks.app}
+            href={landingLinks.signIn}
             className="button button-quiet button-small"
           >
             Sign in
