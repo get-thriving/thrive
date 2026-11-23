@@ -7,7 +7,7 @@ export function FeatureGrid() {
         <h2>Plans, tasks and habits that know about each other.</h2>
         <p className="lead">
           Most tools hold one piece. In Thrive a habit can serve a goal, a chore
-          lands in this week&apos;s plan on its own, and a big plan breaks down
+          lands in this week&apos;s plan on its own, and a project breaks down
           into tasks with due dates. Here&apos;s what&apos;s in it.
         </p>
       </div>

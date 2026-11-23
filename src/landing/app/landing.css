@@ -566,104 +566,6 @@ dd {
   color: var(--strata-coral);
 }
 
-.sample-board {
-  display: flex;
-  gap: 10px;
-  padding: 12px;
-}
-
-.sample-lane {
-  display: flex;
-  flex: 1 1 0;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-}
-
-.sample-lane-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 2px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--strata-text-muted);
-}
-
-.sample-lane-count {
-  color: var(--strata-text-faint);
-}
-
-.sample-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 9px 10px;
-  border: 1px solid var(--strata-line-strong);
-  border-radius: 4px;
-  background: var(--strata-raised);
-}
-
-.sample-card[data-state="selected"] {
-  border-color: var(--strata-amber);
-  background: var(--strata-amber-tint-changed);
-}
-
-.sample-card-name {
-  font-size: 12.5px;
-  line-height: 1.35;
-}
-
-.sample-card[data-state="done"] .sample-card-name {
-  color: var(--strata-text-faint);
-  text-decoration: line-through;
-}
-
-.sample-card-foot {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
-
-.sample-tag {
-  min-width: 0;
-  overflow: hidden;
-  padding: 1px 5px;
-  border-radius: 3px;
-  background: var(--strata-line);
-  color: var(--strata-text-muted);
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.sample-tag[data-kind="habit"] {
-  background: var(--strata-teal-tint);
-  color: var(--strata-teal-text);
-}
-
-.sample-tag[data-kind="chore"] {
-  color: var(--strata-text-secondary);
-}
-
-.sample-tag[data-kind="plan"] {
-  background: var(--strata-amber-tint-strong);
-  color: var(--strata-amber);
-}
-
-.sample-card-due {
-  flex: none;
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--strata-text-faint);
-}
-
 .sample-details-head {
   display: flex;
   flex-direction: column;
@@ -757,6 +659,225 @@ dd {
   font-family: var(--font-mono);
   font-size: 10.5px;
   color: var(--strata-text-muted);
+}
+
+/* The week grid. The body is as tall as the hours it shows. */
+
+.sample-calendar {
+  --hour-height: 38px;
+  --gutter: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sample-calendar[data-compact="true"] {
+  --hour-height: 34px;
+  --gutter: 22px;
+}
+
+.sample-calendar[data-compact="true"] .sample-calendar-event {
+  left: 1px;
+  right: 1px;
+  padding: 2px 3px;
+  font-size: 9.5px;
+}
+
+.sample-calendar-days {
+  display: grid;
+  grid-template-columns: var(--gutter) repeat(7, minmax(0, 1fr));
+  height: 28px;
+  border-bottom: 1px solid var(--strata-row-divider);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--strata-text-muted);
+}
+
+.sample-calendar-days span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sample-calendar-days span[data-today="true"] {
+  color: var(--strata-amber);
+}
+
+.sample-calendar-body {
+  display: grid;
+  grid-template-columns: var(--gutter) repeat(7, minmax(0, 1fr));
+  height: calc(var(--hours) * var(--hour-height));
+}
+
+.sample-calendar-hours {
+  display: flex;
+  flex-direction: column;
+}
+
+.sample-calendar-hours span {
+  height: var(--hour-height);
+  padding-top: 2px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--strata-text-faint);
+}
+
+.sample-calendar-day {
+  position: relative;
+  border-left: 1px solid var(--strata-row-divider);
+  background-image: linear-gradient(
+    var(--strata-row-divider) 1px,
+    transparent 1px
+  );
+  background-size: 100% var(--hour-height);
+}
+
+.sample-calendar-day[data-today="true"] {
+  background-color: var(--strata-amber-tint);
+}
+
+.sample-calendar-event {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  overflow: hidden;
+  padding: 3px 5px;
+  border: 1px solid var(--strata-line-strong);
+  border-radius: 3px;
+  background: var(--strata-raised);
+  font-size: 10.5px;
+  line-height: 1.25;
+  color: var(--strata-text);
+}
+
+.sample-calendar-event[data-kind="habit"] {
+  border-color: transparent;
+  background: var(--strata-teal-tint);
+  color: var(--strata-teal-text);
+}
+
+.sample-calendar-event[data-kind="plan"] {
+  border-color: transparent;
+  background: var(--strata-amber-tint-strong);
+  color: var(--strata-amber);
+}
+
+.sample-calendar-event[data-kind="chore"],
+.sample-calendar-event[data-kind="inbox"] {
+  color: var(--strata-text-secondary);
+}
+
+/* A time plan in full: note and figures, then tasks beside the week. */
+
+.sample-timeplan {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sample-timeplan-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  flex: none;
+  border-bottom: 1px solid var(--strata-line);
+}
+
+.sample-note {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
+  border-right: 1px solid var(--strata-line);
+}
+
+.sample-note p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--strata-text-secondary);
+}
+
+.sample-pane-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--strata-text-faint);
+}
+
+.sample-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.sample-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-right: 1px solid var(--strata-row-divider);
+}
+
+.sample-stat:last-child {
+  border-right: 0;
+}
+
+.sample-stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.sample-stat .sample-progress-track {
+  flex: none;
+  margin-top: 2px;
+}
+
+.sample-stat-detail {
+  font-size: 11px;
+  color: var(--strata-text-muted);
+}
+
+.sample-timeplan-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.sample-timeplan-tasks {
+  min-width: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--strata-line);
+}
+
+.sample-timeplan-calendar {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* A journal entry: each question with its answer. */
+
+.sample-answer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--strata-row-divider);
+}
+
+.sample-answer-question {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--strata-text-faint);
+}
+
+.sample-answer p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--strata-text-secondary);
 }
 
 /* ---- Features ---- */

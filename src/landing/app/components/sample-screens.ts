@@ -1,10 +1,14 @@
 import type { SampleScreen } from "~/components/sample-screen";
+import { SAMPLE_SCREEN_PROJECTS } from "~/components/sample-screen-projects";
+import { SAMPLE_SCREEN_CALENDAR } from "~/components/sample-screen-calendar";
+import { SAMPLE_SCREEN_JOURNAL } from "~/components/sample-screen-journal";
+import { SAMPLE_SCREEN_PEOPLE } from "~/components/sample-screen-people";
+import { SAMPLE_SCREEN_SMART_LISTS } from "~/components/sample-screen-smart-lists";
 
-/** The screens the page shows. Sample data, not a live workspace. */
-export const SAMPLE_SCREENS: SampleScreen[] = [
+const CORE_SCREENS: SampleScreen[] = [
   {
-    id: "week",
-    label: "Week plan",
+    id: "timeplan",
+    label: "Time plan",
     crumb: "Plans  ›  2026  ›  Q4  ›  November  ›  W47",
     railIndex: 1,
     columns: [
@@ -43,93 +47,111 @@ export const SAMPLE_SCREENS: SampleScreen[] = [
         ],
       },
       {
-        kind: "board",
-        units: 3,
+        kind: "timeplan",
+        units: 5,
         title: "W47 · Nov 16–22",
         count: "9",
         focused: true,
-        lanes: [
+        note: "Finish the homepage draft and lock the cabin dates. Keep the long run for Sunday, and don't let the dentist slip again.",
+        stats: [
+          { label: "Planned", value: "9 tasks", detail: "about 14 hours" },
+          { label: "Done", value: "3 of 9", percent: 33 },
+          { label: "Score", value: "46 / 118", percent: 39 },
+        ],
+        tasks: [
           {
-            label: "To do",
-            cards: [
-              {
-                name: "Long run, 14 km",
-                tag: "Habit",
-                tagKind: "habit",
-                due: "Sun",
-              },
-              {
-                name: "Pick dates for the cabin",
-                tag: "Big plan · Winter trip",
-                tagKind: "plan",
-                due: "Wed",
-              },
-              {
-                name: "Water the plants",
-                tag: "Chore",
-                tagKind: "chore",
-                due: "Thu",
-              },
-              {
-                name: "Book the dentist",
-                tag: "Inbox",
-                tagKind: "inbox",
-                due: "Mon",
-              },
-            ],
-          },
-          {
-            label: "Doing",
-            cards: [
+            label: "Must do",
+            rows: [
               {
                 name: "Draft the homepage copy",
-                tag: "Big plan · New site",
-                tagKind: "plan",
-                due: "Fri",
+                meta: "Fri",
+                marker: "circle",
                 state: "selected",
               },
               {
-                name: "Intervals, 6 × 400 m",
-                tag: "Habit",
-                tagKind: "habit",
-                due: "Tue",
+                name: "Pick dates for the cabin",
+                meta: "Wed",
+                marker: "circle",
               },
-            ],
-          },
-          {
-            label: "Done",
-            cards: [
+              { name: "Book the dentist", meta: "Mon", marker: "circle" },
               {
                 name: "Call parents",
-                tag: "Habit",
-                tagKind: "habit",
-                due: "Mon",
-                state: "done",
-              },
-              {
-                name: "Pay the electricity bill",
-                tag: "Chore",
-                tagKind: "chore",
-                due: "Tue",
+                meta: "Mon",
+                marker: "circle",
                 state: "done",
               },
               {
                 name: "Weekly review",
-                tag: "Habit",
-                tagKind: "habit",
-                due: "Sun",
+                meta: "Sun",
+                marker: "circle",
                 state: "done",
               },
             ],
           },
+          {
+            label: "Nice to do",
+            rows: [
+              { name: "Intervals, 6 × 400 m", meta: "Tue", marker: "circle" },
+              { name: "Water the plants", meta: "Thu", marker: "circle" },
+              {
+                name: "Pay the electricity bill",
+                meta: "Tue",
+                marker: "circle",
+                state: "done",
+              },
+            ],
+          },
+          {
+            label: "Stretch",
+            rows: [{ name: "Long run, 14 km", meta: "Sun", marker: "circle" }],
+          },
         ],
+        calendar: {
+          days: [
+            { label: "Mon 16" },
+            { label: "Tue 17" },
+            { label: "Wed 18" },
+            { label: "Thu 19" },
+            { label: "Fri 20" },
+            { label: "Sat 21", today: true },
+            { label: "Sun 22" },
+          ],
+          firstHour: 8,
+          hours: 10,
+          events: [
+            {
+              day: 0,
+              start: 9,
+              end: 10,
+              name: "Book the dentist",
+              kind: "inbox",
+            },
+            { day: 0, start: 10, end: 12, name: "Deep work", kind: "plan" },
+            { day: 1, start: 9, end: 11, name: "Deep work", kind: "plan" },
+            { day: 1, start: 12, end: 13, name: "Intervals", kind: "habit" },
+            { day: 2, start: 14, end: 16, name: "Cabin dates", kind: "plan" },
+            { day: 3, start: 9, end: 12, name: "Docs page", kind: "plan" },
+            { day: 3, start: 17, end: 18, name: "Plants", kind: "chore" },
+            { day: 4, start: 9, end: 12, name: "Homepage copy", kind: "plan" },
+            { day: 4, start: 15, end: 16, name: "Review", kind: "event" },
+            { day: 5, start: 10, end: 12, name: "Market", kind: "event" },
+            { day: 6, start: 8, end: 10, name: "Long run", kind: "habit" },
+            {
+              day: 6,
+              start: 16,
+              end: 17,
+              name: "Weekly review",
+              kind: "habit",
+            },
+          ],
+        },
       },
       {
         kind: "details",
         units: 2,
         title: "Activity",
         name: "Draft the homepage copy",
-        meta: "Inbox task · from the big plan Launch the new site",
+        meta: "Inbox task · from the project Launch the new site",
         properties: [
           {
             label: "Kind",
@@ -147,7 +169,7 @@ export const SAMPLE_SCREENS: SampleScreen[] = [
           { label: "Due", kind: "text", value: "Fri, Nov 20" },
           { label: "Goal", kind: "text", value: "Work › Ship the new site" },
         ],
-        sectionTitle: "Same big plan",
+        sectionTitle: "Same project",
         rows: [
           {
             name: "Pick the screenshots",
@@ -384,7 +406,7 @@ export const SAMPLE_SCREENS: SampleScreen[] = [
         ],
         sectionTitle: "Working toward it",
         rows: [
-          { name: "Build to 15 km", meta: "Big plan · 60%", marker: "circle" },
+          { name: "Build to 15 km", meta: "Project · 60%", marker: "circle" },
           { name: "Morning run", meta: "Habit · daily", marker: "circle" },
           {
             name: "Intervals, 6 × 400 m",
@@ -401,4 +423,24 @@ export const SAMPLE_SCREENS: SampleScreen[] = [
       },
     ],
   },
+];
+
+function coreScreen(id: SampleScreen["id"]): SampleScreen {
+  const screen = CORE_SCREENS.find((candidate) => candidate.id === id);
+  if (screen === undefined) {
+    throw new Error(`No sample screen ${id}`);
+  }
+  return screen;
+}
+
+/** The screens the page shows, in tab order. Sample data, not a live workspace. */
+export const SAMPLE_SCREENS: SampleScreen[] = [
+  coreScreen("timeplan"),
+  SAMPLE_SCREEN_PROJECTS,
+  SAMPLE_SCREEN_CALENDAR,
+  coreScreen("habits"),
+  SAMPLE_SCREEN_SMART_LISTS,
+  SAMPLE_SCREEN_JOURNAL,
+  SAMPLE_SCREEN_PEOPLE,
+  coreScreen("life"),
 ];

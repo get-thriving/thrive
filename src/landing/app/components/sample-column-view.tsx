@@ -1,5 +1,8 @@
 import type { SampleColumn, SampleProperty } from "~/components/sample-screen";
+import { SampleCalendarView } from "~/components/sample-calendar-view";
+import { SampleEntryView } from "~/components/sample-entry-view";
 import { SampleRowView } from "~/components/sample-row-view";
+import { SampleTimePlanView } from "~/components/sample-time-plan-view";
 
 function PropertyView(props: { property: SampleProperty }) {
   const { property } = props;
@@ -58,33 +61,13 @@ export function SampleColumnView(props: { column: SampleColumn }) {
               </div>
             ))
           : null}
-        {column.kind === "board" ? (
-          <div className="sample-board">
-            {column.lanes.map((lane) => (
-              <div key={lane.label} className="sample-lane">
-                <div className="sample-lane-header">
-                  <span>{lane.label}</span>
-                  <span className="sample-lane-count">{lane.cards.length}</span>
-                </div>
-                {lane.cards.map((card) => (
-                  <div
-                    key={card.name}
-                    className="sample-card"
-                    data-state={card.state ?? "normal"}
-                  >
-                    <span className="sample-card-name">{card.name}</span>
-                    <span className="sample-card-foot">
-                      <span className="sample-tag" data-kind={card.tagKind}>
-                        {card.tag}
-                      </span>
-                      <span className="sample-card-due">{card.due}</span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+        {column.kind === "calendar" ? (
+          <SampleCalendarView calendar={column} />
         ) : null}
+        {column.kind === "timeplan" ? (
+          <SampleTimePlanView column={column} />
+        ) : null}
+        {column.kind === "entry" ? <SampleEntryView column={column} /> : null}
         {column.kind === "details" ? (
           <>
             <div className="sample-details-head">

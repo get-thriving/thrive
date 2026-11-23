@@ -19,19 +19,43 @@ export interface SampleGroup {
   rows: SampleRow[];
 }
 
-export type SampleTagKind = "habit" | "chore" | "plan" | "inbox";
+export type SampleEventKind = "habit" | "chore" | "plan" | "inbox" | "event";
 
-export interface SampleCard {
+/** One block of the week grid; `start` and `end` are hours of the day. */
+export interface SampleCalendarEvent {
+  day: number;
+  start: number;
+  end: number;
   name: string;
-  tag: string;
-  tagKind: SampleTagKind;
-  due: string;
-  state?: "normal" | "selected" | "done";
+  kind: SampleEventKind;
 }
 
-export interface SampleLane {
+export interface SampleCalendarDay {
   label: string;
-  cards: SampleCard[];
+  today?: boolean;
+}
+
+/** A week grid: a column a day, and the hours it shows. */
+export interface SampleCalendar {
+  days: SampleCalendarDay[];
+  /** The hour the grid starts at, and how many hours it shows. */
+  firstHour: number;
+  hours: number;
+  events: SampleCalendarEvent[];
+}
+
+/** One figure of a time plan, with a bar when it is a share of something. */
+export interface SampleStat {
+  label: string;
+  value: string;
+  detail?: string;
+  percent?: number;
+}
+
+/** One question of a journal and the answer written to it. */
+export interface SampleAnswer {
+  question: string;
+  answer: string;
 }
 
 export type SampleProperty =
@@ -49,7 +73,20 @@ interface SampleColumnBase {
 
 export type SampleColumn =
   | (SampleColumnBase & { kind: "list"; groups: SampleGroup[] })
-  | (SampleColumnBase & { kind: "board"; lanes: SampleLane[] })
+  | (SampleColumnBase & { kind: "calendar" } & SampleCalendar)
+  | (SampleColumnBase & {
+      kind: "timeplan";
+      note: string;
+      stats: SampleStat[];
+      tasks: SampleGroup[];
+      calendar: SampleCalendar;
+    })
+  | (SampleColumnBase & {
+      kind: "entry";
+      name: string;
+      meta: string;
+      answers: SampleAnswer[];
+    })
   | (SampleColumnBase & {
       kind: "details";
       name: string;
@@ -60,7 +97,15 @@ export type SampleColumn =
     });
 
 export interface SampleScreen {
-  id: "week" | "habits" | "life";
+  id:
+    | "timeplan"
+    | "projects"
+    | "calendar"
+    | "habits"
+    | "smartlists"
+    | "journal"
+    | "people"
+    | "life";
   label: string;
   /** The path shown in the top bar. */
   crumb: string;

@@ -18,9 +18,9 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
           "A vision, the aspects of your life, and goals under each.",
       },
       {
-        name: "Big plans",
+        name: "Projects",
         description:
-          "Projects that run for months, with milestones and their own tasks.",
+          "Work that runs for months, with milestones and its own tasks.",
       },
       {
         name: "Time plans",
