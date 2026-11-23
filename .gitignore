@@ -164,3 +164,6 @@ src/landing/.react-router/
 # Default home of uploaded images when a service is run by hand (ADR 0018)
 /src/webapi/*/images/
 /src/cli/images/
+
+# Local archive of the MCP service
+/src/mcp/archive/
