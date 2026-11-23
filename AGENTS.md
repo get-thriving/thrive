@@ -29,7 +29,7 @@ mise run prepare
 
 ### Running services
 
-Start all 6 services (WebAPI, API, MCP, WebUI, Published, Docs) via mise (the landing page needs no instance: `mise run run:landing`):
+Start all 7 services (WebAPI, API, MCP, WebUI, Published, Docs, Landing) via mise (the landing page also runs alone, with no instance: `mise run run:landing`; it does not run in `--run-mode docker`, which is the self-hosted compose file):
 
 ```bash
 mise run run:srv --instance <instance-name>

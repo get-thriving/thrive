@@ -177,5 +177,19 @@ module.exports = {
           AUTHOR: "{{docsAuthor}}",
           COPYRIGHT: "{{docsCopyright}}"
         }
-    }]
+    }{{#if landingPort}},
+    {
+        name: "{{instance}}:landing",
+        cwd: "src/landing",
+        interpreter: "none",
+        script: "node_modules/.bin/react-router",
+        args: "dev",
+        log_file: "{{landingLogFile}}",
+        env: {
+            INSTANCE: "{{instance}}",
+            WEBUI_URL: "{{webuiServerUrl}}",
+            DOCS_URL: "{{docsServerUrl}}",
+            PORT: "{{landingPort}}"
+        }
+    }{{/if}}]
   }

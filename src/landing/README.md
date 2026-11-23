@@ -12,6 +12,10 @@ mise run run:landing
 
 It needs no Jupiter instance. The links point at the local WebUI and docs.
 
+`mise run run:srv --instance <name>` starts it too, as `<name>:landing`, with
+its links pointing at that instance's WebUI and docs. It does not run in
+`--run-mode docker`, which uses the self-hosted compose file.
+
 ## Build it
 
 ```bash

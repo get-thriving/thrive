@@ -74,6 +74,7 @@ if [[ -z "${usage_instance}" ]]; then
     webui_port=$STANDARD_WEBUI_PORT
     published_port=$STANDARD_PUBLISHED_PORT
     docs_port=$STANDARD_DOCS_PORT
+    landing_port=$STANDARD_LANDING_PORT
 elif [[ "${usage_instance}" == "+gen" ]]; then
     instance=$(get_instance)
     webapi_port=$(get_free_port)
@@ -83,6 +84,7 @@ elif [[ "${usage_instance}" == "+gen" ]]; then
     webui_port=$(get_free_port)
     published_port=$(get_free_port)
     docs_port=$(get_free_port)
+    landing_port=$(get_free_port)
 else
     instance="${usage_instance}"
     webapi_port=$(get_free_port)
@@ -92,6 +94,7 @@ else
     webui_port=$(get_free_port)
     published_port=$(get_free_port)
     docs_port=$(get_free_port)
+    landing_port=$(get_free_port)
 fi
 
-run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$published_port" "$docs_port" "$mcp_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first" "${usage_webapi_storage_engine:-sqlite}" "${usage_telemetry:-local}" "${usage_webapi_search:-sql}" "${usage_crm:-noop}" "${usage_auth_provider:-local}" "${usage_webapi_email_sender:-noop}" "${usage_email_verification_strategy:-none}" "${usage_run_all_crons:-false}" "${usage_webapi_postgres_url:-}" "${usage_location_resolver:-noop}"
+run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webapi_postgres_port" "$api_port" "$webui_port" "$published_port" "$docs_port" "$mcp_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first" "${usage_webapi_storage_engine:-sqlite}" "${usage_telemetry:-local}" "${usage_webapi_search:-sql}" "${usage_crm:-noop}" "${usage_auth_provider:-local}" "${usage_webapi_email_sender:-noop}" "${usage_email_verification_strategy:-none}" "${usage_run_all_crons:-false}" "${usage_webapi_postgres_url:-}" "${usage_location_resolver:-noop}" "$landing_port"

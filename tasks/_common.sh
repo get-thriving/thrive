@@ -518,6 +518,10 @@ run_jupiter_webapp() {
     local run_all_crons=${5:-false}
     local webapi_postgres_url=${6:-}
     local location_resolver=${7:-}
+    # The landing page (ADR 0022) is optional: callers that leave this empty (CI, itests,
+    # codegen) don't get one. It only ever runs in the dev pm2 mode, never from the
+    # self-hosted compose file, which has no landing service.
+    local landing_port=${8:-}
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
     webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
@@ -582,11 +586,11 @@ run_jupiter_webapp() {
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
-    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, published port: $PUBLISHED_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, webapi blend (ADR 0008) storage=$webapi_storage_engine telemetry=$webapi_telemetry search=$webapi_search image_store=$webapi_image_store location_resolver=$location_resolver crm=$webapi_crm auth_provider=$webapi_auth_provider email_verification_strategy=$email_verification_strategy email_sender=$webapi_email_sender, source: $source, version: $version, mode: $mode"
+    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webapi postgres port: $WEBAPI_POSTGRES_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, published port: $PUBLISHED_PORT, docs port: $DOCS_PORT, landing port: ${landing_port:-none}, mcp port: $MCP_PORT, webapi blend (ADR 0008) storage=$webapi_storage_engine telemetry=$webapi_telemetry search=$webapi_search image_store=$webapi_image_store location_resolver=$location_resolver crm=$webapi_crm auth_provider=$webapi_auth_provider email_verification_strategy=$email_verification_strategy email_sender=$webapi_email_sender, source: $source, version: $version, mode: $mode"
 
     if [[ "$UNIVERSE" == "dev" ]]; then
         if [[ "$mode" == "pm2" ]]; then
-            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy" "$run_all_crons" "$webapi_postgres_url" "$location_resolver"
+            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy" "$run_all_crons" "$webapi_postgres_url" "$location_resolver" "$landing_port"
         else
             _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBAPI_POSTGRES_PORT" "$API_PORT" "$WEBUI_PORT" "$PUBLISHED_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first" "$webapi_storage_engine" "$webapi_telemetry" "$webapi_search" "$webapi_crm" "$webapi_auth_provider" "$webapi_email_sender" "$email_verification_strategy" "$run_all_crons" "$webapi_postgres_url" "$location_resolver"
         fi
@@ -648,6 +652,12 @@ _run_dev_jupiter_webapp_with_pm2() {
     local run_all_crons=${12:-false}
     local webapi_postgres_url=${13:-}
     local location_resolver=${14:-}
+    local landingPort=${15:-}
+    local landingLogFile=../../$RUN_ROOT/$instance/landing.log
+    local landingServerUrl=""
+    if [[ -n "$landingPort" ]]; then
+        landingServerUrl=http://localhost:${landingPort}
+    fi
     webapi_storage_engine=${webapi_storage_engine:-${WEBAPI_STORAGE_ENGINE:-sqlite}}
     webapi_telemetry=${webapi_telemetry:-${TELEMETRY:-local}}
     webapi_search=${webapi_search:-${WEBAPI_SEARCH:-sql}}
@@ -719,7 +729,7 @@ _run_dev_jupiter_webapp_with_pm2() {
         log info "Starting only must-run WebAPI crons locally (pass --run-all-crons to start can-skip crons too)"
     fi
 
-    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" jupiterTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiImageStore="$webapi_image_store" webapiImageStoreLocalRoot="$webapiImageStoreLocalRoot" jupiterCrm="$webapi_crm" jupiterAuthProvider="$webapi_auth_provider" jupiterLocationResolver="$location_resolver" jupiterEmailVerificationStrategy="$email_verification_strategy" jupiterEmailSender="$webapi_email_sender" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiStartLocalPostgresSidecar=$webapiStartLocalPostgresSidecar webapiCronExecutionMode="$WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" publishedLogFile="$publishedLogFile" publishedPort="$publishedPort" publishedServerUrl="$publishedServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
+    pm2_base_data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webapiPostgresLogFile="$webapiPostgresLogFile" webapiPostgresPort="$webapiPostgresPort" webapiPostgresDb="$webapiPostgresDb" webapiPostgresUser="$webapiPostgresUser" webapiPostgresPassword="$webapiPostgresPassword" webapiPostgresPgdataHostPath="$webapiPostgresPgdataHostPath" webapiPostgresVersion="$POSTGRES_VERSION" webapiStorageEngine="$webapi_storage_engine" jupiterTelemetry="$webapi_telemetry" webapiSearch="$webapi_search" webapiImageStore="$webapi_image_store" webapiImageStoreLocalRoot="$webapiImageStoreLocalRoot" jupiterCrm="$webapi_crm" jupiterAuthProvider="$webapi_auth_provider" jupiterLocationResolver="$location_resolver" jupiterEmailVerificationStrategy="$email_verification_strategy" jupiterEmailSender="$webapi_email_sender" webapiPostgresDbUrl="$webapiPostgresDbUrl" webapiAlembicIniPath="$webapiAlembicIniPath" webapiAlembicMigrationsPath="$webapiAlembicMigrationsPath" webapiSqliteOnly=$webapiSqliteOnly webapiStartLocalPostgresSidecar=$webapiStartLocalPostgresSidecar webapiCronExecutionMode="$WEBAPI_CRON_EXECUTION_MODE_LOCAL" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" publishedLogFile="$publishedLogFile" publishedPort="$publishedPort" publishedServerUrl="$publishedServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" landingLogFile="$landingLogFile" landingPort="$landingPort" landingServerUrl="$landingServerUrl" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
     data=$(jupiter_pm2_render_data_with_cron_apps "$pm2_base_data" "$instance" "$RUN_ROOT" "$run_all_crons")
     if [[ "$in_ci" == "dev" ]]; then
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$instance/pm2.config.js"
@@ -744,6 +754,9 @@ _run_dev_jupiter_webapp_with_pm2() {
     save_jupiter_url "$instance" "webui" "$webuiServerUrl"
     save_jupiter_url "$instance" "published" "$publishedServerUrl"
     save_jupiter_url "$instance" "docs" "$docsServerUrl"
+    if [[ -n "$landingPort" ]]; then
+        save_jupiter_url "$instance" "landing" "$landingServerUrl"
+    fi
     save_jupiter_url "$instance" "mcp" "$mcpServerUrl"
 
     if [[ "$should_wait" == "wait:all" ]]; then

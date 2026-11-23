@@ -734,10 +734,18 @@ services:
   envVars:
     - key: NODE_VERSION
       value: 22.23.3
+    # Patched from the sibling services, as the docs' API_URL is, so a preview
+    # links to its own WebUI and docs rather than production's.
     - key: WEBUI_URL
-      value: https://app.get-thriving.com
+      fromService:
+        name: jupiter-webui
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
     - key: DOCS_URL
-      value: https://docs.get-thriving.com
+      fromService:
+        name: jupiter-docs
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
 
 databases:
   - name: jupiter-webapi-db
