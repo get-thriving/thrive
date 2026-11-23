@@ -838,8 +838,46 @@ h2 {
 
 .run-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
+}
+
+/* Side by side from here up, stacked below. The two panels are linked to
+   (#get and #self-host): side by side both links land on the heading, stacked
+   #self-host lands on its own panel. Keep the offset in step with the h2 and
+   the gap of .run. */
+.run {
+  --run-lead: calc(clamp(30px, 3.4vw, 44px) * 1.08 + 36px);
+}
+
+#get {
+  scroll-margin-top: var(--run-lead);
+}
+
+#self-host {
+  scroll-margin-top: 16px;
+}
+
+@media (min-width: 960px) {
+  .run-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #self-host {
+    scroll-margin-top: var(--run-lead);
+  }
+}
+
+.downloads {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.downloads-note {
+  font-size: 14px;
+  color: var(--strata-text-faint);
 }
 
 .panel {
@@ -916,32 +954,6 @@ h2 {
 
 .terminal-prompt {
   color: var(--strata-teal);
-}
-
-/* ---- Platforms ---- */
-
-.platforms {
-  padding-top: 56px;
-  padding-bottom: 40px;
-}
-
-.platforms-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px 28px;
-  padding: 22px 0;
-  border-top: 1px solid var(--strata-line);
-  border-bottom: 1px solid var(--strata-line);
-}
-
-.platforms-list {
-  gap: 8px;
-}
-
-.platforms-note {
-  font-size: 14px;
-  color: var(--strata-text-faint);
 }
 
 /* ---- From the builder ---- */

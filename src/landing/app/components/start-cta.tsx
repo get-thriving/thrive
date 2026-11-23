@@ -13,7 +13,7 @@ export function StartCta() {
         </div>
         <div className="button-row">
           <a
-            href={landingLinks.app}
+            href={landingLinks.signIn}
             className="button button-primary button-large"
           >
             Get started

@@ -11,7 +11,8 @@ export function SiteHeader() {
         </a>
         <nav aria-label="Main" className="site-nav">
           <a href="/#features">Features</a>
-          <a href="/#run">Self-host</a>
+          <a href="/#get">Get Thrive</a>
+          <a href="/#self-host">Self-host</a>
           <a href={landingLinks.docs}>Docs</a>
           <a href={landingLinks.community}>Discord</a>
           <a href={landingLinks.source}>GitHub</a>
@@ -23,7 +24,10 @@ export function SiteHeader() {
           >
             Sign in
           </a>
-          <a href="/#start" className="button button-primary button-small">
+          <a
+            href={landingLinks.signIn}
+            className="button button-primary button-small"
+          >
             Get started
           </a>
         </div>

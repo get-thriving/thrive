@@ -1,3 +1,5 @@
+import { landingLinks } from "~/landing-links";
+
 export function Hero() {
   return (
     <section id="top" className="wrap hero">
@@ -12,7 +14,7 @@ export function Hero() {
           it in the cloud, or run it on your own server.
         </p>
         <div className="button-row">
-          <a href="#start" className="button button-primary">
+          <a href={landingLinks.signIn} className="button button-primary">
             Get started
           </a>
           <a href="#run" className="button button-outline">

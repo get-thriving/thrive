@@ -1,7 +1,6 @@
 import { BuilderQuote } from "~/components/builder-quote";
 import { FeatureGrid } from "~/components/feature-grid";
 import { Hero } from "~/components/hero";
-import { PlatformStrip } from "~/components/platform-strip";
 import { ProductScreens } from "~/components/product-screens";
 import { RunItYourWay } from "~/components/run-it-your-way";
 import { StartCta } from "~/components/start-cta";
@@ -25,7 +24,6 @@ export default function Home() {
       <ProductScreens />
       <FeatureGrid />
       <RunItYourWay />
-      <PlatformStrip />
       <BuilderQuote />
       <StartCta />
     </>

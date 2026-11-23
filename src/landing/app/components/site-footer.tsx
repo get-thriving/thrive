@@ -19,7 +19,8 @@ export function SiteFooter() {
           <nav aria-label="Product" className="footer-nav">
             <span className="label label-faint">Product</span>
             <a href="/#features">Features</a>
-            <a href="/#run">Self-host</a>
+            <a href="/#get">Get Thrive</a>
+            <a href="/#self-host">Self-host</a>
             <a href={landingLinks.docs}>Docs</a>
           </nav>
           <nav aria-label="Community" className="footer-nav">
