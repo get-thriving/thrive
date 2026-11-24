@@ -1,0 +1,91 @@
+["package:src:landing:prepare"]
+hide = true
+run = "true"
+
+["package:src:landing:fix:prettier"]
+hide = true
+sources = ["src/landing/**/*.ts", "src/landing/**/*.tsx", "src/landing/**/*.js", "src/landing/**/*.jsx", "src/landing/**/*.json", "src/landing/**/*.md"]
+outputs = { auto = true }
+run = "npx prettier --write --list-different src/landing"
+
+["package:src:landing:fix:eslint"]
+hide = true
+sources = ["src/landing/**/*.ts", "src/landing/**/*.tsx", "src/landing/**/*.js", "src/landing/**/*.jsx"]
+outputs = { auto = true }
+run = "npx eslint src/landing --fix"
+
+["package:src:landing:fix:markdownlint"]
+hide = true
+sources = ["src/landing/README.md"]
+outputs = { auto = true }
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh --fix src/landing/README.md"
+
+["package:src:landing:fix"]
+description = "Fix src/landing module"
+depends = ["package:src:landing:fix:*"]
+run = "true"
+
+["package:src:landing:lint:toml"]
+hide = true
+sources = ["src/landing/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/landing/package.mise.toml"
+
+["package:src:landing:lint:tsc"]
+hide = true
+sources = ["src/landing/**/*.ts", "src/landing/**/*.tsx"]
+outputs = { auto = true }
+run = "cd src/landing && npx tsc"
+
+["package:src:landing:lint:prettier"]
+hide = true
+sources = [
+  "src/landing/**/*.ts",
+  "src/landing/**/*.tsx",
+  "src/landing/**/*.js",
+  "src/landing/**/*.jsx",
+  "src/landing/**/*.json",
+  "src/landing/**/*.md",
+]
+outputs = { auto = true }
+run = "npx prettier --check src/landing"
+
+["package:src:landing:lint:eslint"]
+hide = true
+sources = [
+  "src/landing/**/*.ts",
+  "src/landing/**/*.tsx",
+  "src/landing/**/*.js",
+  "src/landing/**/*.jsx",
+]
+outputs = { auto = true }
+run = "npx eslint src/landing"
+
+["package:src:landing:lint:markdownlint-readme"]
+hide = true
+sources = ["src/landing/README.md"]
+outputs = { auto = true }
+run = "./tasks/_resources/check/lint/markdownlint-cli2.sh src/landing/README.md"
+
+["package:src:landing:lint"]
+description = "Check src/landing module"
+depends = ["package:src:landing:lint:*"]
+run = "true"
+
+["package:src:landing:audit:pnpm-audit"]
+hide = true
+run = "cd src/landing && pnpm audit"
+
+["package:src:landing:audit"]
+description = "Audit src/landing module"
+depends = ["package:src:landing:audit:*"]
+run = "true"
+
+["package:src:landing:libyear:pnpm-libyear"]
+hide = true
+run = "cd src/landing && npx libyear --package-manager pnpm"
+
+["package:src:landing:libyear"]
+description = "Check src/landing libyear"
+depends = ["package:src:landing:libyear:*"]
+run = "true"

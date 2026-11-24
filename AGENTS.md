@@ -11,6 +11,7 @@ Thrive (codenamed Jupiter) is a life planning tool with a monorepo containing:
 | **WebAPI** (backend) | Python/FastAPI, SQLite |
 | **WebUI** (frontend) | TypeScript/React Router/React |
 | **Published** (public pages) | TypeScript/React Router/React |
+| **Landing** (get-thriving.com) | TypeScript/React Router/React, prerendered static site |
 | **API** | Python/FastAPI |
 | **MCP** | Python/FastAPI |
 | **Docs** | Python/MkDocs |
@@ -28,7 +29,7 @@ mise run prepare
 
 ### Running services
 
-Start all 6 services (WebAPI, API, MCP, WebUI, Published, Docs) via mise:
+Start all 7 services (WebAPI, API, MCP, WebUI, Published, Docs, Landing) via mise (the landing page also runs alone, with no instance: `mise run run:landing`; it does not run in `--run-mode docker`, which is the self-hosted compose file):
 
 ```bash
 mise run run:srv --instance <instance-name>
@@ -69,6 +70,7 @@ Current topics include (non-exhaustive; browse the directory):
 | 0019 | UI style (Strata) |
 | 0020 | Strata unit layout (partly superseded by 0021) |
 | 0021 | Strata layout: columns, sizes, headers |
+| 0022 | The landing page is a static site |
 
 ## Code layout
 

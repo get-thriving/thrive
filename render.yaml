@@ -710,6 +710,42 @@ services:
         name: jupiter-api
         type: web
         envVarKey: RENDER_EXTERNAL_URL
+# The landing page (ADR 0022): a static site, like the docs. It has no custom
+# domain yet; get-thriving.com stays on the old site until this one is checked
+# on its onrender.com address and the domain is moved over.
+- type: web
+  name: jupiter-landing
+  buildFilter:
+    paths:
+      - src/landing/**
+      - src/core/jupiter/core/infra/component/strata-tokens.ts
+      - src/core/jupiter/core/infra/component/strata-color-variables.tsx
+      - assets/jupiter.ico
+      - tasks/build/landing.sh
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - src/Config.global
+  runtime: static
+  buildCommand: ./tasks/build/landing.sh
+  staticPublishPath: src/landing/build/client
+  previews:
+    generation: automatic
+  envVars:
+    - key: NODE_VERSION
+      value: 22.23.3
+    # Patched from the sibling services, as the docs' API_URL is, so a preview
+    # links to its own WebUI and docs rather than production's.
+    - key: WEBUI_URL
+      fromService:
+        name: jupiter-webui
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
+    - key: DOCS_URL
+      fromService:
+        name: jupiter-docs
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
 
 databases:
   - name: jupiter-webapi-db

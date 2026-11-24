@@ -80,6 +80,20 @@ module.exports = {
       },
     },
     {
+      files: ['src/landing/**/*.{ts,tsx}'],
+      parserOptions: {
+        tsconfigRootDir: __dirname,
+        project: ['src/landing/tsconfig.json'],
+      },
+      settings: {
+        'import/resolver': {
+          typescript: {
+            project: 'src/landing/tsconfig.json',
+          },
+        },
+      },
+    },
+    {
       files: ['src/core/**/*.{ts,tsx}'],
       parserOptions: {
         tsconfigRootDir: __dirname,

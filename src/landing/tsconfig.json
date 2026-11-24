@@ -1,0 +1,30 @@
+{
+  "include": [
+    "env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "vite.config.mts",
+    "react-router.config.ts"
+  ],
+  "compilerOptions": {
+    "types": ["@react-router/node", "vite/client"],
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "target": "ES2022",
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "~/*": ["./app/*"],
+      "@assets/*": ["../../assets/*"],
+      "#/core/*": ["../core/jupiter/core/*"],
+      "@jupiter/core/*": ["../core/jupiter/core/*"]
+    },
+    "noEmit": true
+  }
+}
