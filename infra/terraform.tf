@@ -439,11 +439,8 @@ resource "google_dns_record_set" "thrive_main_root_a" {
   name         = "get-thriving.com."
   type         = "A"
   ttl          = 3600
-  rrdatas = [
-    "185.230.63.171",
-    "185.230.63.186",
-    "185.230.63.107",
-  ]
+  # Render's address for apex domains: the landing page (jupiter-landing).
+  rrdatas = ["216.24.57.1"]
 }
 
 resource "google_dns_record_set" "thrive_main_api_cname" {
@@ -551,7 +548,7 @@ resource "google_dns_record_set" "thrive_main_www_cname" {
   name         = "www.get-thriving.com."
   type         = "CNAME"
   ttl          = 3600
-  rrdatas      = ["cdn1.wixdns.net."]
+  rrdatas      = ["jupiter-landing.onrender.com."]
 }
 
 resource "google_dns_record_set" "thrive_main_root_google_site_verification_txt" {
