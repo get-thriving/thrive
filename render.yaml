@@ -710,9 +710,6 @@ services:
         name: jupiter-api
         type: web
         envVarKey: RENDER_EXTERNAL_URL
-# The landing page (ADR 0022): a static site, like the docs. It has no custom
-# domain yet; get-thriving.com stays on the old site until this one is checked
-# on its onrender.com address and the domain is moved over.
 - type: web
   name: jupiter-landing
   buildFilter:
@@ -729,6 +726,9 @@ services:
   runtime: static
   buildCommand: ./tasks/build/landing.sh
   staticPublishPath: src/landing/build/client
+  domains:
+    - get-thriving.com
+    - www.get-thriving.com
   previews:
     generation: automatic
   envVars:
