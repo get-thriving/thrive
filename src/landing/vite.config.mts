@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { parseEnv } from "node:util";
 
 import { reactRouter } from "@react-router/dev/vite";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CORE_DIR = path.resolve(HERE, "../core/jupiter/core");
@@ -33,6 +33,26 @@ function withoutTrailingSlash(url: string): string {
   return url.replace(/\/+$/, "");
 }
 
+// Fontsource sets `font-display: swap`, which draws the text in the fallback
+// font and then switches it to Plex once that has loaded: a visible jump. The
+// page is small and the fonts are served from the same place, so it waits for
+// them instead (`block`), as the docs do.
+function fontsourceBlockPlugin(): Plugin {
+  return {
+    name: "landing:fontsource-font-display-block",
+    enforce: "pre",
+    transform(code, id) {
+      if (!/[\\/]@fontsource[\\/].*\.css$/.test(id.split("?")[0])) {
+        return null;
+      }
+      return {
+        code: code.replaceAll("font-display: swap", "font-display: block"),
+        map: null,
+      };
+    },
+  };
+}
+
 const LANDING_LINKS = {
   appUrl: withoutTrailingSlash(requiredSetting("WEBUI_URL")),
   docsUrl: withoutTrailingSlash(requiredSetting("DOCS_URL")),
@@ -58,5 +78,5 @@ export default defineConfig({
       { find: /^@jupiter\/core\//, replacement: `${CORE_DIR}/` },
     ],
   },
-  plugins: [reactRouter()],
+  plugins: [fontsourceBlockPlugin(), reactRouter()],
 });

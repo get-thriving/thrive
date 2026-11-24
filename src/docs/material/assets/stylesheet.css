@@ -1,9 +1,637 @@
-:root {
-    --md-text-font: Helvetica, Arial, sans-serif;
-    --md-primary-fg-color: #3F51B5;
-    --md-primary-fg-color--light: #7986CB;
-    --md-primary-fg-color--dark: #303F9F;
-    --md-accent-fg-color: #FF4081;
-    --md-accent-fg-color--transparent: #FF79B0;
-    --md-accent-bg-color: #C60055;
-  }
+/*
+ * The docs, in Strata (ADR 0019).
+ *
+ * The values of the two palettes are those of `strataPalettes` in
+ * src/core/jupiter/core/infra/component/strata-tokens.ts, under the same
+ * `--strata-*` names the apps and the landing page use. The docs are built
+ * with Python and have no way to import the TypeScript, so they are copied
+ * here: when a token changes, change it in both places.
+ *
+ * `mkdocs.yml` picks the scheme from the device (`strata-light` or
+ * `strata-dark`), as the landing page and the published pages do. Material's
+ * own variables are set from the Strata ones below, so nothing past the two
+ * palettes holds a hex value.
+ *
+ * Fonts are self-hosted (assets/fonts), so the docs need no Google Fonts.
+ */
+
+/* ---- Fonts ---- */
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url("fonts/ibm-plex-sans-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    font-style: italic;
+    font-weight: 400;
+    font-display: block;
+    src: url("fonts/ibm-plex-sans-latin-400-italic.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 500;
+    font-display: block;
+    src: url("fonts/ibm-plex-sans-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    font-style: normal;
+    font-weight: 600;
+    font-display: block;
+    src: url("fonts/ibm-plex-sans-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url("fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 500;
+    font-display: block;
+    src: url("fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Serif";
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url("fonts/ibm-plex-serif-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "IBM Plex Serif";
+    font-style: normal;
+    font-weight: 500;
+    font-display: block;
+    src: url("fonts/ibm-plex-serif-latin-500-normal.woff2") format("woff2");
+}
+
+/* ---- Palettes ---- */
+
+[data-md-color-scheme="strata-dark"] {
+    --strata-ground: #0e1012;
+    --strata-column: #121518;
+    --strata-panel: #15191d;
+    --strata-raised: #1c2126;
+    --strata-line: #262b31;
+    --strata-line-strong: #2f353c;
+    --strata-row-divider: #1e2328;
+    --strata-text-strong: #ffffff;
+    --strata-text: #e7e9eb;
+    --strata-text-secondary: #c9ced3;
+    --strata-text-muted: #9ba4ad;
+    --strata-text-faint: #7d868f;
+    --strata-text-faintest: #6b747d;
+    --strata-disabled: #4a525a;
+    --strata-amber: #f0b43c;
+    --strata-amber-hover: #f6cb73;
+    --strata-amber-tint: rgba(240, 180, 60, 0.13);
+    --strata-amber-tint-strong: rgba(240, 180, 60, 0.14);
+    --strata-teal: #4fb3a4;
+    --strata-teal-text: #7fcabe;
+    --strata-teal-tint: rgba(79, 179, 164, 0.16);
+    --strata-coral: #e5706b;
+    color-scheme: dark;
+}
+
+[data-md-color-scheme="strata-light"] {
+    --strata-ground: #f1efeb;
+    --strata-column: #f6f4f0;
+    --strata-panel: #ffffff;
+    --strata-raised: #e6e2db;
+    --strata-line: #dad6ce;
+    --strata-line-strong: #c6c1b7;
+    --strata-row-divider: #e5e1da;
+    --strata-text-strong: #0b0d0f;
+    --strata-text: #1d2125;
+    --strata-text-secondary: #3b4249;
+    --strata-text-muted: #5b646d;
+    --strata-text-faint: #69727b;
+    --strata-text-faintest: #7b848d;
+    --strata-disabled: #b4bac0;
+    --strata-amber: #b97a00;
+    --strata-amber-hover: #9a6500;
+    --strata-amber-tint: rgba(185, 122, 0, 0.13);
+    --strata-amber-tint-strong: rgba(185, 122, 0, 0.15);
+    --strata-teal: #1f8a7a;
+    --strata-teal-text: #1a7466;
+    --strata-teal-tint: rgba(31, 138, 122, 0.14);
+    --strata-coral: #c8453f;
+    color-scheme: light;
+}
+
+/* ---- Material's variables, from Strata's ---- */
+
+[data-md-color-scheme^="strata-"] {
+    --md-text-font: "IBM Plex Sans", system-ui, sans-serif;
+    --md-code-font: "IBM Plex Mono", ui-monospace, monospace;
+    --strata-serif: "IBM Plex Serif", Georgia, serif;
+    --strata-mono: var(--md-code-font);
+    --strata-radius: 4px;
+
+    --md-default-fg-color: var(--strata-text);
+    --md-default-fg-color--light: var(--strata-text-muted);
+    --md-default-fg-color--lighter: var(--strata-text-faintest);
+    --md-default-fg-color--lightest: var(--strata-line);
+    --md-default-bg-color: var(--strata-ground);
+    --md-default-bg-color--light: var(--strata-column);
+    --md-default-bg-color--lighter: var(--strata-panel);
+    --md-default-bg-color--lightest: var(--strata-raised);
+
+    /* The header and the links that Material draws in the primary color. */
+    --md-primary-fg-color: var(--strata-amber);
+    --md-primary-fg-color--light: var(--strata-amber-hover);
+    --md-primary-fg-color--dark: var(--strata-amber-hover);
+    --md-primary-bg-color: var(--strata-text);
+    --md-primary-bg-color--light: var(--strata-text-muted);
+    --md-accent-fg-color: var(--strata-amber-hover);
+    --md-accent-fg-color--transparent: var(--strata-amber-tint);
+    --md-accent-bg-color: var(--strata-ground);
+    --md-accent-bg-color--light: var(--strata-ground);
+
+    --md-typeset-color: var(--strata-text);
+    --md-typeset-a-color: var(--strata-amber);
+    --md-typeset-mark-color: var(--strata-amber-tint-strong);
+    --md-typeset-del-color: rgba(229, 112, 107, 0.18);
+    --md-typeset-ins-color: var(--strata-teal-tint);
+    --md-typeset-kbd-color: var(--strata-panel);
+    --md-typeset-kbd-accent-color: var(--strata-panel);
+    --md-typeset-kbd-border-color: var(--strata-line-strong);
+    --md-typeset-table-color: var(--strata-line);
+    --md-typeset-table-color--light: var(--strata-panel);
+
+    --md-code-fg-color: var(--strata-text);
+    --md-code-bg-color: var(--strata-panel);
+    --md-code-bg-color--light: var(--strata-panel);
+    --md-code-bg-color--lighter: var(--strata-panel);
+    --md-code-hl-color: var(--strata-amber);
+    --md-code-hl-color--light: var(--strata-amber-tint);
+    --md-code-hl-keyword-color: var(--strata-amber);
+    --md-code-hl-string-color: var(--strata-teal-text);
+    --md-code-hl-number-color: var(--strata-coral);
+    --md-code-hl-special-color: var(--strata-coral);
+    --md-code-hl-constant-color: var(--strata-teal);
+    --md-code-hl-function-color: var(--strata-text-strong);
+    --md-code-hl-name-color: var(--strata-text);
+    --md-code-hl-operator-color: var(--strata-text-muted);
+    --md-code-hl-punctuation-color: var(--strata-text-muted);
+    --md-code-hl-comment-color: var(--strata-text-faint);
+    --md-code-hl-generic-color: var(--strata-text-muted);
+    --md-code-hl-variable-color: var(--strata-text-muted);
+
+    --md-admonition-fg-color: var(--strata-text);
+    --md-admonition-bg-color: var(--strata-panel);
+    --md-warning-fg-color: var(--strata-text);
+    --md-warning-bg-color: var(--strata-amber-tint);
+
+    --md-footer-fg-color: var(--strata-text-secondary);
+    --md-footer-fg-color--light: var(--strata-text-muted);
+    --md-footer-fg-color--lighter: var(--strata-text-faint);
+    --md-footer-bg-color: var(--strata-column);
+    --md-footer-bg-color--dark: var(--strata-ground);
+
+    --md-shadow-z1: none;
+    --md-shadow-z2: none;
+    --md-shadow-z3: 0 0 0 1px var(--strata-line-strong);
+}
+
+/* ---- Page ---- */
+
+body,
+.md-main,
+.md-container {
+    background-color: var(--strata-ground);
+}
+
+.md-typeset {
+    font-size: 0.75rem; /* 15px, the doc body of Strata */
+    line-height: 1.67;
+}
+
+::selection {
+    background: var(--strata-amber-tint-strong);
+}
+
+:focus-visible {
+    outline: 2px solid var(--strata-amber);
+    outline-offset: 2px;
+}
+
+.md-typeset a:hover {
+    color: var(--strata-amber-hover);
+}
+
+/* ---- Header: flat, with a line under it, like the top bar ---- */
+
+.md-header {
+    background-color: var(--strata-column);
+    color: var(--strata-text);
+    box-shadow: none;
+    border-bottom: 1px solid var(--strata-line);
+}
+
+.md-header[data-md-state="shadow"] {
+    box-shadow: none;
+}
+
+.md-header__title {
+    font-weight: 600;
+}
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+    height: 1.4rem;
+}
+
+.md-search__form {
+    background-color: var(--strata-panel);
+    border: 1px solid var(--strata-line-strong);
+    border-radius: var(--strata-radius);
+    box-shadow: none;
+}
+
+.md-search__form:hover,
+.md-search__input:hover {
+    background-color: var(--strata-panel);
+}
+
+.md-search__input,
+.md-search__input::placeholder,
+.md-search__icon {
+    color: var(--strata-text-muted);
+}
+
+[data-md-toggle="search"]:checked ~ .md-header .md-search__form {
+    border-color: var(--strata-amber);
+}
+
+.md-search__output {
+    border-radius: 0 0 var(--strata-radius) var(--strata-radius);
+}
+
+.md-search__scrollwrap,
+.md-search-result .md-search-result__meta {
+    background-color: var(--strata-panel);
+}
+
+.md-search-result__item {
+    box-shadow: 0 -1px 0 var(--strata-row-divider);
+}
+
+.md-search-result__link:focus,
+.md-search-result__link:hover {
+    background-color: var(--strata-amber-tint);
+}
+
+.md-search-result .md-typeset mark,
+.md-typeset mark {
+    color: var(--strata-text-strong);
+}
+
+/* ---- Navigation: the rows of a column ---- */
+
+.md-sidebar__scrollwrap {
+    scrollbar-color: var(--strata-line-strong) transparent;
+}
+
+.md-nav__title {
+    font-family: var(--strata-mono);
+    font-size: 0.55rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--strata-text-faintest);
+}
+
+.md-nav__item .md-nav__link {
+    color: var(--strata-text-secondary);
+}
+
+.md-nav__link:hover,
+.md-nav__link:focus {
+    color: var(--strata-text);
+}
+
+.md-nav__link--active,
+.md-nav__item .md-nav__link--active {
+    color: var(--strata-amber);
+}
+
+.md-nav--primary .md-nav__item--active > .md-nav__link {
+    color: var(--strata-amber);
+}
+
+.md-nav--secondary .md-nav__link {
+    font-size: 0.6rem;
+}
+
+/* Small screens: the drawer */
+
+@media screen and (max-width: 76.1875em) {
+    .md-nav--primary .md-nav__title {
+        background-color: var(--strata-column);
+        color: var(--strata-text-muted);
+    }
+
+    .md-nav--primary .md-nav__title[for="__drawer"] {
+        background-color: var(--strata-column);
+        color: var(--strata-text);
+    }
+
+    .md-nav--primary,
+    .md-nav--primary .md-nav {
+        background-color: var(--strata-column);
+    }
+}
+
+/* ---- Type ---- */
+
+.md-typeset h1,
+.md-typeset h2 {
+    font-family: var(--strata-serif);
+    font-weight: 500;
+    color: var(--strata-text-strong);
+    letter-spacing: 0;
+}
+
+.md-typeset h1 {
+    margin: 0 0 1.2em;
+    font-size: 1.6rem; /* 32px */
+    line-height: 1.2;
+}
+
+.md-typeset h2 {
+    margin: 2em 0 0.6em;
+    font-size: 1rem; /* 20px */
+    line-height: 1.4;
+}
+
+.md-typeset h3 {
+    margin: 1.8em 0 0.6em;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0;
+    color: var(--strata-text);
+}
+
+/* The small headings are labels, as the section labels of a panel are. */
+
+.md-typeset h4,
+.md-typeset h5,
+.md-typeset h6 {
+    font-family: var(--strata-mono);
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--strata-text-faint);
+}
+
+.md-typeset hr {
+    border-bottom: 1px solid var(--strata-line);
+}
+
+.md-typeset .headerlink {
+    color: var(--strata-text-faintest);
+}
+
+.md-typeset blockquote {
+    padding-left: 0.8rem;
+    border-left: 2px solid var(--strata-amber);
+    color: var(--strata-text-muted);
+}
+
+/* ---- Code and keys ---- */
+
+.md-typeset code,
+.md-typeset pre,
+.md-typeset kbd {
+    font-family: var(--md-code-font);
+}
+
+.md-typeset code {
+    border: 1px solid var(--strata-line);
+    border-radius: 3px;
+    background-color: var(--strata-panel);
+    color: var(--strata-text-secondary);
+}
+
+.md-typeset pre > code {
+    border: 0;
+    border-radius: 0;
+}
+
+.md-typeset .highlight,
+.md-typeset pre {
+    border: 1px solid var(--strata-line);
+    border-radius: var(--strata-radius);
+    background-color: var(--strata-panel);
+}
+
+.md-typeset kbd {
+    border: 1px solid var(--strata-line-strong);
+    border-radius: 3px;
+    box-shadow: none;
+    background-color: transparent;
+    color: var(--strata-text-secondary);
+    font-size: 0.65rem;
+}
+
+/* ---- Tables ---- */
+
+.md-typeset__table {
+    display: block;
+}
+
+.md-typeset table:not([class]) {
+    border: 1px solid var(--strata-line);
+    border-radius: var(--strata-radius);
+    box-shadow: none;
+    background-color: transparent;
+    font-size: 0.65rem;
+}
+
+.md-typeset table:not([class]) th {
+    background-color: var(--strata-column);
+    border-bottom: 1px solid var(--strata-line);
+    font-family: var(--strata-mono);
+    font-size: 0.55rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--strata-text-faint);
+}
+
+.md-typeset table:not([class]) td {
+    border-top: 1px solid var(--strata-row-divider);
+}
+
+.md-typeset table:not([class]) tbody tr:hover {
+    background-color: var(--strata-amber-tint);
+    box-shadow: none;
+}
+
+/* ---- Admonitions and details ---- */
+
+.md-typeset .admonition,
+.md-typeset details {
+    border: 1px solid var(--strata-line);
+    border-left: 2px solid var(--strata-amber);
+    border-radius: var(--strata-radius);
+    box-shadow: none;
+    background-color: var(--strata-panel);
+    font-size: 0.7rem;
+}
+
+.md-typeset .admonition-title,
+.md-typeset summary {
+    background-color: var(--strata-amber-tint);
+    font-weight: 600;
+}
+
+.md-typeset .admonition.tip,
+.md-typeset details.tip,
+.md-typeset .admonition.success,
+.md-typeset details.success {
+    border-left-color: var(--strata-teal);
+}
+
+.md-typeset .tip > .admonition-title,
+.md-typeset .tip > summary,
+.md-typeset .success > .admonition-title,
+.md-typeset .success > summary {
+    background-color: var(--strata-teal-tint);
+}
+
+.md-typeset .admonition.danger,
+.md-typeset details.danger,
+.md-typeset .admonition.failure,
+.md-typeset details.failure,
+.md-typeset .admonition.bug,
+.md-typeset details.bug {
+    border-left-color: var(--strata-coral);
+}
+
+.md-typeset .danger > .admonition-title,
+.md-typeset .danger > summary,
+.md-typeset .failure > .admonition-title,
+.md-typeset .failure > summary,
+.md-typeset .bug > .admonition-title,
+.md-typeset .bug > summary {
+    background-color: rgba(229, 112, 107, 0.14);
+}
+
+/* The icons keep the color of the one accent, not the one of Material's. */
+
+.md-typeset .admonition-title::before,
+.md-typeset summary::before {
+    background-color: var(--strata-amber);
+}
+
+.md-typeset .tip > .admonition-title::before,
+.md-typeset .tip > summary::before,
+.md-typeset .success > .admonition-title::before,
+.md-typeset .success > summary::before {
+    background-color: var(--strata-teal);
+}
+
+.md-typeset .danger > .admonition-title::before,
+.md-typeset .danger > summary::before,
+.md-typeset .failure > .admonition-title::before,
+.md-typeset .failure > summary::before,
+.md-typeset .bug > .admonition-title::before,
+.md-typeset .bug > summary::before {
+    background-color: var(--strata-coral);
+}
+
+/* ---- Pictures: the screenshots ---- */
+
+.md-typeset img {
+    border: 1px solid var(--strata-line);
+    border-radius: var(--strata-radius);
+}
+
+.md-header__button.md-logo img {
+    border: 0;
+    border-radius: 0;
+}
+
+/* ---- Buttons and tabs, where a page uses them ---- */
+
+.md-typeset .md-button {
+    border: 1px solid var(--strata-line-strong);
+    border-radius: var(--strata-radius);
+    color: var(--strata-text-secondary);
+    font-weight: 500;
+}
+
+.md-typeset .md-button:hover,
+.md-typeset .md-button:focus {
+    border-color: var(--strata-amber);
+    background-color: transparent;
+    color: var(--strata-amber-hover);
+}
+
+.md-typeset .md-button--primary {
+    border-color: var(--strata-amber);
+    background-color: var(--strata-amber);
+    color: var(--strata-ground);
+}
+
+.md-typeset .md-button--primary:hover,
+.md-typeset .md-button--primary:focus {
+    border-color: var(--strata-amber-hover);
+    background-color: var(--strata-amber-hover);
+    color: var(--strata-ground);
+}
+
+.md-typeset .tabbed-set > .tabbed-labels > label {
+    font-family: var(--strata-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+    color: var(--strata-text-faint);
+}
+
+/* ---- Footer ---- */
+
+.md-footer {
+    border-top: 1px solid var(--strata-line);
+}
+
+.md-footer-meta {
+    background-color: var(--strata-ground);
+}
+
+.md-footer-meta__inner,
+.md-copyright {
+    font-family: var(--strata-mono);
+    font-size: 0.55rem;
+    color: var(--strata-text-faint);
+}
+
+.md-copyright a,
+.md-footer__link {
+    color: var(--strata-text-secondary);
+}
+
+.md-footer__title,
+.md-footer__direction {
+    font-family: var(--strata-mono);
+    font-size: 0.6rem;
+}

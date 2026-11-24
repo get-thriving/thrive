@@ -16,10 +16,21 @@ theme:
     name: material
     favicon: assets/favicon.ico
     logo: assets/jupiter.png
-    highlightjs: true
-    hljs_style: obsidian
+    # Fonts are self-hosted, see assets/stylesheet.css (ADR 0019).
+    font: false
+    # Pages swap in place, so the fonts stay loaded between them.
+    features:
+        - navigation.instant
+    # Strata, in the scheme of the device, as the landing page.
     palette:
-        primary: custom
+        - media: "(prefers-color-scheme: light)"
+          scheme: strata-light
+          primary: custom
+          accent: custom
+        - media: "(prefers-color-scheme: dark)"
+          scheme: strata-dark
+          primary: custom
+          accent: custom
 
 extra_css:
     - assets/stylesheet.css
