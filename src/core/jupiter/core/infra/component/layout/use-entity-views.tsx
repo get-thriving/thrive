@@ -21,7 +21,9 @@ import { PublishPanel } from "#/core/common/sub/publish/components/publish-panel
 import type { ColumnChip } from "#/core/infra/component/layout/column-chip";
 import type { ColumnMenuEntry } from "#/core/infra/component/layout/column-menu-entry";
 import { EntityMutationHistoryPanel } from "#/core/infra/component/layout/entity-mutation-history-panel";
+import { StrataColumnKeyContext } from "#/core/infra/component/layout/strata-column-key-context";
 import { StrataColumnsContext } from "#/core/infra/component/layout/strata-columns-context";
+import { StrataHeaderLendContext } from "#/core/infra/component/strata-header-lend-context";
 import { useSectionFilters } from "#/core/infra/component/use-section-filter";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { strataSplitKey } from "#/core/infra/strata/strata-columns-with-splits";
@@ -266,9 +268,23 @@ export function useEntityViews(config: EntityViewsConfig): EntityViews {
         // The column is there but its host not yet, for a moment: nothing is
         // drawn, rather than drawn in the panel and moved a moment later.
         const host = columns?.splitHost(strataPanelViewId(home, view)) ?? null;
+        // The controls of the view's card go in the header of its column, not
+        // in the panel's: the view is drawn from the panel, which sits inside
+        // the content of the columns before it, so what it would be given is
+        // theirs.
         return (
           <Fragment key={view}>
-            {host !== null && createPortal(content, host)}
+            {host !== null &&
+              createPortal(
+                <StrataColumnKeyContext.Provider
+                  value={strataSplitKey(strataPanelViewId(home, view))}
+                >
+                  <StrataHeaderLendContext.Provider value={true}>
+                    {content}
+                  </StrataHeaderLendContext.Provider>
+                </StrataColumnKeyContext.Provider>,
+                host,
+              )}
           </Fragment>
         );
       })}

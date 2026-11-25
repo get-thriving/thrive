@@ -53,6 +53,9 @@ import { RAIL_DESTINATIONS } from "#/core/infra/component/shell/rail-destination
 import { strataEntityTitle } from "#/core/infra/strata/strata-entity-title";
 import { strataTrunkTitle } from "#/core/infra/strata/strata-trunk-title";
 
+/** How long a page that makes an entity keeps taking the focus into its name. */
+const NAME_WATCH_MS = 2000;
+
 interface EntityPanelCommonProps {
   /**
    * Overrides the title, which is the kind of the entity and its number, or for
@@ -321,7 +324,7 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
   // page "Create & Another" comes back to, which is a new one (its nonce moved
   // on), and the form that is built anew in place (`freshFormKey`). The menu
   // or the button that made the entity may hand the focus back to where it was
-  // just after the form is up, so it is tried again a few times, for as long
+  // just after the form is up, so it is tried again every frame for a while, as long
   // as the focus is nowhere in particular, and once the inputs can be written
   // in, if they could not be.
   const [searchParams] = useSearchParams();
@@ -337,19 +340,41 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
       return;
     }
     nameWaiting.current = !strataEnterName(container, false);
-    const timers = [100, 250, 500].map((delay) =>
-      window.setTimeout(() => {
-        const active = document.activeElement;
-        const typing =
-          active instanceof HTMLElement &&
-          active.closest("input, textarea, select") !== null &&
-          active.closest("[data-strata-column]") !== null;
-        if (!typing && strataEnterName(container, false)) {
-          nameWaiting.current = false;
-        }
-      }, delay),
-    );
-    return () => timers.forEach((timer) => window.clearTimeout(timer));
+    // The first time the page is opened the column is still sliding in, and
+    // what opened it (a menu closing, a button that gets its focus back) takes
+    // the focus after the form is up, at a time nobody can tell in advance. So
+    // for a short while the name is gone into again whenever the focus is
+    // nowhere in particular, every frame, until the user presses a key or
+    // clicks: from then on the focus is theirs.
+    let watching = true;
+    const stop = () => {
+      watching = false;
+    };
+    window.addEventListener("keydown", stop, true);
+    window.addEventListener("pointerdown", stop, true);
+    const until = performance.now() + NAME_WATCH_MS;
+    let frame = 0;
+    const watch = () => {
+      if (!watching || performance.now() > until) {
+        return;
+      }
+      const active = document.activeElement;
+      const typing =
+        active instanceof HTMLElement &&
+        active.closest("input, textarea, select") !== null &&
+        active.closest("[data-strata-column]") !== null;
+      if (!typing && strataEnterName(container, false)) {
+        nameWaiting.current = false;
+      }
+      frame = requestAnimationFrame(watch);
+    };
+    frame = requestAnimationFrame(watch);
+    return () => {
+      watching = false;
+      cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", stop, true);
+      window.removeEventListener("pointerdown", stop, true);
+    };
   }, [makesEntity, scrollKey, createAnother, freshFormKey]);
   useEffect(() => {
     const container = containerRef.current;

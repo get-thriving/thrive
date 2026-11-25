@@ -50,7 +50,7 @@ export function StrataSplitColumn(props: StrataSplitColumnProps) {
         id={`split-panel-controls-${id}`}
         title={props.title}
         kind="split"
-        slot={props.view ? undefined : strataSplitKey(id)}
+        slot={strataSplitKey(id)}
         close={{
           onClick: props.onFold,
           label: props.view
