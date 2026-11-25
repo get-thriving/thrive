@@ -229,6 +229,11 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
         id={`inbox-task-${props.inboxTask.ref_id}`}
         // An item of a list, for `e`, `j`, `k` and `↵` (ADR 0021).
         data-strata-item=""
+        // A card that is picked, not opened: `↵` and the hints select it
+        // rather than following the link in it.
+        data-strata-selectable={
+          props.allowSelect && props.onClick ? "" : undefined
+        }
         tabIndex={-1}
         isselected={((props.allowSelect && props.selected) || false).toString()}
         enabled={inputsEnabled.toString()}

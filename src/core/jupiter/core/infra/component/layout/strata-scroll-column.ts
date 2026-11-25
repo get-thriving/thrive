@@ -1,3 +1,4 @@
+import { strataSelectEnd } from "#/core/infra/component/layout/strata-select-end";
 import { forgetNavPosition } from "#/core/infra/nav-restoration";
 import type { StrataScrollKeyAction } from "#/core/infra/strata/strata-scroll-key";
 
@@ -75,5 +76,11 @@ export function strataScrollFocusedColumn(to: StrataScrollKeyAction): boolean {
     document.querySelector<HTMLElement>(
       '[data-strata-column][data-focused="true"]',
     ) ?? document.querySelector<HTMLElement>("[data-strata-column]");
-  return column !== null && strataScrollColumn(column, to);
+  if (column === null || !strataScrollColumn(column, to)) {
+    return false;
+  }
+  // The selection goes to the end the column was scrolled to, so `j` and `k`
+  // go on from there and not from where they were.
+  strataSelectEnd(column, to);
+  return true;
 }

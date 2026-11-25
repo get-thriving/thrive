@@ -416,6 +416,7 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
         ? header
         : showControls && (
             <Form
+              id={`${prefix}-panel-form`}
               method="post"
               onSubmit={(event) => interceptIntentSubmit(event, intentHandlers)}
             >
@@ -429,6 +430,7 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
                     notEditable || (!props.entityArchived && !inputsEnabled)
                   }
                   idPrefix={prefix}
+                  formId={`${prefix}-panel-form`}
                 />
               )}
             </Form>

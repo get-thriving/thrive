@@ -141,6 +141,13 @@ export function StrataColumnsProvider(
   }, []);
 
   const pathKey = path.map((panel) => panel.key).join("|");
+  // What was chosen belongs to the path it was chosen on. Without this, a path
+  // that comes back after a move to another (a time plan, after its activity
+  // is closed) would be given the choice made the last time it was open, the
+  // trunk the user went to then, and not its deepest column.
+  if (chosen !== undefined && chosen.pathKey !== pathKey) {
+    setChosen(undefined);
+  }
   // A new path starts with the deepest panel focused again. On a phone, which
   // shows one panel at a time, so does a move to another item of the same kind
   // of panel, as when another item of the list that is on show is picked: it

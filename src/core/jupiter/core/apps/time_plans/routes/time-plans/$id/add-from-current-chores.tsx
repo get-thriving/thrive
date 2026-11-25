@@ -7,7 +7,7 @@ import {
   TimePlanActivityFeasability,
   TimePlanActivityKind,
 } from "@jupiter/webapi-client";
-import { FormControl, FormLabel, Stack, Typography } from "@mui/material";
+import { FormControl, FormLabel, Typography } from "@mui/material";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -32,6 +32,7 @@ import {
   comparePeriods,
   periodName,
 } from "#/core/common/recurring-task-period";
+import { ActivityOptionsBar } from "#/core/apps/time_plans/component/activity-options-bar";
 import { RecurringTaskPeriodProgress } from "#/core/common/component/recurring-task-period-progress";
 import {
   groupInboxTasksByOwnerRefId,
@@ -504,11 +505,7 @@ export default function TimePlanAddFromCurrentChores() {
           />
         }
       >
-        <Stack
-          spacing={1.25}
-          useFlexGap
-          direction={isBigScreen ? "row" : "column"}
-        >
+        <ActivityOptionsBar>
           <FormControl fullWidth>
             <FormLabel id="kind">Kind</FormLabel>
             <TimePlanActivitKindSelect
@@ -528,7 +525,7 @@ export default function TimePlanAddFromCurrentChores() {
             />
             <FieldError actionResult={actionData} fieldName="/feasability" />
           </FormControl>
-        </Stack>
+        </ActivityOptionsBar>
 
         <input
           type="hidden"

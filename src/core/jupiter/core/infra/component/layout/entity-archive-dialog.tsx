@@ -23,6 +23,8 @@ interface EntityArchiveDialogProps {
   confirmDisabled: boolean;
   /** The confirming button's id is `<prefix>-entity-archive-confirm`. */
   idPrefix: string;
+  /** The id of the form the confirming button submits. */
+  formId: string;
 }
 
 /**
@@ -90,8 +92,10 @@ function WithKey(props: { keyName: string; children: ReactNode }) {
 
 /**
  * Asks whether to archive an entity, or, once it is archived, to remove it for
- * good. It submits the form it is in with `intent` set to `archive` or
- * `remove`, so it is drawn in place rather than in a portal.
+ * good. Its button submits the form of the panel, by the `form` attribute, with
+ * `intent` set to `archive` or `remove`. It is drawn in a portal, over
+ * everything: in place, it would be in the stack of its column, which the
+ * columns beside it, the rail and the footer paint over.
  */
 export function EntityArchiveDialog(props: EntityArchiveDialogProps) {
   // What it asks is what it was opened with: archiving makes the entity
@@ -107,7 +111,6 @@ export function EntityArchiveDialog(props: EntityArchiveDialogProps) {
     <Dialog
       onClose={props.onClose}
       open={props.open}
-      disablePortal
       slotProps={{ root: { "data-strata-confirm": "" } as object }}
     >
       <DialogTitle>Careful!</DialogTitle>
@@ -120,6 +123,7 @@ export function EntityArchiveDialog(props: EntityArchiveDialogProps) {
           id={confirmId}
           sx={{ marginLeft: "auto" }}
           disabled={props.confirmDisabled}
+          form={props.formId}
           type="submit"
           name="intent"
           value={archived ? "remove" : "archive"}

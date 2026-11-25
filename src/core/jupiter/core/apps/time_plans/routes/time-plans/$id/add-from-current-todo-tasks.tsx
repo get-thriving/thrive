@@ -4,7 +4,7 @@ import {
   TimePlanActivityFeasability,
   TimePlanActivityKind,
 } from "@jupiter/webapi-client";
-import { FormControl, FormLabel, Stack, Typography } from "@mui/material";
+import { FormControl, FormLabel, Typography } from "@mui/material";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -21,6 +21,7 @@ import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 
+import { ActivityOptionsBar } from "#/core/apps/time_plans/component/activity-options-bar";
 import { isTimePlanActivityTodoTaskTarget } from "#/core/apps/time_plans/sub/activity/target-wire";
 import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import {
@@ -44,7 +45,6 @@ import { SectionCard } from "#/core/infra/component/section-card";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TimePlanActivityFeasabilitySelect } from "#/core/apps/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "#/core/apps/time_plans/sub/activity/component/kind-select";
-import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
@@ -194,7 +194,6 @@ export default function TimePlanAddFromCurrentTodoTasks() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.timePlan.archived;
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const isBigScreen = useBigScreen();
   const timePlanViewParam = query;
 
   const alreadyIncludedTodoTaskRefIds = new Set(
@@ -296,11 +295,7 @@ export default function TimePlanAddFromCurrentTodoTasks() {
           />
         }
       >
-        <Stack
-          spacing={1.25}
-          useFlexGap
-          direction={isBigScreen ? "row" : "column"}
-        >
+        <ActivityOptionsBar>
           <FormControl fullWidth>
             <FormLabel id="kind">Kind</FormLabel>
             <TimePlanActivitKindSelect
@@ -320,7 +315,7 @@ export default function TimePlanAddFromCurrentTodoTasks() {
             />
             <FieldError actionResult={actionData} fieldName="/feasability" />
           </FormControl>
-        </Stack>
+        </ActivityOptionsBar>
 
         <input
           type="hidden"
