@@ -47,6 +47,29 @@ export function StrataColumnFrame(
   const spine = column?.state === "spine";
   const peek = column?.state === "partial";
 
+  // A click on an item of a list makes it the item the keyboard is on, as `j`
+  // and `k` would: it is drawn selected, they go on from it, and it stays so
+  // while what it opens takes the focus. A link does not always take the focus
+  // on a click, nor does a card that can be dragged, so it is done here. A field
+  // keeps what it has.
+  function selectClickedItem(event: MouseEvent<HTMLElement>) {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+    const item = target.closest<HTMLElement>("[data-strata-item]");
+    if (
+      item === null ||
+      item.closest("[data-strata-column]") !== event.currentTarget ||
+      item.contains(document.activeElement) ||
+      target.closest("input, textarea, select, [contenteditable='true']") !==
+        null
+    ) {
+      return;
+    }
+    item.focus({ preventScroll: true });
+  }
+
   function handleFocusCapture(event: FocusEvent<HTMLElement>) {
     // Tabbing into a peek brings it in whole. Focus inside a column nested in
     // this one, which also reaches here, is that column's business.
@@ -60,6 +83,7 @@ export function StrataColumnFrame(
   }
 
   function handleClickCapture(event: MouseEvent<HTMLElement>) {
+    selectClickedItem(event);
     // A click on the column's header selects the column, as moving to it with
     // the keyboard does, so its count, position, main action and menu show. It
     // is taken in the capture phase, so a control in the header that moves the

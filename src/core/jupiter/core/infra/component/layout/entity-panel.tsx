@@ -297,11 +297,29 @@ export function EntityPanel(props: PropsWithChildren<EntityPanelProps>) {
 
     restoreScrollPosition(theRef, scrollKey);
     const frame = requestAnimationFrame(mark);
+    // A list that is drawn again (what an item opened changes the page, and
+    // its cards with it) loses the mark with the cards it was on: it is put
+    // back when nothing in the column has it.
+    let remark = 0;
+    const observer = new MutationObserver(() => {
+      cancelAnimationFrame(remark);
+      remark = requestAnimationFrame(() => {
+        if (
+          !foldedRef.current &&
+          theRef.querySelector("[data-strata-remembered]") === null
+        ) {
+          mark();
+        }
+      });
+    });
+    observer.observe(theRef, { childList: true, subtree: true });
     theRef.addEventListener("scroll", handleScrollSpecial);
     theRef.addEventListener("focusin", handleFocusIn);
 
     return () => {
       cancelAnimationFrame(frame);
+      cancelAnimationFrame(remark);
+      observer.disconnect();
       theRef.removeEventListener("scroll", handleScrollSpecial);
       theRef.removeEventListener("focusin", handleFocusIn);
     };
