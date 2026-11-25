@@ -1,8 +1,9 @@
 import { Box } from "@mui/material";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import { ColumnHeader } from "#/core/infra/component/layout/column-header";
 import { StrataColumnFrame } from "#/core/infra/component/layout/strata-column-frame";
+import { useStrataSplitSelection } from "#/core/infra/component/layout/use-strata-split-selection";
 import { strataSplitKey } from "#/core/infra/strata/strata-columns-with-splits";
 import type { StrataPlacedSlot } from "#/core/infra/strata/strata-layout-for";
 
@@ -32,10 +33,15 @@ interface StrataSplitColumnProps {
  */
 export function StrataSplitColumn(props: StrataSplitColumnProps) {
   const { id, setHost } = props;
+  const [hostElement, setHostElement] = useState<HTMLElement | null>(null);
   const hostRef = useCallback(
-    (element: HTMLElement | null) => setHost(id, element),
+    (element: HTMLElement | null) => {
+      setHostElement(element);
+      setHost(id, element);
+    },
     [id, setHost],
   );
+  useStrataSplitSelection(hostElement);
   return (
     <StrataColumnFrame
       id={`split-panel-${id}`}
@@ -50,7 +56,7 @@ export function StrataSplitColumn(props: StrataSplitColumnProps) {
         id={`split-panel-controls-${id}`}
         title={props.title}
         kind="split"
-        slot={props.view ? undefined : strataSplitKey(id)}
+        slot={strataSplitKey(id)}
         close={{
           onClick: props.onFold,
           label: props.view

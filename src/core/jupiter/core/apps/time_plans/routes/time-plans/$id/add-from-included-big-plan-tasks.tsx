@@ -3,7 +3,7 @@ import {
   TimePlanActivityFeasability,
   TimePlanActivityKind,
 } from "@jupiter/webapi-client";
-import { FormControl, FormLabel, Stack, Typography } from "@mui/material";
+import { FormControl, FormLabel, Typography } from "@mui/material";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -20,6 +20,7 @@ import { Fragment, useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 
+import { ActivityOptionsBar } from "#/core/apps/time_plans/component/activity-options-bar";
 import { isTimePlanActivityInboxTaskTarget } from "#/core/apps/time_plans/sub/activity/target-wire";
 import {
   BIG_PLAN,
@@ -53,7 +54,6 @@ import {
   ActionableTime,
   actionableTimeToDateTime,
 } from "#/core/infra/actionable-time";
-import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import { timePlanAllowsInboxTasks } from "#/core/apps/time_plans/root";
@@ -203,7 +203,6 @@ export default function TimePlanAddFromIncludedBigPlanTasks() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const isBigScreen = useBigScreen();
   const timePlanViewParam = query;
 
   const inputsEnabled =
@@ -321,11 +320,7 @@ export default function TimePlanAddFromIncludedBigPlanTasks() {
           />
         }
       >
-        <Stack
-          spacing={1.25}
-          useFlexGap
-          direction={isBigScreen ? "row" : "column"}
-        >
+        <ActivityOptionsBar>
           <FormControl fullWidth>
             <FormLabel id="kind">Kind</FormLabel>
             <TimePlanActivitKindSelect
@@ -345,7 +340,7 @@ export default function TimePlanAddFromIncludedBigPlanTasks() {
             />
             <FieldError actionResult={actionData} fieldName="/feasability" />
           </FormControl>
-        </Stack>
+        </ActivityOptionsBar>
 
         {bigPlansWithTasks.length === 0 ? (
           <Typography sx={{ mt: 2 }}>

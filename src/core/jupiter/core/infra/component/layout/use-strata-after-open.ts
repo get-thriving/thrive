@@ -3,6 +3,17 @@ import { useCallback, useContext } from "react";
 import { StrataColumnsContext } from "#/core/infra/component/layout/strata-columns-context";
 
 /**
+ * Whether opening an item leads to a column: it has a link to follow, and is
+ * not one that is picked or does something else.
+ */
+export function strataItemOpensColumn(item: HTMLElement): boolean {
+  return (
+    !item.hasAttribute("data-strata-selectable") &&
+    item.querySelector("a[href]") !== null
+  );
+}
+
+/**
  * What `↵` does once it has opened an item of a list (ADR 0021): the column
  * the item opens in takes the focus. When the item opens a new column that is
  * what happens anyway, as a new path starts with its deepest column focused;
@@ -16,11 +27,7 @@ export function useStrataAfterOpen(): (item: HTMLElement) => void {
 
   return useCallback(
     (item) => {
-      if (
-        focusIn === undefined ||
-        item.hasAttribute("data-strata-selectable") ||
-        item.querySelector("a[href]") === null
-      ) {
+      if (focusIn === undefined || !strataItemOpensColumn(item)) {
         return;
       }
       focusIn();

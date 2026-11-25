@@ -27,6 +27,7 @@ import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
 
+import { ActivityOptionsBar } from "#/core/apps/time_plans/component/activity-options-bar";
 import { isTimePlanActivityInboxTaskTarget } from "#/core/apps/time_plans/sub/activity/target-wire";
 import {
   BIG_PLAN,
@@ -381,11 +382,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
           </FormControl>
         </Stack>
 
-        <Stack
-          spacing={1.25}
-          useFlexGap
-          direction={isBigScreen ? "row" : "column"}
-        >
+        <ActivityOptionsBar>
           <FormControl fullWidth>
             <FormLabel id="kind">Kind</FormLabel>
             <TimePlanActivitKindSelect
@@ -405,7 +402,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
             />
             <FieldError actionResult={actionData} fieldName="/feasability" />
           </FormControl>
-        </Stack>
+        </ActivityOptionsBar>
 
         <StandardDivider title="All Inbox Tasks" size="large" />
         <InboxTaskList

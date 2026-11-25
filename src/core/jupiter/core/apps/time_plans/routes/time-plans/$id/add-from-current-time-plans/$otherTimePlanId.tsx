@@ -13,7 +13,7 @@ import {
   TimePlanActivityKind,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
-import { FormControl, FormLabel, Stack } from "@mui/material";
+import { FormControl, FormLabel } from "@mui/material";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -30,6 +30,7 @@ import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 
+import { ActivityOptionsBar } from "#/core/apps/time_plans/component/activity-options-bar";
 import { isTimePlanActivityInboxTaskTarget } from "#/core/apps/time_plans/sub/activity/target-wire";
 import { parseEntityLinkStd } from "#/core/common/entity-link";
 import {
@@ -61,7 +62,6 @@ import { TimePlanActivityFeasabilitySelect } from "#/core/apps/time_plans/sub/ac
 import { TimePlanActivitKindSelect } from "#/core/apps/time_plans/sub/activity/component/kind-select";
 import { TimePlanCard } from "#/core/apps/time_plans/component/card";
 import { TimePlanStack } from "#/core/apps/time_plans/component/stack";
-import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { DisplayType } from "#/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 import {
@@ -264,7 +264,6 @@ export default function TimePlanAddFromCurrentTimePlans() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.mainTimePlan.archived;
@@ -447,11 +446,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
           />
         }
       >
-        <Stack
-          spacing={1.25}
-          useFlexGap
-          direction={isBigScreen ? "row" : "column"}
-        >
+        <ActivityOptionsBar>
           <FormControl fullWidth>
             <FormLabel id="kind">Kind</FormLabel>
             <TimePlanActivitKindSelect
@@ -473,7 +468,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
             />
             <FieldError actionResult={actionData} fieldName="/feasability" />
           </FormControl>
-        </Stack>
+        </ActivityOptionsBar>
 
         <StandardDivider title="Activities" size="large" />
 

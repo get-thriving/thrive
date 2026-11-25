@@ -7,10 +7,7 @@ import {
 } from "#/core/infra/component/layout/strata-scroll-column";
 import { strataFocusItem } from "#/core/infra/component/layout/strata-focus-item";
 import { strataItemPath } from "#/core/infra/component/layout/strata-item-path";
-import {
-  strataFocusedItem,
-  strataSectionItems,
-} from "#/core/infra/component/layout/strata-section-items";
+import { strataSectionItems } from "#/core/infra/component/layout/strata-section-items";
 
 /**
  * How an item of a list is told from the others when it is looked for again:
@@ -55,7 +52,10 @@ export function strataNavPositionOf(scroller: HTMLElement): NavPosition | null {
     return null;
   }
   const scope = owner ?? column;
-  const item = strataFocusedItem();
+  // The item the focus is on or in: a click on a link or a button of an item
+  // puts the focus on that, and not on the item, but the item is what was
+  // picked, and what `j` and `k` go on from.
+  const item = active.closest<HTMLElement>("[data-strata-item]");
   const items = item === null ? [] : strataSectionItems(scope);
   if (owner === null && item === null) {
     return null;

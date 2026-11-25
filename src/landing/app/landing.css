@@ -207,6 +207,11 @@ dd {
   gap: 6px;
 }
 
+/* The phone menu is off until the screen is narrow; see the end of the file. */
+.site-menu {
+  display: none;
+}
+
 /* ---- Hero ---- */
 
 .hero {
@@ -1266,5 +1271,180 @@ h2 {
   .panel,
   .start-card {
     padding: 22px;
+  }
+}
+
+/* ---- Phones ---- */
+
+@media (max-width: 720px) {
+  /* The header: the brand, Get started and a menu with the rest. */
+  .site-header-inner {
+    position: relative;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .site-nav,
+  .site-signin {
+    display: none;
+  }
+
+  .brand {
+    margin-right: auto;
+  }
+
+  .site-menu {
+    display: block;
+  }
+
+  .site-menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--strata-line-strong);
+    border-radius: 5px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .site-menu-button::-webkit-details-marker {
+    display: none;
+  }
+
+  .site-menu[open] .site-menu-button {
+    border-color: var(--strata-amber);
+    background: var(--strata-amber-tint);
+  }
+
+  .site-menu-icon,
+  .site-menu-icon::before,
+  .site-menu-icon::after {
+    display: block;
+    width: 16px;
+    height: 1.5px;
+    background: var(--strata-text-secondary);
+  }
+
+  .site-menu-icon {
+    position: relative;
+  }
+
+  .site-menu-icon::before,
+  .site-menu-icon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+  }
+
+  .site-menu-icon::before {
+    top: -5px;
+  }
+
+  .site-menu-icon::after {
+    top: 5px;
+  }
+
+  .site-menu-panel {
+    position: absolute;
+    top: 100%;
+    right: 24px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+    padding: 6px 0;
+    border: 1px solid var(--strata-line-strong);
+    border-radius: 6px;
+    background: var(--strata-column);
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.55);
+  }
+
+  .site-menu-panel a {
+    padding: 12px 18px;
+    font-size: 15px;
+  }
+
+  .site-menu-panel a:last-child {
+    border-top: 1px solid var(--strata-line);
+  }
+
+  /* The sample screens: the focused column alone, as the phone app shows it,
+     in the width of the page and with no sideways scroll. */
+  /* One row of tabs that scrolls, not three that wrap. */
+  .product-tablist {
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .product-tab {
+    flex: none;
+  }
+
+  .product-note {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .sample-window {
+    min-width: 0;
+  }
+
+  .sample-search,
+  .sample-rail,
+  .sample-column:not([data-focused="true"]) {
+    display: none;
+  }
+
+  .sample-topbar {
+    padding-left: 0;
+  }
+
+  .sample-crumb {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sample-frame {
+    height: 460px;
+  }
+
+  .sample-column {
+    border-right: 0;
+  }
+
+  .sample-calendar {
+    --hour-height: 34px;
+    --gutter: 22px;
+  }
+
+  .sample-calendar .sample-calendar-event {
+    left: 1px;
+    right: 1px;
+    padding: 2px 3px;
+    font-size: 9.5px;
+  }
+
+  .sample-timeplan-top,
+  .sample-timeplan-bottom {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sample-note {
+    border-right: 0;
+    border-bottom: 1px solid var(--strata-line);
+  }
+
+  .sample-timeplan-tasks {
+    border-right: 0;
+  }
+
+  .sample-timeplan-calendar {
+    display: none;
   }
 }

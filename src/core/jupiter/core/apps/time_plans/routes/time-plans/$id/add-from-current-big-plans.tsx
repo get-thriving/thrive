@@ -13,7 +13,7 @@ import {
 import FlareIcon from "@mui/icons-material/Flare";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
-import { FormControl, FormLabel, Stack } from "@mui/material";
+import { FormControl, FormLabel } from "@mui/material";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -31,6 +31,7 @@ import { Fragment, useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 
+import { ActivityOptionsBar } from "#/core/apps/time_plans/component/activity-options-bar";
 import { isTimePlanActivityBigPlanTarget } from "#/core/apps/time_plans/sub/activity/target-wire";
 import { entityLinkRefIdFromWire } from "#/core/common/sub/inbox_tasks/parent-link-namespace";
 import { aDateToDate } from "#/core/common/adate";
@@ -219,7 +220,6 @@ export default function TimePlanAddFromCurrentBigPlans() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.timePlan.archived;
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const isBigScreen = useBigScreen();
 
   const alreadyIncludedBigPlanRefIds = new Set(
     loaderData.activities
@@ -328,11 +328,7 @@ export default function TimePlanAddFromCurrentBigPlans() {
           />
         }
       >
-        <Stack
-          spacing={1.25}
-          useFlexGap
-          direction={isBigScreen ? "row" : "column"}
-        >
+        <ActivityOptionsBar>
           <FormControl fullWidth>
             <FormLabel id="kind">Kind</FormLabel>
             <TimePlanActivitKindSelect
@@ -352,7 +348,7 @@ export default function TimePlanAddFromCurrentBigPlans() {
             />
             <FieldError actionResult={actionData} fieldName="/feasability" />
           </FormControl>
-        </Stack>
+        </ActivityOptionsBar>
 
         {selectedView === View.LIST_MERGED && (
           <Fragment>

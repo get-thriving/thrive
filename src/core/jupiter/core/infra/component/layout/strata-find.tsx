@@ -11,6 +11,7 @@ import { strataEnterEditable } from "#/core/infra/component/layout/strata-enter-
 import { strataFindMatches } from "#/core/infra/component/layout/strata-find-matches";
 import { strataOpenItem } from "#/core/infra/component/layout/strata-open-item";
 import { strataScrollToCentre } from "#/core/infra/component/layout/strata-scroll-to-centre";
+import { strataItemOpensColumn } from "#/core/infra/component/layout/use-strata-after-open";
 import {
   strataColors,
   strataFonts,
@@ -64,6 +65,16 @@ function unmark() {
   }
   CSS.highlights.delete(ALL_MATCHES);
   CSS.highlights.delete(CURRENT_MATCH);
+}
+
+/** Whether pressing what a match landed on leads to a column of the app: a link to a page of it. */
+function opensColumn(landing: HTMLElement): boolean {
+  return (
+    landing instanceof HTMLAnchorElement &&
+    !landing.hasAttribute("data-strata-selectable") &&
+    landing.target !== "_blank" &&
+    landing.origin === window.location.origin
+  );
 }
 
 /**
@@ -169,13 +180,22 @@ export function StrataFind() {
     // opened, or picked where that is what pressing it does; a link or button
     // is pressed. A match in plain text, outside any of these, has only the
     // focus.
+    // What it opens takes the focus, as it does after `↵` on an item: a new
+    // column does anyway, but one that replaces what was open in the column
+    // after the list leaves the path as it was, so the focus is moved there.
     if (landing.hasAttribute("data-strata-item")) {
       strataOpenItem(landing);
+      if (strataItemOpensColumn(landing)) {
+        columnsRef.current?.focusIn();
+      }
     } else if (
       landing.matches(PRESSABLE) ||
       landing.hasAttribute("data-strata-selectable")
     ) {
       strataActivateHintTarget(landing);
+      if (opensColumn(landing)) {
+        columnsRef.current?.focusIn();
+      }
     }
   }, []);
 
