@@ -734,14 +734,16 @@ services:
   envVars:
     - key: NODE_VERSION
       value: 22.23.3
-    # Patched from the sibling services, as the docs' API_URL is, so a preview
-    # links to its own WebUI and docs rather than production's.
-    - key: WEBUI_URL
+    # Production links to the hosted apps (the defaults in src/Config.global):
+    # RENDER_EXTERNAL_URL is the onrender.com address, not the custom domain.
+    # A preview links to its own WebUI and docs instead; tasks/build/landing.sh
+    # reads these only when IS_PULL_REQUEST is true.
+    - key: PREVIEW_WEBUI_URL
       fromService:
         name: jupiter-webui
         type: web
         envVarKey: RENDER_EXTERNAL_URL
-    - key: DOCS_URL
+    - key: PREVIEW_DOCS_URL
       fromService:
         name: jupiter-docs
         type: web

@@ -20,10 +20,20 @@ log info "Building the landing page"
 
 # Where the links of the page point comes from WEBUI_URL, DOCS_URL, COMMUNITY_URL,
 # SOURCE_URL and SUPPORT_EMAIL, in the environment or in src/Config.global, and
-# the build stops if one is missing (see src/landing/vite.config.mts). Render sets
-# WEBUI_URL and DOCS_URL; a build by hand links to the hosted apps unless they are set.
-export WEBUI_URL="${WEBUI_URL:-$HOSTED_GLOBAL_WEBUI_URL}"
-export DOCS_URL="${DOCS_URL:-$HOSTED_GLOBAL_DOCS_URL}"
+# the build stops if one is missing (see src/landing/vite.config.mts).
+#
+# Render's RENDER_EXTERNAL_URL is always the onrender.com address, even for a
+# service with a custom domain, so production must not take the links from the
+# sibling services: it links to the hosted apps. Only a pull request preview
+# (IS_PULL_REQUEST=true) links to the previews of its own WebUI and docs, which
+# render.yaml hands over as PREVIEW_WEBUI_URL and PREVIEW_DOCS_URL.
+if [[ "${IS_PULL_REQUEST:-}" == "true" ]]; then
+    export WEBUI_URL="${PREVIEW_WEBUI_URL:-${WEBUI_URL:-$HOSTED_GLOBAL_WEBUI_URL}}"
+    export DOCS_URL="${PREVIEW_DOCS_URL:-${DOCS_URL:-$HOSTED_GLOBAL_DOCS_URL}}"
+else
+    export WEBUI_URL="${WEBUI_URL:-$HOSTED_GLOBAL_WEBUI_URL}"
+    export DOCS_URL="${DOCS_URL:-$HOSTED_GLOBAL_DOCS_URL}"
+fi
 pnpm install --frozen-lockfile --filter @jupiter/landing...
 (cd src/landing && pnpm exec react-router build)
 
