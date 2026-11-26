@@ -300,7 +300,10 @@ dd {
   color: var(--strata-text-faint);
 }
 
+/* The sample screens answer to the width of this frame, not of the window, so
+   the phone view on a wide screen is the same layout a phone gets. */
 .product-frame {
+  container: product / inline-size;
   border: 1px solid var(--strata-line-strong);
   border-radius: 8px;
   overflow: hidden;
@@ -308,8 +311,38 @@ dd {
   box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.55);
 }
 
+.product-frame[data-view="mobile"] {
+  max-width: 390px;
+  margin-inline: auto;
+}
+
 .product-scroll {
   overflow-x: auto;
+}
+
+.product-views {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--strata-line-strong);
+  border-radius: 5px;
+}
+
+.product-view {
+  min-height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--strata-text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.product-view[aria-pressed="true"] {
+  background: var(--strata-amber-tint);
+  color: var(--strata-text);
 }
 
 /* ---- A sample screen: the product, drawn ---- */
@@ -1370,8 +1403,6 @@ h2 {
     border-top: 1px solid var(--strata-line);
   }
 
-  /* The sample screens: the focused column alone, as the phone app shows it,
-     in the width of the page and with no sideways scroll. */
   /* One row of tabs that scrolls, not three that wrap. */
   .product-tablist {
     flex-wrap: nowrap;
@@ -1390,6 +1421,16 @@ h2 {
     width: 100%;
   }
 
+  /* A phone already shows the phone layout. */
+  .product-views {
+    display: none;
+  }
+}
+
+/* The sample screens in a narrow frame: the focused column alone, as the phone
+   app shows it, with no sideways scroll. The frame is the container, so this
+   holds on a phone and in the phone preview picked on a wide screen alike. */
+@container product (max-width: 720px) {
   .sample-window {
     min-width: 0;
   }

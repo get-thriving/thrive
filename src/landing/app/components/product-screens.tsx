@@ -10,6 +10,7 @@ import { SampleScreenView } from "~/components/sample-screen-view";
  */
 export function ProductScreens() {
   const [selected, setSelected] = useState(0);
+  const [view, setView] = useState<"desktop" | "mobile">("desktop");
   const tabs = useRef<Array<HTMLButtonElement | null>>([]);
 
   function onKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
@@ -50,8 +51,21 @@ export function ProductScreens() {
           ))}
         </div>
         <span className="product-note">Sample data</span>
+        <div role="group" aria-label="Preview as" className="product-views">
+          {(["desktop", "mobile"] as const).map((option) => (
+            <button
+              key={option}
+              type="button"
+              className="product-view"
+              aria-pressed={view === option}
+              onClick={() => setView(option)}
+            >
+              {option === "desktop" ? "Desktop" : "Mobile"}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="product-frame">
+      <div className="product-frame" data-view={view}>
         <div className="product-scroll">
           {SAMPLE_SCREENS.map((screen, index) => (
             <div
