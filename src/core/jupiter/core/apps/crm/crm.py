@@ -16,7 +16,7 @@ class CrmDeploymentContext:
     """Universe, environment, and instance for the running Thrive deployment.
 
     CRM implementations should persist these via ``str()`` on each value
-    (e.g. Wix extended-field items use keys like ``custom.<field-key>``).
+    (e.g. Resend stores them as ``thrive_*`` contact properties).
     """
 
     universe: Universe

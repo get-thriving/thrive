@@ -15,7 +15,7 @@ from jupiter.framework.entity import ParentLink
 from jupiter.framework.storage.repository import DomainStorageEngine
 from jupiter.framework.time_provider import TimeProvider
 
-INDEX_METHOD_VERSION: Final[int] = 7
+INDEX_METHOD_VERSION: Final[int] = 8
 
 
 class SupportsCRMEntityIndexing(Protocol):

@@ -29,7 +29,7 @@
 #USAGE   choices "noop" "google-maps"
 #USAGE }
 #USAGE flag "--crm <crm>" default="noop" help="CRM integration (ADR 0008)" {
-#USAGE   choices "noop" "wix"
+#USAGE   choices "noop" "resend"
 #USAGE }
 #USAGE flag "--auth-provider <authProvider>" default="local" help="Auth provider (ADR 0008)" {
 #USAGE   choices "local" "local-google-apple"

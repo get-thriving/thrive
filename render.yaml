@@ -33,7 +33,7 @@ envVarGroups:
         value: sentry
         previewValue: local
       - key: CRM
-        value: wix
+        value: resend
         previewValue: noop
       - key: LOCATION_RESOLVER
         value: google-maps
@@ -64,12 +64,6 @@ envVarGroups:
       - key: RESEND_API_KEY
         sync: false
       - key: SENTRY_DSN
-        sync: false
-      - key: WIX_ACCOUNT_ID
-        sync: false
-      - key: WIX_API_KEY
-        sync: false
-      - key: WIX_SITE_ID
         sync: false
       - key: GOOGLE_MAPS_API_KEY
         sync: false

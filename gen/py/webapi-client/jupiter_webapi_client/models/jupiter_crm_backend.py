@@ -3,7 +3,7 @@ from enum import StrEnum
 
 class JupiterCrmBackend(StrEnum):
     NOOP = "noop"
-    WIX = "wix"
+    RESEND = "resend"
 
     def __str__(self) -> str:
         return str(self.value)

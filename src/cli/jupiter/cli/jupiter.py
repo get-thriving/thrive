@@ -9,10 +9,10 @@ import jupiter.core
 from jupiter.cli.config import JupiterCliAppForm, build_cli_properties
 from jupiter.core.apps.crm.crm import CRM, CrmDeploymentContext
 from jupiter.core.apps.crm.impl.noop import NoOpCRM
+from jupiter.core.apps.crm.impl.resend import ResendCRM
 from jupiter.core.apps.crm.impl.sqlite.indexing_storage_engine import (
     SqliteCRMIndexingStorageEngine,
 )
-from jupiter.core.apps.crm.impl.wix import WixCRM
 from jupiter.core.auth.sub.email_verification.impl.noop import NoOpEmailSender
 from jupiter.core.backend_blend import JupiterCrmBackend
 from jupiter.core.common.search.impl.sqlite.indexing_storage_engine import (
@@ -97,11 +97,9 @@ async def main() -> None:
         instance=global_properties.instance,
     )
     crm: CRM
-    if global_properties.crm_backend == JupiterCrmBackend.WIX:
-        crm = WixCRM(
+    if global_properties.crm_backend == JupiterCrmBackend.RESEND:
+        crm = ResendCRM(
             api_key="",
-            account_id="",
-            site_id="",
             deployment=deployment,
         )
     else:

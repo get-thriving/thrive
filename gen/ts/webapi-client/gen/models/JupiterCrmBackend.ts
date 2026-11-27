@@ -6,6 +6,6 @@
  * CRM integration.
  */
 export enum JupiterCrmBackend {
-    WIX = 'wix',
+    RESEND = 'resend',
     NOOP = 'noop',
 }

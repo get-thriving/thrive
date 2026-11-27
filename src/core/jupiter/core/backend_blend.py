@@ -23,7 +23,7 @@ class JupiterEmailVerificationStrategy(EnumValue):
 class JupiterCrmBackend(EnumValue):
     """CRM integration."""
 
-    WIX = "wix"
+    RESEND = "resend"
     NOOP = "noop"
 
 

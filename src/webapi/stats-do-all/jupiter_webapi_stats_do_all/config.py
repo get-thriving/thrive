@@ -46,9 +46,7 @@ class JupiterWebApiProperties(ServiceProperties):
     alembic_migrations_path: Path
     auth_token_secret: str
     sentry_dsn: str
-    wix_api_key: str
-    wix_account_id: str
-    wix_site_id: str
+    resend_api_key: str
     algolia_app_id: str
     algolia_write_api_key: str
 
@@ -94,9 +92,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
     alembic_migrations_path = Path(cast(str, os.getenv("ALEMBIC_MIGRATIONS_PATH")))
     auth_token_secret = cast(str, os.getenv("AUTH_TOKEN_SECRET"))
     sentry_dsn = cast(str, os.getenv("SENTRY_DSN"))
-    wix_api_key = cast(str, os.getenv("WIX_API_KEY"))
-    wix_account_id = cast(str, os.getenv("WIX_ACCOUNT_ID"))
-    wix_site_id = cast(str, os.getenv("WIX_SITE_ID"))
+    resend_api_key = cast(str, os.getenv("RESEND_API_KEY", ""))
     algolia_app_id = cast(str, os.getenv("ALGOLIA_APP_ID"))
     algolia_write_api_key = cast(str, os.getenv("ALGOLIA_WRITE_API_KEY"))
     storage_engine = JupiterWebApiStorageEngine(
@@ -127,9 +123,7 @@ def build_web_api_properties() -> JupiterWebApiProperties:
         alembic_ini_path=alembic_ini_path,
         alembic_migrations_path=alembic_migrations_path,
         auth_token_secret=auth_token_secret,
-        wix_api_key=wix_api_key,
-        wix_account_id=wix_account_id,
-        wix_site_id=wix_site_id,
+        resend_api_key=resend_api_key,
         algolia_app_id=algolia_app_id,
         algolia_write_api_key=algolia_write_api_key,
     )

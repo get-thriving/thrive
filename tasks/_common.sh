@@ -570,8 +570,8 @@ run_jupiter_webapp() {
         log error "Invalid location resolver: $location_resolver (expected noop or google-maps)"
         exit 1
     fi
-    if [[ "$webapi_crm" != "noop" && "$webapi_crm" != "wix" ]]; then
-        log error "Invalid webapi crm: $webapi_crm (expected noop or wix)"
+    if [[ "$webapi_crm" != "noop" && "$webapi_crm" != "resend" ]]; then
+        log error "Invalid webapi crm: $webapi_crm (expected noop or resend)"
         exit 1
     fi
     if [[ "$webapi_auth_provider" != "local" && "$webapi_auth_provider" != "local-google-apple" ]]; then
