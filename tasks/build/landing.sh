@@ -27,9 +27,17 @@ log info "Building the landing page"
 # sibling services: it links to the hosted apps. Only a pull request preview
 # (IS_PULL_REQUEST=true) links to the previews of its own WebUI and docs, which
 # render.yaml hands over as PREVIEW_WEBUI_URL and PREVIEW_DOCS_URL.
+#
+# A production build on Render ignores WEBUI_URL and DOCS_URL altogether: Render
+# keeps an env var on the service after it is removed from render.yaml, so a
+# stale one (the old onrender.com address) would silently win over the hosted
+# domains.
 if [[ "${IS_PULL_REQUEST:-}" == "true" ]]; then
     export WEBUI_URL="${PREVIEW_WEBUI_URL:-${WEBUI_URL:-$HOSTED_GLOBAL_WEBUI_URL}}"
     export DOCS_URL="${PREVIEW_DOCS_URL:-${DOCS_URL:-$HOSTED_GLOBAL_DOCS_URL}}"
+elif [[ "${RENDER:-}" == "true" ]]; then
+    export WEBUI_URL="$HOSTED_GLOBAL_WEBUI_URL"
+    export DOCS_URL="$HOSTED_GLOBAL_DOCS_URL"
 else
     export WEBUI_URL="${WEBUI_URL:-$HOSTED_GLOBAL_WEBUI_URL}"
     export DOCS_URL="${DOCS_URL:-$HOSTED_GLOBAL_DOCS_URL}"

@@ -25,8 +25,9 @@ mise run build:landing
 The site is written to `src/landing/build/client`. Where its links point comes
 from `WEBUI_URL`, `DOCS_URL`, `COMMUNITY_URL`, `SOURCE_URL` and `SUPPORT_EMAIL`, read from the
 environment and then from `src/Config.global`. The build stops if one is
-missing. `run:srv`, `run:landing` and Render set `WEBUI_URL` and `DOCS_URL`;
-`mise run build:landing` links to the hosted apps (`HOSTED_GLOBAL_WEBUI_URL` and
+missing. `run:srv` and `run:landing` set `WEBUI_URL` and `DOCS_URL`; a build on
+Render ignores them and links to the hosted apps (a pull request preview links to
+its own services). `mise run build:landing` links to the hosted apps (`HOSTED_GLOBAL_WEBUI_URL` and
 `HOSTED_GLOBAL_DOCS_URL`) unless you set them.
 
 ## Adding a page
